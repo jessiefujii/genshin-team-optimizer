@@ -15,10 +15,11 @@ export interface EnkaResponse {
 
 export interface EnkaAvatar {
   avatarId: number;
+  skillDepotId: number; // picks the Traveler's element
   propMap: Record<string, { type: number; val?: string }>; // "4001" = level
   talentIdList?: number[]; // unlocked constellations
   fightPropMap: Record<string, number>; // final stats, keyed by fight prop ID
-  skillLevelMap: Record<string, number>;
+  skillLevelMap: Record<string, number>; // base talent levels, keyed by skill ID
   equipList: EnkaEquip[];
 }
 
@@ -31,5 +32,6 @@ export interface EnkaEquip {
     nameTextMapHash: string;
     setNameTextMapHash?: string;
     equipType?: string;
+    icon?: string; // artifacts: UI_RelicIcon_{setId}_{piece}
   };
 }

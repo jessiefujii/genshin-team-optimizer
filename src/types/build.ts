@@ -10,3 +10,27 @@ export interface CharacterStats {
   elementalMastery: number;
   elementalDmgBonus: number; // for the character's own element
 }
+
+// One character's build, from a UID import or (later) the build editor.
+export interface CharacterBuild {
+  level: number;
+  talents: { normal: number; skill: number; burst: number }; // as shown in game, C3/C5 bonus included
+  weapon: { id: string; level: number; refinement: number }; // genshin-db weapon name
+  artifactSets: { set: string; pieces: 2 | 4 }[]; // genshin-db set names, active bonuses only
+  stats: CharacterStats;
+}
+
+// A showcase character from Enka, matched to a tags.json id.
+export interface ImportedCharacter {
+  id: string;
+  constellation: number;
+  build: CharacterBuild;
+}
+
+export interface UidImport {
+  uid: string;
+  nickname: string;
+  fetchedAt: string; // ISO time Enka was fetched; compared with roster updatedAt
+  characters: ImportedCharacter[];
+  unmatched: number[]; // Enka avatar IDs with no genshin-db or tags.json match
+}
