@@ -1,10 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { CharacterBuild, UidImport } from "@/types/build";
 
 export interface OwnedEntry {
   constellation: number; // 0-6
   built: boolean;
+  build?: CharacterBuild; // from a UID import (later also the build editor)
+  updatedAt?: string; // ISO time of the last manual edit or import; ticking with defaults doesn't count
 }
 
 export type Roster = Record<string, OwnedEntry>;
@@ -62,7 +65,9 @@ export function useRoster() {
 
   const setEntry = useCallback(
     (id: string, entry: Partial<OwnedEntry>) =>
-      update((prev) => (prev[id] ? { ...prev, [id]: { ...prev[id], ...entry } } : prev)),
+      update((prev) =>
+        prev[id] ? { ...prev, [id]: { ...prev[id], ...entry, updatedAt: new Date().toISOString() } } : prev,
+      ),
     [update],
   );
 
@@ -79,5 +84,28 @@ export function useRoster() {
     [update],
   );
 
-  return { roster, loaded, toggle, setEntry, setMany };
+  const importBuilds = useCallback(
+    (imported: UidImport) => update((prev) => mergeImport(prev, imported).roster),
+    [update],
+  );
+
+  return { roster, loaded, toggle, setEntry, setMany, importBuilds };
+}
+
+// Adds imported characters to the roster. A character edited by hand after the import was fetched
+// keeps its manual fields (design doc: whichever was updated more recently wins), but still gets
+// the imported build if it had none.
+export function mergeImport(roster: Roster, imported: UidImport) {
+  const next = { ...roster };
+  const kept: string[] = [];
+  for (const c of imported.characters) {
+    const current = next[c.id];
+    if (current?.updatedAt && current.updatedAt > imported.fetchedAt) {
+      if (!current.build) next[c.id] = { ...current, build: c.build };
+      kept.push(c.id);
+      continue;
+    }
+    next[c.id] = { constellation: c.constellation, built: true, build: c.build, updatedAt: imported.fetchedAt };
+  }
+  return { roster: next, kept };
 }

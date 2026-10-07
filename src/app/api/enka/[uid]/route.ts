@@ -1,7 +1,8 @@
 import { fetchEnkaProfile, parseUid } from "@/lib/enka/fetch";
+import { toUidImport } from "@/lib/enka/import";
 
 // Proxy for Enka.Network: the browser calls this instead of Enka, so every request carries our
-// User-Agent and repeat imports come from the cache.
+// User-Agent and repeat imports come from the cache. Returns the showcase as roster-ready builds.
 export async function GET(_req: Request, ctx: RouteContext<"/api/enka/[uid]">) {
   const uid = parseUid((await ctx.params).uid);
   if (!uid) {
@@ -12,5 +13,5 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/enka/[uid]">) {
   if (!result.ok) {
     return Response.json({ error: result.message }, { status: result.status });
   }
-  return Response.json({ ...result.data, fetchedAt: result.fetchedAt });
+  return Response.json(toUidImport(result.data, result.fetchedAt));
 }

@@ -5,6 +5,7 @@ import { control, quietChip } from "@/lib/ui/elements";
 import ResultsList from "./results-list";
 import RosterGrid from "./roster-grid";
 import type { PlannerCharacter } from "./types";
+import UidImport from "./uid-import";
 import { useRoster } from "./use-roster";
 import { useTeamSearch } from "./use-team-search";
 
@@ -50,7 +51,7 @@ function CharacterPicker({
 }
 
 export default function RosterPlanner({ characters }: { characters: PlannerCharacter[] }) {
-  const { roster, loaded, toggle, setEntry, setMany } = useRoster();
+  const { roster, loaded, toggle, setEntry, setMany, importBuilds } = useRoster();
   const [mustInclude, setMustInclude] = useState<string[]>([]);
   const [exclude, setExclude] = useState<string[]>([]);
 
@@ -66,7 +67,10 @@ export default function RosterPlanner({ characters }: { characters: PlannerChara
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-      <RosterGrid characters={characters} roster={roster} onToggle={toggle} onSetEntry={setEntry} onSetMany={setMany} />
+      <div className="space-y-6">
+        <UidImport roster={roster} onImport={importBuilds} />
+        <RosterGrid characters={characters} roster={roster} onToggle={toggle} onSetEntry={setEntry} onSetMany={setMany} />
+      </div>
 
       <section aria-labelledby="results-heading" aria-busy={search.status === "searching"}>
         <div className="flex items-baseline justify-between gap-2">
