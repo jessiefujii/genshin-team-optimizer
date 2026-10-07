@@ -1,0 +1,3089 @@
+[
+  {
+    "id": "Aino",
+    "roles": [
+      "enabler",
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "lunar-charged",
+      "lunar-bloom",
+      "vaporize"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Hydro support: consistent off-field Hydro from her burst; low burst cost. ER 150-180% as the only Hydro, lower with a second Hydro (per Game8). Raises Moonsign. VERIFY: rotation only."
+  },
+  {
+    "id": "Albedo",
+    "roles": [
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "low",
+    "buffs": [
+      {
+        "stat": "EM +125 after burst",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 10
+    },
+    "notes": "Mono-Geo off-field damage."
+  },
+  {
+    "id": "Alhaitham",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "spread",
+      "quicken"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "N4 x3"
+      ]
+    }
+  },
+  {
+    "id": "Aloy",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "melt",
+      "freeze"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N4 x3",
+        "Q"
+      ]
+    },
+    "notes": "Cannot gain Energy from particles; burst cost is fixed at 40."
+  },
+  {
+    "id": "Alyosha",
+    "roles": [
+      "sub-dps",
+      "buffer",
+      "healer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "stellar-conduct",
+      "superconduct"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "Q"
+      ]
+    },
+    "notes": "Stellar-Conduct support: personal damage, team ATK buff, and heals on hits from his burst. Without other Stellar-Conduct characters he plays like a standard healer-buffer support. ER goal 180-230%. His burst is his main use: Tugarin deals damage, buffs and heals."
+  },
+  {
+    "id": "Amber",
+    "roles": [
+      "enabler",
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "melt",
+      "vaporize",
+      "overloaded"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Arataki Itto",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [],
+    "energyNeed": "high",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Gorou"
+        ],
+        "note": "Mono-Geo with Gorou"
+      }
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "N4C x2"
+      ]
+    },
+    "notes": "Mono-Geo; wants Gorou plus Zhongli or Chiori."
+  },
+  {
+    "id": "Arlecchino",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize",
+      "overloaded"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "CA",
+        "N5 x3",
+        "Q"
+      ]
+    },
+    "notes": "Cannot be healed while she has a Bond of Life; heals are not needed."
+  },
+  {
+    "id": "Baizhu",
+    "roles": [
+      "healer",
+      "shielder",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "quicken",
+      "aggravate",
+      "spread",
+      "bloom",
+      "hyperbloom",
+      "burgeon"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "Dendro reaction DMG (HP-based)",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Barbara",
+    "roles": [
+      "healer",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "bloom",
+      "electrocharged",
+      "freeze"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Beidou",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "electrocharged",
+      "overloaded",
+      "aggravate",
+      "superconduct"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "Q",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Bennett",
+    "roles": [
+      "buffer",
+      "healer",
+      "battery"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "overloaded",
+      "vaporize",
+      "melt"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "ATK + % of his base ATK",
+        "scope": "active"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "Q",
+        "E"
+      ],
+      "buffSeconds": 12
+    },
+    "notes": "Buff applies to whoever stands in the burst circle."
+  },
+  {
+    "id": "Candace",
+    "roles": [
+      "buffer",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "electrocharged",
+      "bloom",
+      "vaporize"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Normal Attack DMG + Hydro infusion",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 9
+    }
+  },
+  {
+    "id": "Charlotte",
+    "roles": [
+      "healer",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "melt"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Chasca",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "low",
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "aimed shots x3",
+        "Q"
+      ]
+    },
+    "notes": "Shells convert to Pyro/Hydro/Electro/Cryo based on teammates; wants 2-3 of those elements."
+  },
+  {
+    "id": "Chevreuse",
+    "roles": [
+      "buffer",
+      "healer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "overloaded"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Pyro and Electro RES shred, ATK after Overloaded",
+        "scope": "team"
+      }
+    ],
+    "teamPrefs": [
+      {
+        "kind": "composition",
+        "onlyElements": [
+          "Pyro",
+          "Electro"
+        ],
+        "note": "Full buff only in all-Pyro/Electro teams"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "hold E",
+        "Q"
+      ],
+      "buffSeconds": 6
+    },
+    "notes": "Full buff only when the team is all Pyro and Electro."
+  },
+  {
+    "id": "Chiori",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Second doll when another Geo construct is present."
+  },
+  {
+    "id": "Chongyun",
+    "roles": [
+      "enabler",
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "freeze",
+      "melt",
+      "superconduct"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Skill field gives Cryo infusion to melee weapons."
+  },
+  {
+    "id": "Citlali",
+    "roles": [
+      "shielder",
+      "buffer",
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "melt",
+      "freeze"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Pyro and Hydro RES shred",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 12
+    }
+  },
+  {
+    "id": "Clorinde",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "aggravate",
+      "overloaded",
+      "electrocharged"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N x10",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Collei",
+    "roles": [
+      "sub-dps",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "quicken",
+      "hyperbloom",
+      "spread",
+      "aggravate",
+      "burning"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Columbina",
+    "roles": [
+      "sub-dps",
+      "main-dps",
+      "buffer",
+      "enabler"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Lunar reaction base DMG (HP-based)",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Usually off-field Hydro and Lunar buffer; can also be the on-field DPS. Converts Electro-Charged, Bloom and Hydro Crystallize into Lunar reactions. VERIFY: rotation only."
+  },
+  {
+    "id": "Cyno",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "aggravate",
+      "quicken",
+      "hyperbloom"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "N4 x4",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Dahlia",
+    "roles": [
+      "shielder",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "electrocharged"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "ATK SPD (HP-based)",
+        "scope": "active"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Shield regenerates from Benison stacks."
+  },
+  {
+    "id": "Dehya",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "burning",
+      "vaporize"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E"
+      ]
+    },
+    "notes": "Skill field reduces interruption and damage taken."
+  },
+  {
+    "id": "Diluc",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize",
+      "melt"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N1",
+        "E",
+        "N1",
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Diona",
+    "roles": [
+      "shielder",
+      "healer",
+      "battery"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "melt"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "hold E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Dori",
+    "roles": [
+      "healer",
+      "battery"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "electrocharged",
+      "aggravate",
+      "hyperbloom"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Durin",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "burning",
+      "overloaded",
+      "vaporize",
+      "melt",
+      "swirl"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "Pyro RES shred (White Flame form)",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 20
+    },
+    "notes": "Off-field sub-DPS. Pick the dragon form for the team: White Flame shreds Pyro RES for Burning, Overloaded, Pyro Swirl and Pyro Crystallize teams; Dark Decay adds Vaporize and Melt DMG. VERIFY: rotation only."
+  },
+  {
+    "id": "Emilie",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "burning"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Escoffier",
+    "roles": [
+      "healer",
+      "buffer",
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Hydro and Cryo RES shred, up to 55% with 4 Hydro/Cryo",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 12
+    }
+  },
+  {
+    "id": "Eula",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "superconduct"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "N4 x3",
+        "hold E"
+      ]
+    },
+    "notes": "Physical DMG carry."
+  },
+  {
+    "id": "Faruzan",
+    "roles": [
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "Anemo DMG bonus and Anemo RES shred",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "CA",
+        "Q"
+      ],
+      "buffSeconds": 12
+    }
+  },
+  {
+    "id": "Fischl",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "aggravate",
+      "electrocharged",
+      "overloaded",
+      "superconduct",
+      "hyperbloom"
+    ],
+    "energyNeed": "low",
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Flins",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "lunar-charged"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Lunar-Charged carry; needs off-field Hydro."
+  },
+  {
+    "id": "Freminet",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "superconduct",
+      "freeze"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Furina",
+    "roles": [
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "vaporize",
+      "freeze",
+      "electrocharged",
+      "bloom"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "DMG bonus from party HP changes",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 18
+    },
+    "notes": "Wants a healer so HP keeps changing."
+  },
+  {
+    "id": "Gaming",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize",
+      "melt"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "E plunge x4"
+      ]
+    }
+  },
+  {
+    "id": "Ganyu",
+    "roles": [
+      "main-dps",
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "melt",
+      "freeze"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "CA x6"
+      ]
+    },
+    "notes": "On-field Melt carry or off-field burst in Freeze."
+  },
+  {
+    "id": "Gorou",
+    "roles": [
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "DEF and Geo DMG bonus",
+        "scope": "team"
+      }
+    ],
+    "teamPrefs": [
+      {
+        "kind": "composition",
+        "minElements": {
+          "Geo": 3
+        },
+        "note": "Full buff needs 3 Geo characters"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 12
+    },
+    "notes": "Full buff needs 3 Geo characters."
+  },
+  {
+    "id": "Hu Tao",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N2C x8",
+        "Q"
+      ]
+    },
+    "notes": "Wants off-field Hydro (Xingqiu, Yelan)."
+  },
+  {
+    "id": "Iansan",
+    "roles": [
+      "buffer",
+      "healer"
+    ],
+    "fieldTime": "off",
+    "reactions": [],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "ATK (Nightsoul-based)",
+        "scope": "active"
+      }
+    ],
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "Q",
+        "E"
+      ],
+      "buffSeconds": 12
+    }
+  },
+  {
+    "id": "Ifa",
+    "roles": [
+      "healer",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl",
+      "electrocharged",
+      "lunar-charged"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Swirl and Electro-Charged reaction DMG",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "N x3",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Illuga",
+    "roles": [
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "lunar-crystallize",
+      "crystallize"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Geo DMG (EM-based), Geo CRIT",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 20
+    },
+    "notes": "Geo buffer; his burst buff lasts 20s. VERIFY: rotation only."
+  },
+  {
+    "id": "Ineffa",
+    "roles": [
+      "shielder",
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "lunar-charged",
+      "electrocharged"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "EM (ATK-based)",
+        "scope": "active"
+      }
+    ],
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 20
+    }
+  },
+  {
+    "id": "Jahoda",
+    "roles": [
+      "enabler",
+      "sub-dps",
+      "healer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "EM +100 while HP > 70%",
+        "scope": "active"
+      }
+    ],
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Anemo-applying support or sub-DPS who can also heal; her burst robots grant EM +100 to the healed character while HP > 70%. VERIFY: rotation only."
+  },
+  {
+    "id": "Jean",
+    "roles": [
+      "healer",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Kachina",
+    "roles": [
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Kaedehara Kazuha",
+    "roles": [
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Swirled element DMG bonus (EM-based)",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "plunge",
+        "Q"
+      ],
+      "buffSeconds": 8
+    }
+  },
+  {
+    "id": "Kaeya",
+    "roles": [
+      "sub-dps",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "melt",
+      "superconduct"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Kamisato Ayaka",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "freeze"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "dash",
+        "N2C x3"
+      ]
+    }
+  },
+  {
+    "id": "Kamisato Ayato",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize",
+      "electrocharged",
+      "bloom",
+      "freeze"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "E",
+        "N x15"
+      ]
+    }
+  },
+  {
+    "id": "Kaveh",
+    "roles": [
+      "main-dps",
+      "enabler"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "bloom"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "E",
+        "N x3"
+      ]
+    }
+  },
+  {
+    "id": "Keqing",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "aggravate",
+      "electrocharged",
+      "superconduct"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "E",
+        "N2C x3",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Kinich",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "burning"
+    ],
+    "energyNeed": "low",
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "hold E swings x6",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Kirara",
+    "roles": [
+      "shielder",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "quicken"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Klee",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize",
+      "melt",
+      "overloaded"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N1C x2",
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Kujou Sara",
+    "roles": [
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "ATK + % of her base ATK",
+        "scope": "active"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "aimed E",
+        "Q"
+      ],
+      "buffSeconds": 6
+    }
+  },
+  {
+    "id": "Kuki Shinobu",
+    "roles": [
+      "healer",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "hyperbloom",
+      "aggravate"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E"
+      ]
+    },
+    "notes": "Common Hyperbloom trigger; build EM."
+  },
+  {
+    "id": "Lan Yan",
+    "roles": [
+      "shielder",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Lauma",
+    "roles": [
+      "buffer",
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "lunar-bloom",
+      "bloom",
+      "hyperbloom",
+      "burgeon"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Bloom-type reaction DMG (EM-based), Bloom CRIT",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q",
+        "hold E"
+      ],
+      "buffSeconds": 20
+    }
+  },
+  {
+    "id": "Layla",
+    "roles": [
+      "shielder"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "superconduct"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Linnea",
+    "roles": [
+      "sub-dps",
+      "healer",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "lunar-crystallize",
+      "crystallize"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Geo RES shred",
+        "scope": "team"
+      },
+      {
+        "stat": "EM (DEF-based)",
+        "scope": "active"
+      }
+    ],
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Off-field damage from her skill, healing from her burst, buffs from her passive talents. VERIFY: rotation only."
+  },
+  {
+    "id": "Lisa",
+    "roles": [
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "aggravate",
+      "electrocharged"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "DEF shred",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "hold E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Lohen",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "freeze"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Etched Into Bone and Soul x3",
+        "Q"
+      ]
+    },
+    "notes": "On-field main DPS who wants Freeze. Teammates hitting enemies charge his Will to Win. VERIFY: rotation only."
+  },
+  {
+    "id": "Lynette",
+    "roles": [
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "ATK by number of elements in the team",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Lyney",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "CA x4",
+        "E"
+      ]
+    },
+    "notes": "Mono-Pyro; pairs with Bennett and Kazuha."
+  },
+  {
+    "id": "Manekin",
+    "roles": [
+      "main-dps",
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "swap out"
+      ]
+    },
+    "notes": "Element always matches the Traveler's and can be swapped. Burst-focused (talent priority Burst > Skill > Normal; 150-200% ER per Game8). Burst places a Restricted Area that explodes for 200% ATK when they leave the field. Low priority. VERIFY: rotation, and whether they are better on- or off-field."
+  },
+  {
+    "id": "Manekina",
+    "roles": [
+      "main-dps",
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "swap out"
+      ]
+    },
+    "notes": "Element always matches the Traveler's and can be swapped. Burst-focused (talent priority Burst > Skill > Normal; 150-200% ER per Game8). Burst places a Restricted Area that explodes for 200% ATK when they leave the field. Low priority. VERIFY: rotation, and whether they are better on- or off-field."
+  },
+  {
+    "id": "Mavuika",
+    "roles": [
+      "main-dps",
+      "buffer"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "melt",
+      "vaporize",
+      "overloaded"
+    ],
+    "energyNeed": "low",
+    "buffs": [
+      {
+        "stat": "DMG bonus after burst",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "N x10"
+      ]
+    },
+    "notes": "Burst uses Fighting Spirit, not Energy."
+  },
+  {
+    "id": "Mika",
+    "roles": [
+      "buffer",
+      "healer"
+    ],
+    "fieldTime": "off",
+    "reactions": [],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "ATK SPD, Physical DMG",
+        "scope": "active"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Mona",
+    "roles": [
+      "buffer",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "vaporize"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "DMG bonus while Omen is active",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 5
+    }
+  },
+  {
+    "id": "Mualani",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize"
+    ],
+    "energyNeed": "low",
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "shark bites x3",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Nahida",
+    "roles": [
+      "sub-dps",
+      "enabler",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "spread",
+      "quicken",
+      "aggravate",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "burning",
+      "lunar-bloom"
+    ],
+    "energyNeed": "low",
+    "buffs": [
+      {
+        "stat": "EM share to the active character",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "hold E",
+        "Q"
+      ],
+      "buffSeconds": 15
+    }
+  },
+  {
+    "id": "Navia",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "E",
+        "N x2",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Nefer",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "lunar-bloom"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "moonsign"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Phantasm Performance (special CA)",
+        "Q"
+      ]
+    },
+    "notes": "On-field Lunar-Bloom carry. Skill unlocks her special Charged Attack; burst is the combo ender. TODO: how many special Charged Attacks per rotation."
+  },
+  {
+    "id": "Neuvillette",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "electrocharged",
+      "freeze",
+      "vaporize"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "E",
+        "CA x2"
+      ]
+    }
+  },
+  {
+    "id": "Nicole",
+    "roles": [
+      "buffer",
+      "shielder"
+    ],
+    "fieldTime": "off",
+    "reactions": [],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "ATK (stronger after 3s on field or for Hexerei characters)",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 20
+    },
+    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family). VERIFY: rotation only."
+  },
+  {
+    "id": "Nilou",
+    "roles": [
+      "buffer",
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "bloom"
+    ],
+    "energyNeed": "medium",
+    "teamPrefs": [
+      {
+        "kind": "composition",
+        "onlyElements": [
+          "Hydro",
+          "Dendro"
+        ],
+        "note": "Bountiful Cores only in all-Hydro/Dendro teams"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "N3",
+        "Q"
+      ]
+    },
+    "notes": "Bountiful Cores only when the team is all Hydro and Dendro."
+  },
+  {
+    "id": "Ningguang",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "CA x3"
+      ]
+    }
+  },
+  {
+    "id": "Noelle",
+    "roles": [
+      "main-dps",
+      "shielder",
+      "healer"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "N4 x3"
+      ]
+    }
+  },
+  {
+    "id": "Odette",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Off-field damage source. Converts Superconduct and Cryo Swirl into Stellar reactions. VERIFY: rotation only."
+  },
+  {
+    "id": "Ororon",
+    "roles": [
+      "sub-dps",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "electrocharged",
+      "hyperbloom"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Prune",
+    "roles": [
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl",
+      "stellar-swirl"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "DMG bonus from ATK over 2,000",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 5
+    },
+    "notes": "Off-field sub-DPS and buffer. Her DMG buff from ATK over 2,000 is realistic to reach. VERIFY: rotation only."
+  },
+  {
+    "id": "Qiqi",
+    "roles": [
+      "healer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Raiden Shogun",
+    "roles": [
+      "main-dps",
+      "battery",
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "electrocharged",
+      "overloaded",
+      "aggravate",
+      "hyperbloom",
+      "superconduct"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "N3C x3"
+      ]
+    },
+    "notes": "Burst carry or off-field battery via skill."
+  },
+  {
+    "id": "Razor",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "superconduct"
+    ],
+    "energyNeed": "high",
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "N4 x3"
+      ]
+    }
+  },
+  {
+    "id": "Rosaria",
+    "roles": [
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "melt"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "CRIT Rate (her CRIT-based)",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 10
+    }
+  },
+  {
+    "id": "Sandrone",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "On-field main DPS. VERIFY: rotation only."
+  },
+  {
+    "id": "Sangonomiya Kokomi",
+    "roles": [
+      "healer",
+      "enabler",
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "bloom",
+      "electrocharged",
+      "freeze"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E"
+      ]
+    },
+    "notes": "Off-field E jellyfish, or on-field with Q for N x10."
+  },
+  {
+    "id": "Sayu",
+    "roles": [
+      "healer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Sethos",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "aggravate",
+      "hyperbloom"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "CA x4",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Shenhe",
+    "roles": [
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "melt"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Cryo DMG (ATK-based), Cryo RES shred",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "Q",
+        "hold E"
+      ],
+      "buffSeconds": 10
+    }
+  },
+  {
+    "id": "Shikanoin Heizou",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "hold E",
+        "N x3",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Sigewinne",
+    "roles": [
+      "healer",
+      "buffer",
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "freeze",
+      "bloom",
+      "electrocharged"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Elemental Skill DMG (HP-based)",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "hold E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Skirk",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "freeze"
+    ],
+    "energyNeed": "low",
+    "teamPrefs": [
+      {
+        "kind": "composition",
+        "onlyElements": [
+          "Hydro",
+          "Cryo"
+        ],
+        "note": "Only Hydro and Cryo teammates"
+      }
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N5 x3",
+        "Q"
+      ]
+    },
+    "notes": "Wants only Hydro and Cryo teammates; burst uses Serpent's Subtlety, not Energy."
+  },
+  {
+    "id": "Sucrose",
+    "roles": [
+      "buffer",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "EM share",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 8
+    }
+  },
+  {
+    "id": "Tartaglia",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize",
+      "electrocharged"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N x10",
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Thoma",
+    "roles": [
+      "shielder",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "burgeon",
+      "vaporize",
+      "melt"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "Q",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Tighnari",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "spread",
+      "quicken"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "Q",
+        "CA x4"
+      ]
+    }
+  },
+  {
+    "id": "Traveler (Anemo)",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+  },
+  {
+    "id": "Traveler (Dendro)",
+    "roles": [
+      "sub-dps",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "bloom",
+      "hyperbloom",
+      "spread",
+      "quicken"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+  },
+  {
+    "id": "Traveler (Electro)",
+    "roles": [
+      "battery"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "electrocharged",
+      "aggravate"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+  },
+  {
+    "id": "Traveler (Geo)",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+  },
+  {
+    "id": "Traveler (Hydro)",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "bloom",
+      "vaporize"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+  },
+  {
+    "id": "Traveler (Pyro)",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "burning",
+      "vaporize"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+  },
+  {
+    "id": "Varesa",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "aggravate",
+      "electrocharged"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "plunge",
+        "E",
+        "plunge",
+        "Q",
+        "plunge"
+      ]
+    }
+  },
+  {
+    "id": "Varka",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "swirl",
+      "stellar-swirl"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "hexerei"
+    ],
+    "teamPrefs": [
+      {
+        "kind": "composition",
+        "minElements": {
+          "Anemo": 2
+        },
+        "othersShareElement": true,
+        "family": {
+          "family": "hexerei",
+          "min": 2
+        },
+        "note": "Mono-element Hexerei team with one other Anemo character, e.g. mono-Pyro Hexerei"
+      }
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N x5",
+        "Q"
+      ]
+    },
+    "notes": "On-field main DPS. Best in mono-element Hexerei teams (e.g. mono-Pyro Hexerei) with one other Anemo character. VERIFY: rotation only."
+  },
+  {
+    "id": "Venti",
+    "roles": [
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "high",
+    "families": [
+      "hexerei"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Burst groups enemies."
+  },
+  {
+    "id": "Vesna",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "stellar-swirl",
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N x4",
+        "Windborne Sword",
+        "Q"
+      ]
+    },
+    "notes": "On-field DPS. Converts Cryo Swirl into Stellar Swirl. VERIFY: rotation only."
+  },
+  {
+    "id": "Vodyanitsa",
+    "roles": [
+      "enabler",
+      "healer",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "stellar-swirl"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Hydro, Cryo and Anemo RES shred",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Stellar-Swirl enabler, healer and RES shredder. VERIFY: rotation only."
+  },
+  {
+    "id": "Wanderer",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "E",
+        "N x10"
+      ]
+    }
+  },
+  {
+    "id": "Wriothesley",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "melt",
+      "freeze"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N x8",
+        "CA",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Xiangling",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "vaporize",
+      "overloaded",
+      "melt",
+      "burning"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "Q",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Xianyun",
+    "roles": [
+      "buffer",
+      "healer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Plunging Attack DMG",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 16
+    }
+  },
+  {
+    "id": "Xiao",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "E",
+        "Q",
+        "plunge x10"
+      ]
+    }
+  },
+  {
+    "id": "Xilonen",
+    "roles": [
+      "buffer",
+      "healer"
+    ],
+    "fieldTime": "flex",
+    "reactions": [],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Elemental RES shred for party elements",
+        "scope": "team"
+      }
+    ],
+    "families": [
+      "nightsoul"
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "E",
+        "N x2",
+        "Q"
+      ],
+      "buffSeconds": 15
+    }
+  },
+  {
+    "id": "Xingqiu",
+    "roles": [
+      "sub-dps",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "vaporize",
+      "electrocharged",
+      "freeze",
+      "bloom"
+    ],
+    "energyNeed": "high",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "Q",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Xinyan",
+    "roles": [
+      "shielder",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [],
+    "energyNeed": "medium",
+    "buffs": [
+      {
+        "stat": "Physical DMG while shielded",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Yae Miko",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "aggravate",
+      "electrocharged",
+      "overloaded"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "E",
+        "E",
+        "Q",
+        "E",
+        "E",
+        "E"
+      ]
+    }
+  },
+  {
+    "id": "Yanfei",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize",
+      "overloaded"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N1C x3",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Yaoyao",
+    "roles": [
+      "healer",
+      "enabler"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "quicken"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Yelan",
+    "roles": [
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "vaporize",
+      "electrocharged",
+      "freeze",
+      "bloom"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "DMG bonus that ramps over 15s",
+        "scope": "active"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ],
+      "buffSeconds": 15
+    }
+  },
+  {
+    "id": "Yoimiya",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "vaporize",
+      "melt",
+      "overloaded"
+    ],
+    "energyNeed": "low",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "Q",
+        "E",
+        "N5 x3"
+      ]
+    }
+  },
+  {
+    "id": "Yumemizuki Mizuki",
+    "roles": [
+      "main-dps",
+      "healer"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "swirl"
+    ],
+    "energyNeed": "medium",
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N x5",
+        "Q"
+      ]
+    }
+  },
+  {
+    "id": "Yun Jin",
+    "roles": [
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "high",
+    "buffs": [
+      {
+        "stat": "Normal Attack DMG (DEF-based)",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "Q",
+        "E"
+      ],
+      "buffSeconds": 12
+    }
+  },
+  {
+    "id": "Zhongli",
+    "roles": [
+      "shielder",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "crystallize"
+    ],
+    "energyNeed": "low",
+    "buffs": [
+      {
+        "stat": "All RES shred near the shield",
+        "scope": "team"
+      }
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "hold E"
+      ],
+      "buffSeconds": 20
+    }
+  },
+  {
+    "id": "Zibai",
+    "roles": [
+      "main-dps"
+    ],
+    "fieldTime": "on",
+    "reactions": [
+      "lunar-crystallize"
+    ],
+    "energyNeed": "medium",
+    "families": [
+      "moonsign"
+    ],
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Columbina"
+        ],
+        "note": "Columbina buffs Lunar reactions"
+      }
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "E",
+        "N4 x3",
+        "Q"
+      ]
+    },
+    "notes": "Lunar-Crystallize carry; does not need Hydro teammates. Pairs well with Columbina, who buffs Lunar reactions. VERIFY: rotation only."
+  }
+]
