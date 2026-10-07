@@ -42,6 +42,17 @@ describe("scoreTeam", () => {
     expect(double.breakdown.some((l) => l.reason === "2 supports enable Vaporize")).toBe(true);
   });
 
+  test("same-element supports are not reaction partners (#1)", () => {
+    const hutao = score("Hu Tao", "Bennett", "Furina", "Xingqiu");
+    const vape = hutao.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
+    expect(vape?.reason).toBe("Vaporize: Hu Tao + Furina, Xingqiu");
+
+    const neuv = score("Neuvillette", "Bennett", "Furina", "Xiangling");
+    expect(neuv.breakdown.find((l) => l.reason.startsWith("Vaporize:"))?.reason).toBe(
+      "Vaporize: Neuvillette + Bennett, Xiangling",
+    );
+  });
+
   test("a team without a main DPS is penalized", () => {
     const s = score("Bennett", "Xingqiu", "Zhongli", "Sucrose");
     expect(s.carry).toBeNull();

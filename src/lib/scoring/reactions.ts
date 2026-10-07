@@ -31,6 +31,12 @@ const REQUIREMENTS: Record<Reaction, ReactionRequirement> = {
   "stellar-swirl": { all: ["Anemo", "Cryo"], family: "stellar" },
 };
 
+// Elements that take part in a reaction (e.g. Pyro and Hydro for Vaporize; Anemo plus any aura element for Swirl).
+export function reactionElements(reaction: Reaction): Element[] {
+  const req = REQUIREMENTS[reaction];
+  return [...req.all, ...(req.anyOf ?? [])];
+}
+
 // Whether the team's elements (and families) can trigger a reaction at all.
 export function canTrigger(reaction: Reaction, elements: ReadonlySet<Element>, families: ReadonlySet<Family>): boolean {
   const req = REQUIREMENTS[reaction];

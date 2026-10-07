@@ -1,5 +1,5 @@
 import type { CompositionPref } from "../../types/tags";
-import { canTrigger } from "./reactions";
+import { canTrigger, reactionElements } from "./reactions";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
 // Point values are starting guesses from the design doc; tune them against known-strong teams.
@@ -69,6 +69,11 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
   return { members, elements, families, active, options };
 }
 
+// A support only partners a reaction if it brings an element the carry lacks (Bennett is not a Vaporize partner for Hu Tao).
+function suppliesElement(support: ScoringCharacter, carry: ScoringCharacter, reaction: Reaction): boolean {
+  return support.element !== carry.element && reactionElements(reaction).includes(support.element);
+}
+
 function carryLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine[] {
   const lines: ScoreLine[] = [];
   if (!carry) {
@@ -100,7 +105,7 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine
     });
   }
   const ranked = carryActive
-    .map((r) => ({ r, partners: supports.filter((s) => s.reactions.includes(r)) }))
+    .map((r) => ({ r, partners: supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r)) }))
     .sort((a, b) => b.partners.length - a.partners.length)
     .slice(0, POINTS.maxCountedReactions);
   ranked.forEach(({ r, partners }, i) => {
