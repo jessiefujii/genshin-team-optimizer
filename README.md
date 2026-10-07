@@ -1,36 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Genshin Team Optimizer
 
-## Getting Started
+Suggests the strongest 4-character teams in Genshin Impact based on character roles, elemental synergy, and (eventually) a player's real character stats.
 
-First, run the development server:
+> Fan-made project. Not affiliated with or endorsed by HoYoverse. Genshin Impact and all related assets are trademarks and copyrights of HoYoverse.
+
+## Planned features
+
+1. **Pick your roster** — choose the characters you own and get a ranked list of team suggestions (rule-based synergy score).
+2. **Import by UID** — fetch real character stats from the [Enka.Network](https://enka.network) API and factor them into scoring.
+3. **Damage-aware scoring** — use the in-game damage formula, and later [gcsim](https://gcsim.app) simulations for the top candidates.
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) (App Router) + TypeScript + Tailwind CSS
+- [`genshin-db`](https://www.npmjs.com/package/genshin-db) for static game data (planned)
+- Enka.Network API for player showcase data (planned)
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Then open [http://localhost:3000](http://localhost:3000).
