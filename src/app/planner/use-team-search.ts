@@ -32,7 +32,7 @@ export function useTeamSearch(roster: ScoringCharacter[], options: SearchOptions
     return () => worker.terminate();
   }, []);
 
-  const key = JSON.stringify({ ids: roster.map((c) => c.id), options });
+  const key = JSON.stringify({ roster: roster.map((c) => [c.id, c.stats]), options });
   useEffect(() => {
     if (roster.length < 4) {
       latest.current.id++; // drop any search still in flight
@@ -46,7 +46,7 @@ export function useTeamSearch(roster: ScoringCharacter[], options: SearchOptions
       workerRef.current?.postMessage(request);
     }, DEBOUNCE_MS);
     return () => clearTimeout(timer);
-    // `key` captures roster ids and options; the arrays themselves change identity every render.
+    // `key` captures roster ids, stats and options; the arrays themselves change identity every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 

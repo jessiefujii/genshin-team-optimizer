@@ -64,6 +64,13 @@ export default function ResultsList({ teams, byId }: Props) {
                     "No main DPS"
                   )}
                 </p>
+                {team.defaultBuilds.length > 0 && (
+                  <p className="mt-1 text-xs text-zinc-500">
+                    {team.defaultBuilds.length === 4
+                      ? "Assumes default builds: no imported stats for this team."
+                      : `Assumes a default build for ${team.defaultBuilds.join(", ")} (no imported stats).`}
+                  </p>
+                )}
                 <table className="mt-2 w-full">
                   <tbody>
                     {team.breakdown.map((line, j) => (

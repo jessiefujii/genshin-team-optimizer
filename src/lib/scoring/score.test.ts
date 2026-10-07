@@ -3,6 +3,7 @@ import { canTrigger } from "./reactions";
 import { loadScoringCharacters } from "./load";
 import { scoreTeam } from "./score";
 import { findBestTeams } from "./search";
+import type { CharacterStats } from "../../types/build";
 import type { ScoringCharacter } from "./types";
 
 const all = loadScoringCharacters();
@@ -126,6 +127,69 @@ describe("scoreTeam", () => {
 
   test("rejects teams that are not 4 characters", () => {
     expect(() => scoreTeam(team("Hu Tao", "Xingqiu"))).toThrow();
+  });
+
+  describe("build checks", () => {
+    const benchmark: CharacterStats = {
+      atk: 1500, hp: 30000, def: 800, critRate: 60, critDmg: 80,
+      energyRecharge: 200, elementalMastery: 100, elementalDmgBonus: 46.6,
+    };
+    // The team from team(...ids), with stats set for the named members.
+    const built = (stats: Record<string, Partial<CharacterStats>>, ...ids: string[]) =>
+      team(...ids).map((c) => (stats[c.id] ? { ...c, stats: { ...benchmark, ...stats[c.id] } } : c));
+    const lines = (t: ScoringCharacter[], rule: string) => scoreTeam(t).breakdown.filter((l) => l.rule === rule);
+    const vape = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli"];
+
+    test("no stats: no build lines, and the team says it assumes default builds", () => {
+      const result = score(...vape);
+      expect(result.breakdown.some((l) => l.rule === "Carry build")).toBe(false);
+      expect(result.defaultBuilds).toEqual(vape);
+    });
+
+    test("carry CV scales the carry's points, within bounds", () => {
+      const weak = lines(built({ "Hu Tao": { critRate: 30, critDmg: 60 } }, ...vape), "Carry build"); // CV 120
+      const strong = lines(built({ "Hu Tao": { critRate: 80, critDmg: 200 } }, ...vape), "Carry build"); // CV 360
+      expect(weak[0].points).toBeLessThan(0);
+      expect(weak[0].reason).toBe("Hu Tao CV 120 vs 200 benchmark");
+      expect(strong[0].points).toBeGreaterThan(0);
+      // Capped at 1.2x, so a huge CV can't outweigh team fit.
+      const carryPoints = scoreTeam(team(...vape)).breakdown
+        .filter((l) => l.rule === "Carry" || l.rule === "Reactions" || l.rule === "Buffs")
+        .reduce((s, l) => s + l.points, 0);
+      expect(strong[0].points).toBe(Math.round(carryPoints * 0.2));
+    });
+
+    test("a benchmark carry gets no CV line", () => {
+      expect(lines(built({ "Hu Tao": {} }, ...vape), "Carry build")).toEqual([]);
+    });
+
+    test("ER under the tagged target costs points", () => {
+      const result = lines(built({ Xingqiu: { energyRecharge: 120 }, Zhongli: { energyRecharge: 120 } }, ...vape), "Energy");
+      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 200% target");
+      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false); // target 100%
+    });
+
+    test("without erTarget, the default comes from energyNeed; low is not checked", () => {
+      const untagged = (t: ScoringCharacter[]) => t.map((c) => ({ ...c, erTarget: undefined }));
+      const result = lines(untagged(built({ Xingqiu: { energyRecharge: 120 }, Zhongli: { energyRecharge: 90 } }, ...vape)), "Energy");
+      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 180% target");
+      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false);
+    });
+
+    test("every character with an Energy burst has a drafted erTarget", () => {
+      const noEnergyBurst = ["Mavuika", "Skirk"];
+      expect(all.filter((c) => !c.erTarget && !noEnergyBurst.includes(c.id)).map((c) => c.id)).toEqual([]);
+    });
+
+    test("EM matters for Swirl buffers, not for supports that don't react", () => {
+      const swirl = ["Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
+      expect(lines(built({ "Kaedehara Kazuha": { elementalMastery: 900 } }, ...swirl), "EM")[0]).toMatchObject({
+        points: 5,
+        reason: "Kaedehara Kazuha has 900 EM for reactions",
+      });
+      expect(lines(built({ "Kaedehara Kazuha": { elementalMastery: 100 } }, ...swirl), "EM")[0].points).toBe(-5);
+      expect(lines(built({ Zhongli: { elementalMastery: 900 } }, ...swirl), "EM")).toEqual([]);
+    });
   });
 });
 
