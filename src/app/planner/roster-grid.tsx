@@ -124,6 +124,11 @@ export default function RosterGrid({ characters, roster, onToggle, onSetEntry, o
                     />
                     Built
                   </label>
+                  {owned.build && (
+                    <span className="text-zinc-500" title="Build imported from your UID">
+                      Lv{owned.build.level}
+                    </span>
+                  )}
                 </div>
               )}
             </li>
