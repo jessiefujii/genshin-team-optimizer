@@ -163,18 +163,22 @@ describe("scoreTeam", () => {
       expect(lines(built({ "Hu Tao": {} }, ...vape), "Carry build")).toEqual([]);
     });
 
-    test("ER under target costs points for burst-reliant members only", () => {
-      const low = { energyRecharge: 120 };
-      const result = lines(built({ Xingqiu: low, Zhongli: low }, ...vape), "Energy");
-      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 180% target");
-      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false); // energyNeed low
+    test("ER under the tagged target costs points", () => {
+      const result = lines(built({ Xingqiu: { energyRecharge: 120 }, Zhongli: { energyRecharge: 120 } }, ...vape), "Energy");
+      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 200% target");
+      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false); // target 100%
     });
 
-    test("erTarget in tags overrides the default", () => {
-      const t = built({ Xingqiu: { energyRecharge: 150 } }, ...vape).map((c) =>
-        c.id === "Xingqiu" ? { ...c, erTarget: 140 } : c,
-      );
-      expect(lines(t, "Energy").some((l) => l.reason.startsWith("Xingqiu ER"))).toBe(false);
+    test("without erTarget, the default comes from energyNeed; low is not checked", () => {
+      const untagged = (t: ScoringCharacter[]) => t.map((c) => ({ ...c, erTarget: undefined }));
+      const result = lines(untagged(built({ Xingqiu: { energyRecharge: 120 }, Zhongli: { energyRecharge: 90 } }, ...vape)), "Energy");
+      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 180% target");
+      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false);
+    });
+
+    test("every character with an Energy burst has a drafted erTarget", () => {
+      const noEnergyBurst = ["Mavuika", "Skirk"];
+      expect(all.filter((c) => !c.erTarget && !noEnergyBurst.includes(c.id)).map((c) => c.id)).toEqual([]);
     });
 
     test("EM matters for Swirl buffers, not for supports that don't react", () => {

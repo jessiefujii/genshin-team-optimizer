@@ -115,7 +115,10 @@ export default function TagsTable({ rows }: { rows: TagRow[] }) {
                   {row.scalesOn && <div className="mt-1 text-xs text-zinc-500">scales on {row.scalesOn.join(", ")}</div>}
                 </td>
                 <td className="px-3 py-2">{row.fieldTime}</td>
-                <td className="px-3 py-2">{row.energyNeed}</td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  {row.energyNeed}
+                  {row.erTarget && <span className="block text-xs text-zinc-500">{row.erTarget}% ER</span>}
+                </td>
                 <td className="px-3 py-2">
                   <div className="flex max-w-56 flex-wrap gap-1">
                     {row.reactions.length === 0 && <span className="text-zinc-400">none</span>}
