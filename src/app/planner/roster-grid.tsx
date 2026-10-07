@@ -3,20 +3,23 @@
 import { useMemo, useState } from "react";
 import { ELEMENTS } from "@/types/tags";
 import { control, elementChip } from "@/lib/ui/elements";
-import type { PlannerCharacter } from "./types";
+import BuildEditor from "./build-editor";
+import type { BuildCatalog, PlannerCharacter } from "./types";
 import type { OwnedEntry, Roster } from "./use-roster";
 
 const WEAPONS = ["Sword", "Claymore", "Polearm", "Bow", "Catalyst"];
 
 interface Props {
   characters: PlannerCharacter[];
+  catalog: BuildCatalog;
   roster: Roster;
   onToggle: (id: string) => void;
   onSetEntry: (id: string, entry: Partial<OwnedEntry>) => void;
   onSetMany: (ids: string[], owned: boolean) => void;
 }
 
-export default function RosterGrid({ characters, roster, onToggle, onSetEntry, onSetMany }: Props) {
+export default function RosterGrid({ characters, catalog, roster, onToggle, onSetEntry, onSetMany }: Props) {
+  const [editing, setEditing] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [element, setElement] = useState("");
   const [weapon, setWeapon] = useState("");
@@ -124,17 +127,32 @@ export default function RosterGrid({ characters, roster, onToggle, onSetEntry, o
                     />
                     Built
                   </label>
-                  {owned.build && (
-                    <span className="text-zinc-500" title="Build imported from your UID">
-                      Lv{owned.build.level}
-                    </span>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setEditing(c.id)}
+                    className="ml-auto text-blue-700 hover:underline dark:text-blue-400"
+                    aria-label={`${owned.build ? "Edit" : "Add"} ${c.id} build`}
+                  >
+                    {owned.build ? `Lv${owned.build.level} · Edit` : "Add build"}
+                  </button>
                 </div>
               )}
             </li>
           );
         })}
       </ul>
+
+      {editing && roster[editing] && (
+        <BuildEditor
+          key={editing}
+          character={characters.find((c) => c.id === editing)!}
+          entry={roster[editing]}
+          catalog={catalog}
+          onSave={(build) => onSetEntry(editing, { build })}
+          onClear={() => onSetEntry(editing, { build: undefined })}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </section>
   );
 }

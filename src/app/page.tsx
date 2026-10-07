@@ -1,7 +1,7 @@
 import genshindb from "genshin-db";
 import { loadScoringCharacters } from "@/lib/scoring/load";
 import RosterPlanner from "./planner/roster-planner";
-import type { PlannerCharacter } from "./planner/types";
+import type { BuildCatalog, PlannerCharacter } from "./planner/types";
 
 function loadPlannerCharacters(): PlannerCharacter[] {
   return loadScoringCharacters()
@@ -12,8 +12,23 @@ function loadPlannerCharacters(): PlannerCharacter[] {
     .sort((a, b) => a.id.localeCompare(b.id));
 }
 
+function loadBuildCatalog(): BuildCatalog {
+  const names = (fn: (q: string, o: object) => unknown) => fn("names", { matchCategories: true }) as string[];
+  const weapons: BuildCatalog["weapons"] = {};
+  const all = names(genshindb.weapons)
+    .map((n) => genshindb.weapons(n)!)
+    .filter((w) => w.rarity >= 3) // 1-2 star weapons are never used
+    .sort((a, b) => b.rarity - a.rarity || a.name.localeCompare(b.name));
+  for (const w of all) {
+    const list = (weapons[w.weaponText] ??= []);
+    if (!list.includes(w.name)) list.push(w.name); // some weapons (Prized Isshin Blade) are listed per variant
+  }
+  return { weapons, sets: [...new Set(names(genshindb.artifacts))].sort((a, b) => a.localeCompare(b)) };
+}
+
 export default function Home() {
   const characters = loadPlannerCharacters();
+  const catalog = loadBuildCatalog();
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
       <h1 className="text-2xl font-semibold tracking-tight">Genshin Team Optimizer</h1>
@@ -21,7 +36,7 @@ export default function Home() {
         Tick the characters you own; the best teams update as you go. Your roster is saved in this browser.
       </p>
       <div className="mt-6">
-        <RosterPlanner characters={characters} />
+        <RosterPlanner characters={characters} catalog={catalog} />
       </div>
     </main>
   );
