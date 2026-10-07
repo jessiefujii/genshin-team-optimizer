@@ -55,12 +55,16 @@ export interface Buff {
   reactions?: Reaction[]; // one of these reactions must be active in the team
 }
 
+// Default ER targets (%) when a character has no erTarget; 'low' characters are not checked.
+export const ER_TARGETS = { high: 180, medium: 130 } as const;
+
 export interface CharacterTags {
   id: string; // genshin-db name, e.g. 'Kaedehara Kazuha'; Traveler uses 'Traveler (<Element>)'
   roles: Role[];
   fieldTime: 'on' | 'off' | 'flex';
   reactions: Reaction[]; // reactions this character enables or wants
   energyNeed: 'low' | 'medium' | 'high';
+  erTarget?: number; // ER % this character wants for their burst; defaults by energyNeed (see ER_TARGETS)
   buffs?: Buff[];
   scalesOn?: ScalingStat[]; // main DPS only: stats their damage scales on
   families?: Family[];

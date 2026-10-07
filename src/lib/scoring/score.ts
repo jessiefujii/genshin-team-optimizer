@@ -1,4 +1,4 @@
-import type { Buff, CompositionPref } from "../../types/tags";
+import { ER_TARGETS, type Buff, type CompositionPref } from "../../types/tags";
 import { canTrigger, reactionElements } from "./reactions";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
@@ -26,6 +26,14 @@ export const POINTS = {
   prefMet: 15,
   onlyElementsBroken: -10,
   idleAnemo: -10,
+  // Build checks (only for members with imported or entered stats)
+  cvBenchmark: 200, // CV = 2 × crit rate + crit DMG
+  cvMinFactor: 0.6, // the carry's points scale by CV / benchmark, within these bounds
+  cvMaxFactor: 1.2,
+  lowEr: -5, // per burst-reliant member under their ER target
+  emHigh: 600, // reaction-based members at or above this EM gain points...
+  emLow: 300, // ...and lose them below this
+  emPoints: 5,
 } as const;
 
 const RESONANCE: Record<Element, { points: number; name: string }> = {
@@ -251,6 +259,55 @@ function teamLines(ctx: TeamContext): ScoreLine[] {
 
 const total = (lines: ScoreLine[]) => lines.reduce((sum, l) => sum + l.points, 0);
 
+// Pure reaction carries (EM only, e.g. Kaveh) don't crit, so CV says nothing about them.
+const usesCrit = (c: ScoringCharacter) => !(c.scalesOn?.length === 1 && c.scalesOn[0] === "EM");
+
+// Scales the carry's points by their crit value; no line without stats (benchmark assumed).
+function carryBuildLine(carry: ScoringCharacter, carryPoints: number): ScoreLine | null {
+  if (!carry.stats || !usesCrit(carry) || carryPoints <= 0) return null;
+  const cv = Math.round(2 * carry.stats.critRate + carry.stats.critDmg);
+  const factor = Math.min(Math.max(cv / POINTS.cvBenchmark, POINTS.cvMinFactor), POINTS.cvMaxFactor);
+  const points = Math.round(carryPoints * (factor - 1));
+  if (points === 0) return null;
+  return { rule: "Carry build", points, reason: `${carry.id} CV ${cv} vs ${POINTS.cvBenchmark} benchmark` };
+}
+
+// Members whose damage or buff comes from EM: Swirl buffers, Hyperbloom/Burgeon triggers, EM carries.
+function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: TeamContext): boolean {
+  if (m === carry) return !!m.scalesOn?.includes("EM");
+  if (m.element === "Anemo" && m.roles.includes("buffer")) {
+    return ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
+  }
+  if (m.element === "Electro" || m.element === "Pyro") {
+    return m.reactions.some((r) => (r === "hyperbloom" || r === "burgeon") && ctx.active.includes(r));
+  }
+  return false;
+}
+
+function statLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine[] {
+  const lines: ScoreLine[] = [];
+  for (const m of ctx.members) {
+    if (!m.stats) continue;
+    const target = m.erTarget ?? (m.energyNeed === "low" ? undefined : ER_TARGETS[m.energyNeed]);
+    if (target !== undefined && m.stats.energyRecharge < target) {
+      lines.push({
+        rule: "Energy",
+        points: POINTS.lowEr,
+        reason: `${m.id} ER ${m.stats.energyRecharge}% vs ${target}% target`,
+      });
+    }
+    if (emReliant(m, carry, ctx)) {
+      const em = m.stats.elementalMastery;
+      if (em >= POINTS.emHigh) {
+        lines.push({ rule: "EM", points: POINTS.emPoints, reason: `${m.id} has ${em} EM for reactions` });
+      } else if (em < POINTS.emLow) {
+        lines.push({ rule: "EM", points: -POINTS.emPoints, reason: `${m.id} has ${em} EM; reactions want ${POINTS.emHigh}+` });
+      }
+    }
+  }
+  return lines;
+}
+
 // Scores a team once per possible carry and keeps the best reading.
 export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
   if (team.length !== 4) throw new Error(`A team needs 4 members, got ${team.length}`);
@@ -260,7 +317,9 @@ export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}):
 
   let best: { carry: ScoringCharacter | null; lines: ScoreLine[] } | null = null;
   for (const carry of candidates.length > 0 ? candidates : [null]) {
-    const lines = [...carryLines(ctx, carry), ...shared];
+    const own = carryLines(ctx, carry);
+    const build = carry && carryBuildLine(carry, total(own));
+    const lines = [...own, ...(build ? [build] : []), ...shared, ...statLines(ctx, carry)];
     if (!best || total(lines) > total(best.lines)) best = { carry, lines };
   }
 
@@ -270,5 +329,6 @@ export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}):
     score: total(best!.lines),
     breakdown: best!.lines,
     activeReactions: ctx.active,
+    defaultBuilds: team.filter((m) => !m.stats).map((m) => m.id),
   };
 }
