@@ -1,0 +1,250 @@
+import type { CompositionPref } from "../../types/tags";
+import { canTrigger, reactionElements } from "./reactions";
+import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
+
+// Point values are starting guesses from the design doc; tune them against known-strong teams.
+export const POINTS = {
+  singleCarry: 20,
+  noCarry: -30,
+  extraOnField: -15,
+  carryReactionWithSupport: 20,
+  carryReactionFromElements: 10,
+  extraPartner: 5, // each additional support enabling the main reaction (e.g. double Hydro)
+  maxExtraPartners: 2,
+  secondaryReaction: 5, // focused teams beat ones that spread across many reactions
+  maxCountedReactions: 2,
+  carryReactionsUnavailable: -10,
+  supportReaction: 10,
+  buffer: 10,
+  maxBuffers: 2,
+  survivability: 10,
+  noSurvivability: -10,
+  battery: 5,
+  starvedBursts: -5,
+  familyPair: 10,
+  nightsoulPair: 5,
+  prefMet: 15,
+  onlyElementsBroken: -10,
+  idleAnemo: -10,
+} as const;
+
+const RESONANCE: Record<Element, { points: number; name: string }> = {
+  Pyro: { points: 10, name: "Fervent Flames (+25% ATK)" },
+  Geo: { points: 10, name: "Enduring Rock" },
+  Hydro: { points: 5, name: "Soothing Water" },
+  Cryo: { points: 5, name: "Shattering Ice" },
+  Electro: { points: 5, name: "High Voltage" },
+  Dendro: { points: 5, name: "Sprawling Greenery" },
+  Anemo: { points: 3, name: "Impetuous Winds" },
+};
+
+const FAMILY_NAMES: Record<Family, string> = {
+  moonsign: "Moonsign (Ascendant Gleam)",
+  hexerei: "Hexerei (Secret Rite)",
+  stellar: "Stellar",
+  nightsoul: "Nightsoul",
+};
+
+const label = (r: Reaction) => r.charAt(0).toUpperCase() + r.slice(1);
+
+interface TeamContext {
+  members: ScoringCharacter[];
+  elements: Set<Element>;
+  families: Set<Family>;
+  active: Reaction[];
+  options: ScoreOptions;
+}
+
+function familiesOf(member: ScoringCharacter, options: ScoreOptions): Family[] {
+  return (member.families ?? []).filter(
+    (f) => f !== "hexerei" || !options.hexereiUnlocked || options.hexereiUnlocked.has(member.id),
+  );
+}
+
+function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamContext {
+  const elements = new Set(members.map((m) => m.element));
+  const families = new Set(members.flatMap((m) => familiesOf(m, options)));
+  const listed = new Set(members.flatMap((m) => m.reactions));
+  const active = [...listed].filter((r) => canTrigger(r, elements, families));
+  return { members, elements, families, active, options };
+}
+
+// A support only partners a reaction if it brings an element the carry lacks (Bennett is not a Vaporize partner for Hu Tao).
+function suppliesElement(support: ScoringCharacter, carry: ScoringCharacter, reaction: Reaction): boolean {
+  return support.element !== carry.element && reactionElements(reaction).includes(support.element);
+}
+
+function carryLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine[] {
+  const lines: ScoreLine[] = [];
+  if (!carry) {
+    lines.push({ rule: "Carry", points: POINTS.noCarry, reason: "No main DPS in the team" });
+    // Without a carry, reward reactions that at least two members build toward.
+    const shared = ctx.active.filter((r) => ctx.members.filter((m) => m.reactions.includes(r)).length >= 2);
+    for (const r of shared.slice(0, POINTS.maxCountedReactions)) {
+      lines.push({ rule: "Reactions", points: POINTS.supportReaction, reason: `${label(r)} from the supports` });
+    }
+    return lines;
+  }
+
+  const supports = ctx.members.filter((m) => m !== carry);
+  const rivals = supports.filter((m) => m.fieldTime === "on");
+  if (rivals.length === 0) {
+    lines.push({ rule: "Carry", points: POINTS.singleCarry, reason: `${carry.id} is the only on-field character` });
+  } else {
+    for (const r of rivals) {
+      lines.push({ rule: "Carry", points: POINTS.extraOnField, reason: `${r.id} also wants field time` });
+    }
+  }
+
+  const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
+  if (carry.reactions.length > 0 && carryActive.length === 0) {
+    lines.push({
+      rule: "Reactions",
+      points: POINTS.carryReactionsUnavailable,
+      reason: `${carry.id}'s reactions are not possible with this team`,
+    });
+  }
+  const ranked = carryActive
+    .map((r) => ({ r, partners: supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r)) }))
+    .sort((a, b) => b.partners.length - a.partners.length)
+    .slice(0, POINTS.maxCountedReactions);
+  ranked.forEach(({ r, partners }, i) => {
+    if (i > 0) {
+      lines.push({ rule: "Reactions", points: POINTS.secondaryReaction, reason: `${label(r)} as a secondary reaction` });
+      return;
+    }
+    if (partners.length === 0) {
+      lines.push({ rule: "Reactions", points: POINTS.carryReactionFromElements, reason: `${label(r)} is possible for ${carry.id}` });
+      return;
+    }
+    lines.push({
+      rule: "Reactions",
+      points: POINTS.carryReactionWithSupport,
+      reason: `${label(r)}: ${carry.id} + ${partners.map((p) => p.id).join(", ")}`,
+    });
+    const extra = Math.min(partners.length - 1, POINTS.maxExtraPartners);
+    if (extra > 0) {
+      lines.push({
+        rule: "Reactions",
+        points: extra * POINTS.extraPartner,
+        reason: `${extra + 1} supports enable ${label(r)}`,
+      });
+    }
+  });
+
+  const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
+  const buffers = supports
+    .filter((s) => s.roles.includes("buffer"))
+    // Anemo buffers (Kazuha, Sucrose) need something to swirl.
+    .filter((s) => s.element !== "Anemo" || swirlActive)
+    .slice(0, POINTS.maxBuffers);
+  for (const b of buffers) {
+    lines.push({ rule: "Buffs", points: POINTS.buffer, reason: `${b.id} buffs ${carry.id}` });
+  }
+  return lines;
+}
+
+function compositionMet(pref: CompositionPref, ctx: TeamContext): boolean {
+  const counts = new Map<Element, number>();
+  for (const m of ctx.members) counts.set(m.element, (counts.get(m.element) ?? 0) + 1);
+  const min = pref.minElements ?? {};
+  for (const [el, n] of Object.entries(min)) {
+    if ((counts.get(el as Element) ?? 0) < (n ?? 0)) return false;
+  }
+  if (pref.othersShareElement) {
+    const others = ctx.members.filter((m) => !(m.element in min)).map((m) => m.element);
+    if (others.length === 0 || new Set(others).size !== 1) return false;
+  }
+  if (pref.onlyElements && !ctx.members.every((m) => pref.onlyElements!.includes(m.element))) return false;
+  if (pref.family) {
+    const n = ctx.members.filter((m) => familiesOf(m, ctx.options).includes(pref.family!.family)).length;
+    if (n < pref.family.min) return false;
+  }
+  return true;
+}
+
+function teamLines(ctx: TeamContext): ScoreLine[] {
+  const lines: ScoreLine[] = [];
+  const { members } = ctx;
+
+  const counts = new Map<Element, number>();
+  for (const m of members) counts.set(m.element, (counts.get(m.element) ?? 0) + 1);
+  for (const [el, n] of counts) {
+    if (n >= 2) lines.push({ rule: "Resonance", points: RESONANCE[el].points, reason: RESONANCE[el].name });
+  }
+
+  const sustain = members.find((m) => m.roles.includes("healer") || m.roles.includes("shielder"));
+  lines.push(
+    sustain
+      ? { rule: "Survivability", points: POINTS.survivability, reason: `${sustain.id} heals or shields` }
+      : { rule: "Survivability", points: POINTS.noSurvivability, reason: "No healer or shielder" },
+  );
+
+  const hungry = members.filter((m) => m.energyNeed === "high");
+  const batteries = members.filter((m) => m.roles.includes("battery"));
+  if (hungry.some((h) => batteries.some((b) => b !== h))) {
+    lines.push({ rule: "Energy", points: POINTS.battery, reason: `${batteries.map((b) => b.id).join(", ")} feeds high-cost bursts` });
+  } else if (hungry.length >= 2 && batteries.length === 0) {
+    lines.push({ rule: "Energy", points: POINTS.starvedBursts, reason: `${hungry.length} high-cost bursts and no battery` });
+  }
+
+  const familyCounts = new Map<Family, number>();
+  for (const m of members) for (const f of familiesOf(m, ctx.options)) familyCounts.set(f, (familyCounts.get(f) ?? 0) + 1);
+  for (const [f, n] of familyCounts) {
+    if (n >= 2) {
+      lines.push({
+        rule: "Family",
+        points: f === "nightsoul" ? POINTS.nightsoulPair : POINTS.familyPair,
+        reason: `${n} ${FAMILY_NAMES[f]} members`,
+      });
+    }
+  }
+
+  for (const m of members) {
+    for (const pref of m.teamPrefs ?? []) {
+      if (pref.kind === "partner") {
+        const partner = members.find((p) => pref.ids.includes(p.id));
+        if (partner) lines.push({ rule: "Team preference", points: POINTS.prefMet, reason: `${m.id} with ${partner.id}` });
+      } else if (compositionMet(pref, ctx)) {
+        lines.push({ rule: "Team preference", points: POINTS.prefMet, reason: `${m.id}: ${pref.note ?? "preferred team makeup"}` });
+      } else if (pref.onlyElements && pref.onlyElements.length > 0) {
+        lines.push({
+          rule: "Team preference",
+          points: POINTS.onlyElementsBroken,
+          reason: `${m.id} wants only ${pref.onlyElements.join("/")} teammates`,
+        });
+      }
+    }
+  }
+
+  const anemo = members.filter((m) => m.element === "Anemo");
+  const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
+  if (anemo.length >= 2 && !swirlActive) {
+    lines.push({ rule: "Conflicts", points: POINTS.idleAnemo, reason: "Two Anemo characters with nothing to swirl" });
+  }
+  return lines;
+}
+
+const total = (lines: ScoreLine[]) => lines.reduce((sum, l) => sum + l.points, 0);
+
+// Scores a team once per possible carry and keeps the best reading.
+export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
+  if (team.length !== 4) throw new Error(`A team needs 4 members, got ${team.length}`);
+  const ctx = buildContext(team, options);
+  const shared = teamLines(ctx);
+  const candidates = team.filter((m) => m.roles.includes("main-dps"));
+
+  let best: { carry: ScoringCharacter | null; lines: ScoreLine[] } | null = null;
+  for (const carry of candidates.length > 0 ? candidates : [null]) {
+    const lines = [...carryLines(ctx, carry), ...shared];
+    if (!best || total(lines) > total(best.lines)) best = { carry, lines };
+  }
+
+  return {
+    members: team.map((m) => m.id) as ScoredTeam["members"],
+    carry: best!.carry?.id ?? null,
+    score: total(best!.lines),
+    breakdown: best!.lines,
+    activeReactions: ctx.active,
+  };
+}
