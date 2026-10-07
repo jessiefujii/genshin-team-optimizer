@@ -43,13 +43,26 @@ export interface PartnerPref {
 
 export type TeamPref = CompositionPref | PartnerPref;
 
+export const SCALING_STATS = ['ATK', 'HP', 'DEF', 'EM'] as const;
+export type ScalingStat = (typeof SCALING_STATS)[number];
+
+// A buff counts for a carry only if every constraint it lists matches; a buff with none helps anyone.
+export interface Buff {
+  stat: string; // human-readable description
+  scope: 'team' | 'active';
+  affects?: ScalingStat; // carry must scale on this stat (EM also counts for reaction carries)
+  elements?: Element[]; // carry must be one of these elements (elemental DMG bonus or RES shred)
+  reactions?: Reaction[]; // one of these reactions must be active in the team
+}
+
 export interface CharacterTags {
   id: string; // genshin-db name, e.g. 'Kaedehara Kazuha'; Traveler uses 'Traveler (<Element>)'
   roles: Role[];
   fieldTime: 'on' | 'off' | 'flex';
   reactions: Reaction[]; // reactions this character enables or wants
   energyNeed: 'low' | 'medium' | 'high';
-  buffs?: { stat: string; scope: 'team' | 'active' }[];
+  buffs?: Buff[];
+  scalesOn?: ScalingStat[]; // main DPS only: stats their damage scales on
   families?: Family[];
   teamPrefs?: TeamPref[];
   rotation: {

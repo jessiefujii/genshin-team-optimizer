@@ -112,6 +112,7 @@ export default function TagsTable({ rows }: { rows: TagRow[] }) {
                       </span>
                     ))}
                   </div>
+                  {row.scalesOn && <div className="mt-1 text-xs text-zinc-500">scales on {row.scalesOn.join(", ")}</div>}
                 </td>
                 <td className="px-3 py-2">{row.fieldTime}</td>
                 <td className="px-3 py-2">{row.energyNeed}</td>
@@ -136,6 +137,14 @@ export default function TagsTable({ rows }: { rows: TagRow[] }) {
                   {row.buffs?.map((b) => (
                     <div key={b.stat} className="min-w-40">
                       {b.stat} <span className="text-zinc-500">({b.scope})</span>
+                      {(b.affects || b.elements || b.reactions) && (
+                        <div className="text-zinc-500">
+                          only for:{" "}
+                          {[b.affects && `${b.affects} scalers`, b.elements?.join("/"), b.reactions?.join("/")]
+                            .filter(Boolean)
+                            .join("; ")}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </td>

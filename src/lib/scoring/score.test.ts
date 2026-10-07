@@ -87,6 +87,43 @@ describe("scoreTeam", () => {
     expect(s.breakdown.some((l) => l.reason.includes("Kaedehara Kazuha buffs"))).toBe(false);
   });
 
+  describe("buffs must fit the carry (#3)", () => {
+    const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.reason.startsWith(id));
+
+    test("ATK buffs skip HP scalers", () => {
+      const line = buffLine(score("Neuvillette", "Bennett", "Furina", "Xiangling"), "Bennett");
+      expect(line?.points).toBe(0);
+      expect(line?.reason).toBe("Bennett: ATK buff, but Neuvillette scales on HP");
+    });
+
+    test("ATK buffs count for carries that scale on ATK", () => {
+      expect(buffLine(score("Hu Tao", "Bennett", "Xingqiu", "Yelan"), "Bennett")?.points).toBe(10);
+      expect(buffLine(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"), "Bennett")?.points).toBe(10);
+    });
+
+    test("element buffs only count for that element", () => {
+      expect(buffLine(score("Hu Tao", "Shenhe", "Xingqiu", "Zhongli"), "Shenhe")?.points).toBe(0);
+      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(10);
+    });
+
+    test("EM buffs need a reaction that uses EM", () => {
+      // Freeze does not scale with EM; Vaporize does.
+      expect(buffLine(score("Kamisato Ayaka", "Sucrose", "Furina", "Shenhe"), "Sucrose")?.points).toBe(0);
+      expect(buffLine(score("Hu Tao", "Sucrose", "Xingqiu", "Yelan"), "Sucrose")?.points).toBe(10);
+    });
+
+    test("reaction buffs need that reaction in the team", () => {
+      expect(buffLine(score("Alhaitham", "Baizhu", "Fischl", "Kuki Shinobu"), "Baizhu")?.points).toBe(10);
+      // Pyro + Dendro, but nobody here builds Burning, so no Dendro reaction is active.
+      expect(buffLine(score("Diluc", "Baizhu", "Bennett", "Zhongli"), "Baizhu")?.points).toBe(0);
+    });
+
+    test("every main DPS has scalesOn", () => {
+      const missing = all.filter((c) => c.roles.includes("main-dps") && !c.scalesOn?.length).map((c) => c.id);
+      expect(missing).toEqual([]);
+    });
+  });
+
   test("rejects teams that are not 4 characters", () => {
     expect(() => scoreTeam(team("Hu Tao", "Xingqiu"))).toThrow();
   });
