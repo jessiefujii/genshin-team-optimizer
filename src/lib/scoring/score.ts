@@ -1,4 +1,4 @@
-import type { CompositionPref } from "../../types/tags";
+import type { Buff, CompositionPref } from "../../types/tags";
 import { canTrigger, reactionElements } from "./reactions";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
@@ -133,15 +133,39 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine
   });
 
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
-  const buffers = supports
-    .filter((s) => s.roles.includes("buffer"))
+  const emUseful = carryActive.some((r) => !NO_EM_REACTIONS.has(r));
+  let counted = 0;
+  for (const s of supports.filter((m) => m.roles.includes("buffer"))) {
     // Anemo buffers (Kazuha, Sucrose) need something to swirl.
-    .filter((s) => s.element !== "Anemo" || swirlActive)
-    .slice(0, POINTS.maxBuffers);
-  for (const b of buffers) {
-    lines.push({ rule: "Buffs", points: POINTS.buffer, reason: `${b.id} buffs ${carry.id}` });
+    if (s.element === "Anemo" && !swirlActive) continue;
+    const misfits = (s.buffs ?? []).map((b) => buffMisfit(b, carry, ctx, emUseful));
+    if (misfits.length > 0 && misfits.every((m) => m !== null)) {
+      lines.push({ rule: "Buffs", points: 0, reason: `${s.id}: ${misfits[0]}` });
+    } else if (counted < POINTS.maxBuffers) {
+      counted++;
+      lines.push({ rule: "Buffs", points: POINTS.buffer, reason: `${s.id} buffs ${carry.id}` });
+    }
   }
   return lines;
+}
+
+// Reactions whose damage does not grow with EM, so an EM buff does nothing for them.
+const NO_EM_REACTIONS = new Set<Reaction>(["freeze", "crystallize", "quicken", "superconduct"]);
+
+// Why a buff does not help this carry, or null if it does (#3).
+function buffMisfit(buff: Buff, carry: ScoringCharacter, ctx: TeamContext, emUseful: boolean): string | null {
+  if (buff.affects === "EM") {
+    if (!carry.scalesOn?.includes("EM") && !emUseful) return `EM buff, but ${carry.id} has no reaction that uses EM`;
+  } else if (buff.affects && carry.scalesOn && !carry.scalesOn.includes(buff.affects)) {
+    return `${buff.affects} buff, but ${carry.id} scales on ${carry.scalesOn.join("/")}`;
+  }
+  if (buff.elements && !buff.elements.includes(carry.element)) {
+    return `${buff.elements.join("/")} buff, but ${carry.id} is ${carry.element}`;
+  }
+  if (buff.reactions && !buff.reactions.some((r) => ctx.active.includes(r))) {
+    return `buffs ${buff.reactions.map(label).join("/")}, which this team does not trigger`;
+  }
+  return null;
 }
 
 function compositionMet(pref: CompositionPref, ctx: TeamContext): boolean {
