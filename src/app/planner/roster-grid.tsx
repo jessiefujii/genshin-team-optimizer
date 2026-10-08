@@ -119,7 +119,7 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
                       </option>
                     ))}
                   </select>
-                  <label className="flex items-center gap-1">
+                  <label className="flex items-center gap-1" title="Unticked: left out of teams, listed under Worth building">
                     <input
                       type="checkbox"
                       checked={owned.built}

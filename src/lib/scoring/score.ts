@@ -358,11 +358,14 @@ function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: Tea
   return false;
 }
 
+// ER % a member wants for their burst; undefined = not checked (low energy need and no erTarget).
+const erTargetOf = (m: ScoringCharacter) => m.erTarget ?? (m.energyNeed === "low" ? undefined : ER_TARGETS[m.energyNeed]);
+
 function statLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   for (const m of ctx.members) {
     if (!m.stats) continue;
     const { energyRecharge, elementalMastery: em } = m.stats;
-    const target = m.erTarget ?? (m.energyNeed === "low" ? undefined : ER_TARGETS[m.energyNeed]);
+    const target = erTargetOf(m);
     if (target !== undefined && energyRecharge < target) {
       out.add("Energy", POINTS.lowEr, () => `${m.id} ER ${energyRecharge}% vs ${target}% target`);
     }
@@ -374,6 +377,31 @@ function statLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) 
       }
     }
   }
+}
+
+// What keeps a character below the benchmark build the scorer assumes, as short reasons; empty = at or
+// above it everywhere checked. No build entered = assumed at benchmark, so only a "not built" mark counts.
+export function buildGaps(c: ScoringCharacter): string[] {
+  const gaps: string[] = [];
+  if (c.built === false) gaps.push("marked not built");
+  if (c.stats) {
+    const { critRate, critDmg, energyRecharge, elementalMastery: em } = c.stats;
+    const cv = Math.round(2 * critRate + critDmg);
+    if (c.roles.includes("main-dps") && usesCrit(c) && cv < POINTS.cvBenchmark) gaps.push(`CV ${cv} vs ${POINTS.cvBenchmark}`);
+    const target = erTargetOf(c);
+    if (target !== undefined && energyRecharge < target) gaps.push(`ER ${energyRecharge}% vs ${target}% target`);
+    const emRole = c.scalesOn?.includes("EM") || (c.element === "Anemo" && c.roles.includes("buffer"));
+    if (emRole && em < POINTS.emLow) gaps.push(`EM ${em} vs ${POINTS.emLow}+`);
+  }
+  if (c.talents) {
+    const talents = new Set<Talent>(c.roles.includes("main-dps") && c.keyTalent ? [c.keyTalent] : []);
+    for (const b of c.buffs ?? []) if (b.talent && b.talent !== "passive") talents.add(b.talent);
+    for (const t of talents) {
+      const level = c.talents[t];
+      if (level < POINTS.talentBenchmark) gaps.push(`${t} level ${level} vs ${POINTS.talentBenchmark}`);
+    }
+  }
+  return gaps;
 }
 
 // Scores a team once per possible carry and keeps the best reading. `explain` keeps the breakdown text.
