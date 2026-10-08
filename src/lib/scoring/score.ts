@@ -76,17 +76,25 @@ interface TeamContext {
   options: ScoreOptions;
 }
 
+const NO_FAMILIES: Family[] = [];
+
 function familiesOf(member: ScoringCharacter, options: ScoreOptions): Family[] {
-  return (member.families ?? []).filter(
-    (f) => f !== "hexerei" || !options.hexereiUnlocked || options.hexereiUnlocked.has(member.id),
-  );
+  const families = member.families ?? NO_FAMILIES;
+  if (!options.hexereiUnlocked || options.hexereiUnlocked.has(member.id) || !families.includes("hexerei")) return families;
+  return families.filter((f) => f !== "hexerei");
 }
 
+// Runs for every team the search tries, so it sticks to plain loops (#4).
 function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamContext {
-  const elements = new Set(members.map((m) => m.element));
-  const families = new Set(members.flatMap((m) => familiesOf(m, options)));
-  const listed = new Set(members.flatMap((m) => m.reactions));
-  const active = [...listed].filter((r) => canTrigger(r, elements, families));
+  const elements = new Set<Element>();
+  const families = new Set<Family>();
+  const listed: Reaction[] = [];
+  for (const m of members) {
+    elements.add(m.element);
+    for (const f of familiesOf(m, options)) families.add(f);
+    for (const r of m.reactions) if (!listed.includes(r)) listed.push(r);
+  }
+  const active = listed.filter((r) => canTrigger(r, elements, families));
   return { members, elements, families, active, options };
 }
 
@@ -95,35 +103,59 @@ function suppliesElement(support: ScoringCharacter, carry: ScoringCharacter, rea
   return support.element !== carry.element && reactionElements(reaction).includes(support.element);
 }
 
-function carryLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine[] {
-  const lines: ScoreLine[] = [];
+// Collects a team's score lines. The search only needs the points, so reasons are passed as
+// functions and only turned into text when the breakdown is kept (#4).
+interface Sink {
+  total: number;
+  add(rule: string, points: number, reason: () => string): void;
+  addAll(other: Sink): void;
+}
+
+class Breakdown implements Sink {
+  total = 0;
+  lines: ScoreLine[] = [];
+  add(rule: string, points: number, reason: () => string) {
+    this.total += points;
+    this.lines.push({ rule, points, reason: reason() });
+  }
+  addAll(other: Sink) {
+    this.total += other.total;
+    this.lines.push(...(other as Breakdown).lines);
+  }
+}
+
+class Tally implements Sink {
+  total = 0;
+  add(_rule: string, points: number) {
+    this.total += points;
+  }
+  addAll(other: Sink) {
+    this.total += other.total;
+  }
+}
+
+function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   if (!carry) {
-    lines.push({ rule: "Carry", points: POINTS.noCarry, reason: "No main DPS in the team" });
+    out.add("Carry", POINTS.noCarry, () => "No main DPS in the team");
     // Without a carry, reward reactions that at least two members build toward.
     const shared = ctx.active.filter((r) => ctx.members.filter((m) => m.reactions.includes(r)).length >= 2);
     for (const r of shared.slice(0, POINTS.maxCountedReactions)) {
-      lines.push({ rule: "Reactions", points: POINTS.supportReaction, reason: `${label(r)} from the supports` });
+      out.add("Reactions", POINTS.supportReaction, () => `${label(r)} from the supports`);
     }
-    return lines;
+    return;
   }
 
   const supports = ctx.members.filter((m) => m !== carry);
   const rivals = supports.filter((m) => m.fieldTime === "on");
   if (rivals.length === 0) {
-    lines.push({ rule: "Carry", points: POINTS.singleCarry, reason: `${carry.id} is the only on-field character` });
+    out.add("Carry", POINTS.singleCarry, () => `${carry.id} is the only on-field character`);
   } else {
-    for (const r of rivals) {
-      lines.push({ rule: "Carry", points: POINTS.extraOnField, reason: `${r.id} also wants field time` });
-    }
+    for (const r of rivals) out.add("Carry", POINTS.extraOnField, () => `${r.id} also wants field time`);
   }
 
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
   if (carry.reactions.length > 0 && carryActive.length === 0) {
-    lines.push({
-      rule: "Reactions",
-      points: POINTS.carryReactionsUnavailable,
-      reason: `${carry.id}'s reactions are not possible with this team`,
-    });
+    out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
   }
   const ranked = carryActive
     .map((r) => ({ r, partners: supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r)) }))
@@ -131,26 +163,16 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine
     .slice(0, POINTS.maxCountedReactions);
   ranked.forEach(({ r, partners }, i) => {
     if (i > 0) {
-      lines.push({ rule: "Reactions", points: POINTS.secondaryReaction, reason: `${label(r)} as a secondary reaction` });
+      out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
       return;
     }
     if (partners.length === 0) {
-      lines.push({ rule: "Reactions", points: POINTS.carryReactionFromElements, reason: `${label(r)} is possible for ${carry.id}` });
+      out.add("Reactions", POINTS.carryReactionFromElements, () => `${label(r)} is possible for ${carry.id}`);
       return;
     }
-    lines.push({
-      rule: "Reactions",
-      points: POINTS.carryReactionWithSupport,
-      reason: `${label(r)}: ${carry.id} + ${partners.map((p) => p.id).join(", ")}`,
-    });
+    out.add("Reactions", POINTS.carryReactionWithSupport, () => `${label(r)}: ${carry.id} + ${partners.map((p) => p.id).join(", ")}`);
     const extra = Math.min(partners.length - 1, POINTS.maxExtraPartners);
-    if (extra > 0) {
-      lines.push({
-        rule: "Reactions",
-        points: extra * POINTS.extraPartner,
-        reason: `${extra + 1} supports enable ${label(r)}`,
-      });
-    }
+    if (extra > 0) out.add("Reactions", extra * POINTS.extraPartner, () => `${extra + 1} supports enable ${label(r)}`);
   });
 
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
@@ -161,66 +183,60 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine
     if (s.element === "Anemo" && !swirlActive) continue;
     const misfits = (s.buffs ?? []).map((b) => buffMisfit(b, carry, ctx, emUseful));
     if (misfits.length > 0 && misfits.every((m) => m !== null)) {
-      lines.push({ rule: "Buffs", points: 0, reason: `${s.id}: ${misfits[0]}` });
+      out.add("Buffs", 0, () => `${s.id}: ${misfits[0]!()}`);
     } else if (counted < POINTS.maxBuffers) {
       counted++;
-      lines.push({ rule: "Buffs", points: POINTS.buffer, reason: `${s.id} buffs ${carry.id}` });
+      out.add("Buffs", POINTS.buffer, () => `${s.id} buffs ${carry.id}`);
     }
   }
-  lines.push(...effectBuffLines(ctx, carry, emUseful));
-  return lines;
+  effectBuffLines(ctx, carry, emUseful, out);
 }
 
 // Weapon, set and constellation buffs that fit the carry. The same effect on two members counts once.
-function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: boolean): ScoreLine[] {
-  const lines: ScoreLine[] = [];
-  const seen = new Set<string>();
+function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: boolean, out: Sink) {
+  const seen: string[] = [];
   for (const m of ctx.members) {
     for (const e of m.effects ?? []) {
-      if (lines.length === POINTS.maxEffectBuffs) return lines;
+      if (seen.length === POINTS.maxEffectBuffs) return;
       // On the carry's own items, an 'active' buff only buffs the carry, which its final stats may already show.
       const fit = e.buffs?.find((b) => (m !== carry || b.scope === "team") && !buffMisfit(b, carry, ctx, emUseful));
-      if (!fit || seen.has(effectKey(e))) continue;
-      seen.add(effectKey(e));
-      lines.push({ rule: "Effects", points: POINTS.effectBuff, reason: `${effectName(m, e)}: ${fit.stat} for ${carry.id}` });
+      if (!fit || seen.includes(effectKey(e))) continue;
+      seen.push(effectKey(e));
+      out.add("Effects", POINTS.effectBuff, () => `${effectName(m, e)}: ${fit.stat} for ${carry.id}`);
     }
   }
-  return lines;
 }
 
 const MELEE = new Set(["Sword", "Claymore", "Polearm"]);
 
 // An infusion (C6 Bennett) turns a melee carry's attacks into its element.
-function infusionLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine[] {
-  if (!carry || !MELEE.has(carry.weapon)) return [];
-  return ctx.members
-    .filter((m) => m !== carry)
-    .flatMap((m) =>
-      (m.effects ?? [])
-        .filter((e) => e.infusion && e.infusion !== carry.element)
-        .map((e) => ({
-          rule: "Conflicts",
-          points: POINTS.infusionConflict,
-          reason: `${effectName(m, e)} infuses ${carry.id}'s attacks with ${e.infusion}`,
-        })),
-    );
+function infusionLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  if (!carry || !MELEE.has(carry.weapon)) return;
+  for (const m of ctx.members) {
+    if (m === carry) continue;
+    for (const e of m.effects ?? []) {
+      if (e.infusion && e.infusion !== carry.element) {
+        out.add("Conflicts", POINTS.infusionConflict, () => `${effectName(m, e)} infuses ${carry.id}'s attacks with ${e.infusion}`);
+      }
+    }
+  }
 }
 
 // Reactions whose damage does not grow with EM, so an EM buff does nothing for them.
 const NO_EM_REACTIONS = new Set<Reaction>(["freeze", "crystallize", "quicken", "superconduct"]);
 
-// Why a buff does not help this carry, or null if it does (#3).
-function buffMisfit(buff: Buff, carry: ScoringCharacter, ctx: TeamContext, emUseful: boolean): string | null {
+// Why a buff does not help this carry (as a function, so the text is only built when shown), or null if it does (#3).
+function buffMisfit(buff: Buff, carry: ScoringCharacter, ctx: TeamContext, emUseful: boolean): (() => string) | null {
   if (buff.affects === "EM") {
-    if (!carry.scalesOn?.includes("EM") && !emUseful) return `EM buff, but ${carry.id} has no reaction that uses EM`;
+    if (!carry.scalesOn?.includes("EM") && !emUseful) return () => `EM buff, but ${carry.id} has no reaction that uses EM`;
   } else if (buff.affects && carry.scalesOn && !carry.scalesOn.includes(buff.affects)) {
-    return `${buff.affects} buff, but ${carry.id} scales on ${carry.scalesOn.join("/")}`;
+    return () => `${buff.affects} buff, but ${carry.id} scales on ${carry.scalesOn!.join("/")}`;
   }
   if (buff.elements && !buff.elements.includes(carry.element)) {
-    return `${buff.elements.join("/")} buff, but ${carry.id} is ${carry.element}`;
+    return () => `${buff.elements!.join("/")} buff, but ${carry.id} is ${carry.element}`;
   }
   if (buff.reactions && !buff.reactions.some((r) => ctx.active.includes(r))) {
-    return `buffs ${buff.reactions.map(label).join("/")}, which this team does not trigger`;
+    return () => `buffs ${buff.reactions!.map(label).join("/")}, which this team does not trigger`;
   }
   return null;
 }
@@ -244,41 +260,33 @@ function compositionMet(pref: CompositionPref, ctx: TeamContext): boolean {
   return true;
 }
 
-function teamLines(ctx: TeamContext): ScoreLine[] {
-  const lines: ScoreLine[] = [];
+function teamLines(ctx: TeamContext, out: Sink) {
   const { members } = ctx;
 
   const counts = new Map<Element, number>();
   for (const m of members) counts.set(m.element, (counts.get(m.element) ?? 0) + 1);
   for (const [el, n] of counts) {
-    if (n >= 2) lines.push({ rule: "Resonance", points: RESONANCE[el].points, reason: RESONANCE[el].name });
+    if (n >= 2) out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
   }
 
   const sustain = members.find((m) => hasRole(m, "healer") || hasRole(m, "shielder"));
-  lines.push(
-    sustain
-      ? { rule: "Survivability", points: POINTS.survivability, reason: `${sustain.id} heals or shields` }
-      : { rule: "Survivability", points: POINTS.noSurvivability, reason: "No healer or shielder" },
-  );
+  if (sustain) out.add("Survivability", POINTS.survivability, () => `${sustain.id} heals or shields`);
+  else out.add("Survivability", POINTS.noSurvivability, () => "No healer or shielder");
 
   const hungry = members.filter((m) => m.energyNeed === "high");
   const batteries = members.filter((m) => hasRole(m, "battery"));
   const batteryName = (b: ScoringCharacter) => (b.roles.includes("battery") ? b.id : effectName(b, roleEffect(b, "battery")!));
   if (hungry.some((h) => batteries.some((b) => b !== h))) {
-    lines.push({ rule: "Energy", points: POINTS.battery, reason: `${batteries.map(batteryName).join(", ")} feeds high-cost bursts` });
+    out.add("Energy", POINTS.battery, () => `${batteries.map(batteryName).join(", ")} feeds high-cost bursts`);
   } else if (hungry.length >= 2 && batteries.length === 0) {
-    lines.push({ rule: "Energy", points: POINTS.starvedBursts, reason: `${hungry.length} high-cost bursts and no battery` });
+    out.add("Energy", POINTS.starvedBursts, () => `${hungry.length} high-cost bursts and no battery`);
   }
 
   const familyCounts = new Map<Family, number>();
   for (const m of members) for (const f of familiesOf(m, ctx.options)) familyCounts.set(f, (familyCounts.get(f) ?? 0) + 1);
   for (const [f, n] of familyCounts) {
     if (n >= 2) {
-      lines.push({
-        rule: "Family",
-        points: f === "nightsoul" ? POINTS.nightsoulPair : POINTS.familyPair,
-        reason: `${n} ${FAMILY_NAMES[f]} members`,
-      });
+      out.add("Family", f === "nightsoul" ? POINTS.nightsoulPair : POINTS.familyPair, () => `${n} ${FAMILY_NAMES[f]} members`);
     }
   }
 
@@ -286,15 +294,11 @@ function teamLines(ctx: TeamContext): ScoreLine[] {
     for (const pref of m.teamPrefs ?? []) {
       if (pref.kind === "partner") {
         const partner = members.find((p) => pref.ids.includes(p.id));
-        if (partner) lines.push({ rule: "Team preference", points: POINTS.prefMet, reason: `${m.id} with ${partner.id}` });
+        if (partner) out.add("Team preference", POINTS.prefMet, () => `${m.id} with ${partner.id}`);
       } else if (compositionMet(pref, ctx)) {
-        lines.push({ rule: "Team preference", points: POINTS.prefMet, reason: `${m.id}: ${pref.note ?? "preferred team makeup"}` });
+        out.add("Team preference", POINTS.prefMet, () => `${m.id}: ${pref.note ?? "preferred team makeup"}`);
       } else if (pref.onlyElements && pref.onlyElements.length > 0) {
-        lines.push({
-          rule: "Team preference",
-          points: POINTS.onlyElementsBroken,
-          reason: `${m.id} wants only ${pref.onlyElements.join("/")} teammates`,
-        });
+        out.add("Team preference", POINTS.onlyElementsBroken, () => `${m.id} wants only ${pref.onlyElements!.join("/")} teammates`);
       }
     }
   }
@@ -302,24 +306,20 @@ function teamLines(ctx: TeamContext): ScoreLine[] {
   const anemo = members.filter((m) => m.element === "Anemo");
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   if (anemo.length >= 2 && !swirlActive) {
-    lines.push({ rule: "Conflicts", points: POINTS.idleAnemo, reason: "Two Anemo characters with nothing to swirl" });
+    out.add("Conflicts", POINTS.idleAnemo, () => "Two Anemo characters with nothing to swirl");
   }
-  return lines;
 }
-
-const total = (lines: ScoreLine[]) => lines.reduce((sum, l) => sum + l.points, 0);
 
 // Pure reaction carries (EM only, e.g. Kaveh) don't crit, so CV says nothing about them.
 const usesCrit = (c: ScoringCharacter) => !(c.scalesOn?.length === 1 && c.scalesOn[0] === "EM");
 
 // Scales the carry's points by their crit value; no line without stats (benchmark assumed).
-function carryBuildLine(carry: ScoringCharacter, carryPoints: number): ScoreLine | null {
-  if (!carry.stats || !usesCrit(carry) || carryPoints <= 0) return null;
+function carryBuildLine(carry: ScoringCharacter, carryPoints: number, out: Sink) {
+  if (!carry.stats || !usesCrit(carry) || carryPoints <= 0) return;
   const cv = Math.round(2 * carry.stats.critRate + carry.stats.critDmg);
   const factor = Math.min(Math.max(cv / POINTS.cvBenchmark, POINTS.cvMinFactor), POINTS.cvMaxFactor);
   const points = Math.round(carryPoints * (factor - 1));
-  if (points === 0) return null;
-  return { rule: "Carry build", points, reason: `${carry.id} CV ${cv} vs ${POINTS.cvBenchmark} benchmark` };
+  if (points !== 0) out.add("Carry build", points, () => `${carry.id} CV ${cv} vs ${POINTS.cvBenchmark} benchmark`);
 }
 
 // Members whose damage or buff comes from EM: Swirl buffers, Hyperbloom/Burgeon triggers, EM carries.
@@ -334,50 +334,58 @@ function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: Tea
   return false;
 }
 
-function statLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine[] {
-  const lines: ScoreLine[] = [];
+function statLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   for (const m of ctx.members) {
     if (!m.stats) continue;
+    const { energyRecharge, elementalMastery: em } = m.stats;
     const target = m.erTarget ?? (m.energyNeed === "low" ? undefined : ER_TARGETS[m.energyNeed]);
-    if (target !== undefined && m.stats.energyRecharge < target) {
-      lines.push({
-        rule: "Energy",
-        points: POINTS.lowEr,
-        reason: `${m.id} ER ${m.stats.energyRecharge}% vs ${target}% target`,
-      });
+    if (target !== undefined && energyRecharge < target) {
+      out.add("Energy", POINTS.lowEr, () => `${m.id} ER ${energyRecharge}% vs ${target}% target`);
     }
     if (emReliant(m, carry, ctx)) {
-      const em = m.stats.elementalMastery;
       if (em >= POINTS.emHigh) {
-        lines.push({ rule: "EM", points: POINTS.emPoints, reason: `${m.id} has ${em} EM for reactions` });
+        out.add("EM", POINTS.emPoints, () => `${m.id} has ${em} EM for reactions`);
       } else if (em < POINTS.emLow) {
-        lines.push({ rule: "EM", points: -POINTS.emPoints, reason: `${m.id} has ${em} EM; reactions want ${POINTS.emHigh}+` });
+        out.add("EM", -POINTS.emPoints, () => `${m.id} has ${em} EM; reactions want ${POINTS.emHigh}+`);
       }
     }
   }
-  return lines;
 }
 
-// Scores a team once per possible carry and keeps the best reading.
-export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
+// Scores a team once per possible carry and keeps the best reading. `explain` keeps the breakdown text.
+function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: boolean) {
   if (team.length !== 4) throw new Error(`A team needs 4 members, got ${team.length}`);
+  const sink = (): Sink => (explain ? new Breakdown() : new Tally());
   const ctx = buildContext(team, options);
-  const shared = teamLines(ctx);
+  const shared = sink();
+  teamLines(ctx, shared);
   const candidates = team.filter((m) => m.roles.includes("main-dps"));
 
-  let best: { carry: ScoringCharacter | null; lines: ScoreLine[] } | null = null;
+  let best: { carry: ScoringCharacter | null; out: Sink } | null = null;
   for (const carry of candidates.length > 0 ? candidates : [null]) {
-    const own = carryLines(ctx, carry);
-    const build = carry && carryBuildLine(carry, total(own));
-    const lines = [...own, ...(build ? [build] : []), ...shared, ...infusionLines(ctx, carry), ...statLines(ctx, carry)];
-    if (!best || total(lines) > total(best.lines)) best = { carry, lines };
+    const out = sink();
+    carryLines(ctx, carry, out);
+    if (carry) carryBuildLine(carry, out.total, out);
+    out.addAll(shared);
+    infusionLines(ctx, carry, out);
+    statLines(ctx, carry, out);
+    if (!best || out.total > best.out.total) best = { carry, out };
   }
+  return { ctx, carry: best!.carry, out: best!.out };
+}
 
+// The team's score alone, without building the breakdown; the search uses it to skip teams outside the top.
+export function teamScore(team: ScoringCharacter[], options: ScoreOptions = {}): number {
+  return bestReading(team, options, false).out.total;
+}
+
+export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
+  const { ctx, carry, out } = bestReading(team, options, true);
   return {
     members: team.map((m) => m.id) as ScoredTeam["members"],
-    carry: best!.carry?.id ?? null,
-    score: total(best!.lines),
-    breakdown: best!.lines,
+    carry: carry?.id ?? null,
+    score: out.total,
+    breakdown: (out as Breakdown).lines,
     activeReactions: ctx.active,
     defaultBuilds: team.filter((m) => !m.stats).map((m) => m.id),
   };
