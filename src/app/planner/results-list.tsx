@@ -89,6 +89,38 @@ export default function ResultsList({ teams, byId }: Props) {
                     ))}
                   </ol>
                 </div>
+                {team.energy.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-zinc-500">Energy</p>
+                    <table className="mt-1 text-xs">
+                      <thead className="text-zinc-500">
+                        <tr>
+                          <th className="pr-3 text-left font-normal">Burst</th>
+                          <th className="pr-3 text-right font-normal">Cost</th>
+                          <th className="pr-3 text-right font-normal">ER target</th>
+                          <th className="text-right font-normal">ER</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {team.energy.map((e) => {
+                          const low = e.target !== undefined && e.er !== undefined && e.er < e.target;
+                          return (
+                            <tr key={e.id}>
+                              <td className="pr-3">{e.id}</td>
+                              <td className="pr-3 text-right tabular-nums">{e.cost}</td>
+                              <td className="pr-3 text-right tabular-nums">{e.target === undefined ? "not checked" : `${e.target}%`}</td>
+                              <td
+                                className={`text-right tabular-nums ${e.er === undefined ? "text-zinc-400" : low ? "text-red-700 dark:text-red-400" : "text-green-700 dark:text-green-400"}`}
+                              >
+                                {e.er === undefined ? "no build" : `${e.er}%`}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
                 {team.defaultBuilds.length > 0 && (
                   <p className="mt-1 text-xs text-zinc-500">
                     {team.defaultBuilds.length === 4
