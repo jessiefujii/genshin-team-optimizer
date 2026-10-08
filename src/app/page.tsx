@@ -7,7 +7,7 @@ function loadPlannerCharacters(): PlannerCharacter[] {
   return loadScoringCharacters()
     .map((c) => {
       const db = c.id.startsWith("Traveler (") ? null : genshindb.characters(c.id);
-      return { ...c, weapon: db?.weaponText ?? "Sword", rarity: db?.rarity ?? 5 };
+      return { ...c, rarity: db?.rarity ?? 5 };
     })
     .sort((a, b) => a.id.localeCompare(b.id));
 }

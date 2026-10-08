@@ -4,6 +4,8 @@ import { loadScoringCharacters } from "./load";
 import { scoreTeam } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
+import type { EffectTag } from "../../types/effects";
+import { characterEffects } from "./effects";
 import type { ScoringCharacter } from "./types";
 
 const all = loadScoringCharacters();
@@ -190,6 +192,74 @@ describe("scoreTeam", () => {
       expect(lines(built({ "Kaedehara Kazuha": { elementalMastery: 100 } }, ...swirl), "EM")[0].points).toBe(-5);
       expect(lines(built({ Zhongli: { elementalMastery: 900 } }, ...swirl), "EM")).toEqual([]);
     });
+  });
+});
+
+describe("effects.json in scoring", () => {
+  // The team from team(...ids), with effects given to the named members.
+  const geared = (effects: Record<string, EffectTag[]>, ...ids: string[]) =>
+    team(...ids).map((c) => (effects[c.id] ? { ...c, effects: effects[c.id] } : c));
+  const lines = (t: ScoringCharacter[], rule: string) => scoreTeam(t).breakdown.filter((l) => l.rule === rule);
+  const noblesse: EffectTag = { source: "set", id: "Noblesse Oblige", requires: 4, buffs: [{ stat: "ATK", scope: "team", affects: "ATK" }] };
+  const pyroShred: EffectTag = {
+    source: "constellation", id: "Xiangling", requires: 1, buffs: [{ stat: "Pyro RES shred", scope: "team", elements: ["Pyro"] }],
+  };
+
+  test("an effect buff that fits the carry adds points and names its source", () => {
+    const result = lines(geared({ Xiangling: [pyroShred] }, "Hu Tao", "Xingqiu", "Xiangling", "Zhongli"), "Effects");
+    expect(result).toEqual([{ rule: "Effects", points: 5, reason: "Xiangling C1: Pyro RES shred for Hu Tao" }]);
+  });
+
+  test("effect buffs use the same fit check as tag buffs", () => {
+    // Pyro shred does nothing for a Hydro carry; ATK does nothing for an HP scaler.
+    expect(lines(geared({ Xiangling: [pyroShred] }, "Neuvillette", "Bennett", "Xiangling", "Furina"), "Effects")).toEqual([]);
+    expect(lines(geared({ Bennett: [noblesse] }, "Neuvillette", "Bennett", "Xiangling", "Furina"), "Effects")).toEqual([]);
+  });
+
+  test("the same effect on two members counts once", () => {
+    const result = lines(geared({ Bennett: [noblesse], Zhongli: [noblesse] }, "Hu Tao", "Bennett", "Xingqiu", "Zhongli"), "Effects");
+    expect(result.map((l) => l.reason)).toEqual(["Bennett 4pc Noblesse Oblige: ATK for Hu Tao"]);
+  });
+
+  test("the carry's own 'active' effects don't count; its team ones do", () => {
+    const selfAtk: EffectTag = { source: "weapon", id: "Thrilling Tales of Dragon Slayers", buffs: [{ stat: "ATK", scope: "active", affects: "ATK" }] };
+    const vape = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli"];
+    expect(lines(geared({ "Hu Tao": [selfAtk] }, ...vape), "Effects")).toEqual([]);
+    expect(lines(geared({ "Hu Tao": [noblesse] }, ...vape), "Effects")).toHaveLength(1);
+  });
+
+  test("effect buffs are capped", () => {
+    const many = Array.from({ length: 5 }, (_, i): EffectTag => ({
+      source: "constellation", id: "Bennett", requires: i + 1, buffs: [{ stat: "DMG Bonus", scope: "team" }],
+    }));
+    expect(lines(geared({ Bennett: many }, "Hu Tao", "Bennett", "Xingqiu", "Zhongli"), "Effects")).toHaveLength(3);
+  });
+
+  test("a battery role from a weapon feeds high-cost bursts", () => {
+    const favonius: EffectTag = { source: "weapon", id: "Favonius Sword", roles: ["battery"] };
+    const vape = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli"];
+    expect(lines(team(...vape), "Energy")[0].points).toBe(-5); // two high-cost bursts, no battery
+    expect(lines(geared({ Xingqiu: [favonius] }, ...vape), "Energy")[0]).toEqual({
+      rule: "Energy", points: 5, reason: "Xingqiu Favonius Sword feeds high-cost bursts",
+    });
+  });
+
+  test("an infusion conflicts with a melee carry of another element only", () => {
+    const c6: EffectTag = { source: "constellation", id: "Bennett", requires: 6, infusion: "Pyro" };
+    const conflicts = (...ids: string[]) => lines(geared({ Bennett: [c6] }, ...ids), "Conflicts");
+    expect(conflicts("Kamisato Ayaka", "Bennett", "Furina", "Shenhe")).toEqual([
+      { rule: "Conflicts", points: -15, reason: "Bennett C6 infuses Kamisato Ayaka's attacks with Pyro" },
+    ]);
+    expect(conflicts("Hu Tao", "Bennett", "Xingqiu", "Zhongli")).toEqual([]); // Pyro carry
+    expect(conflicts("Neuvillette", "Bennett", "Furina", "Xiangling")).toEqual([]); // catalyst
+  });
+
+  test("lines from unreviewed effects.json entries say draft", () => {
+    const [hutao, xingqiu, xiangling, zhongli] = team("Hu Tao", "Xingqiu", "Xiangling", "Zhongli");
+    const drafted = characterEffects("Xiangling", 1);
+    expect(drafted.some((e) => e.notes?.startsWith("VERIFY"))).toBe(true); // flip this test once #23 reviews C1 Xiangling
+    const result = lines([hutao, xingqiu, { ...xiangling, effects: drafted }, zhongli], "Effects");
+    expect(result[0].reason).toBe("Xiangling C1 (draft): Pyro RES shred for Hu Tao");
   });
 });
 

@@ -14,13 +14,15 @@ export function loadScoringCharacters(travelerElement?: Element): ScoringCharact
   for (const tag of tags) {
     const traveler = tag.id.match(/^Traveler \((\w+)\)$/);
     if (traveler) {
-      out.push({ ...tag, element: traveler[1] as Element });
+      out.push({ ...tag, element: traveler[1] as Element, weapon: "Sword" });
     } else if (FOLLOWS_TRAVELER.has(tag.id)) {
-      if (travelerElement) out.push({ ...tag, element: travelerElement });
+      if (travelerElement) {
+        out.push({ ...tag, element: travelerElement, weapon: genshindb.characters(tag.id)?.weaponText ?? "Sword" });
+      }
     } else {
-      const element = genshindb.characters(tag.id)?.elementText;
-      if (!element) throw new Error(`genshin-db has no element for ${tag.id}`);
-      out.push({ ...tag, element: element as Element });
+      const db = genshindb.characters(tag.id);
+      if (!db?.elementText) throw new Error(`genshin-db has no element for ${tag.id}`);
+      out.push({ ...tag, element: db.elementText as Element, weapon: db.weaponText });
     }
   }
   return out;

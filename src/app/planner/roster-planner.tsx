@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { characterEffects } from "@/lib/scoring/effects";
 import { control, quietChip } from "@/lib/ui/elements";
 import ResultsList from "./results-list";
 import RosterGrid from "./roster-grid";
@@ -62,9 +63,15 @@ export default function RosterPlanner({
   const [exclude, setExclude] = useState<string[]>([]);
 
   const byId = useMemo(() => new Map(characters.map((c) => [c.id, c])), [characters]);
-  // Imported builds feed the scorer's CV, ER and EM checks.
+  // Builds feed the scorer's CV, ER and EM checks; weapons, sets and constellations add effects.json entries.
   const owned = useMemo(
-    () => characters.filter((c) => roster[c.id]).map((c) => ({ ...c, stats: roster[c.id].build?.stats })),
+    () =>
+      characters
+        .filter((c) => roster[c.id])
+        .map((c) => {
+          const { build, constellation } = roster[c.id];
+          return { ...c, stats: build?.stats, effects: characterEffects(c.id, constellation, build) };
+        }),
     [characters, roster],
   );
   const ownedIds = owned.map((c) => c.id);
