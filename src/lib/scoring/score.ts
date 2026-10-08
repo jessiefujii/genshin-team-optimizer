@@ -27,8 +27,10 @@ export const POINTS = {
   starvedBursts: -5,
   familyPair: 10,
   nightsoulPair: 5,
-  prefMet: 15,
+  prefMet: 15, // the carry's own team preferences...
   onlyElementsBroken: -10,
+  supportPrefMet: 5, // ...count for more than a support's (#43)
+  supportPrefBroken: -5,
   idleAnemo: -10,
   // Build checks (only for members with imported or entered stats)
   cvBenchmark: 200, // CV = 2 × crit rate + crit DMG
@@ -295,31 +297,49 @@ function teamLines(ctx: TeamContext, out: Sink) {
     out.add("Energy", POINTS.starvedBursts, () => `${hungry.length} high-cost bursts and no battery`);
   }
 
-  const familyCounts = new Map<Family, number>();
-  for (const m of members) for (const f of familiesOf(m, ctx.options)) familyCounts.set(f, (familyCounts.get(f) ?? 0) + 1);
-  for (const [f, n] of familyCounts) {
-    if (n >= 2) {
-      out.add("Family", f === "nightsoul" ? POINTS.nightsoulPair : POINTS.familyPair, () => `${n} ${FAMILY_NAMES[f]} members`);
-    }
-  }
-
-  for (const m of members) {
-    for (const pref of m.teamPrefs ?? []) {
-      if (pref.kind === "partner") {
-        const partner = members.find((p) => pref.ids.includes(p.id));
-        if (partner) out.add("Team preference", POINTS.prefMet, () => `${m.id} with ${partner.id}`);
-      } else if (compositionMet(pref, ctx)) {
-        out.add("Team preference", POINTS.prefMet, () => `${m.id}: ${pref.note ?? "preferred team makeup"}`);
-      } else if (pref.onlyElements && pref.onlyElements.length > 0) {
-        out.add("Team preference", POINTS.onlyElementsBroken, () => `${m.id} wants only ${pref.onlyElements!.join("/")} teammates`);
-      }
-    }
-  }
-
   const anemo = members.filter((m) => m.element === "Anemo");
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   if (anemo.length >= 2 && !swirlActive) {
     out.add("Conflicts", POINTS.idleAnemo, () => "Two Anemo characters with nothing to swirl");
+  }
+}
+
+// Reactions that only exist with a family member, so a pair of that family pays off when one is active.
+const FAMILY_REACTIONS: Partial<Record<Family, Reaction[]>> = {
+  moonsign: ["lunar-charged", "lunar-bloom", "lunar-crystallize"],
+  stellar: ["stellar-conduct", "stellar-swirl"],
+};
+
+// Family bonus (#43): two or more members only count when the family helps this team: a Moonsign or
+// Stellar reaction is active, or (Hexerei, Nightsoul) the carry belongs to the family.
+function familyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  const counts = new Map<Family, number>();
+  for (const m of ctx.members) for (const f of familiesOf(m, ctx.options)) counts.set(f, (counts.get(f) ?? 0) + 1);
+  for (const [f, n] of counts) {
+    if (n < 2) continue;
+    const reactions = FAMILY_REACTIONS[f];
+    const helps = reactions
+      ? reactions.some((r) => ctx.active.includes(r))
+      : !!carry && familiesOf(carry, ctx.options).includes(f);
+    if (helps) out.add("Family", f === "nightsoul" ? POINTS.nightsoulPair : POINTS.familyPair, () => `${n} ${FAMILY_NAMES[f]} members`);
+  }
+}
+
+// Team preferences: the carry's count fully; a support's describe what that support wants, so they count less (#43).
+function prefLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  for (const m of ctx.members) {
+    const own = m === carry;
+    for (const pref of m.teamPrefs ?? []) {
+      if (pref.kind === "partner") {
+        const partner = ctx.members.find((p) => pref.ids.includes(p.id));
+        if (partner) out.add("Team preference", own ? POINTS.prefMet : POINTS.supportPrefMet, () => `${m.id} with ${partner.id}`);
+      } else if (compositionMet(pref, ctx)) {
+        out.add("Team preference", own ? POINTS.prefMet : POINTS.supportPrefMet, () => `${m.id}: ${pref.note ?? "preferred team makeup"}`);
+      } else if (pref.onlyElements && pref.onlyElements.length > 0) {
+        const points = own ? POINTS.onlyElementsBroken : POINTS.supportPrefBroken;
+        out.add("Team preference", points, () => `${m.id} wants only ${pref.onlyElements!.join("/")} teammates`);
+      }
+    }
   }
 }
 
@@ -427,6 +447,8 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
       carryTalentLine(carry, carryPoints, out);
     }
     out.addAll(shared);
+    familyLines(ctx, carry, out);
+    prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     statLines(ctx, carry, out);
     if (!best || out.total > best.out.total) best = { carry, out };
