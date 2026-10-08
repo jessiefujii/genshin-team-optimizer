@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { canTrigger } from "./reactions";
 import { loadScoringCharacters } from "./load";
-import { scoreTeam } from "./score";
+import { scoreTeam, teamScore } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
@@ -295,11 +295,34 @@ describe("findBestTeams", () => {
     for (const t of top) expect(t.members.filter((m) => m.startsWith("Traveler (")).length).toBeLessThanOrEqual(1);
   });
 
-  test("a 50-character roster finishes quickly", () => {
-    const big: ScoringCharacter[] = all.filter((c) => !c.id.startsWith("Traveler (")).slice(0, 50);
-    const start = performance.now();
-    findBestTeams(big);
-    expect(performance.now() - start).toBeLessThan(5000);
+  // Design doc target: a ranked list in under 2 s (#4). Every member at C6 is the slowest case
+  // (most effects to check). Best of 3 runs, so other test files competing for CPU don't fail it (#17).
+  test("a 50-character roster finishes in under 2 s", { timeout: 30_000 }, () => {
+    const big: ScoringCharacter[] = all
+      .filter((c) => !c.id.startsWith("Traveler ("))
+      .slice(0, 50)
+      .map((c) => ({ ...c, effects: characterEffects(c.id, 6) }));
+    const runs = Array.from({ length: 3 }, () => {
+      const start = performance.now();
+      findBestTeams(big);
+      return performance.now() - start;
+    });
+    expect(Math.min(...runs)).toBeLessThan(2000);
+  });
+
+  test("the search's top teams match scoring every team in full", () => {
+    const top = findBestTeams(roster, { limit: 15 });
+    const ids = roster.map((c) => c.id);
+    const every: ReturnType<typeof scoreTeam>[] = [];
+    for (let a = 0; a < ids.length; a++)
+      for (let b = a + 1; b < ids.length; b++)
+        for (let c = b + 1; c < ids.length; c++)
+          for (let d = c + 1; d < ids.length; d++) every.push(score(ids[a], ids[b], ids[c], ids[d]));
+    // The search skips teams by their points-only score, so it must always equal the full score.
+    for (const t of every) expect(teamScore(team(...t.members))).toBe(t.score);
+    const scores = every.map((t) => t.score).sort((x, y) => y - x).slice(0, 15);
+    expect(top.map((t) => t.score)).toEqual(scores);
+    for (const t of top) expect(t).toEqual(scoreTeam(team(...t.members)));
   });
 
   test("unknown required character is an error", () => {

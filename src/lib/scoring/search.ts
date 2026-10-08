@@ -1,4 +1,4 @@
-import { scoreTeam } from "./score";
+import { scoreTeam, teamScore } from "./score";
 import type { ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
 export interface SearchOptions extends ScoreOptions {
@@ -32,8 +32,9 @@ export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions
   const top: ScoredTeam[] = [];
   const consider = (team: ScoringCharacter[]) => {
     if (!validTeam(team)) return;
+    // Score first; build the breakdown only for teams that make the list.
+    if (top.length === limit && teamScore(team, options) <= top[top.length - 1].score) return;
     const scored = scoreTeam(team, options);
-    if (top.length === limit && scored.score <= top[top.length - 1].score) return;
     const at = top.findIndex((t) => scored.score > t.score);
     top.splice(at === -1 ? top.length : at, 0, scored);
     if (top.length > limit) top.pop();
