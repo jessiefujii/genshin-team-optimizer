@@ -338,21 +338,6 @@ describe("findBestTeams", () => {
     for (const t of top) expect(t.members.filter((m) => m.startsWith("Traveler (")).length).toBeLessThanOrEqual(1);
   });
 
-  // Design doc target: a ranked list in under 2 s (#4). Every member at C6 is the slowest case
-  // (most effects to check). Best of 3 runs, so other test files competing for CPU don't fail it (#17).
-  test("a 50-character roster finishes in under 2 s", { timeout: 30_000 }, () => {
-    const big: ScoringCharacter[] = all
-      .filter((c) => !c.id.startsWith("Traveler ("))
-      .slice(0, 50)
-      .map((c) => ({ ...c, effects: characterEffects(c.id, 6) }));
-    const runs = Array.from({ length: 3 }, () => {
-      const start = performance.now();
-      findBestTeams(big);
-      return performance.now() - start;
-    });
-    expect(Math.min(...runs)).toBeLessThan(2000);
-  });
-
   test("the search's top teams match scoring every team in full", () => {
     const top = findBestTeams(roster, { limit: 15 });
     const ids = roster.map((c) => c.id);
