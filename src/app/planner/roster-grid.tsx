@@ -137,6 +137,19 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
                   </button>
                 </div>
               )}
+              {owned && c.families?.includes("hexerei") && (
+                <label
+                  className="mt-1 flex items-center gap-1 text-xs"
+                  title="Hexerei: Secret Rite only counts this character once their Witch's Homework quest is done"
+                >
+                  <input
+                    type="checkbox"
+                    checked={!!owned.hexereiUnlocked}
+                    onChange={(e) => onSetEntry(c.id, { hexereiUnlocked: e.target.checked })}
+                  />
+                  Witch&apos;s Homework done
+                </label>
+              )}
             </li>
           );
         })}

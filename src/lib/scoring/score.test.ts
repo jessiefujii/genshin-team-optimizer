@@ -76,8 +76,10 @@ describe("scoreTeam", () => {
 
   test("Hexerei only counts for characters whose quest is done", () => {
     const ids = ["Varka", "Venti", "Klee", "Durin"];
-    const locked = scoreTeam(team(...ids), { hexereiUnlocked: new Set(["Varka"]) });
+    const locked = scoreTeam(team(...ids), { hexereiUnlocked: ["Varka"] });
     expect(locked.breakdown.some((l) => l.reason.includes("Hexerei"))).toBe(false);
+    const done = scoreTeam(team(...ids), { hexereiUnlocked: ids });
+    expect(done.breakdown.some((l) => l.reason.includes("Hexerei"))).toBe(true);
   });
 
   test("partner preference: Zibai with Columbina", () => {

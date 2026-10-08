@@ -85,7 +85,7 @@ const NO_FAMILIES: Family[] = [];
 
 function familiesOf(member: ScoringCharacter, options: ScoreOptions): Family[] {
   const families = member.families ?? NO_FAMILIES;
-  if (!options.hexereiUnlocked || options.hexereiUnlocked.has(member.id) || !families.includes("hexerei")) return families;
+  if (!options.hexereiUnlocked || options.hexereiUnlocked.includes(member.id) || !families.includes("hexerei")) return families;
   return families.filter((f) => f !== "hexerei");
 }
 

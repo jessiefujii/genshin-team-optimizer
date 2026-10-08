@@ -35,8 +35,9 @@ export interface ScoredTeam {
 }
 
 export interface ScoreOptions {
-  // Hexerei only counts after the character's Witch's Homework quest; undefined = assume done.
-  hexereiUnlocked?: ReadonlySet<string>;
+  // Hexerei only counts after the character's Witch's Homework quest: the ids whose quest is done.
+  // An array, not a Set, so the options survive JSON (the search hook and worker). Undefined = assume all done.
+  hexereiUnlocked?: readonly string[];
 }
 
 export type { Element, Family, Reaction };
