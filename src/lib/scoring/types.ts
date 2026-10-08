@@ -1,5 +1,6 @@
 import type { CharacterBuild, CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
+import type { RotationStep } from "./rotation";
 import type { CharacterTags, Element, Family, Reaction } from "../../types/tags";
 
 // What the scorer needs per character: the hand-written tags, the element from genshin-db, and
@@ -27,6 +28,7 @@ export interface ScoredTeam {
   breakdown: ScoreLine[];
   activeReactions: Reaction[];
   defaultBuilds: string[]; // members with no build, scored as if built to the benchmark
+  rotation: RotationStep[]; // generated from the members' rotation tags
 }
 
 export interface ScoreOptions {
