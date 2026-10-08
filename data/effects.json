@@ -1,0 +1,1922 @@
+[
+  {
+    "source": "weapon",
+    "id": "A Thousand Floating Dreams",
+    "name": "A Thousand Nights' Dawnsong",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, all nearby party members other than the equipping character will have their Elemental Mastery increased by 40.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Akuoumaru",
+    "name": "Watatsumi Wavewalker",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For every point of the entire party's combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Breezeborne Refrain",
+    "name": "Viper's Ballad",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"This grants nearby party members a 24% Stellar Glimmer reaction DMG boost for 12s, during which no stacks of \"Hymn of the Pure\" can be obtained.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Crane's Echoing Call",
+    "name": "Cloudfall Axiom",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"After the equipping character hits an opponent with a Plunging Attack, all nearby party members' Plunging Attacks will deal 28% increased DMG for 20s. When nearby party members hit opponents with Plunging Attacks, the...\""
+  },
+  {
+    "source": "weapon",
+    "id": "Elegy for the End",
+    "name": "The Parting Refrain",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"\"Millennial Movement: Farewell Song\" increases Elemental Mastery by 100 and increases ATK by 20%.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Favonius Codex",
+    "name": "Windfall",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"CRIT Hits have a 60% chance to generate a small amount of Elemental Particles, which will regenerate 6 Energy for the character.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Favonius Greatsword",
+    "name": "Windfall",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"CRIT Hits have a 60% chance to generate a small amount of Elemental Particles, which will regenerate 6 Energy for the character.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Favonius Lance",
+    "name": "Windfall",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"CRIT Hits have a 60% chance to generate a small amount of Elemental Particles, which will regenerate 6 Energy for the character.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Favonius Sword",
+    "name": "Windfall",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"CRIT Hits have a 60% chance to generate a small amount of Elemental Particles, which will regenerate 6 Energy for the character.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Favonius Warbow",
+    "name": "Windfall",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"CRIT Hits have a 60% chance to generate a small amount of Elemental Particles, which will regenerate 6 Energy for the character.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Fractured Halo",
+    "name": "Purifying Crown",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"If the equipping character creates a Shield while this effect is active, they will gain the Electrifying Edict effect for 20s: All nearby party members deal 40% more Lunar-Charged DMG.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Freedom-Sworn",
+    "name": "Revolutionary Chorale",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"\"Millennial Movement: Song of Resistance\" increases Normal, Charged and Plunging Attack DMG by 16% and increases ATK by 20%.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Frostbreath",
+    "name": "A Cast Real Far",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"Triggering a Cryo or Hydro-related elemental reaction increases the equipping character's ATK by 20% for the next 15s, as well as regenerates 6 Elemental Energy for other members of their party.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Golden Frostbound Oath",
+    "name": "Dawn's Salutation Returned",
+    "buffs": [
+      {
+        "stat": "Geo DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Geo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"While this effect is active, if there are Moondrifts near the equipping character, all other nearby party members will gain the Frost Fae's Mischief effect: Geo DMG dealt increases by 20% and Lunar-Crystallize Reactio...\""
+  },
+  {
+    "source": "weapon",
+    "id": "Hakushin Ring",
+    "name": "Sakura Saiguu",
+    "buffs": [
+      {
+        "stat": "Electro DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Electro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After the character equipped with this weapon triggers an Electro elemental reaction, nearby party members of an Elemental Type involved in the elemental reaction receive a 10% Elemental DMG Bonus for their element, l...\""
+  },
+  {
+    "source": "weapon",
+    "id": "Key of Khaj-Nisut",
+    "name": "Sunken Song of the Sands",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When this effect gains 3 stacks, or when the third stack's duration is refreshed, the Elemental Mastery of all nearby party members will be increased by 0.2% of the equipping character's max HP for 20s.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Makhaira Aquamarine",
+    "name": "Desert Pavilion",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"The following effect will trigger every 10s: The equipping character will gain 24% of their Elemental Mastery as bonus ATK for 12s, with nearby party members gaining 30% of this buff for the same duration.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Mountain-Bracing Bolt",
+    "name": "Hope Beyond the Peaks",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Also, after other nearby party members use Elemental Skills, the equipping character's Elemental Skill DMG will also increase by 12% for 8s.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Mouun's Moon",
+    "name": "Watatsumi Wavewalker",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For every point of the entire party's combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Nightweaver's Looking Glass",
+    "name": "Millennial Hymn",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When nearby party members trigger Lunar-Bloom reactions, the equipping character gains New Moon Verse: Elemental Mastery is increased by 60 for 10s. When both Prayer of the Far North and New Moon Verse are in effect, ...\""
+  },
+  {
+    "source": "weapon",
+    "id": "Peak Patrol Song",
+    "name": "Halcyon Years Unending",
+    "buffs": [
+      {
+        "stat": "DEF",
+        "scope": "team",
+        "affects": "DEF"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When this effect reaches 2 stacks or the 2nd stack's duration is refreshed, increase all nearby party members' All Elemental DMG Bonus by 8% for every 1,000 DEF the equipping character has, up to a maximum of 25.6%, f...\""
+  },
+  {
+    "source": "weapon",
+    "id": "Song of Broken Pines",
+    "name": "Rebel's Banner-Hymn",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"\"Millennial Movement: Banner-Hymn\" increases Normal ATK SPD by 12% and increases ATK by 20%.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Splendor of Tranquil Waters",
+    "name": "Dawn and Dusk by the Lake",
+    "buffs": [
+      {
+        "stat": "Max HP",
+        "scope": "team",
+        "affects": "HP"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When other party members' current HP increases or decreases, the equipping character's Max HP will be increased by 14% for 6s.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Thrilling Tales of Dragon Slayers",
+    "name": "Heritage",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When switching characters, the new character taking the field has their ATK increased by 24% for 10s.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Uraku Misugiri",
+    "name": "Brocade Bloom, Shrine Sword",
+    "buffs": [
+      {
+        "stat": "Geo DMG Bonus",
+        "scope": "active",
+        "elements": [
+          "Geo"
+        ]
+      },
+      {
+        "stat": "DEF",
+        "scope": "active",
+        "affects": "DEF"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After a nearby active character deals Geo DMG, the aforementioned effects increase by 100% for 15s. Additionally, the wielder's DEF is increased by 20%.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Wandering Evenstar",
+    "name": "Wildling Nightstar",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"The following effect will trigger every 10s: The equipping character will gain 24% of their Elemental Mastery as bonus ATK for 12s, with nearby party members gaining 30% of this buff for the same duration.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Wavebreaker's Fin",
+    "name": "Watatsumi Wavewalker",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For every point of the entire party's combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Wolf's Gravestone",
+    "name": "Wolfish Tracker",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"On hit, attacks against opponents with less than 30% HP increase all party members' ATK by 40% for 12s.\""
+  },
+  {
+    "source": "weapon",
+    "id": "Xiphos' Moonlight",
+    "name": "Jinni's Whisper",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "Energy Recharge",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"The following effect will trigger every 10s: The equipping character will gain 0.036% Energy Recharge for each point of Elemental Mastery they possess for 12s, with nearby party members gaining 30% of this buff for th...\""
+  },
+  {
+    "source": "set",
+    "id": "Archaic Petra",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Upon obtaining an Elemental Shard created through Crystallize or triggering a Lunar-Crystallize reaction, all party members gain a 35% DMG Bonus for that particular element for 10s. Only one form of Elemental DMG Bonu...\""
+  },
+  {
+    "source": "set",
+    "id": "Celestial Gift",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"If the equipping character has completed Witch's Homework, after they use an Elemental Skill, they gain \"Light's Guidance\" for 20s: All nearby party members gain a 20% Elemental DMG Bonus corresponding to the equippin...\""
+  },
+  {
+    "source": "set",
+    "id": "Deepwood Memories",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "Dendro RES shred",
+        "scope": "team",
+        "elements": [
+          "Dendro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After Elemental Skills or Bursts hit opponents, the targets' Dendro RES will be decreased by 30% for 8s.\""
+  },
+  {
+    "source": "set",
+    "id": "Heart of the Furnace",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Also increases Stellar Glimmer reaction DMG dealt by all nearby party members by 50%. The above effects can trigger even when the equipping character is not on the field, and the DMG bonus from multiple Artifact Sets ...\""
+  },
+  {
+    "source": "set",
+    "id": "Instructor",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Upon triggering an Elemental Reaction, increases all party members' Elemental Mastery by 120 for 8s.\""
+  },
+  {
+    "source": "set",
+    "id": "Night of the Sky's Unveiling",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "CRIT",
+        "scope": "team"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When nearby party members trigger Lunar Reactions, if the equipping character is on the field, gain the Gleaming Moon: Intent effect for 4s: Increases CRIT Rate by 15%/30% when the party's Moonsign is Nascent Gleam/As...\""
+  },
+  {
+    "source": "set",
+    "id": "Noblesse Oblige",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Using an Elemental Burst increases all party members' ATK by 20% for 12s.\""
+  },
+  {
+    "source": "set",
+    "id": "Scholar",
+    "requires": 4,
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"Gaining Elemental Particles or Orbs gives 3 Energy to all party members who have a bow or a catalyst equipped.\""
+  },
+  {
+    "source": "set",
+    "id": "Scroll of the Hero of Cinder City",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After the equipping character triggers a reaction related to their Elemental Type, all nearby party members gain a 12% Elemental DMG Bonus for the Elemental Types involved in the elemental reaction for 15s. If the equ...\""
+  },
+  {
+    "source": "set",
+    "id": "Silken Moon's Serenade",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When dealing Elemental DMG, gain the Gleaming Moon: Devotion effect for 8s: Increases all party members' Elemental Mastery by 60/120 when the party's Moonsign is Nascent Gleam/Ascendant Gleam. All party members' Lunar...\""
+  },
+  {
+    "source": "set",
+    "id": "Tenacity of the Millelith",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When an Elemental Skill hits an opponent, the ATK of all nearby party members is increased by 20% and their Shield Strength is increased by 30% for 3s.\""
+  },
+  {
+    "source": "set",
+    "id": "The Exile",
+    "requires": 4,
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"Using an Elemental Burst regenerates 2 Energy for all party members (excluding the wearer) every 2s for 6s.\""
+  },
+  {
+    "source": "set",
+    "id": "Viridescent Venerer",
+    "requires": 4,
+    "buffs": [
+      {
+        "stat": "Swirled element RES shred",
+        "scope": "team",
+        "reactions": [
+          "swirl"
+        ]
+      },
+      {
+        "stat": "Cryo RES shred",
+        "scope": "team",
+        "elements": [
+          "Cryo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Decreases opponent's Elemental RES to the element infused in the Swirl by 40% for 10s. Upon triggering a Stellar Swirl in the opponent, will also decrease their Cryo RES by 40%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Aino",
+    "requires": 6,
+    "name": "The Burden of Creative Genius",
+    "buffs": [
+      {
+        "stat": "Electro DMG Bonus",
+        "scope": "active",
+        "elements": [
+          "Electro"
+        ]
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For the next 15s after using the Elemental Burst **Precision Hydronic Cooler**, DMG from nearby active characters' Electro-Charged, Bloom, Lunar-Charged, Lunar-Bloom, and Lunar-Crystallize reactions is increased by 15...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Albedo",
+    "requires": 4,
+    "name": "Descent of Divinity",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Active party members within the Solar Isotoma field have their Plunging Attack DMG increased by 30%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Albedo",
+    "requires": 6,
+    "name": "Dust of Purification",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Active party members within the Solar Isotoma field who are protected by a shield created by Crystallize, or when Moondrifts are present within the Solar Isotoma field, have their DMG increased by 17%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Alhaitham",
+    "requires": 4,
+    "name": "Elucidation",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "Dendro DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Dendro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Particular Field: Fetters of Phenomena is unleashed, the following effects will become active based on the number of Chisel-Light Mirrors consumed and created this time around: ·Each Mirror consumed will increase...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Amber",
+    "requires": 6,
+    "name": "Wildfire",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Fiery Rain increases all party members' Movement SPD by 15% and ATK by 15% for 10s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Arataki Itto",
+    "requires": 4,
+    "name": "Jailhouse Bread and Butter",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      },
+      {
+        "stat": "DEF",
+        "scope": "team",
+        "affects": "DEF"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When the Raging Oni King state caused by Royal Descent: Behold, Itto the Evil! ends, all nearby party members gain 20% DEF and 20% ATK for 10s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Baizhu",
+    "requires": 4,
+    "name": "Ancient Art of Perception",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For 15s after Holistic Revivification is used, Baizhu will increase all nearby party members' Elemental Mastery by 80.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Barbara",
+    "requires": 2,
+    "name": "Vitality Burst",
+    "buffs": [
+      {
+        "stat": "Hydro DMG Bonus",
+        "scope": "active",
+        "elements": [
+          "Hydro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"During the ability's duration, your active character gains a 15% Hydro DMG Bonus.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Bennett",
+    "requires": 6,
+    "name": "Fire Ventures With Me",
+    "buffs": [
+      {
+        "stat": "Pyro DMG Bonus",
+        "scope": "active",
+        "elements": [
+          "Pyro"
+        ]
+      }
+    ],
+    "infusion": "Pyro",
+    "notes": "VERIFY: drafted from text: \"Sword, Claymore, or Polearm-wielding characters inside Fantastic Voyage's radius gain a 15% Pyro DMG Bonus and their weapons are infused with Pyro.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Chevreuse",
+    "requires": 6,
+    "name": "In Pursuit of Ending Evil",
+    "buffs": [
+      {
+        "stat": "Pyro/Electro DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Pyro",
+          "Electro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After a party member is healed by Short-Range Rapid Interdiction Fire, they gain a 20% Pyro DMG Bonus and Electro DMG Bonus for 8s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Citlali",
+    "requires": 1,
+    "name": "Radiant Blades of Centzon Mimixcoah",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "active",
+        "affects": "EM"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When a nearby active character other than Citlali deals DMG using Normal, Charged, or Plunging Attacks, or Elemental Skills and Bursts, 1 stack of Stellar Blade will be consumed to increase the DMG dealt by 200% of Ci...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Citlali",
+    "requires": 2,
+    "name": "Heart Devourer's Travail",
+    "buffs": [
+      {
+        "stat": "Pyro/Hydro RES shred",
+        "scope": "team",
+        "elements": [
+          "Pyro",
+          "Hydro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Also, the Ascension Talent \"Mamaloaco's Frigid Rain\" has its effects enhanced: While Itzpapa is on the field, after nearby party members trigger Frozen or Melt, the opponent(s) affected by this reaction will have thei...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Citlali",
+    "requires": 6,
+    "name": "Teoiztac's Secret Pact",
+    "buffs": [
+      {
+        "stat": "Pyro/Hydro DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Pyro",
+          "Hydro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"A maximum of 40 such points can be gained, and each point Citlali possesses will grant all nearby party members a 1.5% Pyro and Hydro DMG Bonus, and increase the DMG Citlali deals by 2.5%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Columbina",
+    "requires": 2,
+    "name": "Not in Lone Splendor",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      },
+      {
+        "stat": "Max HP",
+        "scope": "active",
+        "affects": "HP"
+      },
+      {
+        "stat": "Elemental Mastery",
+        "scope": "active",
+        "affects": "EM"
+      },
+      {
+        "stat": "DEF",
+        "scope": "active",
+        "affects": "DEF"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Moonsign: Ascendant Gleam: When Lunar Brilliance is active, if, during the current trigger of Gravity Interference, the Lunar reaction type that has accumulated the most Gravity for Columbina is: · Lunar-Charged: ATK ...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Columbina",
+    "requires": 6,
+    "name": "Through Darkness Led by Moonlight",
+    "buffs": [
+      {
+        "stat": "CRIT",
+        "scope": "team"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For 8s after characters in the **Lunar Domain** trigger a Lunar reaction, based on the elements involved in the reaction, the CRIT DMG of the corresponding Elemental DMG done by all party members is increased by 80%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Cyno",
+    "requires": 4,
+    "name": "Austerity: Forbidding Guard",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"When Cyno is in the Pactsworn Pathclearer state triggered by Sacred Rite: Wolf's Swiftness, after he triggers an Electro-Charged, Lunar-Charged, Superconduct, Stellar-Conduct, Overloaded, Quicken, Aggravate, Hyperbloo...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Dehya",
+    "requires": 2,
+    "name": "The Sand-Blades Glittering",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, when a Fiery Sanctum exists on the field, DMG dealt by its next coordinated attack will be increased by 50% when active character(s) within the Fiery Sanctum field are attacked.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Diona",
+    "requires": 6,
+    "name": "Cat's Tail Closing Time",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "active",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"·Elemental Mastery increased by 200 when HP is above 50%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Durin",
+    "requires": 1,
+    "name": "Adamah's Redemption",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When nearby active characters deal Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, or Elemental Burst DMG, 1 stack of Cycle of Enlightenment will be consumed to increase the DMG dealt by 60% of Durin'...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Durin",
+    "requires": 2,
+    "name": "Unground Visions",
+    "buffs": [
+      {
+        "stat": "Pyro/Dendro DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Pyro",
+          "Dendro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For 20s after Durin uses an Elemental Burst, after nearby party members trigger Vaporize, Melt, Burning, Overloaded, Pyro Swirl, or Pyro Crystallize reactions, or deal Pyro DMG or Dendro DMG to an opponent affected by...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Emilie",
+    "requires": 2,
+    "name": "Lakelight Top Note",
+    "buffs": [
+      {
+        "stat": "Dendro RES shred",
+        "scope": "team",
+        "elements": [
+          "Dendro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Fragrance Extraction, Aromatic Explication, or Cleardew Cologne produced by the Ascension Talent \"Lingering Fragrance\" (the last of which requires Ascension Talent activation) hits opponents, those opponents' Den...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Escoffier",
+    "requires": 1,
+    "name": "Pre-Dinner Dance for Your Taste Buds",
+    "buffs": [
+      {
+        "stat": "CRIT",
+        "scope": "team"
+      },
+      {
+        "stat": "Hydro/Cryo DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Hydro",
+          "Cryo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When 4 party members are Hydro or Cryo, all nearby party members will have their Cryo DMG CRIT DMG increased by 60% for 15s after Escoffier uses her Elemental Skill **Low-Temperature Cooking** or Elemental Burst **Sco...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Escoffier",
+    "requires": 2,
+    "name": "Fresh, Fragrant Stew Is an Art",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      },
+      {
+        "stat": "Cryo DMG Bonus",
+        "scope": "active",
+        "elements": [
+          "Cryo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When nearby active characters apart from Escoffier deal Cryo DMG with a Normal, Charged, or Plunging Attack, or an Elemental Skill or Elemental Burst, they will expend 1 Cold Dish stack to increase their DMG dealt by ...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Flins",
+    "requires": 2,
+    "name": "The Devil's Wall",
+    "buffs": [
+      {
+        "stat": "Electro RES shred",
+        "scope": "team",
+        "elements": [
+          "Electro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Moonsign: Ascendant Gleam: While Flins is on the field, after his Electro attacks hit an opponent, that opponent's Electro RES will be decreased by 25% for 7s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Ganyu",
+    "requires": 1,
+    "name": "Dew-Drinker",
+    "buffs": [
+      {
+        "stat": "Cryo RES shred",
+        "scope": "team",
+        "elements": [
+          "Cryo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Charge Level 2 Frostflake Arrows or Frostflake Arrow Blooms decrease opponents' Cryo RES by 15% for 6s upon hit.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Gorou",
+    "requires": 6,
+    "name": "Valiant Hound: Mountainous Fealty",
+    "buffs": [
+      {
+        "stat": "CRIT",
+        "scope": "team"
+      },
+      {
+        "stat": "Geo DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Geo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For 12s after using Inuzaka All-Round Defense or Juuga: Forward Unto Victory, increases the CRIT DMG of all nearby party members' Geo DMG based on the buff level of the skill's field at the time of use: · \"Standing Fi...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Iansan",
+    "requires": 2,
+    "name": "Laziness is the Enemy!",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, if Iansan is off-field while Precise Movement is active, she will also increase your current active character's ATK by 30%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Iansan",
+    "requires": 6,
+    "name": "Teachings of the Collective of Plenty",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, when Iansan triggers Nightsoul point restoration, if there is any overflow, she will gain the Extreme Force effect, which increases the DMG dealt by your current active character by 25% for 3s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Ineffa",
+    "requires": 1,
+    "name": "Rectifying Processor",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Ineffa activates her Optical Flow Shield Barrier, all nearby party members will gain the Carrier Flow Composite effect for 20s: Increases Lunar-Charged DMG by 2.5% for every 100 ATK that Ineffa has, up to a maxim...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Jean",
+    "requires": 4,
+    "name": "Lands of Dandelion",
+    "buffs": [
+      {
+        "stat": "Anemo RES shred",
+        "scope": "team",
+        "elements": [
+          "Anemo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Within the Field created by Dandelion Breeze, all opponents have their Anemo RES decreased by 40%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Kachina",
+    "requires": 4,
+    "name": "More Foes, More Caution",
+    "buffs": [
+      {
+        "stat": "DEF",
+        "scope": "active",
+        "affects": "DEF"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When there are 1/2/3/4 (or more) opponents within the Turbo Drill Field created by \"Time to Get Serious!\", the active character within the field gains 8%/12%/16%/20% increased DEF.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Kaedehara Kazuha",
+    "requires": 2,
+    "name": "Yamaarashi Tailwind",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "active",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"· Increases the Elemental Mastery of characters within the field by 200.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Keqing",
+    "requires": 2,
+    "name": "Keen Extraction",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"When Keqing's Normal and Charged Attacks hit opponents affected by Electro, they have a 50% chance of producing an Elemental Particle.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Kinich",
+    "requires": 2,
+    "name": "Tiger Beetle's Palm",
+    "buffs": [
+      {
+        "stat": "Dendro RES shred",
+        "scope": "team",
+        "elements": [
+          "Dendro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Kinich's Elemental Skill hits an opponent, it will decrease their Dendro RES by 30% for 6s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Kirara",
+    "requires": 6,
+    "name": "Countless Sights to See",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"All nearby party members gain a 12% All Elemental DMG Bonus for 15s after Kirara uses her Elemental Skill or Burst.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Klee",
+    "requires": 6,
+    "name": "Blazing Delight",
+    "buffs": [
+      {
+        "stat": "Pyro DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Pyro"
+        ]
+      }
+    ],
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"While under the effects of Sparks 'n' Splash, Klee will regenerate 3 Energy for all members of the party (excluding Klee) every 3s. When Sparks 'n' Splash is used, all party members will gain a 10% Pyro DMG Bonus for ...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Lan Yan",
+    "requires": 4,
+    "name": "\"With Drakefalcon's Blood-Pearls Adorned\"",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After Lan Yan uses her Elemental Burst Lustrous Moonrise, the Elemental Mastery of all nearby party members increases by 60 for 12s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Lauma",
+    "requires": 2,
+    "name": "\"Twine Warnings and Tales From the North\"",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"The Elemental Burst **Runo: All Hearts Become the Beating Moon** is enhanced: · **Pale Hymn** effects are increased: All nearby party members' Bloom, Hyperbloom, and Burgeon DMG is further increased by 500% of Lauma's...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Layla",
+    "requires": 4,
+    "name": "Starry Illumination",
+    "buffs": [
+      {
+        "stat": "Max HP",
+        "scope": "team",
+        "affects": "HP"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Nights of Formal Focus starts to fire off Shooting Stars, it will grant all nearby party members the Dawn Star effect, causing their Normal and Charged Attack DMG to increase based on 5% of Layla's Max HP.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Linnea",
+    "requires": 1,
+    "name": "Provisional Classification",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      },
+      {
+        "stat": "DEF",
+        "scope": "team",
+        "affects": "DEF"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When nearby party members deal Lunar-Crystallize Reaction DMG, consume 1 stack of Field Catalog to increase the DMG dealt. The increase in DMG is equal to 75% of Linnea's DEF. Each stack will increase the DMG dealt by...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Linnea",
+    "requires": 4,
+    "name": "Expert Instinct",
+    "buffs": [
+      {
+        "stat": "DEF",
+        "scope": "active",
+        "affects": "DEF"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Within 5s after Moondrift Harmony is triggered, increase the DEF of Linnea and your current active character by 25% respectively.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Lohen",
+    "requires": 2,
+    "name": "In Flight, I Strike Whatever Flies",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      },
+      {
+        "stat": "Cryo DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Cryo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When in **Masterstroke** mode, after the special Elemental Skill **Etched Into Bone and Soul** hits an opponent or the Elemental Burst Manifest Judgment is unleashed, Lohen gains \"Evilsbane Blade\" for 4s: The next tim...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Lyney",
+    "requires": 4,
+    "name": "Well-Versed, Well-Rehearsed",
+    "buffs": [
+      {
+        "stat": "Pyro RES shred",
+        "scope": "team",
+        "elements": [
+          "Pyro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After an opponent is hit by Lyney's Pyro Charged Attack, this opponent's Pyro RES will be decreased by 20% for 6s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Mika",
+    "requires": 4,
+    "name": "Sunfrost Encomium",
+    "roles": [
+      "battery"
+    ],
+    "notes": "VERIFY: drafted from text: \"When Mika's own Skyfeather Song's Eagleplume state heals party members, this will restore 3 Energy to Mika.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Navia",
+    "requires": 4,
+    "name": "The Oathsworn Never Capitulate",
+    "buffs": [
+      {
+        "stat": "Geo RES shred",
+        "scope": "team",
+        "elements": [
+          "Geo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When As the Sunlit Sky's Singing Salute hits an opponent, that opponent's Geo RES will be decreased by 20% for 8s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Nefer",
+    "requires": 4,
+    "name": "Delusion Ensnares Reason",
+    "buffs": [
+      {
+        "stat": "Dendro RES shred",
+        "scope": "team",
+        "elements": [
+          "Dendro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, while Nefer is in the Shadow Dance state, nearby opponents will have their Dendro RES decreased by 20%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Nicole",
+    "requires": 1,
+    "name": "\"Do Not Be Afraid, Child Who Is Loved\"",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When the current active character of your own in the party hits an opponent, an additional special \"Arcane Projection: Unity\" will be summoned to perform a Coordinated Attack against the opponent, dealing AoE Elementa...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Nicole",
+    "requires": 2,
+    "name": "\"I Will Guide You and Show You the Path You Should Tread\"",
+    "buffs": [
+      {
+        "stat": "Elemental RES shred",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Enhances the effects of the Elemental Skill **Revelation: Uncreated Light**: **Grace of Kenosis** increases ATK by an additional 300 (which does not count toward this effect's ATK Bonus limit), while **Guidance of The...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Nicole",
+    "requires": 4,
+    "name": "\"Whether Left or Right, No Matter Which Way You Turn\"",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"The Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, and Elemental Burst DMG of characters with Pathfinder's Blessing is increased by 70% of Nicole's ATK.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Nilou",
+    "requires": 2,
+    "name": "The Starry Skies Their Flowers Rain",
+    "buffs": [
+      {
+        "stat": "Hydro RES shred",
+        "scope": "team",
+        "elements": [
+          "Hydro"
+        ]
+      },
+      {
+        "stat": "Dendro RES shred",
+        "scope": "team",
+        "elements": [
+          "Dendro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After characters affected by the Golden Chalice's Bounty deal Hydro DMG to an opponent, that opponent's Hydro RES will be decreased by 35% for 10s. After dealing Bloom or Lunar-Bloom DMG to opponents, their Dendro RES...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Odette",
+    "requires": 4,
+    "name": "\"Up, Up the Long, Delirious, Burning Blue\"",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"The Elemental Burst Presto: Bluebird Finale is enhanced as follows: when Odette obtains Snow Swan's Dream, Stellar Glimmer reaction DMG dealt by other nearby party members is increased by 50% of Snow Swan Dream's effe...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Ororon",
+    "requires": 6,
+    "name": "Ode to Deep Springs",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After triggering Hypersense through the Ascension Talent, Nightshade Synesthesia, your current active character's ATK is increased by 10% for 9s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Prune",
+    "requires": 6,
+    "name": "And That's the Story! Share It With Your Friends!",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, after party members affected by Tolling Rally trigger any Elemental Reaction, they will cause Prune and the other current active character(s) affected by Tolling Rally to gain 350 ATK for 5s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Raiden Shogun",
+    "requires": 4,
+    "name": "Pledge of Propriety",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When the Musou Isshin state applied by Secret Art: Musou Shinsetsu expires, all nearby party members (excluding the Raiden Shogun) gain 30% bonus ATK for 10s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Sandrone",
+    "requires": 1,
+    "name": "Morrow After the Golden Dusk",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When in **Decoding** mode, Fagio's **Decoding Power** increases at a 50% lower rate, and all party members deal 30% increased Stellar Glimmer reaction DMG.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Sethos",
+    "requires": 4,
+    "name": "Beneficent Plumage",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When a Shadowpiercing Shot or Dusk Bolt strikes 2 or more opponents, all nearby party members gain 80 Elemental Mastery for 10s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Shenhe",
+    "requires": 2,
+    "name": "Centered Spirit",
+    "buffs": [
+      {
+        "stat": "CRIT",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Active characters within the skill's field deal 15% increased Cryo CRIT DMG.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Sigewinne",
+    "requires": 2,
+    "name": "\"Can the Most Merciful of Spirits Defeat Its Foes?\"",
+    "buffs": [
+      {
+        "stat": "Hydro RES shred",
+        "scope": "team",
+        "elements": [
+          "Hydro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, after Rebound Hydrotherapy's Bolstering Bubblebalm or Super Saturated Syringing hits an opponent, that opponent's Hydro RES will be decreased by 35% for 8s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Sucrose",
+    "requires": 6,
+    "name": "Chaotic Entropy",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"If Forbidden Creation - Isomer 75 / Type II triggers an Elemental Absorption, all party members gain a 20% Elemental DMG Bonus for the corresponding absorbed element during its duration.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Thoma",
+    "requires": 6,
+    "name": "Burning Heart",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When a Blazing Barrier is obtained or refreshed, the DMG dealt by all party members' Normal, Charged, and Plunging Attacks is increased by 15% for 6s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Tighnari",
+    "requires": 4,
+    "name": "Withering Glimpsed in the Leaves",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Fashioner's Tanglevine Shaft is unleashed, all nearby party members gain 60 Elemental Mastery for 8s. If the Fashioner's Tanglevine Shaft triggers a Burning, Bloom, Lunar-Bloom, Quicken, or Spread reaction, their...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Traveler (Anemo)",
+    "requires": 6,
+    "name": "Intertwined Winds",
+    "buffs": [
+      {
+        "stat": "Anemo RES shred",
+        "scope": "team",
+        "elements": [
+          "Anemo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Targets who take DMG from Gust Surge have their Anemo RES decreased by 20%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Traveler (Electro)",
+    "requires": 2,
+    "name": "Violet Vehemence",
+    "buffs": [
+      {
+        "stat": "Electro RES shred",
+        "scope": "team",
+        "elements": [
+          "Electro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Falling Thunder created by Bellowing Thunder hits an opponent, it will decrease their Electro RES by 15% for 8s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Traveler (Geo)",
+    "requires": 1,
+    "name": "Invincible Stonewall",
+    "buffs": [
+      {
+        "stat": "CRIT",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Party members within the radius of Wake of Earth have their CRIT Rate increased by 10% and have increased resistance against interruption.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Traveler (Pyro)",
+    "requires": 1,
+    "name": "Starfire's Flowing Light",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"While Blazing Threshold or Scorching Threshold are active, the current active character deals 6% increased DMG.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Varka",
+    "requires": 4,
+    "name": "\"For None May Take From Us Our Freedom of Song\"",
+    "buffs": [
+      {
+        "stat": "Anemo DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Anemo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Varka triggers a Swirl or Stellar Swirl reaction, based on the Elemental Types involved in the reaction, all nearby party members gain a 20% Anemo DMG Bonus and the corresponding Elemental DMG Bonus for 10s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Venti",
+    "requires": 2,
+    "name": "Breeze of Reminiscence",
+    "buffs": [
+      {
+        "stat": "Anemo RES shred",
+        "scope": "team",
+        "elements": [
+          "Anemo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Skyward Sonnet decreases opponents' Anemo RES and Physical RES by 12% for 10s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Venti",
+    "requires": 6,
+    "name": "Storm of Defiance",
+    "buffs": [
+      {
+        "stat": "Anemo RES shred",
+        "scope": "team",
+        "elements": [
+          "Anemo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Targets who take DMG from Wind's Grand Ode have their Anemo RES decreased by 20%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Vodyanitsa",
+    "requires": 1,
+    "name": "Waters in Full Splendor",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      },
+      {
+        "stat": "Max HP",
+        "scope": "team",
+        "affects": "HP"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Each time Vodyanitsa triggers the healing effect of **Song of Ages Past**, it also increases the ATK of all nearby party members by 0.8% of her Max HP for 5s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Vodyanitsa",
+    "requires": 6,
+    "name": "Neverending Song of Revelry",
+    "buffs": [
+      {
+        "stat": "Hydro/Cryo DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Hydro",
+          "Cryo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, while the **Song of Ages Past** effect is active, Stellar Swirl reaction DMG dealt by nearby party members is **elevated** by 25% while Hydro DMG and Cryo DMG dealt are increased by 60%.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Xiangling",
+    "requires": 1,
+    "name": "Crispy Outside, Tender Inside",
+    "buffs": [
+      {
+        "stat": "Pyro RES shred",
+        "scope": "team",
+        "elements": [
+          "Pyro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Opponents hit by Guoba's attacks have their Pyro RES reduced by 15% for 6s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Xiangling",
+    "requires": 6,
+    "name": "Condensed Pyronado",
+    "buffs": [
+      {
+        "stat": "Pyro DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Pyro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"For the duration of Pyronado, all party members receive a 15% Pyro DMG Bonus.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Xianyun",
+    "requires": 2,
+    "name": "Aloof From the World",
+    "buffs": [
+      {
+        "stat": "ATK",
+        "scope": "active",
+        "affects": "ATK"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "active"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, the effects of the Ascension Talent \"Consider, the Adeptus in Her Realm\" will be enhanced: When the Starwicker created by Stars Gather at Dusk has Adeptal Assistance stacks, nearby active characters' Plu...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Xilonen",
+    "requires": 2,
+    "name": "Chiucue Mix",
+    "buffs": [
+      {
+        "stat": "Geo DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Geo"
+        ]
+      },
+      {
+        "stat": "ATK",
+        "scope": "team",
+        "affects": "ATK"
+      },
+      {
+        "stat": "Max HP",
+        "scope": "team",
+        "affects": "HP"
+      },
+      {
+        "stat": "CRIT",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Additionally, when her Source Samples activate, all nearby party members will gain effects corresponding to the active Source Sample that matches their Elemental Type: ·Geo: DMG dealt +50%. ·Pyro: ATK +45%. ·Hydro: Ma...\""
+  },
+  {
+    "source": "constellation",
+    "id": "Xilonen",
+    "requires": 4,
+    "name": "Suchitl's Trance",
+    "buffs": [
+      {
+        "stat": "DEF",
+        "scope": "team",
+        "affects": "DEF"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Characters with Blooming Blessing deal 65% of Xilonen's DEF as increased Normal, Charged, and Plunging Attack DMG.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Xingqiu",
+    "requires": 2,
+    "name": "Rainbow Upon the Azure Sky",
+    "buffs": [
+      {
+        "stat": "Hydro RES shred",
+        "scope": "team",
+        "elements": [
+          "Hydro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Decreases the Hydro RES of opponents hit by sword rain attacks by 15% for 4s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Yae Miko",
+    "requires": 4,
+    "name": "Sakura Channeling",
+    "buffs": [
+      {
+        "stat": "Electro DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Electro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Sesshou Sakura lightning hits opponents, the Electro DMG Bonus of all nearby party members is increased by 20% for 5s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Yaoyao",
+    "requires": 1,
+    "name": "Adeptus' Tutelage",
+    "buffs": [
+      {
+        "stat": "Dendro DMG Bonus",
+        "scope": "active",
+        "elements": [
+          "Dendro"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When White Jade Radishes explode, active characters within their AoE will gain 15% Dendro DMG Bonus for 8s and have 15 Stamina restored to them.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Yelan",
+    "requires": 4,
+    "name": "Bait-and-Switch",
+    "buffs": [
+      {
+        "stat": "Max HP",
+        "scope": "team",
+        "affects": "HP"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Increases all party members' Max HP by 10% for 25s for every opponent marked by Lifeline when the Lifeline explodes. A maximum increase of 40% Max HP can be attained in this manner.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Yumemizuki Mizuki",
+    "requires": 2,
+    "name": "Your Echo I Meet in Dreams",
+    "buffs": [
+      {
+        "stat": "Elemental Mastery",
+        "scope": "team",
+        "affects": "EM"
+      },
+      {
+        "stat": "Pyro/Hydro/Electro/Cryo DMG Bonus",
+        "scope": "team",
+        "elements": [
+          "Pyro",
+          "Hydro",
+          "Electro",
+          "Cryo"
+        ]
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When Yumemizuki Mizuki enters the Dreamdrifter state, every Elemental Mastery point she has will increase all nearby party members' Pyro, Hydro, Cryo, and Electro DMG Bonuses by 0.04% until the Dreamdrifter state ends.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Yumemizuki Mizuki",
+    "requires": 6,
+    "name": "The Heart Lingers Long",
+    "buffs": [
+      {
+        "stat": "CRIT",
+        "scope": "team"
+      },
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"Any Stellar Swirl reaction DMG dealt by these characters will also have its CRIT Rate and CRIT DMG increased by 10% and 20%, respectively.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Yun Jin",
+    "requires": 2,
+    "name": "Myriad Mise-En-Scène",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"After Cliffbreaker's Banner is unleashed, all nearby party members' Normal Attack DMG is increased by 15% for 12s.\""
+  },
+  {
+    "source": "constellation",
+    "id": "Zibai",
+    "requires": 2,
+    "name": "At Birth Are Souls Born, and in Death Leave But Husks",
+    "buffs": [
+      {
+        "stat": "DMG Bonus",
+        "scope": "team"
+      },
+      {
+        "stat": "DEF",
+        "scope": "team",
+        "affects": "DEF"
+      }
+    ],
+    "notes": "VERIFY: drafted from text: \"When in the **Lunar Phase Shift** mode, all nearby party members' Lunar-Crystallize Reaction DMG is increased by 30%. Moonsign: Ascendant Gleam: Ascension Talent **The Selenic Adeptus Descends** is enhanced: the DMG d...\""
+  }
+]
