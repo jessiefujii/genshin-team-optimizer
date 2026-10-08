@@ -212,14 +212,14 @@ describe("talent levels (#25)", () => {
   });
 
   test("the carry's key talent scales the carry's points, within bounds", () => {
-    const low = lines(leveled({ "Hu Tao": talents(10, 6, 10) }, ...vape), "Carry talent");
-    expect(low).toEqual([{ rule: "Carry talent", points: Math.round(carryPoints * (0.7 - 1)), reason: "Hu Tao skill level 6 vs 9 benchmark" }]);
-    const high = lines(leveled({ "Hu Tao": talents(1, 13, 1) }, ...vape), "Carry talent");
+    const low = lines(leveled({ "Hu Tao": talents(6, 10, 10) }, ...vape), "Carry talent");
+    expect(low).toEqual([{ rule: "Carry talent", points: Math.round(carryPoints * (0.7 - 1)), reason: "Hu Tao normal level 6 vs 9 benchmark" }]);
+    const high = lines(leveled({ "Hu Tao": talents(13, 1, 1) }, ...vape), "Carry talent");
     expect(high[0].points).toBe(Math.round(carryPoints * 0.15)); // capped at 1.15x
   });
 
   test("level 9, or no build, gets no talent line", () => {
-    expect(lines(leveled({ "Hu Tao": talents(1, 9, 1) }, ...vape), "Carry talent")).toEqual([]);
+    expect(lines(leveled({ "Hu Tao": talents(9, 1, 1) }, ...vape), "Carry talent")).toEqual([]);
     expect(lines(team(...vape), "Carry talent")).toEqual([]);
   });
 
