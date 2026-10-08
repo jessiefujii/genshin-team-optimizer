@@ -23,7 +23,7 @@
         "Q"
       ]
     },
-    "notes": "Hydro support: consistent off-field Hydro from her burst; low burst cost. ER 150-180% as the only Hydro, lower with a second Hydro (per Game8). Raises Moonsign. VERIFY: rotation only."
+    "notes": "Hydro support: consistent off-field Hydro from her burst; low burst cost. ER 150-180% as the only Hydro, lower with a second Hydro (per Game8). Raises Moonsign."
   },
   {
     "id": "Albedo",
@@ -637,7 +637,7 @@
         "Q"
       ]
     },
-    "notes": "Usually off-field Hydro and Lunar buffer; can also be the on-field DPS. Converts Electro-Charged, Bloom and Hydro Crystallize into Lunar reactions. VERIFY: rotation only."
+    "notes": "Usually off-field Hydro and Lunar buffer; can also be the on-field DPS. Converts Electro-Charged, Bloom and Hydro Crystallize into Lunar reactions."
   },
   {
     "id": "Cyno",
@@ -820,11 +820,12 @@
       "slot": "setup",
       "actions": [
         "E",
+        "E",
         "Q"
       ],
       "buffSeconds": 20
     },
-    "notes": "Off-field sub-DPS. Pick the dragon form for the team: White Flame shreds Pyro RES for Burning, Overloaded, Pyro Swirl and Pyro Crystallize teams; Dark Decay adds Vaporize and Melt DMG. VERIFY: rotation only."
+    "notes": "Off-field sub-DPS. Pick the dragon form for the team: White Flame shreds Pyro RES for Burning, Overloaded, Pyro Swirl and Pyro Crystallize teams; Dark Decay adds Vaporize and Melt DMG."
   },
   {
     "id": "Emilie",
@@ -1256,12 +1257,12 @@
     "rotation": {
       "slot": "buffer",
       "actions": [
-        "E",
-        "Q"
+        "Q",
+        "E"
       ],
       "buffSeconds": 20
     },
-    "notes": "Geo buffer; his burst buff lasts 20s. VERIFY: rotation only."
+    "notes": "Geo buffer; his burst buff lasts 20s."
   },
   {
     "id": "Ineffa",
@@ -1328,7 +1329,7 @@
         "Q"
       ]
     },
-    "notes": "Anemo-applying support or sub-DPS who can also heal; her burst robots grant EM +100 to the healed character while HP > 70%. VERIFY: rotation only."
+    "notes": "Anemo-applying support or sub-DPS who can also heal; her burst robots grant EM +100 to the healed character while HP > 70%."
   },
   {
     "id": "Jean",
@@ -1772,11 +1773,10 @@
     "rotation": {
       "slot": "setup",
       "actions": [
-        "E",
-        "Q"
+        "E"
       ]
     },
-    "notes": "Off-field damage from her skill, healing from her burst, buffs from her passive talents. VERIFY: rotation only."
+    "notes": "Off-field damage from her skill, healing from her burst, buffs from her passive talents."
   },
   {
     "id": "Lisa",
@@ -1828,11 +1828,12 @@
       "slot": "carry",
       "actions": [
         "E",
-        "Etched Into Bone and Soul x3",
+        "N until Joy is full",
+        "Etched Into Bone and Soul",
         "Q"
       ]
     },
-    "notes": "On-field main DPS who wants Freeze. Teammates hitting enemies charge his Will to Win. VERIFY: rotation only."
+    "notes": "On-field main DPS who wants Freeze. Teammates hitting enemies charge his Will to Win."
   },
   {
     "id": "Lynette",
@@ -2198,7 +2199,7 @@
       ],
       "buffSeconds": 20
     },
-    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family). VERIFY: rotation only."
+    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family)."
   },
   {
     "id": "Nilou",
@@ -2300,11 +2301,11 @@
     "rotation": {
       "slot": "setup",
       "actions": [
-        "E",
-        "Q"
+        "Q",
+        "E"
       ]
     },
-    "notes": "Off-field damage source. Converts Superconduct and Cryo Swirl into Stellar reactions. VERIFY: rotation only."
+    "notes": "Off-field damage source. Converts Superconduct and Cryo Swirl into Stellar reactions."
   },
   {
     "id": "Ororon",
@@ -2357,12 +2358,11 @@
       "slot": "setup",
       "actions": [
         "E",
-        "E",
         "Q"
       ],
       "buffSeconds": 5
     },
-    "notes": "Off-field sub-DPS and buffer. Her DMG buff from ATK over 2,000 is realistic to reach. VERIFY: rotation only."
+    "notes": "Off-field sub-DPS and buffer. Her DMG buff from ATK over 2,000 is realistic to reach."
   },
   {
     "id": "Qiqi",
@@ -2492,11 +2492,13 @@
     "rotation": {
       "slot": "carry",
       "actions": [
+        "hold CA (3 beams)",
         "E",
-        "Q"
+        "Q",
+        "(hold CA, E) x2"
       ]
     },
-    "notes": "On-field main DPS. VERIFY: rotation only."
+    "notes": "On-field main DPS."
   },
   {
     "id": "Sangonomiya Kokomi",
@@ -2989,11 +2991,12 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N x5",
-        "Q"
+        "N1C",
+        "N4E x2",
+        "N1C"
       ]
     },
-    "notes": "On-field main DPS. Best in mono-element Hexerei teams (e.g. mono-Pyro Hexerei) with one other Anemo character. VERIFY: rotation only."
+    "notes": "On-field main DPS. Best in mono-element Hexerei teams (e.g. mono-Pyro Hexerei) with one other Anemo character."
   },
   {
     "id": "Venti",
@@ -3041,13 +3044,18 @@
     "rotation": {
       "slot": "carry",
       "actions": [
+        "N1C x2",
         "E",
-        "N x4",
-        "Windborne Sword",
-        "Q"
+        "E",
+        "Q",
+        "E",
+        "Q",
+        "E",
+        "N1C x2",
+        "E"
       ]
     },
-    "notes": "On-field DPS. Converts Cryo Swirl into Stellar Swirl. VERIFY: rotation only."
+    "notes": "On-field DPS. Converts Cryo Swirl into Stellar Swirl."
   },
   {
     "id": "Vodyanitsa",
@@ -3080,11 +3088,10 @@
     "rotation": {
       "slot": "setup",
       "actions": [
-        "E",
-        "Q"
+        "E"
       ]
     },
-    "notes": "Stellar-Swirl enabler, healer and RES shredder. VERIFY: rotation only."
+    "notes": "Stellar-Swirl enabler, healer and RES shredder."
   },
   {
     "id": "Wanderer",
@@ -3528,10 +3535,9 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N4 x3",
-        "Q"
+        "N4E x4"
       ]
     },
-    "notes": "Lunar-Crystallize carry; does not need Hydro teammates. Pairs well with Columbina, who buffs Lunar reactions. VERIFY: rotation only."
+    "notes": "Lunar-Crystallize carry; does not need Hydro teammates. Pairs well with Columbina, who buffs Lunar reactions."
   }
 ]
