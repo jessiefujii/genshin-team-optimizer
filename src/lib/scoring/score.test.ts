@@ -80,6 +80,25 @@ describe("scoreTeam", () => {
     expect(locked.breakdown.some((l) => l.reason.includes("Hexerei"))).toBe(false);
   });
 
+  test("a family pair only counts when it helps the team (#43)", () => {
+    // Mona and Nicole are Hexerei, but Hu Tao isn't: no Secret Rite bonus for her team.
+    expect(score("Hu Tao", "Mona", "Nicole", "Zhongli").breakdown.some((l) => l.rule === "Family")).toBe(false);
+    // Varka is Hexerei himself, so his Hexerei teammates count.
+    expect(score("Varka", "Venti", "Klee", "Durin").breakdown.some((l) => l.rule === "Family")).toBe(true);
+    // Moonsign pays off once a Lunar reaction is active.
+    const lunar = score("Flins", "Columbina", "Ineffa", "Zhongli");
+    expect(lunar.activeReactions).toContain("lunar-charged");
+    expect(lunar.breakdown.some((l) => l.rule === "Family" && l.reason.includes("Moonsign"))).toBe(true);
+  });
+
+  test("a support's own team preference counts less than the carry's (#43)", () => {
+    const prefs = (s: ReturnType<typeof score>) => s.breakdown.filter((l) => l.rule === "Team preference");
+    // Chevreuse wants an all Pyro/Electro team; she's a support here.
+    expect(prefs(score("Raiden Shogun", "Chevreuse", "Bennett", "Xiangling")).find((l) => l.reason.startsWith("Chevreuse"))?.points).toBe(5);
+    // Zibai carrying with her partner Columbina: full points.
+    expect(prefs(score("Zibai", "Columbina", "Illuga", "Zhongli")).find((l) => l.reason === "Zibai with Columbina")?.points).toBe(15);
+  });
+
   test("partner preference: Zibai with Columbina", () => {
     const s = score("Zibai", "Columbina", "Illuga", "Zhongli");
     expect(s.breakdown.some((l) => l.reason === "Zibai with Columbina")).toBe(true);
