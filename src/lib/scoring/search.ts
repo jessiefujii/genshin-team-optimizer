@@ -4,6 +4,7 @@ import type { ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 export interface SearchOptions extends ScoreOptions {
   mustInclude?: string[];
   exclude?: string[];
+  requireAny?: string[]; // only teams with at least one of these (the build-suggestion search)
   limit?: number; // how many teams to return (default 20)
 }
 
@@ -19,7 +20,9 @@ export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions
   const limit = options.limit ?? 20;
   const excluded = new Set(options.exclude ?? []);
   const required = options.mustInclude ?? [];
-  const pool = roster.filter((c) => !excluded.has(c.id));
+  // Characters marked not built sit out unless the player asked for them.
+  const pool = roster.filter((c) => !excluded.has(c.id) && (c.built !== false || required.includes(c.id)));
+  const anyOf = options.requireAny && new Set(options.requireAny);
   const fixed = required.map((id) => {
     const c = pool.find((p) => p.id === id);
     if (!c) throw new Error(`${id} is not in the roster`);
@@ -31,7 +34,7 @@ export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions
 
   const top: ScoredTeam[] = [];
   const consider = (team: ScoringCharacter[]) => {
-    if (!validTeam(team)) return;
+    if (!validTeam(team) || (anyOf && !team.some((c) => anyOf.has(c.id)))) return;
     // Score first; build the breakdown only for teams that make the list.
     if (top.length === limit && teamScore(team, options) <= top[top.length - 1].score) return;
     const scored = scoreTeam(team, options);

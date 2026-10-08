@@ -9,6 +9,7 @@ import type { BuildCatalog, PlannerCharacter } from "./types";
 import UidImport from "./uid-import";
 import { useRoster } from "./use-roster";
 import { useTeamSearch } from "./use-team-search";
+import WorthBuilding from "./worth-building";
 
 function CharacterPicker({
   label,
@@ -69,8 +70,9 @@ export default function RosterPlanner({
       characters
         .filter((c) => roster[c.id])
         .map((c) => {
-          const { build, constellation } = roster[c.id];
-          return { ...c, stats: build?.stats, talents: build?.talents, effects: characterEffects(c.id, constellation, build) };
+          const { build, constellation, built } = roster[c.id];
+          const effects = characterEffects(c.id, constellation, build);
+          return { ...c, stats: build?.stats, talents: build?.talents, built, effects };
         }),
     [characters, roster],
   );
@@ -120,6 +122,7 @@ export default function RosterPlanner({
           <p className="mt-6 text-sm text-red-700 dark:text-red-400">{search.error}</p>
         ) : (
           <div className={search.status === "searching" ? "opacity-60" : ""}>
+            <WorthBuilding suggestions={search.suggestions} byId={byId} />
             <ResultsList teams={search.teams} byId={byId} />
           </div>
         )}
