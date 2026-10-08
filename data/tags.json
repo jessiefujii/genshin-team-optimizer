@@ -12,7 +12,7 @@
       "vaporize"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 160,
     "families": [
       "moonsign"
     ],
@@ -69,7 +69,7 @@
       "quicken"
     ],
     "energyNeed": "medium",
-    "erTarget": 160,
+    "erTarget": 150,
     "scalesOn": [
       "ATK",
       "EM"
@@ -95,7 +95,7 @@
       "freeze"
     ],
     "energyNeed": "low",
-    "erTarget": 100,
+    "erTarget": 140,
     "scalesOn": [
       "ATK"
     ],
@@ -156,7 +156,7 @@
       "overloaded"
     ],
     "energyNeed": "medium",
-    "erTarget": 130,
+    "erTarget": 200,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -173,7 +173,7 @@
     "fieldTime": "on",
     "reactions": [],
     "energyNeed": "high",
-    "erTarget": 190,
+    "erTarget": 130,
     "scalesOn": [
       "DEF"
     ],
@@ -208,7 +208,7 @@
       "overloaded"
     ],
     "energyNeed": "low",
-    "erTarget": 120,
+    "erTarget": 140,
     "scalesOn": [
       "ATK"
     ],
@@ -280,7 +280,7 @@
       "freeze"
     ],
     "energyNeed": "low",
-    "erTarget": 140,
+    "erTarget": 100,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -301,7 +301,7 @@
       "superconduct"
     ],
     "energyNeed": "high",
-    "erTarget": 200,
+    "erTarget": 170,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -356,7 +356,7 @@
       "vaporize"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 200,
     "buffs": [
       {
         "stat": "Normal Attack DMG + Hydro infusion",
@@ -404,7 +404,7 @@
       "swirl"
     ],
     "energyNeed": "low",
-    "erTarget": 120,
+    "erTarget": 150,
     "scalesOn": [
       "ATK"
     ],
@@ -586,7 +586,7 @@
       "burning"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 170,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -651,7 +651,7 @@
       "hyperbloom"
     ],
     "energyNeed": "high",
-    "erTarget": 200,
+    "erTarget": 140,
     "scalesOn": [
       "ATK",
       "EM"
@@ -727,7 +727,7 @@
       "melt"
     ],
     "energyNeed": "medium",
-    "erTarget": 130,
+    "erTarget": 120,
     "scalesOn": [
       "ATK"
     ],
@@ -802,7 +802,7 @@
       "swirl"
     ],
     "energyNeed": "high",
-    "erTarget": 190,
+    "erTarget": 150,
     "buffs": [
       {
         "stat": "Pyro RES shred (White Flame form)",
@@ -836,7 +836,7 @@
       "burning"
     ],
     "energyNeed": "medium",
-    "erTarget": 140,
+    "erTarget": 170,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -888,7 +888,7 @@
       "superconduct"
     ],
     "energyNeed": "medium",
-    "erTarget": 170,
+    "erTarget": 150,
     "scalesOn": [
       "ATK"
     ],
@@ -912,7 +912,7 @@
     "fieldTime": "off",
     "reactions": [],
     "energyNeed": "high",
-    "erTarget": 200,
+    "erTarget": 250,
     "buffs": [
       {
         "stat": "Anemo DMG bonus and Anemo RES shred",
@@ -968,7 +968,7 @@
       "lunar-charged"
     ],
     "energyNeed": "medium",
-    "erTarget": 170,
+    "erTarget": 120,
     "scalesOn": [
       "ATK"
     ],
@@ -997,7 +997,7 @@
       "freeze"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 140,
     "scalesOn": [
       "ATK"
     ],
@@ -1025,7 +1025,7 @@
       "bloom"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 180,
     "buffs": [
       {
         "stat": "DMG bonus from party HP changes",
@@ -1079,7 +1079,7 @@
       "freeze"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 130,
     "scalesOn": [
       "ATK"
     ],
@@ -1144,7 +1144,7 @@
       "vaporize"
     ],
     "energyNeed": "low",
-    "erTarget": 120,
+    "erTarget": 100,
     "scalesOn": [
       "HP",
       "ATK"
@@ -1169,7 +1169,7 @@
     "fieldTime": "off",
     "reactions": [],
     "energyNeed": "high",
-    "erTarget": 190,
+    "erTarget": 210,
     "buffs": [
       {
         "stat": "ATK (Nightsoul-based)",
@@ -1203,7 +1203,7 @@
       "lunar-charged"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 160,
     "buffs": [
       {
         "stat": "Swirl and Electro-Charged reaction DMG",
@@ -1239,7 +1239,7 @@
       "crystallize"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 160,
     "buffs": [
       {
         "stat": "Geo DMG (EM-based), Geo CRIT",
@@ -1341,7 +1341,7 @@
       "swirl"
     ],
     "energyNeed": "high",
-    "erTarget": 200,
+    "erTarget": 160,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1361,7 +1361,7 @@
       "crystallize"
     ],
     "energyNeed": "medium",
-    "erTarget": 160,
+    "erTarget": 110,
     "families": [
       "nightsoul"
     ],
@@ -1433,7 +1433,7 @@
       "freeze"
     ],
     "energyNeed": "high",
-    "erTarget": 200,
+    "erTarget": 130,
     "scalesOn": [
       "ATK"
     ],
@@ -1461,7 +1461,7 @@
       "freeze"
     ],
     "energyNeed": "medium",
-    "erTarget": 170,
+    "erTarget": 135,
     "scalesOn": [
       "ATK",
       "HP"
@@ -1487,7 +1487,7 @@
       "bloom"
     ],
     "energyNeed": "medium",
-    "erTarget": 170,
+    "erTarget": 180,
     "scalesOn": [
       "EM"
     ],
@@ -1513,7 +1513,7 @@
       "superconduct"
     ],
     "energyNeed": "medium",
-    "erTarget": 130,
+    "erTarget": 100,
     "scalesOn": [
       "ATK"
     ],
@@ -1538,7 +1538,7 @@
       "burning"
     ],
     "energyNeed": "low",
-    "erTarget": 130,
+    "erTarget": 110,
     "scalesOn": [
       "ATK"
     ],
@@ -1569,7 +1569,7 @@
       "quicken"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 120,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1666,7 +1666,7 @@
       "swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 180,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1727,7 +1727,7 @@
       "superconduct"
     ],
     "energyNeed": "medium",
-    "erTarget": 130,
+    "erTarget": 150,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1749,7 +1749,7 @@
       "crystallize"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 120,
     "buffs": [
       {
         "stat": "Geo RES shred",
@@ -1816,7 +1816,7 @@
       "freeze"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 100,
     "scalesOn": [
       "ATK"
     ],
@@ -1844,7 +1844,7 @@
       "swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 160,
+    "erTarget": 200,
     "buffs": [
       {
         "stat": "ATK by number of elements in the team",
@@ -1869,7 +1869,7 @@
     "fieldTime": "on",
     "reactions": [],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 130,
     "scalesOn": [
       "ATK"
     ],
@@ -1978,7 +1978,7 @@
     "fieldTime": "off",
     "reactions": [],
     "energyNeed": "high",
-    "erTarget": 190,
+    "erTarget": 200,
     "buffs": [
       {
         "stat": "ATK SPD, Physical DMG",
@@ -2072,7 +2072,7 @@
       "lunar-bloom"
     ],
     "energyNeed": "low",
-    "erTarget": 110,
+    "erTarget": 120,
     "buffs": [
       {
         "stat": "EM share to the active character",
@@ -2125,7 +2125,7 @@
       "lunar-bloom"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 100,
     "scalesOn": [
       "EM"
     ],
@@ -2155,7 +2155,7 @@
       "vaporize"
     ],
     "energyNeed": "low",
-    "erTarget": 130,
+    "erTarget": 140,
     "scalesOn": [
       "HP"
     ],
@@ -2211,7 +2211,7 @@
       "bloom"
     ],
     "energyNeed": "medium",
-    "erTarget": 160,
+    "erTarget": 150,
     "teamPrefs": [
       {
         "kind": "composition",
@@ -2242,7 +2242,7 @@
       "crystallize"
     ],
     "energyNeed": "medium",
-    "erTarget": 130,
+    "erTarget": 120,
     "scalesOn": [
       "ATK"
     ],
@@ -2268,7 +2268,7 @@
       "crystallize"
     ],
     "energyNeed": "high",
-    "erTarget": 180,
+    "erTarget": 130,
     "scalesOn": [
       "DEF"
     ],
@@ -2293,7 +2293,7 @@
       "stellar-swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 130,
     "families": [
       "stellar"
     ],
@@ -2342,7 +2342,7 @@
       "stellar-swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 160,
+    "erTarget": 180,
     "buffs": [
       {
         "stat": "DMG bonus from ATK over 2,000",
@@ -2374,7 +2374,7 @@
       "freeze"
     ],
     "energyNeed": "high",
-    "erTarget": 200,
+    "erTarget": 220,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2399,7 +2399,7 @@
       "superconduct"
     ],
     "energyNeed": "low",
-    "erTarget": 250,
+    "erTarget": 200,
     "scalesOn": [
       "ATK"
     ],
@@ -2481,7 +2481,7 @@
       "stellar-swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 130,
     "scalesOn": [
       "ATK"
     ],
@@ -2512,7 +2512,7 @@
       "freeze"
     ],
     "energyNeed": "medium",
-    "erTarget": 160,
+    "erTarget": 170,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2551,7 +2551,7 @@
       "hyperbloom"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 135,
     "scalesOn": [
       "ATK",
       "EM"
@@ -2577,7 +2577,7 @@
       "melt"
     ],
     "energyNeed": "medium",
-    "erTarget": 170,
+    "erTarget": 190,
     "buffs": [
       {
         "stat": "Cryo DMG (ATK-based), Cryo RES shred",
@@ -2728,7 +2728,7 @@
       "electrocharged"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 130,
     "scalesOn": [
       "ATK"
     ],
@@ -2756,7 +2756,7 @@
       "melt"
     ],
     "energyNeed": "high",
-    "erTarget": 200,
+    "erTarget": 180,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2932,7 +2932,7 @@
       "electrocharged"
     ],
     "energyNeed": "medium",
-    "erTarget": 160,
+    "erTarget": 130,
     "scalesOn": [
       "ATK"
     ],
@@ -2963,7 +2963,7 @@
       "stellar-swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 100,
     "scalesOn": [
       "ATK"
     ],
@@ -3030,7 +3030,7 @@
       "swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 130,
     "scalesOn": [
       "ATK"
     ],
@@ -3061,7 +3061,7 @@
       "stellar-swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 100,
     "buffs": [
       {
         "stat": "Hydro, Cryo and Anemo RES shred",
@@ -3096,7 +3096,7 @@
       "swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 120,
     "scalesOn": [
       "ATK"
     ],
@@ -3121,7 +3121,7 @@
       "freeze"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 120,
     "scalesOn": [
       "ATK"
     ],
@@ -3169,7 +3169,7 @@
       "swirl"
     ],
     "energyNeed": "medium",
-    "erTarget": 160,
+    "erTarget": 140,
     "buffs": [
       {
         "stat": "Plunging Attack DMG",
@@ -3194,7 +3194,7 @@
     "fieldTime": "on",
     "reactions": [],
     "energyNeed": "high",
-    "erTarget": 190,
+    "erTarget": 140,
     "scalesOn": [
       "ATK"
     ],
@@ -3299,7 +3299,7 @@
       "overloaded"
     ],
     "energyNeed": "medium",
-    "erTarget": 180,
+    "erTarget": 140,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3352,7 +3352,7 @@
       "quicken"
     ],
     "energyNeed": "medium",
-    "erTarget": 170,
+    "erTarget": 180,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3507,7 +3507,7 @@
       "lunar-crystallize"
     ],
     "energyNeed": "medium",
-    "erTarget": 150,
+    "erTarget": 160,
     "scalesOn": [
       "DEF"
     ],
