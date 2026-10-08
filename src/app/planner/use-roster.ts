@@ -7,6 +7,7 @@ export interface OwnedEntry {
   constellation: number; // 0-6
   built: boolean;
   hexereiUnlocked?: boolean; // Witch's Homework quest done (Hexerei characters only); unset = not done
+  revelationUnlocked?: boolean; // Witch's Revelation quest done (characters who got Stellar Glimmer later); unset = not done
   build?: CharacterBuild; // from a UID import (later also the build editor)
   updatedAt?: string; // ISO time of the last manual edit or import; ticking with defaults doesn't count
 }

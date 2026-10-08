@@ -6,6 +6,7 @@ interface ReactionRequirement {
   all: Element[]; // every one of these elements must be in the team
   anyOf?: Element[]; // plus at least one of these
   family?: Family; // plus a member of this family to convert the base reaction
+  linchpin?: boolean; // plus a Stellar Linchpin (Stellar reactions: other Stellar members only benefit)
 }
 
 const REQUIREMENTS: Record<Reaction, ReactionRequirement> = {
@@ -27,8 +28,8 @@ const REQUIREMENTS: Record<Reaction, ReactionRequirement> = {
   "lunar-charged": { all: ["Electro", "Hydro"], family: "moonsign" },
   "lunar-bloom": { all: ["Dendro", "Hydro"], family: "moonsign" },
   "lunar-crystallize": { all: ["Geo", "Hydro"], family: "moonsign" },
-  "stellar-conduct": { all: ["Electro", "Cryo"], family: "stellar" },
-  "stellar-swirl": { all: ["Anemo", "Cryo"], family: "stellar" },
+  "stellar-conduct": { all: ["Electro", "Cryo"], linchpin: true },
+  "stellar-swirl": { all: ["Anemo", "Cryo"], linchpin: true },
 };
 
 // Elements that take part in a reaction (e.g. Pyro and Hydro for Vaporize; Anemo plus any aura element for Swirl).
@@ -38,10 +39,16 @@ export function reactionElements(reaction: Reaction): Element[] {
 }
 
 // Whether the team's elements (and families) can trigger a reaction at all.
-export function canTrigger(reaction: Reaction, elements: ReadonlySet<Element>, families: ReadonlySet<Family>): boolean {
+export function canTrigger(
+  reaction: Reaction,
+  elements: ReadonlySet<Element>,
+  families: ReadonlySet<Family>,
+  linchpin = false, // a Stellar Linchpin is in the team
+): boolean {
   const req = REQUIREMENTS[reaction];
   if (!req.all.every((e) => elements.has(e))) return false;
   if (req.anyOf && !req.anyOf.some((e) => elements.has(e))) return false;
   if (req.family && !families.has(req.family)) return false;
+  if (req.linchpin && !linchpin) return false;
   return true;
 }

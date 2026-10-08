@@ -85,10 +85,16 @@ interface TeamContext {
 
 const NO_FAMILIES: Family[] = [];
 
+// A family that a quest unlocks counts only once the player has done it: Hexerei after Witch's Homework,
+// Stellar (for characters who got it in an update) after Witch's Revelation.
 function familiesOf(member: ScoringCharacter, options: ScoreOptions): Family[] {
   const families = member.families ?? NO_FAMILIES;
-  if (!options.hexereiUnlocked || options.hexereiUnlocked.includes(member.id) || !families.includes("hexerei")) return families;
-  return families.filter((f) => f !== "hexerei");
+  const locked = (f: Family, unlocked: readonly string[] | undefined) =>
+    families.includes(f) && !!unlocked && !unlocked.includes(member.id);
+  const hexereiLocked = locked("hexerei", options.hexereiUnlocked);
+  const stellarLocked = !!member.revelation && locked("stellar", options.revelationUnlocked);
+  if (!hexereiLocked && !stellarLocked) return families;
+  return families.filter((f) => !(f === "hexerei" && hexereiLocked) && !(f === "stellar" && stellarLocked));
 }
 
 // Runs for every team the search tries, so it sticks to plain loops (#4).
@@ -101,7 +107,8 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
     for (const f of familiesOf(m, options)) families.add(f);
     for (const r of m.reactions) if (!listed.includes(r)) listed.push(r);
   }
-  const active = listed.filter((r) => canTrigger(r, elements, families));
+  const linchpin = members.some((m) => m.stellarLinchpin);
+  const active = listed.filter((r) => canTrigger(r, elements, families, linchpin));
   return { members, elements, families, active, options };
 }
 

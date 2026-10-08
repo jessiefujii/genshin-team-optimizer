@@ -75,6 +75,8 @@ export interface CharacterTags {
   scalesOn?: ScalingStat[]; // main DPS only: stats their damage scales on
   keyTalent?: Talent; // main DPS only: the talent most of their damage scales with
   families?: Family[];
+  stellarLinchpin?: boolean; // Stellar Linchpin: can enable Stellar reactions (Sandrone, Odette, Vesna)
+  revelation?: boolean; // the Stellar family only counts after the player's Witch's Revelation quest (#45)
   teamPrefs?: TeamPref[];
   rotation: {
     slot: 'setup' | 'buffer' | 'carry';
