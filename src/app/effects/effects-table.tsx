@@ -113,7 +113,7 @@ export default function EffectsTable({ rows }: { rows: EffectTag[] }) {
                   </div>
                 </td>
                 <td className="min-w-80 px-3 py-2 text-xs text-zinc-600 dark:text-zinc-400">
-                  {row.notes?.replace(/^VERIFY: drafted from text: /, "")}
+                  {row.notes?.replace(/^(VERIFY: drafted from text|From item text): /, "")}
                 </td>
               </tr>
             ))}

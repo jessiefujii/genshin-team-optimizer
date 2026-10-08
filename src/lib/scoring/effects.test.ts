@@ -53,7 +53,11 @@ describe("data/effects.json", () => {
     expect(bad.map(key)).toEqual([]);
   });
 
-  test("known effects are drafted", () => {
+  test("every entry has been reviewed (#23): none still marked VERIFY", () => {
+    expect(effects.filter((e) => e.notes?.includes("VERIFY")).map(key)).toEqual([]);
+  });
+
+  test("known effects are present", () => {
     const find = (source: EffectTag["source"], id: string, requires?: number) =>
       effects.find((e) => e.source === source && e.id === id && e.requires === requires);
     expect(find("set", "Noblesse Oblige", 4)?.buffs).toContainEqual({ stat: "ATK", scope: "team", affects: "ATK" });
