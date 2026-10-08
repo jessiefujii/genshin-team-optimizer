@@ -63,14 +63,14 @@ export default function RosterPlanner({
   const [exclude, setExclude] = useState<string[]>([]);
 
   const byId = useMemo(() => new Map(characters.map((c) => [c.id, c])), [characters]);
-  // Builds feed the scorer's CV, ER and EM checks; weapons, sets and constellations add effects.json entries.
+  // Builds feed the scorer's CV, ER, EM and talent checks; weapons, sets and constellations add effects.json entries.
   const owned = useMemo(
     () =>
       characters
         .filter((c) => roster[c.id])
         .map((c) => {
           const { build, constellation } = roster[c.id];
-          return { ...c, stats: build?.stats, effects: characterEffects(c.id, constellation, build) };
+          return { ...c, stats: build?.stats, talents: build?.talents, effects: characterEffects(c.id, constellation, build) };
         }),
     [characters, roster],
   );

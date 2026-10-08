@@ -113,6 +113,7 @@ export default function TagsTable({ rows }: { rows: TagRow[] }) {
                     ))}
                   </div>
                   {row.scalesOn && <div className="mt-1 text-xs text-zinc-500">scales on {row.scalesOn.join(", ")}</div>}
+                  {row.keyTalent && <div className="text-xs text-zinc-500">key talent: {row.keyTalent}</div>}
                 </td>
                 <td className="px-3 py-2">{row.fieldTime}</td>
                 <td className="px-3 py-2 whitespace-nowrap">
@@ -139,7 +140,11 @@ export default function TagsTable({ rows }: { rows: TagRow[] }) {
                 <td className="px-3 py-2 text-xs">
                   {row.buffs?.map((b) => (
                     <div key={b.stat} className="min-w-40">
-                      {b.stat} <span className="text-zinc-500">({b.scope})</span>
+                      {b.stat}{" "}
+                      <span className="text-zinc-500">
+                        ({b.scope}
+                        {b.talent && ` · ${b.talent}`})
+                      </span>
                       {(b.affects || b.elements || b.reactions) && (
                         <div className="text-zinc-500">
                           only for:{" "}

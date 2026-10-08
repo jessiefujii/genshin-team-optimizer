@@ -195,6 +195,49 @@ describe("scoreTeam", () => {
   });
 });
 
+describe("talent levels (#25)", () => {
+  const talents = (normal: number, skill: number, burst: number) => ({ normal, skill, burst });
+  // The team from team(...ids), with talent levels set for the named members.
+  const leveled = (levels: Record<string, ReturnType<typeof talents>>, ...ids: string[]) =>
+    team(...ids).map((c) => (levels[c.id] ? { ...c, talents: levels[c.id] } : c));
+  const lines = (t: ScoringCharacter[], rule: string) => scoreTeam(t).breakdown.filter((l) => l.rule === rule);
+  const vape = ["Hu Tao", "Bennett", "Xingqiu", "Zhongli"];
+  const carryPoints = scoreTeam(team(...vape)).breakdown
+    .filter((l) => l.rule === "Carry" || l.rule === "Reactions" || l.rule === "Buffs" || l.rule === "Effects")
+    .reduce((sum, l) => sum + l.points, 0);
+
+  test("every main DPS has a key talent and every tag buff says where it comes from", () => {
+    expect(all.filter((c) => c.roles.includes("main-dps") && !c.keyTalent).map((c) => c.id)).toEqual([]);
+    expect(all.filter((c) => c.buffs?.some((b) => !b.talent)).map((c) => c.id)).toEqual([]);
+  });
+
+  test("the carry's key talent scales the carry's points, within bounds", () => {
+    const low = lines(leveled({ "Hu Tao": talents(6, 10, 10) }, ...vape), "Carry talent");
+    expect(low).toEqual([{ rule: "Carry talent", points: Math.round(carryPoints * (0.7 - 1)), reason: "Hu Tao normal level 6 vs 9 benchmark" }]);
+    const high = lines(leveled({ "Hu Tao": talents(13, 1, 1) }, ...vape), "Carry talent");
+    expect(high[0].points).toBe(Math.round(carryPoints * 0.15)); // capped at 1.15x
+  });
+
+  test("level 9, or no build, gets no talent line", () => {
+    expect(lines(leveled({ "Hu Tao": talents(9, 1, 1) }, ...vape), "Carry talent")).toEqual([]);
+    expect(lines(team(...vape), "Carry talent")).toEqual([]);
+  });
+
+  test("a buffer's points scale with the talent its buff comes from", () => {
+    const bennett = (levels: ReturnType<typeof talents>) =>
+      lines(leveled({ Bennett: levels }, ...vape), "Buffs").find((l) => l.reason.startsWith("Bennett"));
+    expect(bennett(talents(1, 1, 13))).toEqual({ rule: "Buffs", points: 12, reason: "Bennett buffs Hu Tao (burst level 13)" });
+    expect(bennett(talents(13, 13, 6))?.points).toBe(7);
+    expect(bennett(talents(9, 9, 9))?.points).toBe(10);
+  });
+
+  test("passive buffs don't scale", () => {
+    const swirl = ["Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
+    const kazuha = lines(leveled({ "Kaedehara Kazuha": talents(1, 1, 1) }, ...swirl), "Buffs").find((l) => l.reason.startsWith("Kaedehara"));
+    expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Hu Tao" });
+  });
+});
+
 describe("effects.json in scoring", () => {
   // The team from team(...ids), with effects given to the named members.
   const geared = (effects: Record<string, EffectTag[]>, ...ids: string[]) =>

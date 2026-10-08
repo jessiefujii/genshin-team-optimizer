@@ -41,7 +41,8 @@
       {
         "stat": "EM +125 after burst",
         "scope": "team",
-        "affects": "EM"
+        "affects": "EM",
+        "talent": "passive"
       }
     ],
     "families": [
@@ -73,6 +74,7 @@
       "ATK",
       "EM"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -97,6 +99,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -125,7 +128,8 @@
       {
         "stat": "ATK",
         "scope": "team",
-        "affects": "ATK"
+        "affects": "ATK",
+        "talent": "skill"
       }
     ],
     "families": [
@@ -173,6 +177,7 @@
     "scalesOn": [
       "DEF"
     ],
+    "keyTalent": "normal",
     "teamPrefs": [
       {
         "kind": "partner",
@@ -207,6 +212,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -249,7 +255,8 @@
           "burgeon",
           "burning",
           "lunar-bloom"
-        ]
+        ],
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -322,7 +329,8 @@
       {
         "stat": "ATK + % of his base ATK",
         "scope": "active",
-        "affects": "ATK"
+        "affects": "ATK",
+        "talent": "burst"
       }
     ],
     "rotation": {
@@ -352,7 +360,8 @@
     "buffs": [
       {
         "stat": "Normal Attack DMG + Hydro infusion",
-        "scope": "team"
+        "scope": "team",
+        "talent": "burst"
       }
     ],
     "rotation": {
@@ -399,6 +408,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "families": [
       "nightsoul"
     ],
@@ -431,7 +441,8 @@
         "elements": [
           "Pyro",
           "Electro"
-        ]
+        ],
+        "talent": "passive"
       }
     ],
     "teamPrefs": [
@@ -518,7 +529,8 @@
         "elements": [
           "Pyro",
           "Hydro"
-        ]
+        ],
+        "talent": "passive"
       }
     ],
     "families": [
@@ -549,6 +561,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -601,6 +614,7 @@
     "scalesOn": [
       "HP"
     ],
+    "keyTalent": "skill",
     "buffs": [
       {
         "stat": "Lunar reaction base DMG (HP-based)",
@@ -609,7 +623,8 @@
           "lunar-charged",
           "lunar-bloom",
           "lunar-crystallize"
-        ]
+        ],
+        "talent": "burst"
       }
     ],
     "families": [
@@ -641,6 +656,7 @@
       "ATK",
       "EM"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -667,7 +683,8 @@
     "buffs": [
       {
         "stat": "ATK SPD (HP-based)",
-        "scope": "active"
+        "scope": "active",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -714,6 +731,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -791,7 +809,8 @@
         "scope": "team",
         "elements": [
           "Pyro"
-        ]
+        ],
+        "talent": "passive"
       }
     ],
     "families": [
@@ -846,7 +865,8 @@
         "elements": [
           "Hydro",
           "Cryo"
-        ]
+        ],
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -872,6 +892,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -898,7 +919,8 @@
         "scope": "team",
         "elements": [
           "Anemo"
-        ]
+        ],
+        "talent": "burst"
       }
     ],
     "rotation": {
@@ -950,6 +972,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "families": [
       "moonsign"
     ],
@@ -978,6 +1001,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1005,7 +1029,8 @@
     "buffs": [
       {
         "stat": "DMG bonus from party HP changes",
-        "scope": "team"
+        "scope": "team",
+        "talent": "burst"
       }
     ],
     "rotation": {
@@ -1033,6 +1058,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1057,6 +1083,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1084,7 +1111,8 @@
         "scope": "team",
         "elements": [
           "Geo"
-        ]
+        ],
+        "talent": "skill"
       }
     ],
     "teamPrefs": [
@@ -1121,6 +1149,7 @@
       "HP",
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1145,7 +1174,8 @@
       {
         "stat": "ATK (Nightsoul-based)",
         "scope": "active",
-        "affects": "ATK"
+        "affects": "ATK",
+        "talent": "burst"
       }
     ],
     "families": [
@@ -1182,7 +1212,8 @@
           "swirl",
           "electrocharged",
           "lunar-charged"
-        ]
+        ],
+        "talent": "passive"
       }
     ],
     "families": [
@@ -1215,7 +1246,8 @@
         "scope": "team",
         "elements": [
           "Geo"
-        ]
+        ],
+        "talent": "burst"
       }
     ],
     "families": [
@@ -1249,7 +1281,8 @@
       {
         "stat": "EM (ATK-based)",
         "scope": "active",
-        "affects": "EM"
+        "affects": "EM",
+        "talent": "passive"
       }
     ],
     "families": [
@@ -1281,7 +1314,8 @@
       {
         "stat": "EM +100 while HP > 70%",
         "scope": "active",
-        "affects": "EM"
+        "affects": "EM",
+        "talent": "passive"
       }
     ],
     "families": [
@@ -1353,7 +1387,8 @@
     "buffs": [
       {
         "stat": "Swirled element DMG bonus (EM-based)",
-        "scope": "team"
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -1402,6 +1437,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1430,6 +1466,7 @@
       "ATK",
       "HP"
     ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1454,6 +1491,7 @@
     "scalesOn": [
       "EM"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1479,6 +1517,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1503,6 +1542,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "families": [
       "nightsoul"
     ],
@@ -1554,6 +1594,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "families": [
       "hexerei"
     ],
@@ -1580,7 +1621,8 @@
       {
         "stat": "ATK + % of her base ATK",
         "scope": "active",
-        "affects": "ATK"
+        "affects": "ATK",
+        "talent": "skill"
       }
     ],
     "rotation": {
@@ -1657,7 +1699,8 @@
           "hyperbloom",
           "burgeon",
           "lunar-bloom"
-        ]
+        ],
+        "talent": "burst"
       }
     ],
     "families": [
@@ -1713,12 +1756,14 @@
         "scope": "team",
         "elements": [
           "Geo"
-        ]
+        ],
+        "talent": "passive"
       },
       {
         "stat": "EM (DEF-based)",
         "scope": "active",
-        "affects": "EM"
+        "affects": "EM",
+        "talent": "passive"
       }
     ],
     "families": [
@@ -1749,7 +1794,8 @@
     "buffs": [
       {
         "stat": "DEF shred",
-        "scope": "team"
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -1774,6 +1820,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "families": [
       "hexerei"
     ],
@@ -1802,7 +1849,8 @@
       {
         "stat": "ATK by number of elements in the team",
         "scope": "team",
-        "affects": "ATK"
+        "affects": "ATK",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -1825,6 +1873,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1848,6 +1897,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1871,6 +1921,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1897,10 +1948,12 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "buffs": [
       {
         "stat": "DMG bonus after burst",
-        "scope": "team"
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "families": [
@@ -1929,7 +1982,8 @@
     "buffs": [
       {
         "stat": "ATK SPD, Physical DMG",
-        "scope": "active"
+        "scope": "active",
+        "talent": "skill"
       }
     ],
     "rotation": {
@@ -1956,7 +2010,8 @@
     "buffs": [
       {
         "stat": "DMG bonus while Omen is active",
-        "scope": "team"
+        "scope": "team",
+        "talent": "burst"
       }
     ],
     "families": [
@@ -1985,6 +2040,7 @@
     "scalesOn": [
       "HP"
     ],
+    "keyTalent": "skill",
     "families": [
       "nightsoul"
     ],
@@ -2021,7 +2077,8 @@
       {
         "stat": "EM share to the active character",
         "scope": "team",
-        "affects": "EM"
+        "affects": "EM",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -2047,6 +2104,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2071,6 +2129,7 @@
     "scalesOn": [
       "EM"
     ],
+    "keyTalent": "skill",
     "families": [
       "moonsign"
     ],
@@ -2100,6 +2159,7 @@
     "scalesOn": [
       "HP"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2123,7 +2183,8 @@
       {
         "stat": "ATK (stronger after 3s on field or for Hexerei characters)",
         "scope": "team",
-        "affects": "ATK"
+        "affects": "ATK",
+        "talent": "skill"
       }
     ],
     "families": [
@@ -2185,6 +2246,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2210,6 +2272,7 @@
     "scalesOn": [
       "DEF"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2283,7 +2346,8 @@
     "buffs": [
       {
         "stat": "DMG bonus from ATK over 2,000",
-        "scope": "team"
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "families": [
@@ -2339,6 +2403,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2363,6 +2428,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "families": [
       "hexerei"
     ],
@@ -2391,7 +2457,8 @@
     "buffs": [
       {
         "stat": "CRIT Rate (her CRIT-based)",
-        "scope": "team"
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -2418,6 +2485,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "families": [
       "stellar"
     ],
@@ -2488,6 +2556,7 @@
       "ATK",
       "EM"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2515,7 +2584,8 @@
         "scope": "team",
         "elements": [
           "Cryo"
-        ]
+        ],
+        "talent": "skill"
       }
     ],
     "rotation": {
@@ -2541,6 +2611,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2568,7 +2639,8 @@
     "buffs": [
       {
         "stat": "Elemental Skill DMG (HP-based)",
-        "scope": "team"
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -2592,6 +2664,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "teamPrefs": [
       {
         "kind": "composition",
@@ -2628,7 +2701,8 @@
       {
         "stat": "EM share",
         "scope": "team",
-        "affects": "EM"
+        "affects": "EM",
+        "talent": "passive"
       }
     ],
     "families": [
@@ -2658,6 +2732,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2706,6 +2781,7 @@
       "ATK",
       "EM"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2860,6 +2936,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "families": [
       "nightsoul"
     ],
@@ -2890,6 +2967,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "families": [
       "hexerei"
     ],
@@ -2956,6 +3034,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "skill",
     "families": [
       "stellar"
     ],
@@ -2991,7 +3070,8 @@
           "Hydro",
           "Cryo",
           "Anemo"
-        ]
+        ],
+        "talent": "skill"
       }
     ],
     "families": [
@@ -3020,6 +3100,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3044,6 +3125,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3091,7 +3173,8 @@
     "buffs": [
       {
         "stat": "Plunging Attack DMG",
-        "scope": "team"
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -3115,6 +3198,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3138,7 +3222,8 @@
     "buffs": [
       {
         "stat": "Elemental RES shred for party elements",
-        "scope": "team"
+        "scope": "team",
+        "talent": "skill"
       }
     ],
     "families": [
@@ -3190,7 +3275,8 @@
     "buffs": [
       {
         "stat": "Physical DMG while shielded",
-        "scope": "team"
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -3242,6 +3328,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3292,7 +3379,8 @@
     "buffs": [
       {
         "stat": "DMG bonus that ramps over 15s",
-        "scope": "active"
+        "scope": "active",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -3320,6 +3408,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3344,6 +3433,7 @@
     "scalesOn": [
       "EM"
     ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3367,7 +3457,8 @@
     "buffs": [
       {
         "stat": "Normal Attack DMG (DEF-based)",
-        "scope": "team"
+        "scope": "team",
+        "talent": "burst"
       }
     ],
     "rotation": {
@@ -3394,7 +3485,8 @@
     "buffs": [
       {
         "stat": "All RES shred near the shield",
-        "scope": "team"
+        "scope": "team",
+        "talent": "skill"
       }
     ],
     "rotation": {
@@ -3419,6 +3511,7 @@
     "scalesOn": [
       "DEF"
     ],
+    "keyTalent": "skill",
     "families": [
       "moonsign"
     ],
