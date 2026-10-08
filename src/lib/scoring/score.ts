@@ -1,7 +1,8 @@
 import type { EffectTag } from "../../types/effects";
-import { ER_TARGETS, type Buff, type CompositionPref, type Role, type Talent } from "../../types/tags";
+import { type Buff, type CompositionPref, type Role, type Talent } from "../../types/tags";
 import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, reactionElements } from "./reactions";
+import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
@@ -359,9 +360,6 @@ function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: Tea
   return false;
 }
 
-// ER % a member wants for their burst; undefined = not checked (low energy need and no erTarget).
-const erTargetOf = (m: ScoringCharacter) => m.erTarget ?? (m.energyNeed === "low" ? undefined : ER_TARGETS[m.energyNeed]);
-
 function statLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   for (const m of ctx.members) {
     if (!m.stats) continue;
@@ -439,6 +437,7 @@ export function teamScore(team: ScoringCharacter[], options: ScoreOptions = {}):
 
 export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
   const { ctx, carry, out } = bestReading(team, options, true);
+  const rotation = generateRotation(team, carry?.id ?? null);
   return {
     members: team.map((m) => m.id) as ScoredTeam["members"],
     carry: carry?.id ?? null,
@@ -446,6 +445,7 @@ export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}):
     breakdown: (out as Breakdown).lines,
     activeReactions: ctx.active,
     defaultBuilds: team.filter((m) => !m.stats).map((m) => m.id),
-    rotation: generateRotation(team, carry?.id ?? null),
+    rotation,
+    energy: energyCheck(team),
   };
 }

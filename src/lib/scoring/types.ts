@@ -1,5 +1,6 @@
 import type { CharacterBuild, CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
+import type { EnergyLine } from "./energy";
 import type { RotationStep } from "./rotation";
 import type { CharacterTags, Element, Family, Reaction } from "../../types/tags";
 
@@ -9,6 +10,7 @@ import type { CharacterTags, Element, Family, Reaction } from "../../types/tags"
 export type ScoringCharacter = CharacterTags & {
   element: Element;
   weapon: string; // weapon type from genshin-db, e.g. 'Sword'
+  burstCost?: number; // Energy for the Elemental Burst, from genshin-db; undefined = no Energy burst
   stats?: CharacterStats;
   talents?: CharacterBuild["talents"]; // from the same build as stats
   effects?: EffectTag[];
@@ -29,6 +31,7 @@ export interface ScoredTeam {
   activeReactions: Reaction[];
   defaultBuilds: string[]; // members with no build, scored as if built to the benchmark
   rotation: RotationStep[]; // generated from the members' rotation tags
+  energy: EnergyLine[]; // the energy check for that rotation
 }
 
 export interface ScoreOptions {
