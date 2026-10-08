@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { effectKey } from "@/lib/scoring/effects";
 import type { SearchOptions } from "@/lib/scoring/search";
 import type { SearchRequest, SearchResponse } from "@/lib/scoring/search.worker";
 import type { ScoredTeam, ScoringCharacter } from "@/lib/scoring/types";
@@ -32,7 +33,7 @@ export function useTeamSearch(roster: ScoringCharacter[], options: SearchOptions
     return () => worker.terminate();
   }, []);
 
-  const key = JSON.stringify({ roster: roster.map((c) => [c.id, c.stats]), options });
+  const key = JSON.stringify({ roster: roster.map((c) => [c.id, c.stats, c.effects?.map(effectKey)]), options });
   useEffect(() => {
     if (roster.length < 4) {
       latest.current.id++; // drop any search still in flight
@@ -46,7 +47,7 @@ export function useTeamSearch(roster: ScoringCharacter[], options: SearchOptions
       workerRef.current?.postMessage(request);
     }, DEBOUNCE_MS);
     return () => clearTimeout(timer);
-    // `key` captures roster ids, stats and options; the arrays themselves change identity every render.
+    // `key` captures roster ids, stats, effects and options; the arrays themselves change identity every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 

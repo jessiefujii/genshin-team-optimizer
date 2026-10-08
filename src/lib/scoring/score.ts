@@ -1,4 +1,6 @@
-import { ER_TARGETS, type Buff, type CompositionPref } from "../../types/tags";
+import type { EffectTag } from "../../types/effects";
+import { ER_TARGETS, type Buff, type CompositionPref, type Role } from "../../types/tags";
+import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, reactionElements } from "./reactions";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
@@ -34,6 +36,10 @@ export const POINTS = {
   emHigh: 600, // reaction-based members at or above this EM gain points...
   emLow: 300, // ...and lose them below this
   emPoints: 5,
+  // effects.json (weapons, sets, constellations)
+  effectBuff: 5, // per effect that buffs the carry
+  maxEffectBuffs: 3,
+  infusionConflict: -15, // another member's infusion overrides a melee carry's element
 } as const;
 
 const RESONANCE: Record<Element, { points: number; name: string }> = {
@@ -54,6 +60,13 @@ const FAMILY_NAMES: Record<Family, string> = {
 };
 
 const label = (r: Reaction) => r.charAt(0).toUpperCase() + r.slice(1);
+
+// Effect lines built on unreviewed effects.json entries say so (#23).
+const effectName = (m: ScoringCharacter, e: EffectTag) => `${m.id} ${effectLabel(e)}${isDraft(e) ? " (draft)" : ""}`;
+
+// The member's tags.json roles plus roles their items grant (Favonius weapons make a battery).
+const roleEffect = (m: ScoringCharacter, role: Role) => m.effects?.find((e) => e.roles?.includes(role));
+const hasRole = (m: ScoringCharacter, role: Role) => m.roles.includes(role) || !!roleEffect(m, role);
 
 interface TeamContext {
   members: ScoringCharacter[];
@@ -154,7 +167,43 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine
       lines.push({ rule: "Buffs", points: POINTS.buffer, reason: `${s.id} buffs ${carry.id}` });
     }
   }
+  lines.push(...effectBuffLines(ctx, carry, emUseful));
   return lines;
+}
+
+// Weapon, set and constellation buffs that fit the carry. The same effect on two members counts once.
+function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: boolean): ScoreLine[] {
+  const lines: ScoreLine[] = [];
+  const seen = new Set<string>();
+  for (const m of ctx.members) {
+    for (const e of m.effects ?? []) {
+      if (lines.length === POINTS.maxEffectBuffs) return lines;
+      // On the carry's own items, an 'active' buff only buffs the carry, which its final stats may already show.
+      const fit = e.buffs?.find((b) => (m !== carry || b.scope === "team") && !buffMisfit(b, carry, ctx, emUseful));
+      if (!fit || seen.has(effectKey(e))) continue;
+      seen.add(effectKey(e));
+      lines.push({ rule: "Effects", points: POINTS.effectBuff, reason: `${effectName(m, e)}: ${fit.stat} for ${carry.id}` });
+    }
+  }
+  return lines;
+}
+
+const MELEE = new Set(["Sword", "Claymore", "Polearm"]);
+
+// An infusion (C6 Bennett) turns a melee carry's attacks into its element.
+function infusionLines(ctx: TeamContext, carry: ScoringCharacter | null): ScoreLine[] {
+  if (!carry || !MELEE.has(carry.weapon)) return [];
+  return ctx.members
+    .filter((m) => m !== carry)
+    .flatMap((m) =>
+      (m.effects ?? [])
+        .filter((e) => e.infusion && e.infusion !== carry.element)
+        .map((e) => ({
+          rule: "Conflicts",
+          points: POINTS.infusionConflict,
+          reason: `${effectName(m, e)} infuses ${carry.id}'s attacks with ${e.infusion}`,
+        })),
+    );
 }
 
 // Reactions whose damage does not grow with EM, so an EM buff does nothing for them.
@@ -205,7 +254,7 @@ function teamLines(ctx: TeamContext): ScoreLine[] {
     if (n >= 2) lines.push({ rule: "Resonance", points: RESONANCE[el].points, reason: RESONANCE[el].name });
   }
 
-  const sustain = members.find((m) => m.roles.includes("healer") || m.roles.includes("shielder"));
+  const sustain = members.find((m) => hasRole(m, "healer") || hasRole(m, "shielder"));
   lines.push(
     sustain
       ? { rule: "Survivability", points: POINTS.survivability, reason: `${sustain.id} heals or shields` }
@@ -213,9 +262,10 @@ function teamLines(ctx: TeamContext): ScoreLine[] {
   );
 
   const hungry = members.filter((m) => m.energyNeed === "high");
-  const batteries = members.filter((m) => m.roles.includes("battery"));
+  const batteries = members.filter((m) => hasRole(m, "battery"));
+  const batteryName = (b: ScoringCharacter) => (b.roles.includes("battery") ? b.id : effectName(b, roleEffect(b, "battery")!));
   if (hungry.some((h) => batteries.some((b) => b !== h))) {
-    lines.push({ rule: "Energy", points: POINTS.battery, reason: `${batteries.map((b) => b.id).join(", ")} feeds high-cost bursts` });
+    lines.push({ rule: "Energy", points: POINTS.battery, reason: `${batteries.map(batteryName).join(", ")} feeds high-cost bursts` });
   } else if (hungry.length >= 2 && batteries.length === 0) {
     lines.push({ rule: "Energy", points: POINTS.starvedBursts, reason: `${hungry.length} high-cost bursts and no battery` });
   }
@@ -319,7 +369,7 @@ export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}):
   for (const carry of candidates.length > 0 ? candidates : [null]) {
     const own = carryLines(ctx, carry);
     const build = carry && carryBuildLine(carry, total(own));
-    const lines = [...own, ...(build ? [build] : []), ...shared, ...statLines(ctx, carry)];
+    const lines = [...own, ...(build ? [build] : []), ...shared, ...infusionLines(ctx, carry), ...statLines(ctx, carry)];
     if (!best || total(lines) > total(best.lines)) best = { carry, lines };
   }
 

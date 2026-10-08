@@ -2,7 +2,9 @@ import genshindb from "genshin-db";
 import { describe, expect, test } from "vitest";
 import effectsJson from "../../../data/effects.json";
 import tagsJson from "../../../data/tags.json";
+import type { CharacterBuild } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
+import { characterEffects } from "./effects";
 import { ELEMENTS, REACTIONS, ROLES, SCALING_STATS, type CharacterTags } from "../../types/tags";
 
 const effects = effectsJson as EffectTag[];
@@ -58,5 +60,33 @@ describe("data/effects.json", () => {
     expect(find("weapon", "Favonius Sword")?.roles).toEqual(["battery"]);
     expect(find("constellation", "Bennett", 6)?.infusion).toBe("Pyro");
     expect(find("constellation", "Xiangling", 1)?.buffs?.[0]).toMatchObject({ stat: "Pyro RES shred", elements: ["Pyro"] });
+  });
+});
+
+describe("characterEffects", () => {
+  const build = (weapon: string, artifactSets: CharacterBuild["artifactSets"]): CharacterBuild => ({
+    level: 90,
+    talents: { normal: 9, skill: 9, burst: 9 },
+    weapon: { id: weapon, level: 90, refinement: 1 },
+    artifactSets,
+    stats: { atk: 0, hp: 0, def: 0, critRate: 0, critDmg: 0, energyRecharge: 0, elementalMastery: 0, elementalDmgBonus: 0 },
+  });
+  const keys = (list: EffectTag[]) => list.map(key);
+
+  test("constellations up to the owned level", () => {
+    expect(keys(characterEffects("Xiangling", 0))).toEqual([]);
+    expect(keys(characterEffects("Xiangling", 1))).toEqual(["constellation|Xiangling|1"]);
+    expect(keys(characterEffects("Xiangling", 6))).toContain("constellation|Xiangling|6");
+  });
+
+  test("weapon and set bonuses come from the build", () => {
+    const found = keys(characterEffects("Bennett", 0, build("Favonius Sword", [{ set: "Noblesse Oblige", pieces: 4 }])));
+    expect(found).toContain("weapon|Favonius Sword|");
+    expect(found).toContain("set|Noblesse Oblige|4");
+  });
+
+  test("a 2pc set doesn't get the 4pc bonus", () => {
+    const found = keys(characterEffects("Bennett", 0, build("Favonius Sword", [{ set: "Noblesse Oblige", pieces: 2 }])));
+    expect(found).not.toContain("set|Noblesse Oblige|4");
   });
 });

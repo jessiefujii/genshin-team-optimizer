@@ -1,9 +1,16 @@
 import type { CharacterStats } from "../../types/build";
+import type { EffectTag } from "../../types/effects";
 import type { CharacterTags, Element, Family, Reaction } from "../../types/tags";
 
 // What the scorer needs per character: the hand-written tags, the element from genshin-db, and
-// final stats when the player has a build for them (no stats = scored at benchmark stats).
-export type ScoringCharacter = CharacterTags & { element: Element; stats?: CharacterStats };
+// final stats when the player has a build for them (no stats = scored at benchmark stats), and the
+// effects.json entries from their weapon, sets and constellations.
+export type ScoringCharacter = CharacterTags & {
+  element: Element;
+  weapon: string; // weapon type from genshin-db, e.g. 'Sword'
+  stats?: CharacterStats;
+  effects?: EffectTag[];
+};
 
 export interface ScoreLine {
   rule: string;
