@@ -1,5 +1,5 @@
 import type { EffectTag } from "../../types/effects";
-import { ER_TARGETS, type Buff, type CompositionPref, type Role } from "../../types/tags";
+import { ER_TARGETS, type Buff, type CompositionPref, type Role, type Talent } from "../../types/tags";
 import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, reactionElements } from "./reactions";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
@@ -36,6 +36,9 @@ export const POINTS = {
   emHigh: 600, // reaction-based members at or above this EM gain points...
   emLow: 300, // ...and lose them below this
   emPoints: 5,
+  talentBenchmark: 9, // the carry's key talent and a buff's talent scale points by level / benchmark...
+  talentMinFactor: 0.7, // ...within these bounds
+  talentMaxFactor: 1.15,
   // effects.json (weapons, sets, constellations)
   effectBuff: 5, // per effect that buffs the carry
   maxEffectBuffs: 3,
@@ -186,7 +189,11 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
       out.add("Buffs", 0, () => `${s.id}: ${misfits[0]!()}`);
     } else if (counted < POINTS.maxBuffers) {
       counted++;
-      out.add("Buffs", POINTS.buffer, () => `${s.id} buffs ${carry.id}`);
+      // A buff from a talent gets stronger with its level; scale by the first buff that fits.
+      const talent = s.buffs?.[misfits.indexOf(null)]?.talent;
+      const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
+      const points = Math.round(POINTS.buffer * talentFactor(level));
+      out.add("Buffs", points, () => `${s.id} buffs ${carry.id}${level === undefined ? "" : ` (${talent} level ${level})`}`);
     }
   }
   effectBuffLines(ctx, carry, emUseful, out);
@@ -322,6 +329,23 @@ function carryBuildLine(carry: ScoringCharacter, carryPoints: number, out: Sink)
   if (points !== 0) out.add("Carry build", points, () => `${carry.id} CV ${cv} vs ${POINTS.cvBenchmark} benchmark`);
 }
 
+// Level / benchmark within bounds; no level (no build, or a passive) = benchmark.
+function talentFactor(level: number | undefined): number {
+  if (level === undefined) return 1;
+  return Math.min(Math.max(level / POINTS.talentBenchmark, POINTS.talentMinFactor), POINTS.talentMaxFactor);
+}
+
+// Scales the carry's points by their key talent's level, like the CV line.
+function carryTalentLine(carry: ScoringCharacter, carryPoints: number, out: Sink) {
+  const talent: Talent | undefined = carry.keyTalent;
+  const level = talent && carry.talents?.[talent];
+  if (!level || carryPoints <= 0) return;
+  const points = Math.round(carryPoints * (talentFactor(level) - 1));
+  if (points !== 0) {
+    out.add("Carry talent", points, () => `${carry.id} ${talent} level ${level} vs ${POINTS.talentBenchmark} benchmark`);
+  }
+}
+
 // Members whose damage or buff comes from EM: Swirl buffers, Hyperbloom/Burgeon triggers, EM carries.
 function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: TeamContext): boolean {
   if (m === carry) return !!m.scalesOn?.includes("EM");
@@ -365,7 +389,12 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
   for (const carry of candidates.length > 0 ? candidates : [null]) {
     const out = sink();
     carryLines(ctx, carry, out);
-    if (carry) carryBuildLine(carry, out.total, out);
+    if (carry) {
+      // Both factors apply to the carry's own points, not to each other's adjustment.
+      const carryPoints = out.total;
+      carryBuildLine(carry, carryPoints, out);
+      carryTalentLine(carry, carryPoints, out);
+    }
     out.addAll(shared);
     infusionLines(ctx, carry, out);
     statLines(ctx, carry, out);

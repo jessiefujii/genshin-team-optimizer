@@ -1,4 +1,4 @@
-import type { CharacterStats } from "../../types/build";
+import type { CharacterBuild, CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
 import type { CharacterTags, Element, Family, Reaction } from "../../types/tags";
 
@@ -9,6 +9,7 @@ export type ScoringCharacter = CharacterTags & {
   element: Element;
   weapon: string; // weapon type from genshin-db, e.g. 'Sword'
   stats?: CharacterStats;
+  talents?: CharacterBuild["talents"]; // from the same build as stats
   effects?: EffectTag[];
 };
 

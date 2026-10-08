@@ -46,6 +46,10 @@ export type TeamPref = CompositionPref | PartnerPref;
 export const SCALING_STATS = ['ATK', 'HP', 'DEF', 'EM'] as const;
 export type ScalingStat = (typeof SCALING_STATS)[number];
 
+// Talents with a level; 'normal' covers Normal, Charged and Plunging Attacks.
+export const TALENTS = ['normal', 'skill', 'burst'] as const;
+export type Talent = (typeof TALENTS)[number];
+
 // A buff counts for a carry only if every constraint it lists matches; a buff with none helps anyone.
 export interface Buff {
   stat: string; // human-readable description
@@ -53,6 +57,7 @@ export interface Buff {
   affects?: ScalingStat; // carry must scale on this stat (EM also counts for reaction carries)
   elements?: Element[]; // carry must be one of these elements (elemental DMG bonus or RES shred)
   reactions?: Reaction[]; // one of these reactions must be active in the team
+  talent?: Talent | 'passive'; // tags.json only: the talent it comes from; passive buffs don't scale with a level
 }
 
 // Default ER targets (%) when a character has no erTarget; 'low' characters are not checked.
@@ -67,6 +72,7 @@ export interface CharacterTags {
   erTarget?: number; // ER % this character wants for their burst; defaults by energyNeed (see ER_TARGETS)
   buffs?: Buff[];
   scalesOn?: ScalingStat[]; // main DPS only: stats their damage scales on
+  keyTalent?: Talent; // main DPS only: the talent most of their damage scales with
   families?: Family[];
   teamPrefs?: TeamPref[];
   rotation: {
