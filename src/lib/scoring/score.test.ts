@@ -207,8 +207,7 @@ describe("talent levels (#25)", () => {
     .reduce((sum, l) => sum + l.points, 0);
 
   test("every main DPS has a key talent and every tag buff says where it comes from", () => {
-    const noTalentData = ["Manekin", "Manekina"]; // genshin-db has no talents for them yet
-    expect(all.filter((c) => c.roles.includes("main-dps") && !c.keyTalent && !noTalentData.includes(c.id)).map((c) => c.id)).toEqual([]);
+    expect(all.filter((c) => c.roles.includes("main-dps") && !c.keyTalent).map((c) => c.id)).toEqual([]);
     expect(all.filter((c) => c.buffs?.some((b) => !b.talent)).map((c) => c.id)).toEqual([]);
   });
 

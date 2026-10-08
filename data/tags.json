@@ -74,7 +74,7 @@
       "ATK",
       "EM"
     ],
-    "keyTalent": "skill",
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -177,7 +177,7 @@
     "scalesOn": [
       "DEF"
     ],
-    "keyTalent": "burst",
+    "keyTalent": "normal",
     "teamPrefs": [
       {
         "kind": "partner",
@@ -624,7 +624,7 @@
           "lunar-bloom",
           "lunar-crystallize"
         ],
-        "talent": "skill"
+        "talent": "burst"
       }
     ],
     "families": [
@@ -972,7 +972,7 @@
     "scalesOn": [
       "ATK"
     ],
-    "keyTalent": "skill",
+    "keyTalent": "burst",
     "families": [
       "moonsign"
     ],
@@ -1897,6 +1897,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1920,6 +1921,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "burst",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2270,7 +2272,7 @@
     "scalesOn": [
       "DEF"
     ],
-    "keyTalent": "burst",
+    "keyTalent": "normal",
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2483,7 +2485,7 @@
     "scalesOn": [
       "ATK"
     ],
-    "keyTalent": "skill",
+    "keyTalent": "normal",
     "families": [
       "stellar"
     ],
