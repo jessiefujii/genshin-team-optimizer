@@ -2,6 +2,7 @@ import type { EffectTag } from "../../types/effects";
 import { ER_TARGETS, type Buff, type CompositionPref, type Role, type Talent } from "../../types/tags";
 import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, reactionElements } from "./reactions";
+import { generateRotation } from "./rotation";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
 // Point values are starting guesses from the design doc; tune them against known-strong teams.
@@ -445,5 +446,6 @@ export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}):
     breakdown: (out as Breakdown).lines,
     activeReactions: ctx.active,
     defaultBuilds: team.filter((m) => !m.stats).map((m) => m.id),
+    rotation: generateRotation(team, carry?.id ?? null),
   };
 }

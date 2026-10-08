@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { RotationStep } from "@/lib/scoring/rotation";
 import type { ScoredTeam } from "@/lib/scoring/types";
 import { elementChip, quietChip } from "@/lib/ui/elements";
 import type { PlannerCharacter } from "./types";
@@ -8,6 +9,17 @@ import type { PlannerCharacter } from "./types";
 interface Props {
   teams: ScoredTeam[];
   byId: Map<string, PlannerCharacter>;
+}
+
+// Consecutive steps by the same character become one block: "Xingqiu Q, E".
+function groupSteps(steps: RotationStep[]) {
+  const groups: { character: string; actions: string[] }[] = [];
+  for (const s of steps) {
+    const last = groups[groups.length - 1];
+    if (last?.character === s.character) last.actions.push(s.action);
+    else groups.push({ character: s.character, actions: [s.action] });
+  }
+  return groups;
 }
 
 const reactionLabel = (r: string) => r.replace(/(^|-)(\w)/g, (_, dash, c) => (dash ? " " : "") + c.toUpperCase());
@@ -64,6 +76,19 @@ export default function ResultsList({ teams, byId }: Props) {
                     "No main DPS"
                   )}
                 </p>
+                <div className="mt-2">
+                  <p className="text-xs font-medium text-zinc-500">Rotation</p>
+                  <ol className="mt-1 flex flex-wrap items-center gap-1 text-xs" aria-label="Rotation">
+                    {groupSteps(team.rotation).map((g, k) => (
+                      <li key={k} className="flex items-center gap-1">
+                        {k > 0 && <span className="text-zinc-400" aria-hidden="true">→</span>}
+                        <span className={elementChip(byId.get(g.character)?.element ?? "")}>
+                          {g.character} <span className="font-mono">{g.actions.join(", ")}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
                 {team.defaultBuilds.length > 0 && (
                   <p className="mt-1 text-xs text-zinc-500">
                     {team.defaultBuilds.length === 4
