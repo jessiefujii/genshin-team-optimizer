@@ -23,7 +23,7 @@
         "Q"
       ]
     },
-    "notes": "Hydro support: consistent off-field Hydro from her burst; low burst cost. ER 150-180% as the only Hydro, lower with a second Hydro (per Game8). Raises Moonsign."
+    "notes": "Hydro support: consistent off-field Hydro from her burst; low burst cost. ER 150-180% as the only Hydro, 110-130% with a second Hydro (per Game8). Raises Moonsign."
   },
   {
     "id": "Albedo",
@@ -138,10 +138,11 @@
     "rotation": {
       "slot": "setup",
       "actions": [
+        "E",
         "Q"
       ]
     },
-    "notes": "Stellar-Conduct support: personal damage, team ATK buff, and heals on hits from his burst. Without other Stellar-Conduct characters he plays like a standard healer-buffer support. ER goal 180-230%. His burst is his main use: Tugarin deals damage, buffs and heals."
+    "notes": "Stellar-Conduct support: personal damage, team ATK buff, and heals on hits from his burst. Without other Stellar-Conduct characters he plays like a standard healer-buffer support. ER goal 180-230%. Skill first to apply Hunter's Marks, then burst, his main use: Tugarin deals damage, buffs and heals."
   },
   {
     "id": "Amber",
@@ -2138,11 +2139,13 @@
       "slot": "carry",
       "actions": [
         "E",
-        "Phantasm Performance (special CA)",
+        "Phantasm Performance x3",
+        "E",
+        "Phantasm Performance x3",
         "Q"
       ]
     },
-    "notes": "On-field Lunar-Bloom carry. Skill unlocks her special Charged Attack; burst is the combo ender. TODO: how many special Charged Attacks per rotation."
+    "notes": "On-field Lunar-Bloom carry. Skill unlocks her special Charged Attack; burst is the combo ender. Up to 6 special Charged Attacks per rotation: 3 per Skill cast, 2 Skill charges."
   },
   {
     "id": "Neuvillette",
