@@ -1453,9 +1453,10 @@
   {
     "id": "Kamisato Ayato",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "sub-dps"
     ],
-    "fieldTime": "on",
+    "fieldTime": "flex",
     "reactions": [
       "vaporize",
       "electrocharged",
@@ -1938,9 +1939,10 @@
     "id": "Mavuika",
     "roles": [
       "main-dps",
-      "buffer"
+      "buffer",
+      "sub-dps"
     ],
-    "fieldTime": "on",
+    "fieldTime": "flex",
     "reactions": [
       "melt",
       "vaporize",

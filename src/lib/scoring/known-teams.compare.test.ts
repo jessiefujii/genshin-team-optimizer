@@ -18,7 +18,8 @@ test("guide teams vs the scorer's best teams", { timeout: 300_000 }, () => {
   for (const { carry, teams } of KNOWN_TEAMS) {
     for (const t of teams) for (const id of t) expect(byId.has(id), `${id} is not in tags.json`).toBe(true);
 
-    const top = findBestTeams(all, { mustInclude: [carry], limit: 100 });
+    // Only teams where this character carries: a flex DPS (Mavuika) can also be a support in someone else's team.
+    const top = findBestTeams(all, { mustInclude: [carry], limit: 400 }).filter((t) => t.carry === carry).slice(0, 100);
     const rank = (t: readonly string[]) => top.findIndex((s) => key(s.members) === key(t)) + 1 || null;
     const guide = teams.map((t) => ({ team: t, rank: rank(t), score: scoreTeam(t.map((id) => byId.get(id)!)).score }));
     const bestGuide = guide.reduce((a, b) => ((a.rank ?? 999) <= (b.rank ?? 999) ? a : b));
