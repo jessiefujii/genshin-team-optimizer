@@ -57,6 +57,7 @@ export interface Buff {
   affects?: ScalingStat; // carry must scale on this stat (EM also counts for reaction carries)
   elements?: Element[]; // carry must be one of these elements (elemental DMG bonus or RES shred)
   reactions?: Reaction[]; // one of these reactions must be active in the team
+  holderElement?: boolean; // effects.json only: the carry must share the holder's element (Celestial Gift)
   talent?: Talent | 'passive'; // tags.json only: the talent it comes from; passive buffs don't scale with a level
 }
 

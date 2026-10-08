@@ -297,12 +297,20 @@ describe("effects.json in scoring", () => {
     expect(conflicts("Neuvillette", "Bennett", "Furina", "Xiangling")).toEqual([]); // catalyst
   });
 
-  test("lines from unreviewed effects.json entries say draft", () => {
+  test("only effects.json entries still marked VERIFY say draft", () => {
     const [hutao, xingqiu, xiangling, zhongli] = team("Hu Tao", "Xingqiu", "Xiangling", "Zhongli");
-    const drafted = characterEffects("Xiangling", 1);
-    expect(drafted.some((e) => e.notes?.startsWith("VERIFY"))).toBe(true); // flip this test once #23 reviews C1 Xiangling
-    const result = lines([hutao, xingqiu, { ...xiangling, effects: drafted }, zhongli], "Effects");
-    expect(result[0].reason).toBe("Xiangling C1 (draft): Pyro RES shred for Hu Tao");
+    const reviewed = characterEffects("Xiangling", 1); // reviewed in #23
+    const withC1 = (effects: EffectTag[]) => lines([hutao, xingqiu, { ...xiangling, effects }, zhongli], "Effects");
+    expect(withC1(reviewed)[0].reason).toBe("Xiangling C1: Pyro RES shred for Hu Tao");
+    const drafted = reviewed.map((e) => ({ ...e, notes: "VERIFY: drafted" }));
+    expect(withC1(drafted)[0].reason).toBe("Xiangling C1 (draft): Pyro RES shred for Hu Tao");
+  });
+
+  test("a holder-element buff only fits a carry of the holder's element (Celestial Gift)", () => {
+    const gift: EffectTag = { source: "set", id: "Celestial Gift", requires: 4, buffs: [{ stat: "Elemental DMG Bonus", scope: "team", holderElement: true }] };
+    // Bennett is Pyro: the bonus helps Hu Tao (Pyro), not Neuvillette (Hydro).
+    expect(lines(geared({ Bennett: [gift] }, "Hu Tao", "Bennett", "Xingqiu", "Zhongli"), "Effects")).toHaveLength(1);
+    expect(lines(geared({ Bennett: [gift] }, "Neuvillette", "Bennett", "Furina", "Zhongli"), "Effects")).toEqual([]);
   });
 });
 

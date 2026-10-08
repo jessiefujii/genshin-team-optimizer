@@ -208,7 +208,11 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
     for (const e of m.effects ?? []) {
       if (seen.length === POINTS.maxEffectBuffs) return;
       // On the carry's own items, an 'active' buff only buffs the carry, which its final stats may already show.
-      const fit = e.buffs?.find((b) => (m !== carry || b.scope === "team") && !buffMisfit(b, carry, ctx, emUseful));
+      const fit = e.buffs?.find(
+        (b) =>
+          (m !== carry || b.scope === "team") &&
+          !buffMisfit(b.holderElement ? { ...b, elements: [m.element] } : b, carry, ctx, emUseful),
+      );
       if (!fit || seen.includes(effectKey(e))) continue;
       seen.push(effectKey(e));
       out.add("Effects", POINTS.effectBuff, () => `${effectName(m, e)}: ${fit.stat} for ${carry.id}`);
