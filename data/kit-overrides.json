@@ -1,0 +1,316 @@
+{
+  "_howTo": [
+    "Fill in what genshin-db 5.2.14 is missing (#73). Copy the text exactly as the game shows it.",
+    "talent: which talent the text belongs to: combat1 (Normal Attack), combat2 (Skill), combat3 (Burst), passive1-4, or c1-c6. A slot that replaces genshin-db's text for that talent uses the same key.",
+    "If a character got a brand-new effect rather than a changed talent, use the talent it is listed under in game.",
+    "source: where and when you copied it, e.g. 'in-game 7.1, 2026-10-10'. Add more slots to a character if more than one talent changed.",
+    "npm run kit reads filled slots in place of genshin-db and lists the empty ones."
+  ],
+  "characters": {
+    "Albedo": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Durin": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Fischl": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Klee": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Lohen": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Mona": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Razor": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Sucrose": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Varka": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Venti": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite changes (genshin-db has the pre-6.2 text)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Beidou": {
+      "why": "Witch's Revelation: the Stellar Glimmer changes (Polestar Field, Radiance)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Diona": {
+      "why": "Witch's Revelation: the Stellar Glimmer changes (Polestar Field, Radiance)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Qiqi": {
+      "why": "Witch's Revelation: the Stellar Glimmer changes (Polestar Field, Radiance)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Wriothesley": {
+      "why": "Witch's Revelation: the Stellar Glimmer changes (Polestar Field, Radiance)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Yae Miko": {
+      "why": "Witch's Revelation: the Stellar Glimmer changes (Polestar Field, Radiance)",
+      "slots": [
+        {
+          "talent": "",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Manekin": {
+      "why": "no talent or constellation data in genshin-db; include the talent table at level 9 if the game shows one",
+      "slots": [
+        {
+          "talent": "combat2",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "combat3",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c1",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c2",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c3",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c4",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c5",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c6",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Manekina": {
+      "why": "no talent or constellation data in genshin-db; include the talent table at level 9 if the game shows one",
+      "slots": [
+        {
+          "talent": "combat2",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "combat3",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c1",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c2",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c3",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c4",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c5",
+          "name": "",
+          "text": "",
+          "source": ""
+        },
+        {
+          "talent": "c6",
+          "name": "",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Ifa": {
+      "why": "the Rescue Essentials bonus per point isn't in genshin-db's text (sources say 1.5% or 1.2%)",
+      "slots": [
+        {
+          "talent": "passive1",
+          "name": "Field Medic's Vision",
+          "text": "",
+          "source": ""
+        }
+      ]
+    },
+    "Prune": {
+      "why": "Tolling Rally's bonus isn't in genshin-db's text (genshin-builds: 0.025% per ATK above 2,000, max 50%)",
+      "slots": [
+        {
+          "talent": "passive2",
+          "name": "Tolling Synchronicity",
+          "text": "",
+          "source": ""
+        }
+      ]
+    }
+  },
+  "rules": {
+    "nightsoulBurst": {
+      "why": "not in genshin-db; sources disagree on whether a non-Natlan character can trigger it",
+      "whoCanTrigger": "",
+      "cooldownSecondsByNatlanMembers": {
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "source": ""
+    }
+  }
+}

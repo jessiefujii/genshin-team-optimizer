@@ -12,6 +12,19 @@ const require = createRequire(import.meta.url);
 const genshindb = require("genshin-db");
 const { version } = require("genshin-db/package.json");
 
+// Hand-filled text for what genshin-db is missing (data/kit-overrides.json, #73). A filled slot replaces the
+// description of that talent; empty slots are listed at the end of the run.
+const OVERRIDES = require("../data/kit-overrides.json");
+
+function talentsOf(id) {
+  const base = genshindb.talents(id);
+  const filled = (OVERRIDES.characters[id]?.slots ?? []).filter((s) => s.text.trim() && s.talent);
+  if (!base && filled.length === 0) return undefined;
+  const merged = { ...(base ?? {}) };
+  for (const s of filled) merged[s.talent] = { ...(merged[s.talent] ?? {}), name: s.name || merged[s.talent]?.name, description: s.text, override: s.source };
+  return merged;
+}
+
 const TALENT_LEVEL = 9; // the scorer's talent benchmark (POINTS.talentBenchmark)
 const COMBAT = { normal: "combat1", skill: "combat2", burst: "combat3" };
 
@@ -153,7 +166,7 @@ const round = (n) => (n === null || n === undefined ? n : Math.round(n * 10000) 
 const uptime = (duration, cd) => (duration && cd ? round(Math.min(1, duration / cd)) : null);
 
 function readBuffs(id, spec) {
-  const talents = genshindb.talents(id);
+  const talents = talentsOf(id);
   if (!talents) throw new Error(`${id}: no talent data in genshin-db`);
   if (spec.talent) {
     const attrs = talents[COMBAT[spec.talent]].attributes;
@@ -230,7 +243,7 @@ const GLEAM = {
 };
 
 function readGleam(id, spec) {
-  const text = genshindb.talents(id)[spec.from].description.replace(/\s+/g, " ");
+  const text = talentsOf(id)[spec.from].description.replace(/\s+/g, " ");
   const at = text.indexOf("Ascendant Gleam");
   if (at < 0) throw new Error(`${id}: no "Ascendant Gleam" in ${spec.from}`);
   const after = text.slice(at);
@@ -265,7 +278,7 @@ for (const c of buffers) {
 // Every Moonsign character with an Ascendant Gleam upgrade needs a GLEAM entry, so a new one can't be missed.
 const ascendantGleam = {};
 for (const c of tags.filter((c) => (c.families ?? []).includes("moonsign"))) {
-  const t = genshindb.talents(c.id);
+  const t = talentsOf(c.id);
   const has = t && ["combat1", "combat2", "combat3", "passive1", "passive2", "passive3"].some((k) => t[k]?.description.includes("Ascendant Gleam"));
   if (has && !GLEAM[c.id]) throw new Error(`${c.id} has an Ascendant Gleam upgrade but no GLEAM entry`);
   if (GLEAM[c.id]) ascendantGleam[c.id] = readGleam(c.id, GLEAM[c.id]);
@@ -276,6 +289,11 @@ writeFileSync(
   out,
   JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, ascendantGleam }, null, 2) + "\n",
 );
+const empty = Object.entries(OVERRIDES.characters).flatMap(([id, c]) => c.slots.filter((s) => !s.text.trim()).map((s) => `${id} ${s.talent || "(talent?)"}`));
+const nightsoul = OVERRIDES.rules.nightsoulBurst.whoCanTrigger.trim() ? 0 : 1;
+if (empty.length + nightsoul > 0) {
+  console.log(`kit-overrides.json: ${empty.length + nightsoul} empty: ${[...empty, ...(nightsoul ? ["rules.nightsoulBurst"] : [])].join(", ")}`);
+}
 console.log(
   `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades`,
 );
