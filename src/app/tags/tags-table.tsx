@@ -129,6 +129,11 @@ export default function TagsTable({ rows }: { rows: TagRow[] }) {
                       </span>
                     ))}
                   </div>
+                  {row.mainReaction && (
+                    <div className="mt-1 text-xs text-zinc-500">
+                      main: {row.mainReaction === "none" ? "none (hypercarry)" : row.mainReaction}
+                    </div>
+                  )}
                 </td>
                 <td className="px-3 py-2">
                   <div className="text-xs text-zinc-500">

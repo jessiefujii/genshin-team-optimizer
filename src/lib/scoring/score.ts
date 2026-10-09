@@ -117,6 +117,21 @@ function suppliesElement(support: ScoringCharacter, carry: ScoringCharacter, rea
   return support.element !== carry.element && reactionElements(reaction).includes(support.element);
 }
 
+// The reaction a carry's teams are built around: tagged, or their only reaction (#49). undefined = not decided.
+function mainReactionOf(carry: ScoringCharacter): Reaction | "none" | undefined {
+  return carry.mainReaction ?? (carry.reactions.length === 1 ? carry.reactions[0] : undefined);
+}
+
+function mainReactionLines(carry: ScoringCharacter, r: Reaction, partners: ScoringCharacter[], out: Sink) {
+  if (partners.length === 0) {
+    out.add("Reactions", POINTS.carryReactionFromElements, () => `${label(r)} is possible for ${carry.id}`);
+    return;
+  }
+  out.add("Reactions", POINTS.carryReactionWithSupport, () => `${label(r)}: ${carry.id} + ${partners.map((p) => p.id).join(", ")}`);
+  const extra = Math.min(partners.length - 1, POINTS.maxExtraPartners);
+  if (extra > 0) out.add("Reactions", extra * POINTS.extraPartner, () => `${extra + 1} supports enable ${label(r)}`);
+}
+
 // Collects a team's score lines. The search only needs the points, so reasons are passed as
 // functions and only turned into text when the breakdown is kept (#4).
 interface Sink {
@@ -167,27 +182,28 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     for (const r of rivals) out.add("Carry", POINTS.extraOnField, () => `${r.id} also wants field time`);
   }
 
+  const main = mainReactionOf(carry);
+  const partnersFor = (r: Reaction) => supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r));
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
-  if (carry.reactions.length > 0 && carryActive.length === 0) {
+  if (main !== "none" && carry.reactions.length > 0 && carryActive.length === 0) {
     out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
   }
-  const ranked = carryActive
-    .map((r) => ({ r, partners: supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r)) }))
-    .sort((a, b) => b.partners.length - a.partners.length)
-    .slice(0, POINTS.maxCountedReactions);
-  ranked.forEach(({ r, partners }, i) => {
-    if (i > 0) {
+  if (main === undefined) {
+    const ranked = carryActive
+      .map((r) => ({ r, partners: partnersFor(r) }))
+      .sort((a, b) => b.partners.length - a.partners.length)
+      .slice(0, POINTS.maxCountedReactions);
+    ranked.forEach(({ r, partners }, i) => {
+      if (i > 0) out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
+      else mainReactionLines(carry, r, partners, out);
+    });
+  } else {
+    // Only the reaction the carry's teams are built around gets full points (#49).
+    if (main !== "none" && ctx.active.includes(main)) mainReactionLines(carry, main, partnersFor(main), out);
+    for (const r of carryActive.filter((r) => r !== main).slice(0, POINTS.maxCountedReactions - 1)) {
       out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
-      return;
     }
-    if (partners.length === 0) {
-      out.add("Reactions", POINTS.carryReactionFromElements, () => `${label(r)} is possible for ${carry.id}`);
-      return;
-    }
-    out.add("Reactions", POINTS.carryReactionWithSupport, () => `${label(r)}: ${carry.id} + ${partners.map((p) => p.id).join(", ")}`);
-    const extra = Math.min(partners.length - 1, POINTS.maxExtraPartners);
-    if (extra > 0) out.add("Reactions", extra * POINTS.extraPartner, () => `${extra + 1} supports enable ${label(r)}`);
-  });
+  }
 
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   const emUseful = carryActive.some((r) => !NO_EM_REACTIONS.has(r));
@@ -318,16 +334,17 @@ const FAMILY_REACTIONS: Partial<Record<Family, Reaction[]>> = {
 };
 
 // Family bonus (#43): two or more members only count when the family helps this team: a Moonsign or
-// Stellar reaction is active, or (Hexerei, Nightsoul) the carry belongs to the family.
+// Stellar reaction is active and the carry uses it or belongs to the family (#49), or (Hexerei, Nightsoul) the carry belongs to the family.
 function familyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const counts = new Map<Family, number>();
   for (const m of ctx.members) for (const f of familiesOf(m, ctx.options)) counts.set(f, (counts.get(f) ?? 0) + 1);
   for (const [f, n] of counts) {
     if (n < 2) continue;
     const reactions = FAMILY_REACTIONS[f];
+    const carryInFamily = !!carry && familiesOf(carry, ctx.options).includes(f);
     const helps = reactions
-      ? reactions.some((r) => ctx.active.includes(r))
-      : !!carry && familiesOf(carry, ctx.options).includes(f);
+      ? reactions.some((r) => ctx.active.includes(r)) && (!carry || carryInFamily || reactions.some((r) => carry.reactions.includes(r)))
+      : carryInFamily;
     if (helps) out.add("Family", f === "nightsoul" ? POINTS.nightsoulPair : POINTS.familyPair, () => `${n} ${FAMILY_NAMES[f]} members`);
   }
 }

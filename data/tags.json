@@ -68,6 +68,7 @@
       "spread",
       "quicken"
     ],
+    "mainReaction": "spread",
     "energyNeed": "medium",
     "erTarget": 150,
     "scalesOn": [
@@ -208,6 +209,7 @@
       "vaporize",
       "overloaded"
     ],
+    "mainReaction": "none",
     "energyNeed": "low",
     "erTarget": 140,
     "scalesOn": [
@@ -561,6 +563,7 @@
       "overloaded",
       "electrocharged"
     ],
+    "mainReaction": "aggravate",
     "energyNeed": "low",
     "erTarget": 120,
     "scalesOn": [
@@ -2172,6 +2175,7 @@
       "freeze",
       "vaporize"
     ],
+    "mainReaction": "none",
     "energyNeed": "low",
     "erTarget": 140,
     "scalesOn": [
@@ -2420,6 +2424,7 @@
       "hyperbloom",
       "superconduct"
     ],
+    "mainReaction": "overloaded",
     "energyNeed": "low",
     "erTarget": 200,
     "scalesOn": [
@@ -2954,8 +2959,10 @@
     "fieldTime": "on",
     "reactions": [
       "aggravate",
-      "electrocharged"
+      "electrocharged",
+      "overloaded"
     ],
+    "mainReaction": "overloaded",
     "energyNeed": "medium",
     "erTarget": 130,
     "scalesOn": [
@@ -3151,6 +3158,7 @@
       "melt",
       "freeze"
     ],
+    "mainReaction": "freeze",
     "energyNeed": "medium",
     "erTarget": 120,
     "scalesOn": [

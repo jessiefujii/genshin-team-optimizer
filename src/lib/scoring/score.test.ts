@@ -58,10 +58,38 @@ describe("scoreTeam", () => {
     const vape = hutao.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
     expect(vape?.reason).toBe("Vaporize: Hu Tao + Furina, Xingqiu");
 
-    const neuv = score("Neuvillette", "Bennett", "Furina", "Xiangling");
-    expect(neuv.breakdown.find((l) => l.reason.startsWith("Vaporize:"))?.reason).toBe(
-      "Vaporize: Neuvillette + Bennett, Xiangling",
+    const childe = score("Tartaglia", "Bennett", "Furina", "Xiangling");
+    expect(childe.breakdown.find((l) => l.reason.startsWith("Vaporize:"))?.reason).toBe(
+      "Vaporize: Tartaglia + Bennett, Xiangling",
     );
+  });
+
+  test("only the carry's main reaction gets full points (#49)", () => {
+    const s = score("Clorinde", "Bennett", "Chevreuse", "Furina");
+    const reasons = s.breakdown.map((l) => l.reason);
+    expect(reasons.some((r) => r.startsWith("Overloaded:"))).toBe(false);
+    expect(reasons).toContain("Overloaded as a secondary reaction");
+    expect(score("Clorinde", "Nahida", "Baizhu", "Furina").breakdown.map((l) => l.reason)).toContain(
+      "Aggravate: Clorinde + Nahida, Baizhu",
+    );
+  });
+
+  test("a hypercarry is not penalized for a team without reactions (#49)", () => {
+    const s = score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli");
+    expect(s.breakdown.some((l) => l.rule === "Reactions")).toBe(false);
+  });
+
+  test("a main reaction is one of the main DPS's own reactions, or none", () => {
+    for (const c of all.filter((c) => c.mainReaction)) {
+      expect(c.roles, c.id).toContain("main-dps");
+      if (c.mainReaction !== "none") expect(c.reactions, c.id).toContain(c.mainReaction);
+    }
+  });
+
+  test("a Moonsign pair needs a Lunar reaction the carry uses (#49)", () => {
+    const moonsign = (s: ReturnType<typeof scoreTeam>) => s.breakdown.some((l) => l.rule === "Family" && l.reason.includes("Moonsign"));
+    expect(moonsign(score("Raiden Shogun", "Aino", "Lauma", "Baizhu"))).toBe(false);
+    expect(moonsign(score("Flins", "Aino", "Ineffa", "Xilonen"))).toBe(true);
   });
 
   test("a team without a main DPS is penalized", () => {
