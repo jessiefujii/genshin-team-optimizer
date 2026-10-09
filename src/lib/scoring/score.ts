@@ -210,7 +210,7 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   }
 
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
-  const emUseful = carryActive.some((r) => !NO_EM_REACTIONS.has(r));
+  const emUseful = usesEmReaction(carry, ctx);
   const maxBuffers = main === "none" ? POINTS.hypercarryMaxBuffers : POINTS.maxBuffers;
   // Every fitting buffer is scored, then the strongest count up to the cap (#60).
   const fitting: { id: string; points: number; reason: () => string }[] = [];
@@ -303,6 +303,10 @@ function buffMisfit(buff: Buff, carry: ScoringCharacter, ctx: TeamContext, emUse
   if (buff.reactions && !buff.reactions.some((r) => ctx.active.includes(r))) {
     return () => `buffs ${buff.reactions!.map(label).join("/")}, which this team does not trigger`;
   }
+  // The team triggering the reaction is not enough: the carry has to deal it (#58).
+  if (buff.reactions && !buff.reactions.some((r) => ctx.active.includes(r) && carry.reactions.includes(r))) {
+    return () => `buffs ${buff.reactions!.map(label).join("/")}, which ${carry.id} does not deal`;
+  }
   return null;
 }
 
@@ -331,8 +335,8 @@ function teamLines(ctx: TeamContext, out: Sink) {
   const counts = new Map<Element, number>();
   for (const m of members) counts.set(m.element, (counts.get(m.element) ?? 0) + 1);
   for (const [el, n] of counts) {
-    // Pyro's +25% ATK depends on the carry, so pyroResonanceLine adds it.
-    if (n >= 2 && el !== "Pyro") out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
+    // Pyro, Hydro and Dendro buff one stat, so whether they help depends on the carry: carryResonanceLines adds them.
+    if (n >= 2 && !(el in STAT_RESONANCE)) out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
   }
 
   const sustain = members.find((m) => hasRole(m, "healer") || hasRole(m, "shielder"));
@@ -355,15 +359,23 @@ function teamLines(ctx: TeamContext, out: Sink) {
   }
 }
 
-// Fervent Flames is +25% ATK: nothing for a carry that scales on HP, DEF or EM (#51).
-function pyroResonanceLine(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  if (ctx.members.filter((m) => m.element === "Pyro").length < 2) return;
-  if (carry?.scalesOn && !carry.scalesOn.includes("ATK")) {
-    out.add("Resonance", 0, () => `${RESONANCE.Pyro.name}, but ${carry.id} scales on ${carry.scalesOn!.join("/")}`);
-    return;
+// Resonances that raise one stat only help a carry who uses it (#51, #59): Fervent Flames +25% ATK,
+// Soothing Water +25% HP, Sprawling Greenery +EM.
+const STAT_RESONANCE: Partial<Record<Element, "ATK" | "HP" | "EM">> = { Pyro: "ATK", Hydro: "HP", Dendro: "EM" };
+
+function carryResonanceLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  for (const [el, stat] of Object.entries(STAT_RESONANCE) as [Element, "ATK" | "HP" | "EM"][]) {
+    if (ctx.members.filter((m) => m.element === el).length < 2) continue;
+    const { name, points } = RESONANCE[el];
+    // EM also helps a carry whose reactions grow with it.
+    const helps = !carry?.scalesOn || carry.scalesOn.includes(stat) || (stat === "EM" && usesEmReaction(carry, ctx));
+    if (helps) out.add("Resonance", points, () => name);
+    else out.add("Resonance", 0, () => `${name}, but ${carry!.id} scales on ${carry!.scalesOn!.join("/")}`);
   }
-  out.add("Resonance", RESONANCE.Pyro.points, () => RESONANCE.Pyro.name);
 }
+
+const usesEmReaction = (carry: ScoringCharacter, ctx: TeamContext) =>
+  carry.reactions.some((r) => ctx.active.includes(r) && !NO_EM_REACTIONS.has(r));
 
 // Reactions that only exist with a family member, so a pair of that family pays off when one is active.
 const FAMILY_REACTIONS: Partial<Record<Family, Reaction[]>> = {
@@ -509,7 +521,7 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
       carryTalentLine(carry, carryPoints, out);
     }
     out.addAll(shared);
-    pyroResonanceLine(ctx, carry, out);
+    carryResonanceLines(ctx, carry, out);
     familyLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);

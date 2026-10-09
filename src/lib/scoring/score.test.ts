@@ -199,6 +199,24 @@ describe("scoreTeam", () => {
       expect(buffLine(score("Diluc", "Baizhu", "Bennett", "Zhongli"), "Baizhu")?.points).toBe(0);
     });
 
+    test("reaction buffs need a reaction the carry deals (#58)", () => {
+      const neuv = score("Neuvillette", "Citlali", "Columbina", "Lauma");
+      expect(buffLine(neuv, "Columbina")).toEqual({
+        rule: "Buffs",
+        points: 0,
+        reason: "Columbina: buffs Lunar-charged/Lunar-bloom/Lunar-crystallize, which Neuvillette does not deal",
+      });
+      expect(buffLine(neuv, "Lauma")?.points).toBe(0);
+      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(15);
+      // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him.
+      expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(15);
+    });
+
+    test("Kazuha's swirl buff does nothing for an Anemo carry (#58)", () => {
+      expect(buffLine(score("Xiao", "Bennett", "Kaedehara Kazuha", "Nicole"), "Kaedehara Kazuha")?.points).toBe(0);
+      expect(buffLine(score("Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"), "Kaedehara Kazuha")?.points).toBe(15);
+    });
+
     test("every main DPS has scalesOn", () => {
       const missing = all.filter((c) => c.roles.includes("main-dps") && !c.scalesOn?.length).map((c) => c.id);
       expect(missing).toEqual([]);
@@ -344,6 +362,27 @@ describe("talent levels (#25)", () => {
     const s = score("Xiao", "Xianyun", "Faruzan", "Furina");
     expect(s.breakdown.map((l) => l.reason)).toContain("Xiao with Xianyun");
     expect(s.breakdown.find((l) => l.reason.startsWith("Faruzan buffs"))?.points).toBe(15);
+  });
+
+  test("Electro enablers partner a Dendro carry's Spread (#61)", () => {
+    expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
+      "Spread: Alhaitham + Kuki Shinobu",
+    );
+    expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
+      "Spread: Tighnari + Yae Miko, Fischl",
+    );
+  });
+
+  test("Hydro and Dendro resonance only count when the carry uses the stat (#59)", () => {
+    const res = (s: ReturnType<typeof scoreTeam>, name: string) => s.breakdown.find((l) => l.reason.startsWith(name));
+    expect(res(score("Kamisato Ayaka", "Diona", "Furina", "Mona"), "Soothing Water")).toEqual({
+      rule: "Resonance",
+      points: 0,
+      reason: "Soothing Water, but Kamisato Ayaka scales on ATK",
+    });
+    expect(res(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"), "Soothing Water")?.points).toBe(5);
+    expect(res(score("Alhaitham", "Nahida", "Fischl", "Kuki Shinobu"), "Sprawling Greenery")?.points).toBe(5); // EM scaler
+    expect(res(score("Kinich", "Emilie", "Xiangling", "Bennett"), "Sprawling Greenery")?.points).toBe(5); // Burning uses EM
   });
 
   test("a hypercarry counts a third buffer (#51)", () => {
