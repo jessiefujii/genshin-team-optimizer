@@ -968,6 +968,7 @@
     "fieldTime": "off",
     "reactions": [
       "aggravate",
+      "spread",
       "electrocharged",
       "overloaded",
       "superconduct",
@@ -1684,7 +1685,8 @@
     "fieldTime": "off",
     "reactions": [
       "hyperbloom",
-      "aggravate"
+      "aggravate",
+      "spread"
     ],
     "energyNeed": "low",
     "erTarget": 120,
@@ -3376,6 +3378,7 @@
     "fieldTime": "off",
     "reactions": [
       "aggravate",
+      "spread",
       "electrocharged",
       "overloaded"
     ],

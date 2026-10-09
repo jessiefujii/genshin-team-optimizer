@@ -333,6 +333,15 @@ describe("talent levels (#25)", () => {
     });
   });
 
+  test("Electro enablers partner a Dendro carry's Spread (#61)", () => {
+    expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
+      "Spread: Alhaitham + Kuki Shinobu",
+    );
+    expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
+      "Spread: Tighnari + Yae Miko, Fischl",
+    );
+  });
+
   test("a hypercarry counts a third buffer (#51)", () => {
     const buffs = (s: ReturnType<typeof scoreTeam>) => s.breakdown.filter((l) => l.rule === "Buffs" && l.points > 0).length;
     expect(buffs(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(3);
