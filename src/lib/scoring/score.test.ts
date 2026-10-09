@@ -351,6 +351,15 @@ describe("talent levels (#25)", () => {
     });
   });
 
+  test("Electro enablers partner a Dendro carry's Spread (#61)", () => {
+    expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
+      "Spread: Alhaitham + Kuki Shinobu",
+    );
+    expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
+      "Spread: Tighnari + Yae Miko, Fischl",
+    );
+  });
+
   test("Hydro and Dendro resonance only count when the carry uses the stat (#59)", () => {
     const res = (s: ReturnType<typeof scoreTeam>, name: string) => s.breakdown.find((l) => l.reason.startsWith(name));
     expect(res(score("Kamisato Ayaka", "Diona", "Furina", "Mona"), "Soothing Water")).toEqual({
