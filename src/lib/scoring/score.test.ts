@@ -20,22 +20,30 @@ const score = (...ids: string[]) => scoreTeam(team(...ids));
 
 describe("reactions", () => {
   test("base reactions need both elements", () => {
-    expect(canTrigger("vaporize", new Set(["Pyro", "Hydro"]), new Set())).toBe(true);
-    expect(canTrigger("vaporize", new Set(["Pyro", "Cryo"]), new Set())).toBe(false);
-    expect(canTrigger("swirl", new Set(["Anemo", "Geo"]), new Set())).toBe(false);
+    expect(canTrigger("vaporize", new Set(["Pyro", "Hydro"]))).toBe(true);
+    expect(canTrigger("vaporize", new Set(["Pyro", "Cryo"]))).toBe(false);
+    expect(canTrigger("swirl", new Set(["Anemo", "Geo"]))).toBe(false);
   });
 
-  test("Stellar reactions need a Stellar Linchpin, not just a Stellar member (#45)", () => {
-    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]), new Set(["stellar"]))).toBe(false);
-    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]), new Set(["stellar"]), true)).toBe(true);
+  test("Lunar and Stellar reactions need a member who converts that reaction (#45, #63)", () => {
+    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]))).toBe(false);
+    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]), new Set(["stellar-conduct"]))).toBe(true);
     // Alyosha benefits from Stellar-Conduct but can't enable it; Sandrone can.
     expect(score("Alyosha", "Ganyu", "Bennett", "Zhongli").activeReactions).not.toContain("stellar-conduct");
     expect(score("Alyosha", "Sandrone", "Bennett", "Zhongli").activeReactions).toContain("stellar-conduct");
   });
 
-  test("Lunar reactions need a Moonsign member", () => {
-    expect(canTrigger("lunar-charged", new Set(["Electro", "Hydro"]), new Set())).toBe(false);
-    expect(canTrigger("lunar-charged", new Set(["Electro", "Hydro"]), new Set(["moonsign"]))).toBe(true);
+  test("conversion is per character, not per family (#63)", () => {
+    const active = (...ids: string[]) => score(...ids).activeReactions;
+    // Aino is Moonsign but converts nothing; Ineffa converts Electro-Charged.
+    expect(active("Raiden Shogun", "Aino", "Bennett", "Zhongli")).not.toContain("lunar-charged");
+    expect(active("Raiden Shogun", "Aino", "Ineffa", "Zhongli")).toContain("lunar-charged");
+    // Ineffa doesn't convert Bloom; Lauma does.
+    expect(active("Nahida", "Ineffa", "Xingqiu", "Zhongli")).not.toContain("lunar-bloom");
+    expect(active("Nahida", "Lauma", "Xingqiu", "Zhongli")).toContain("lunar-bloom");
+    // Vesna converts Cryo Swirl only; Odette converts Superconduct too.
+    expect(active("Vesna", "Fischl", "Ganyu", "Zhongli")).not.toContain("stellar-conduct");
+    expect(active("Odette", "Fischl", "Ganyu", "Zhongli")).toContain("stellar-conduct");
   });
 });
 

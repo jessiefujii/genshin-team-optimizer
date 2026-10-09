@@ -111,8 +111,9 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
     for (const f of familiesOf(m, options)) families.add(f);
     for (const r of m.reactions) if (!listed.includes(r)) listed.push(r);
   }
-  const linchpin = members.some((m) => m.stellarLinchpin);
-  const active = listed.filter((r) => canTrigger(r, elements, families, linchpin));
+  const converted = new Set<Reaction>();
+  for (const m of members) for (const r of m.converts ?? []) converted.add(r);
+  const active = listed.filter((r) => canTrigger(r, elements, converted));
   return { members, elements, families, active, options };
 }
 
