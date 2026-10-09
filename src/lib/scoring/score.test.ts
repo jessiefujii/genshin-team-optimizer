@@ -20,22 +20,30 @@ const score = (...ids: string[]) => scoreTeam(team(...ids));
 
 describe("reactions", () => {
   test("base reactions need both elements", () => {
-    expect(canTrigger("vaporize", new Set(["Pyro", "Hydro"]), new Set())).toBe(true);
-    expect(canTrigger("vaporize", new Set(["Pyro", "Cryo"]), new Set())).toBe(false);
-    expect(canTrigger("swirl", new Set(["Anemo", "Geo"]), new Set())).toBe(false);
+    expect(canTrigger("vaporize", new Set(["Pyro", "Hydro"]))).toBe(true);
+    expect(canTrigger("vaporize", new Set(["Pyro", "Cryo"]))).toBe(false);
+    expect(canTrigger("swirl", new Set(["Anemo", "Geo"]))).toBe(false);
   });
 
-  test("Stellar reactions need a Stellar Linchpin, not just a Stellar member (#45)", () => {
-    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]), new Set(["stellar"]))).toBe(false);
-    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]), new Set(["stellar"]), true)).toBe(true);
+  test("Lunar and Stellar reactions need a member who converts that reaction (#45, #63)", () => {
+    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]))).toBe(false);
+    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]), new Set(["stellar-conduct"]))).toBe(true);
     // Alyosha benefits from Stellar-Conduct but can't enable it; Sandrone can.
     expect(score("Alyosha", "Ganyu", "Bennett", "Zhongli").activeReactions).not.toContain("stellar-conduct");
     expect(score("Alyosha", "Sandrone", "Bennett", "Zhongli").activeReactions).toContain("stellar-conduct");
   });
 
-  test("Lunar reactions need a Moonsign member", () => {
-    expect(canTrigger("lunar-charged", new Set(["Electro", "Hydro"]), new Set())).toBe(false);
-    expect(canTrigger("lunar-charged", new Set(["Electro", "Hydro"]), new Set(["moonsign"]))).toBe(true);
+  test("conversion is per character, not per family (#63)", () => {
+    const active = (...ids: string[]) => score(...ids).activeReactions;
+    // Aino is Moonsign but converts nothing; Ineffa converts Electro-Charged.
+    expect(active("Raiden Shogun", "Aino", "Bennett", "Zhongli")).not.toContain("lunar-charged");
+    expect(active("Raiden Shogun", "Aino", "Ineffa", "Zhongli")).toContain("lunar-charged");
+    // Ineffa doesn't convert Bloom; Lauma does.
+    expect(active("Nahida", "Ineffa", "Xingqiu", "Zhongli")).not.toContain("lunar-bloom");
+    expect(active("Nahida", "Lauma", "Xingqiu", "Zhongli")).toContain("lunar-bloom");
+    // Vesna converts Cryo Swirl only; Odette converts Superconduct too.
+    expect(active("Vesna", "Fischl", "Ganyu", "Zhongli")).not.toContain("stellar-conduct");
+    expect(active("Odette", "Fischl", "Ganyu", "Zhongli")).toContain("stellar-conduct");
   });
 });
 
@@ -99,10 +107,22 @@ describe("scoreTeam", () => {
     }
   });
 
-  test("a Moonsign pair needs a Lunar reaction the carry uses (#49)", () => {
-    const moonsign = (s: ReturnType<typeof scoreTeam>) => s.breakdown.some((l) => l.rule === "Family" && l.reason.includes("Moonsign"));
-    expect(moonsign(score("Raiden Shogun", "Aino", "Lauma", "Baizhu"))).toBe(false);
-    expect(moonsign(score("Flins", "Aino", "Ineffa", "Xilonen"))).toBe(true);
+  test("Ascendant Gleam scores what it unlocks for this team (#63)", () => {
+    const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Moonsign");
+    // Two Moonsign members (Aino, Ineffa) reach Ascendant Gleam: Flins's own kit upgrade counts.
+    expect(lines("Flins", "Aino", "Ineffa", "Xilonen")).toEqual([
+      { rule: "Moonsign", points: 10, reason: "Ascendant Gleam enhances Flins's kit" },
+    ]);
+    // One Moonsign member is only Nascent Gleam.
+    expect(lines("Flins", "Bennett", "Xingqiu", "Xilonen")).toEqual([]);
+    // Raiden isn't Moonsign and Lauma's upgrade is for Lunar-Bloom, which Raiden doesn't deal.
+    expect(lines("Raiden Shogun", "Aino", "Lauma", "Baizhu")).toEqual([]);
+    // Lauma's Lunar-Bloom crit helps Nefer; Nefer's own upgrade counts too.
+    const nefer = lines("Nefer", "Lauma", "Aino", "Yaoyao").map((l) => l.reason);
+    expect(nefer).toContain("Ascendant Gleam enhances Nefer's kit");
+    expect(nefer.some((r) => r.startsWith("Ascendant Gleam: Lauma gives Nefer"))).toBe(true);
+    // Linnea's extra Geo shred only helps a Geo carry.
+    expect(lines("Zibai", "Linnea", "Columbina", "Xilonen").some((l) => l.reason.startsWith("Ascendant Gleam: Linnea"))).toBe(true);
   });
 
   test("a team without a main DPS is penalized", () => {
@@ -136,10 +156,11 @@ describe("scoreTeam", () => {
     expect(score("Hu Tao", "Mona", "Nicole", "Zhongli").breakdown.some((l) => l.rule === "Family")).toBe(false);
     // Varka is Hexerei himself, so his Hexerei teammates count.
     expect(score("Varka", "Venti", "Klee", "Durin").breakdown.some((l) => l.rule === "Family")).toBe(true);
-    // Moonsign pays off once a Lunar reaction is active.
+    // Moonsign isn't a flat family pair any more: it scores through Ascendant Gleam (#63).
     const lunar = score("Flins", "Columbina", "Ineffa", "Zhongli");
     expect(lunar.activeReactions).toContain("lunar-charged");
-    expect(lunar.breakdown.some((l) => l.rule === "Family" && l.reason.includes("Moonsign"))).toBe(true);
+    expect(lunar.breakdown.some((l) => l.rule === "Family")).toBe(false);
+    expect(lunar.breakdown.some((l) => l.rule === "Moonsign")).toBe(true);
   });
 
   test("a support's own team preference counts less than the carry's (#43)", () => {
@@ -339,6 +360,19 @@ describe("talent levels (#25)", () => {
     expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 15, reason: "Furina buffs Hu Tao (~+43% damage)" });
     expect(buffLine(hutao, "Bennett")?.points).toBe(12);
     expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(8);
+  });
+
+  test("kit values that depend on the team follow their conditions (#68)", () => {
+    const buff = (id: string, ...ids: string[]) =>
+      score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id))?.reason;
+    // Escoffier's shred is 5/10/15/55% for 1/2/3/4 Hydro or Cryo members.
+    expect(buff("Escoffier", "Kamisato Ayaka", "Escoffier", "Furina", "Mona")).toBe("Escoffier buffs Kamisato Ayaka (~+36% damage)");
+    expect(buff("Escoffier", "Kamisato Ayaka", "Escoffier", "Furina", "Amber")).toBe("Escoffier buffs Kamisato Ayaka (~+14% damage)"); // 3 members: 15%
+    // Chevreuse's shred needs every member to be Pyro or Electro.
+    expect(buff("Chevreuse", "Raiden Shogun", "Chevreuse", "Xiangling", "Bennett")).toBe("Chevreuse buffs Raiden Shogun (~+28% damage)");
+    expect(buff("Chevreuse", "Raiden Shogun", "Chevreuse", "Xiangling", "Xingqiu")).toBe(
+      "Chevreuse: their kit's buff doesn't apply to Raiden Shogun's damage",
+    );
   });
 
   test("Mavuika's bonus grows with the Fighting Spirit the team can build (#68)", () => {

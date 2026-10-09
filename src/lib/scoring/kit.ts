@@ -3,6 +3,7 @@
 // build; it only has to rank buffs against each other, not predict real damage.
 import kitJson from "../../../data/kit.json";
 import type { Reaction } from "../../types/tags";
+import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, resShredGain } from "./benchmark";
 import type { ScoringCharacter } from "./types";
 
 export interface KitBuff {
@@ -15,6 +16,8 @@ export interface KitBuff {
   reactions?: string[];
   physical?: boolean;
   condition?: "fightingSpirit";
+  steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
+  teamOnly?: string[];
   unit: string;
   source: string;
   uptime: number | null;
@@ -28,17 +31,6 @@ interface KitCharacter {
 
 const KIT = kitJson.characters as Record<string, KitCharacter>;
 
-export const BENCHMARK = {
-  carryBaseAtk: 950, // character + weapon base ATK
-  carryAtk: 2200,
-  carryDmgBonus: 0.6, // elemental goblet + set
-  carryCritRate: 0.6,
-  carryCritDmg: 1.2,
-  carryEm: 100,
-  enemyRes: 0.1,
-  hitDamage: 7000, // one non-crit hit before flat bonuses, to weigh flat damage against
-  buffer: { weaponBaseAtk: 500, atk: 2000, hp: 35000, def: 2400, em: 800 }, // buffers without a build
-};
 
 // Mavuika's burst bonus is 0.2% per point of Fighting Spirit, max 200. Her burst needs at least 100, and
 // Fighting Spirit comes from Nightsoul points the party spends and from the party's Normal Attacks hitting
@@ -55,9 +47,6 @@ function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: read
 // Plunging carries say so in their rotation tags (Xiao "plunge x10", Gaming "E plunge x4").
 const plunges = (c: ScoringCharacter) => c.rotation.actions.some((a) => /plunge/i.test(a));
 
-const resMultiplier = (res: number) => (res < 0 ? 1 - res / 2 : res < 0.75 ? 1 - res : 1 / (4 * res + 1));
-const emMultiplier = (em: number) => 1 + (2.78 * em) / (em + 1400); // amplifying reactions
-
 // The buffer's own stats: from their build when the player has one, else the benchmark.
 function bufferStats(s: ScoringCharacter, base: KitCharacter["base"]) {
   const b = BENCHMARK.buffer;
@@ -71,16 +60,32 @@ function bufferStats(s: ScoringCharacter, base: KitCharacter["base"]) {
 }
 
 // The fraction of extra damage one buff value gives the benchmark carry, or 0 when it can't help this carry.
-function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: ScoringCharacter, carryReactions: readonly Reaction[], fs: number): number {
+// What the team looks like, for values that depend on it (Escoffier, Lynette, Chevreuse, Mavuika).
+interface TeamShape {
+  elements: string[]; // one per member
+  fightingSpirit: number;
+}
+
+// A stepped value at this team's count (Escoffier: 1-4 Hydro/Cryo members; Lynette: 1-4 element types).
+function stepValue(buff: KitBuff, team: TeamShape): number {
+  const steps = buff.steps!;
+  const n = steps.count === "elementTypes" ? new Set(team.elements).size : team.elements.filter((e) => steps.of!.includes(e)).length;
+  return n === 0 ? 0 : steps.values[Math.min(n, steps.values.length) - 1];
+}
+
+function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): number {
   if (buff.elements && !buff.elements.includes(carry.element)) return 0;
+  if (buff.teamOnly && !team.elements.every((e) => buff.teamOnly!.includes(e))) return 0;
+  if (buff.steps) buff = { ...buff, value: stepValue(buff, team) };
+  const fs = team.fightingSpirit;
   if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return 0;
   if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return 0;
   if (buff.physical) return 0; // the scorer has no Physical carries tagged as such
   const B = BENCHMARK;
   const cap = (n: number) => (buff.max === undefined ? n : Math.min(n, buff.max));
-  const dmg = (bonus: number) => bonus / (1 + B.carryDmgBonus);
+  const dmg = dmgBonusGain;
   const flat = (n: number) => cap(n) / B.hitDamage;
-  const em = (add: number) => emMultiplier(B.carryEm + add) / emMultiplier(B.carryEm) - 1;
+  const em = emGain;
   switch (buff.kind) {
     case "atkFromBase":
       return (stats.baseAtk * buff.value) / B.carryAtk;
@@ -97,15 +102,11 @@ function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scori
     case "reactionBonus":
       return dmg(cap(buff.perHp ? (buff.value * stats.hp) / buff.perHp : buff.value));
     case "resShred":
-      return resMultiplier(B.enemyRes - buff.value) / resMultiplier(B.enemyRes) - 1;
-    case "defShred": {
-      const k = (s: number) => 190 / (190 + 200 * (1 - s)); // level 90 attacker vs level 100 enemy
-      return k(buff.value) / k(0) - 1;
-    }
-    case "critRate": {
-      const avg = (cr: number) => 1 + Math.min(cr, 1) * B.carryCritDmg;
-      return avg(B.carryCritRate + buff.value) / avg(B.carryCritRate) - 1;
-    }
+      return resShredGain(buff.value);
+    case "defShred":
+      return defShredGain(buff.value);
+    case "critRate":
+      return critGain(buff.value);
     case "atkSpd":
       return buff.value * 0.5; // more hits, but only the attacks the speed applies to
     case "em":
@@ -154,21 +155,21 @@ export function kitBuffValue(
   if (!byCarry) cache.set(s, (byCarry = new WeakMap()));
   let byReactions = byCarry.get(carry);
   if (!byReactions) byCarry.set(carry, (byReactions = new Map()));
-  const fs = fightingSpirit(s, carry, team);
-  const key = `${carryReactions.join(",")}|${fs}`;
+  const shape: TeamShape = { elements: team.map((m) => m.element), fightingSpirit: fightingSpirit(s, carry, team) };
+  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${[...shape.elements].sort().join(",")}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
-  const value = computeKitBuffValue(s, carry, carryReactions, fs);
+  const value = computeKitBuffValue(s, carry, carryReactions, shape);
   byReactions.set(key, value);
   return value;
 }
 
-function computeKitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], fs: number): KitBuffValue | null {
+function computeKitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
   const stats = bufferStats(s, entry.base);
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
-    const g = gain(b, stats, carry, carryReactions, fs) * (b.uptime ?? 1);
+    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1);
     best.set(b.kind, Math.max(best.get(b.kind) ?? 0, g));
   }
   let total = 1;

@@ -20,6 +20,8 @@ const COMBAT = { normal: "combat1", skill: "combat2", burst: "combat3" };
 // text:  { from, values: [{ kind, re, unit, percent?, max?, perHp?, ...limits }], duration?: re | label, cd?: { talent, label } }
 // scale: a factor on the read value (Yelan's ramping bonus averages about half its max)
 // condition: the value depends on the team (fightingSpirit: Mavuika, scaled in src/lib/scoring/kit.ts)
+// steps: the value steps with the team (members of some elements, or element types); teamOnly: every member's
+//        element must be one of these (Chevreuse)
 // limits: elements (carry's element), appliesTo (carry's keyTalent, or 'plunge' for carries whose rotation plunges),
 //         reactions (one the carry deals), physical
 const SPEC = {
@@ -90,12 +92,12 @@ const SPEC = {
   },
   Chevreuse: {
     from: "passive1",
-    values: [{ kind: "resShred", re: /Pyro and Electro RES of the opponent\(s\) affected by this Overloaded reaction will be decreased by (\d+)%/, unit: "Pyro/Electro RES after Overloaded", percent: true, elements: ["Pyro", "Electro"] }],
+    values: [{ kind: "resShred", re: /Pyro and Electro RES of the opponent\(s\) affected by this Overloaded reaction will be decreased by (\d+)%/, unit: "Pyro/Electro RES after Overloaded, only when every member is Pyro or Electro", percent: true, elements: ["Pyro", "Electro"], teamOnly: ["Pyro", "Electro"] }],
     duration: /decreased by \d+% for (\d+)s/,
   },
   Citlali: { from: "passive1", values: [{ kind: "resShred", re: /Pyro and Hydro RES of opponents affected by that reaction decreases by (\d+)%/, unit: "Pyro/Hydro RES after Frozen or Melt", percent: true, elements: ["Pyro", "Hydro"] }], duration: /decreases by \d+% for (\d+)s/ },
   Dahlia: { from: "passive2", values: [{ kind: "atkSpd", re: /up to a maximum of (\d+)%/, unit: "ATK SPD % (max, HP-based)", percent: true, appliesTo: ["normal"] }] },
-  Escoffier: { from: "passive2", values: [{ kind: "resShred", re: /by 5%\/10%\/15%\/(\d+)% for/, unit: "Hydro/Cryo RES with 4 Hydro or Cryo members", percent: true, elements: ["Hydro", "Cryo"] }], duration: /% for (\d+)s/ },
+  Escoffier: { from: "passive2", values: [{ kind: "resShred", re: /by (\d+)%\/(\d+)%\/(\d+)%\/(\d+)% for/, unit: "Hydro/Cryo RES by the number of Hydro or Cryo members (1-4)", percent: true, elements: ["Hydro", "Cryo"], steps: { count: "members", of: ["Hydro", "Cryo"] } }], duration: /% for (\d+)s/ },
   Ineffa: { from: "passive2", values: [{ kind: "emFromAtk", re: /Elemental Mastery by (\d+)% of Ineffa's ATK/, unit: "of Ineffa's ATK as EM", percent: true }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
   "Kaedehara Kazuha": { from: "passive2", values: [{ kind: "dmgBonusPerEm", re: /a ([\d.]+)% Elemental DMG Bonus/, unit: "swirled-element DMG % per point of Kazuha's EM", percent: true }], duration: /for (\d+)s/ },
   Linnea: {
@@ -106,7 +108,7 @@ const SPEC = {
     ],
   },
   Lisa: { from: "passive2", values: [{ kind: "defShred", re: /DEF decreased by (\d+)%/, unit: "DEF", percent: true }], duration: /for (\d+)s/ },
-  Lynette: { from: "passive1", values: [{ kind: "atkPct", re: /8%\/12%\/16%\/(\d+)% respectively/, unit: "ATK % with 4 elements", percent: true }], duration: /Within (\d+)s/, cd: { talent: "skill", label: "CD" } },
+  Lynette: { from: "passive1", values: [{ kind: "atkPct", re: /(\d+)%\/(\d+)%\/(\d+)%\/(\d+)% respectively/, unit: "ATK % by the number of element types (1-4)", percent: true, steps: { count: "elementTypes" } }], duration: /Within (\d+)s/, cd: { talent: "skill", label: "CD" } },
   Mavuika: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase obtainable this way is (\d+)%/, unit: "active character DMG % at 200 Fighting Spirit (0.2% per point)", percent: true, condition: "fightingSpirit" }], duration: /lasts (\d+)s/, cd: { talent: "burst", label: "CD" } },
   Nahida: { from: "passive1", values: [{ kind: "emFromTopEm", re: /increased by (\d+)% of the Elemental Mastery of the party member with the highest/, unit: "of the party's highest EM", percent: true }] },
   Rosaria: { from: "passive2", values: [{ kind: "critRate", re: /cannot exceed (\d+)%/, unit: "CRIT Rate % (max)", percent: true }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
@@ -134,6 +136,7 @@ const limits = (v) => ({
   ...(v.reactions ? { reactions: v.reactions } : {}),
   ...(v.physical ? { physical: true } : {}),
   ...(v.condition ? { condition: v.condition } : {}),
+  ...(v.teamOnly ? { teamOnly: v.teamOnly } : {}),
 });
 
 // Reads a table label's first parameter at TALENT_LEVEL.
@@ -184,11 +187,14 @@ function readBuffs(id, spec) {
     const from = froms[Math.min(i, froms.length - 1)];
     const m = text.match(v.re);
     if (!m) throw new Error(`${id}: pattern ${v.re} not found in ${from}: ${text}`);
+    // A value that steps with the team (Escoffier 5/10/15/55%): every step is kept, and `value` is the top one.
+    const steps = v.steps ? { ...v.steps, values: m.slice(1, 5).map((n) => round((Number(n) / (v.percent ? 100 : 1)) * (v.scale ?? 1))) } : null;
     const duration = seconds(spec.duration, text);
     const cd = spec.cd === undefined ? null : typeof spec.cd === "string" ? tableValue(tableAttrs, spec.cd, id) : tableValue(talents[COMBAT[spec.cd.talent]].attributes, spec.cd.label, id);
     return {
       kind: v.kind,
-      value: round((Number(m[1]) / (v.percent ? 100 : 1)) * (v.scale ?? 1)),
+      value: steps ? steps.values[steps.values.length - 1] : round((Number(m[1]) / (v.percent ? 100 : 1)) * (v.scale ?? 1)),
+      ...(steps ? { steps } : {}),
       ...(v.max ? { max: v.max } : {}),
       ...(v.perHp ? { perHp: v.perHp } : {}),
       ...limits(v),
@@ -199,6 +205,46 @@ function readBuffs(id, spec) {
       uptime: uptime(duration, cd),
     };
   });
+}
+
+// Moonsign: Ascendant Gleam (#63). Every "Moonsign Benediction" passive raises the party's Moonsign by 1 level,
+// and Ascendant Gleam is level 2. target "party": a numeric buff for party members (read like the buffs above);
+// target "self": an upgrade to that character's own kit, kept as the quoted sentence.
+const GLEAM = {
+  Aino: { from: "passive1", target: "self" },
+  Columbina: { from: "combat2", target: "self" },
+  Flins: { from: "passive1", target: "self" },
+  Illuga: { from: "passive1", target: "party", values: [{ kind: "em", re: /have their Elemental Mastery increased by (\d+)/, unit: "EM" }] },
+  Jahoda: { from: "combat2", target: "self" },
+  Lauma: {
+    from: "passive1",
+    target: "party",
+    values: [
+      { kind: "critRate", re: /Lunar-Bloom DMG CRIT Rate \+(\d+)%/, unit: "Lunar-Bloom CRIT Rate", percent: true, reactions: ["lunar-bloom"] },
+      { kind: "critDmg", re: /Lunar-Bloom DMG CRIT Rate \+\d+%, CRIT DMG \+(\d+)%/, unit: "Lunar-Bloom CRIT DMG", percent: true, reactions: ["lunar-bloom"] },
+    ],
+  },
+  Linnea: { from: "passive1", target: "party", values: [{ kind: "resShred", re: /further decreased by (\d+)%/, unit: "more Geo RES", percent: true, elements: ["Geo"] }] },
+  Nefer: { from: "passive1", target: "self" },
+  Zibai: { from: "combat2", target: "self" },
+};
+
+function readGleam(id, spec) {
+  const text = genshindb.talents(id)[spec.from].description.replace(/\s+/g, " ");
+  const at = text.indexOf("Ascendant Gleam");
+  if (at < 0) throw new Error(`${id}: no "Ascendant Gleam" in ${spec.from}`);
+  const after = text.slice(at);
+  const quote = after.split(/(?<=\.) /).slice(0, 2).join(" ");
+  if (spec.target === "self") return { target: "self", source: `${spec.from}: "${quote}"` };
+  return {
+    target: "party",
+    source: `${spec.from}: "${quote}"`,
+    values: spec.values.map((v) => {
+      const m = after.match(v.re);
+      if (!m) throw new Error(`${id}: pattern ${v.re} not found after Ascendant Gleam in ${spec.from}`);
+      return { kind: v.kind, value: Number(m[1]) / (v.percent ? 100 : 1), unit: v.unit, ...limits(v) };
+    }),
+  };
 }
 
 const tags = require("../data/tags.json");
@@ -216,9 +262,20 @@ for (const c of buffers) {
   characters[c.id] = { base, buffs: readBuffs(c.id, SPEC[c.id]) };
 }
 
+// Every Moonsign character with an Ascendant Gleam upgrade needs a GLEAM entry, so a new one can't be missed.
+const ascendantGleam = {};
+for (const c of tags.filter((c) => (c.families ?? []).includes("moonsign"))) {
+  const t = genshindb.talents(c.id);
+  const has = t && ["combat1", "combat2", "combat3", "passive1", "passive2", "passive3"].some((k) => t[k]?.description.includes("Ascendant Gleam"));
+  if (has && !GLEAM[c.id]) throw new Error(`${c.id} has an Ascendant Gleam upgrade but no GLEAM entry`);
+  if (GLEAM[c.id]) ascendantGleam[c.id] = readGleam(c.id, GLEAM[c.id]);
+}
+
 const out = new URL("../data/kit.json", import.meta.url);
 writeFileSync(
   out,
-  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters }, null, 2) + "\n",
+  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, ascendantGleam }, null, 2) + "\n",
 );
-console.log(`Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value)`);
+console.log(
+  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades`,
+);

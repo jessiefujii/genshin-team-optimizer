@@ -78,7 +78,9 @@ export interface CharacterTags {
   scalesOn?: ScalingStat[]; // main DPS only: stats their damage scales on
   keyTalent?: Talent; // main DPS only: the talent most of their damage scales with
   families?: Family[];
-  stellarLinchpin?: boolean; // Stellar Linchpin: can enable Stellar reactions (Sandrone, Odette, Vesna)
+  // Lunar or Stellar reactions this character converts for the party ("Moonsign Benediction" / "Stellar Jubilee"
+  // passives, #63). Without a converter in the team, the base reaction stays a base reaction.
+  converts?: Reaction[];
   revelation?: boolean; // the Stellar family only counts after the player's Witch's Revelation quest (#45)
   teamPrefs?: TeamPref[];
   rotation: {

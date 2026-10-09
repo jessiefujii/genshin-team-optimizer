@@ -639,6 +639,11 @@
       "lunar-bloom",
       "lunar-crystallize"
     ],
+    "converts": [
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
+    ],
     "mainReaction": "lunar-charged",
     "energyNeed": "medium",
     "erTarget": 150,
@@ -1028,6 +1033,9 @@
     "reactions": [
       "lunar-charged"
     ],
+    "converts": [
+      "lunar-charged"
+    ],
     "energyNeed": "medium",
     "erTarget": 120,
     "scalesOn": [
@@ -1358,6 +1366,9 @@
     "reactions": [
       "lunar-charged",
       "electrocharged"
+    ],
+    "converts": [
+      "lunar-charged"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -1823,6 +1834,9 @@
       "hyperbloom",
       "burgeon"
     ],
+    "converts": [
+      "lunar-bloom"
+    ],
     "energyNeed": "medium",
     "erTarget": 150,
     "buffs": [
@@ -1882,6 +1896,9 @@
     "reactions": [
       "lunar-crystallize",
       "crystallize"
+    ],
+    "converts": [
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 120,
@@ -2279,6 +2296,9 @@
     "reactions": [
       "lunar-bloom"
     ],
+    "converts": [
+      "lunar-bloom"
+    ],
     "energyNeed": "medium",
     "erTarget": 100,
     "scalesOn": [
@@ -2469,12 +2489,15 @@
       "stellar-conduct",
       "stellar-swirl"
     ],
+    "converts": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
     "energyNeed": "medium",
     "erTarget": 130,
     "families": [
       "stellar"
     ],
-    "stellarLinchpin": true,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2671,6 +2694,10 @@
       "stellar-conduct",
       "stellar-swirl"
     ],
+    "converts": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
     "mainReaction": "stellar-conduct",
     "energyNeed": "medium",
     "erTarget": 130,
@@ -2681,7 +2708,6 @@
     "families": [
       "stellar"
     ],
-    "stellarLinchpin": true,
     "teamPrefs": [
       {
         "kind": "partner",
@@ -3267,6 +3293,9 @@
       "stellar-swirl",
       "swirl"
     ],
+    "converts": [
+      "stellar-swirl"
+    ],
     "mainReaction": "stellar-swirl",
     "energyNeed": "medium",
     "erTarget": 130,
@@ -3277,7 +3306,6 @@
     "families": [
       "stellar"
     ],
-    "stellarLinchpin": true,
     "teamPrefs": [
       {
         "kind": "partner",
@@ -3802,6 +3830,9 @@
     ],
     "fieldTime": "on",
     "reactions": [
+      "lunar-crystallize"
+    ],
+    "converts": [
       "lunar-crystallize"
     ],
     "energyNeed": "medium",

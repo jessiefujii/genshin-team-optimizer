@@ -5,6 +5,8 @@ import { canTrigger, reactionElements } from "./reactions";
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { kitBuffValue } from "./kit";
+import { critGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
+import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
 // Point values are starting guesses from the design doc; tune them against known-strong teams.
@@ -21,8 +23,7 @@ export const POINTS = {
   carryReactionsUnavailable: -10,
   supportReaction: 10,
   buffer: 10,
-  kitGainBenchmark: 0.2, // a buff worth +20% damage to the benchmark carry scores `buffer` points (#68)...
-  maxKitBuffer: 15, // ...up to this many
+  maxKitBuffer: 15, // a buffer scores by the damage their kit adds (+20% = `buffer` points, benchmark.ts), up to this (#68)
   maxBuffers: 2,
   hypercarryMaxBuffers: 3, // a hypercarry (mainReaction 'none') is built around buffers, not reactions
   survivability: 10,
@@ -30,6 +31,7 @@ export const POINTS = {
   battery: 5,
   starvedBursts: -5,
   familyPair: 10,
+  ownAscendantGleam: 10, // a Moonsign carry's own kit upgrade at Ascendant Gleam (#63)
   nightsoulPair: 5,
   prefMet: 15, // the carry's own team preferences...
   onlyElementsBroken: -10,
@@ -112,8 +114,9 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
     for (const f of familiesOf(m, options)) families.add(f);
     for (const r of m.reactions) if (!listed.includes(r)) listed.push(r);
   }
-  const linchpin = members.some((m) => m.stellarLinchpin);
-  const active = listed.filter((r) => canTrigger(r, elements, families, linchpin));
+  const converted = new Set<Reaction>();
+  for (const m of members) for (const r of m.converts ?? []) converted.add(r);
+  const active = listed.filter((r) => canTrigger(r, elements, converted));
   return { members, elements, families, active, options };
 }
 
@@ -233,7 +236,7 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
       out.add("Buffs", 0, () => `${s.id}: their kit's buff doesn't apply to ${carry.id}'s damage`);
       continue;
     }
-    const base = kit ? Math.min(POINTS.maxKitBuffer, (POINTS.buffer * kit.gain) / POINTS.kitGainBenchmark) : POINTS.buffer;
+    const base = kit ? Math.min(POINTS.maxKitBuffer, (POINTS.buffer * kit.gain) / GAIN_FOR_POINTS) : POINTS.buffer;
     const est = kit ? `~+${Math.round(kit.gain * 100)}% damage` : "";
     const detail = [est, level === undefined ? "" : `${talent} level ${level}`].filter(Boolean).join(", ");
     fitting.push({
@@ -396,13 +399,53 @@ function familyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
   const counts = new Map<Family, number>();
   for (const m of ctx.members) for (const f of familiesOf(m, ctx.options)) counts.set(f, (counts.get(f) ?? 0) + 1);
   for (const [f, n] of counts) {
-    if (n < 2) continue;
+    // Moonsign scores what Ascendant Gleam actually unlocks for this team (ascendantGleamLines), not a flat pair.
+    if (n < 2 || f === "moonsign") continue;
     const reactions = FAMILY_REACTIONS[f];
     const carryInFamily = !!carry && familiesOf(carry, ctx.options).includes(f);
     const helps = reactions
       ? reactions.some((r) => ctx.active.includes(r)) && (!carry || carryInFamily || reactions.some((r) => carry.reactions.includes(r)))
       : carryInFamily;
     if (helps) out.add("Family", f === "nightsoul" ? POINTS.nightsoulPair : POINTS.familyPair, () => `${n} ${FAMILY_NAMES[f]} members`);
+  }
+}
+
+interface GleamValue {
+  kind: "em" | "critRate" | "critDmg" | "resShred";
+  value: number;
+  elements?: string[];
+  reactions?: string[];
+}
+type GleamEntry = { target: "self"; source: string } | { target: "party"; source: string; values: GleamValue[] };
+const GLEAM = kitJson.ascendantGleam as Record<string, GleamEntry>;
+const KIT_BUFFS = kitJson.characters as Record<string, { buffs: { kind: string; value: number }[] }>;
+
+// Moonsign: Ascendant Gleam (#63). Each Moonsign member's "Moonsign Benediction" raises the party's Moonsign by
+// 1 level, and Ascendant Gleam is level 2. What it unlocks comes from data/kit.json: a Moonsign carry's own kit
+// upgrade (Flins, Nefer, Zibai...) counts as ownAscendantGleam; a support's numeric upgrade (Lauma's Lunar-Bloom
+// crit, Illuga's EM, Linnea's extra Geo shred) counts by the damage it adds, when it fits the carry.
+function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  if (!carry) return;
+  const moonsign = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("moonsign"));
+  if (moonsign.length < 2) return;
+  if (moonsign.includes(carry) && GLEAM[carry.id]?.target === "self") {
+    out.add("Moonsign", POINTS.ownAscendantGleam, () => `Ascendant Gleam enhances ${carry.id}'s kit`);
+  }
+  const dealt = carry.reactions.filter((r) => ctx.active.includes(r));
+  const usesEm = carry.scalesOn?.includes("EM") || usesEmReaction(carry, ctx);
+  for (const m of moonsign) {
+    const g = GLEAM[m.id];
+    if (m === carry || g?.target !== "party") continue;
+    const fits = g.values.filter(
+      (v) => (!v.elements || v.elements.includes(carry.element)) && (!v.reactions || v.reactions.some((r) => dealt.includes(r as Reaction))),
+    );
+    const sum = (kind: GleamValue["kind"]) => fits.filter((v) => v.kind === kind).reduce((a, v) => a + v.value, 0);
+    // Linnea's extra Geo shred stacks on her base shred, so it is worth less than the same shred alone.
+    const baseShred = KIT_BUFFS[m.id]?.buffs.filter((b) => b.kind === "resShred").reduce((a, b) => a + b.value, 0) ?? 0;
+    const gain =
+      (1 + critGain(sum("critRate"), sum("critDmg"))) * (1 + (usesEm ? emGain(sum("em")) : 0)) * (1 + resShredGain(sum("resShred"), baseShred)) - 1;
+    const points = gainPoints(gain, POINTS.buffer);
+    if (points > 0) out.add("Moonsign", points, () => `Ascendant Gleam: ${m.id} gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
   }
 }
 
@@ -530,6 +573,7 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
     out.addAll(shared);
     carryResonanceLines(ctx, carry, out);
     familyLines(ctx, carry, out);
+    ascendantGleamLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);

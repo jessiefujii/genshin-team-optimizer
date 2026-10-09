@@ -18,3 +18,42 @@ test("every tagged buffer has a kit entry with readable values", () => {
     }
   }
 });
+
+// Each Moonsign Benediction raises the party's Moonsign by 1 level, which is how ascendantGleamLines counts
+// it: so every Moonsign family member must have one, and nobody else.
+test("the Moonsign family is exactly the characters with a Moonsign Benediction", { timeout: 60_000 }, async () => {
+  const genshindb = (await import("genshin-db")).default;
+  const withBenediction = tags
+    .filter((c) => {
+      const t = genshindb.talents(c.id);
+      return [t?.passive1, t?.passive2, t?.passive3, t?.passive4].some((p) => p?.name.startsWith("Moonsign Benediction"));
+    })
+    .map((c) => c.id);
+  const family = tags.filter((c) => (c.families ?? []).includes("moonsign")).map((c) => c.id);
+  expect(family.sort()).toEqual(withBenediction.sort());
+});
+
+// Lunar and Stellar conversion comes from each character's "Moonsign Benediction" / "Stellar Jubilee"
+// passive (#63): tags.json's `converts` must say exactly what that sentence converts into.
+test("converts matches the conversion sentence in genshin-db's kit text", { timeout: 60_000 }, async () => {
+  const genshindb = (await import("genshin-db")).default;
+  const OUTPUTS: Record<string, string> = {
+    "Lunar-Charged": "lunar-charged",
+    "Lunar-Bloom": "lunar-bloom",
+    "Lunar-Crystallize": "lunar-crystallize",
+    "Stellar-Conduct": "stellar-conduct",
+    "Stellar Swirl": "stellar-swirl",
+  };
+  const fromKit: Record<string, string[]> = {};
+  for (const c of tags) {
+    const t = genshindb.talents(c.id);
+    for (const p of [t?.passive1, t?.passive2, t?.passive3, t?.passive4]) {
+      if (!p || !/^(Moonsign Benediction|Stellar Jubilee)/.test(p.name)) continue;
+      const sentence = p.description.replace(/\s+/g, " ").split(/(?<=\.) /).find((s) => /converted into|becomes a|changed to/.test(s));
+      const out = sentence ? Object.keys(OUTPUTS).filter((n) => sentence.includes(n)).map((n) => OUTPUTS[n]) : [];
+      if (out.length > 0) fromKit[c.id] = out;
+    }
+  }
+  const fromTags = Object.fromEntries(tags.filter((c) => "converts" in c).map((c) => [c.id, (c as { converts: string[] }).converts]));
+  expect(fromTags).toEqual(fromKit);
+});
