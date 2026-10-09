@@ -69,6 +69,9 @@ export interface CharacterTags {
   roles: Role[];
   fieldTime: 'on' | 'off' | 'flex';
   reactions: Reaction[]; // reactions this character enables or wants
+  // main DPS only: the reaction their teams are built around (one of `reactions`), or 'none' for a hypercarry.
+  // Defaults to the only entry of `reactions`; with several and no mainReaction, the best-supported one counts (#49).
+  mainReaction?: Reaction | 'none';
   energyNeed: 'low' | 'medium' | 'high';
   erTarget?: number; // ER % this character wants for their burst; defaults by energyNeed (see ER_TARGETS)
   buffs?: Buff[];
