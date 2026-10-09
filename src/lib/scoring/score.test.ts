@@ -351,6 +351,18 @@ describe("talent levels (#25)", () => {
     });
   });
 
+  test("Hydro and Dendro resonance only count when the carry uses the stat (#59)", () => {
+    const res = (s: ReturnType<typeof scoreTeam>, name: string) => s.breakdown.find((l) => l.reason.startsWith(name));
+    expect(res(score("Kamisato Ayaka", "Diona", "Furina", "Mona"), "Soothing Water")).toEqual({
+      rule: "Resonance",
+      points: 0,
+      reason: "Soothing Water, but Kamisato Ayaka scales on ATK",
+    });
+    expect(res(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"), "Soothing Water")?.points).toBe(5);
+    expect(res(score("Alhaitham", "Nahida", "Fischl", "Kuki Shinobu"), "Sprawling Greenery")?.points).toBe(5); // EM scaler
+    expect(res(score("Kinich", "Emilie", "Xiangling", "Bennett"), "Sprawling Greenery")?.points).toBe(5); // Burning uses EM
+  });
+
   test("a hypercarry counts a third buffer (#51)", () => {
     const buffs = (s: ReturnType<typeof scoreTeam>) => s.breakdown.filter((l) => l.rule === "Buffs" && l.points > 0).length;
     expect(buffs(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(3);
