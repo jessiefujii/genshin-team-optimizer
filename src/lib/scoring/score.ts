@@ -20,7 +20,10 @@ export const POINTS = {
   carryReactionsUnavailable: -10,
   supportReaction: 10,
   buffer: 10,
+  strongBuffer: 15, // buffTier 'strong' (#51)
+  minorBuffer: 5, // buffTier 'minor'
   maxBuffers: 2,
+  hypercarryMaxBuffers: 3, // a hypercarry (mainReaction 'none') is built around buffers, not reactions
   survivability: 10,
   noSurvivability: -10,
   battery: 5,
@@ -208,18 +211,20 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   const emUseful = carryActive.some((r) => !NO_EM_REACTIONS.has(r));
   let counted = 0;
+  const maxBuffers = main === "none" ? POINTS.hypercarryMaxBuffers : POINTS.maxBuffers;
   for (const s of supports.filter((m) => m.roles.includes("buffer"))) {
     // Anemo buffers (Kazuha, Sucrose) need something to swirl.
     if (s.element === "Anemo" && !swirlActive) continue;
     const misfits = (s.buffs ?? []).map((b) => buffMisfit(b, carry, ctx, emUseful));
     if (misfits.length > 0 && misfits.every((m) => m !== null)) {
       out.add("Buffs", 0, () => `${s.id}: ${misfits[0]!()}`);
-    } else if (counted < POINTS.maxBuffers) {
+    } else if (counted < maxBuffers) {
       counted++;
       // A buff from a talent gets stronger with its level; scale by the first buff that fits.
       const talent = s.buffs?.[misfits.indexOf(null)]?.talent;
       const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
-      const points = Math.round(POINTS.buffer * talentFactor(level));
+      const base = s.buffTier === "strong" ? POINTS.strongBuffer : s.buffTier === "minor" ? POINTS.minorBuffer : POINTS.buffer;
+      const points = Math.round(base * talentFactor(level));
       out.add("Buffs", points, () => `${s.id} buffs ${carry.id}${level === undefined ? "" : ` (${talent} level ${level})`}`);
     }
   }
@@ -304,7 +309,8 @@ function teamLines(ctx: TeamContext, out: Sink) {
   const counts = new Map<Element, number>();
   for (const m of members) counts.set(m.element, (counts.get(m.element) ?? 0) + 1);
   for (const [el, n] of counts) {
-    if (n >= 2) out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
+    // Pyro's +25% ATK depends on the carry, so pyroResonanceLine adds it.
+    if (n >= 2 && el !== "Pyro") out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
   }
 
   const sustain = members.find((m) => hasRole(m, "healer") || hasRole(m, "shielder"));
@@ -325,6 +331,16 @@ function teamLines(ctx: TeamContext, out: Sink) {
   if (anemo.length >= 2 && !swirlActive) {
     out.add("Conflicts", POINTS.idleAnemo, () => "Two Anemo characters with nothing to swirl");
   }
+}
+
+// Fervent Flames is +25% ATK: nothing for a carry that scales on HP, DEF or EM (#51).
+function pyroResonanceLine(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  if (ctx.members.filter((m) => m.element === "Pyro").length < 2) return;
+  if (carry?.scalesOn && !carry.scalesOn.includes("ATK")) {
+    out.add("Resonance", 0, () => `${RESONANCE.Pyro.name}, but ${carry.id} scales on ${carry.scalesOn!.join("/")}`);
+    return;
+  }
+  out.add("Resonance", RESONANCE.Pyro.points, () => RESONANCE.Pyro.name);
 }
 
 // Reactions that only exist with a family member, so a pair of that family pays off when one is active.
@@ -471,6 +487,7 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
       carryTalentLine(carry, carryPoints, out);
     }
     out.addAll(shared);
+    pyroResonanceLine(ctx, carry, out);
     familyLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);

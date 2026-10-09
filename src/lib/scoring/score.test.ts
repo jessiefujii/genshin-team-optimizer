@@ -165,8 +165,8 @@ describe("scoreTeam", () => {
     });
 
     test("ATK buffs count for carries that scale on ATK", () => {
-      expect(buffLine(score("Hu Tao", "Bennett", "Xingqiu", "Yelan"), "Bennett")?.points).toBe(10);
-      expect(buffLine(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"), "Bennett")?.points).toBe(10);
+      expect(buffLine(score("Hu Tao", "Bennett", "Xingqiu", "Yelan"), "Bennett")?.points).toBe(15); // strong tier
+      expect(buffLine(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"), "Bennett")?.points).toBe(15);
     });
 
     test("element buffs only count for that element", () => {
@@ -177,7 +177,7 @@ describe("scoreTeam", () => {
     test("EM buffs need a reaction that uses EM", () => {
       // Freeze does not scale with EM; Vaporize does.
       expect(buffLine(score("Kamisato Ayaka", "Sucrose", "Furina", "Shenhe"), "Sucrose")?.points).toBe(0);
-      expect(buffLine(score("Hu Tao", "Sucrose", "Xingqiu", "Yelan"), "Sucrose")?.points).toBe(10);
+      expect(buffLine(score("Hu Tao", "Sucrose", "Xingqiu", "Yelan"), "Sucrose")?.points).toBe(15);
     });
 
     test("reaction buffs need that reaction in the team", () => {
@@ -291,15 +291,39 @@ describe("talent levels (#25)", () => {
   test("a buffer's points scale with the talent its buff comes from", () => {
     const bennett = (levels: ReturnType<typeof talents>) =>
       lines(leveled({ Bennett: levels }, ...vape), "Buffs").find((l) => l.reason.startsWith("Bennett"));
-    expect(bennett(talents(1, 1, 13))).toEqual({ rule: "Buffs", points: 12, reason: "Bennett buffs Hu Tao (burst level 13)" });
-    expect(bennett(talents(13, 13, 6))?.points).toBe(7);
-    expect(bennett(talents(9, 9, 9))?.points).toBe(10);
+    expect(bennett(talents(1, 1, 13))).toEqual({ rule: "Buffs", points: 17, reason: "Bennett buffs Hu Tao (burst level 13)" });
+    expect(bennett(talents(13, 13, 6))?.points).toBe(11);
+    expect(bennett(talents(9, 9, 9))?.points).toBe(15);
   });
 
   test("passive buffs don't scale", () => {
     const swirl = ["Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
     const kazuha = lines(leveled({ "Kaedehara Kazuha": talents(1, 1, 1) }, ...swirl), "Buffs").find((l) => l.reason.startsWith("Kaedehara"));
-    expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Hu Tao" });
+    expect(kazuha).toEqual({ rule: "Buffs", points: 15, reason: "Kaedehara Kazuha buffs Hu Tao" });
+  });
+
+  test("buffer tiers: strong 15, standard 10, minor 5 (#51)", () => {
+    const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
+    const hutao = score("Hu Tao", "Bennett", "Yun Jin", "Xingqiu");
+    expect(buffLine(hutao, "Bennett")?.points).toBe(15);
+    expect(buffLine(hutao, "Yun Jin")?.points).toBe(5);
+    expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(10);
+  });
+
+  test("Pyro resonance only counts for a carry that scales on ATK (#51)", () => {
+    const pyro = (s: ReturnType<typeof scoreTeam>) => s.breakdown.find((l) => l.reason.startsWith("Fervent Flames"));
+    expect(pyro(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"))?.points).toBe(10);
+    expect(pyro(score("Neuvillette", "Bennett", "Xiangling", "Furina"))).toEqual({
+      rule: "Resonance",
+      points: 0,
+      reason: "Fervent Flames (+25% ATK), but Neuvillette scales on HP",
+    });
+  });
+
+  test("a hypercarry counts a third buffer (#51)", () => {
+    const buffs = (s: ReturnType<typeof scoreTeam>) => s.breakdown.filter((l) => l.rule === "Buffs" && l.points > 0).length;
+    expect(buffs(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(3);
+    expect(buffs(score("Hu Tao", "Yelan", "Zhongli", "Sucrose"))).toBe(2);
   });
 });
 
