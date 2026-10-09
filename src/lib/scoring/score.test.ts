@@ -184,7 +184,7 @@ describe("scoreTeam", () => {
 
     test("element buffs only count for that element", () => {
       expect(buffLine(score("Hu Tao", "Shenhe", "Xingqiu", "Zhongli"), "Shenhe")?.points).toBe(0);
-      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(10);
+      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(15); // element-limited: strong (#60)
     });
 
     test("EM buffs need a reaction that uses EM", () => {
@@ -349,6 +349,19 @@ describe("talent levels (#25)", () => {
       points: 0,
       reason: "Fervent Flames (+25% ATK), but Neuvillette scales on HP",
     });
+  });
+
+  test("the strongest fitting buffers count, whatever their team order (#60)", () => {
+    // Yun Jin (minor) is listed first, but Bennett and Furina (strong) are the two that count.
+    const s = score("Hu Tao", "Yun Jin", "Bennett", "Furina");
+    const buffs = s.breakdown.filter((l) => l.rule === "Buffs").map((l) => [l.reason.split(" ")[0], l.points]);
+    expect(buffs).toEqual([["Bennett", 15], ["Furina", 15]]);
+  });
+
+  test("Xiao wants Xianyun or Faruzan (#60)", () => {
+    const s = score("Xiao", "Xianyun", "Faruzan", "Furina");
+    expect(s.breakdown.map((l) => l.reason)).toContain("Xiao with Xianyun");
+    expect(s.breakdown.find((l) => l.reason.startsWith("Faruzan buffs"))?.points).toBe(15);
   });
 
   test("Electro enablers partner a Dendro carry's Spread (#61)", () => {

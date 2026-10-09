@@ -3288,6 +3288,16 @@
       "ATK"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Xianyun",
+          "Faruzan"
+        ],
+        "note": "Xianyun's plunge buff or Faruzan's Anemo buff"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
