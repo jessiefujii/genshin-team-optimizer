@@ -50,6 +50,7 @@ export const POINTS = {
   effectBuff: 5, // per effect that buffs the carry
   maxEffectBuffs: 3,
   infusionConflict: -15, // another member's infusion overrides a melee carry's element
+  splitCryoPlan: -15, // a Freeze/Melt carry with both Hydro and Pyro supports (#53)
 } as const;
 
 const RESONANCE: Record<Element, { points: number; name: string }> = {
@@ -248,6 +249,18 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
       out.add("Effects", POINTS.effectBuff, () => `${effectName(m, e)}: ${fit.stat} for ${carry.id}`);
     }
   }
+}
+
+// A Cryo carry plays Freeze (with Hydro) or Melt (with Pyro). With both, Pyro breaks the Freeze and
+// vaporizes the Hydro, so neither plan works fully (#53).
+function cryoSplitLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  if (!carry || carry.element !== "Cryo") return;
+  if (!carry.reactions.includes("freeze") && !carry.reactions.includes("melt")) return;
+  const hydro = ctx.members.filter((m) => m !== carry && m.element === "Hydro");
+  const pyro = ctx.members.filter((m) => m !== carry && m.element === "Pyro");
+  if (hydro.length === 0 || pyro.length === 0) return;
+  const names = (ms: ScoringCharacter[]) => ms.map((m) => m.id).join(", ");
+  out.add("Conflicts", POINTS.splitCryoPlan, () => `Hydro (${names(hydro)}) and Pyro (${names(pyro)}) split Freeze and Melt`);
 }
 
 const MELEE = new Set(["Sword", "Claymore", "Polearm"]);
@@ -491,6 +504,7 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
     familyLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
+    cryoSplitLines(ctx, carry, out);
     statLines(ctx, carry, out);
     if (!best || out.total > best.out.total) best = { carry, out };
   }

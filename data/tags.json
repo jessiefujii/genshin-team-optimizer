@@ -1463,8 +1463,10 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "freeze"
+      "freeze",
+      "melt"
     ],
+    "mainReaction": "freeze",
     "energyNeed": "high",
     "erTarget": 130,
     "scalesOn": [

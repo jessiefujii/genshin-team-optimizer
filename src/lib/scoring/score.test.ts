@@ -74,6 +74,19 @@ describe("scoreTeam", () => {
     );
   });
 
+  test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
+    const split = (s: ReturnType<typeof scoreTeam>) => s.breakdown.find((l) => l.rule === "Conflicts" && l.reason.includes("split"));
+    expect(split(score("Kamisato Ayaka", "Amber", "Bennett", "Furina"))).toEqual({
+      rule: "Conflicts",
+      points: -15,
+      reason: "Hydro (Furina) and Pyro (Amber, Bennett) split Freeze and Melt",
+    });
+    expect(split(score("Kamisato Ayaka", "Ganyu", "Kamisato Ayato", "Sangonomiya Kokomi"))).toBeUndefined();
+    const melt = score("Kamisato Ayaka", "Dehya", "Kaedehara Kazuha", "Bennett");
+    expect(split(melt)).toBeUndefined();
+    expect(melt.breakdown.some((l) => l.reason.includes("not possible"))).toBe(false);
+  });
+
   test("a hypercarry is not penalized for a team without reactions (#49)", () => {
     const s = score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli");
     expect(s.breakdown.some((l) => l.rule === "Reactions")).toBe(false);
@@ -379,7 +392,7 @@ describe("effects.json in scoring", () => {
   test("an infusion conflicts with a melee carry of another element only", () => {
     const c6: EffectTag = { source: "constellation", id: "Bennett", requires: 6, infusion: "Pyro" };
     const conflicts = (...ids: string[]) => lines(geared({ Bennett: [c6] }, ...ids), "Conflicts");
-    expect(conflicts("Kamisato Ayaka", "Bennett", "Furina", "Shenhe")).toEqual([
+    expect(conflicts("Kamisato Ayaka", "Bennett", "Kaedehara Kazuha", "Shenhe")).toEqual([
       { rule: "Conflicts", points: -15, reason: "Bennett C6 infuses Kamisato Ayaka's attacks with Pyro" },
     ]);
     expect(conflicts("Hu Tao", "Bennett", "Xingqiu", "Zhongli")).toEqual([]); // Pyro carry
