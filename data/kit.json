@@ -540,7 +540,8 @@
         {
           "kind": "dmgBonus",
           "value": 0.4,
-          "unit": "active character DMG % (max)",
+          "condition": "fightingSpirit",
+          "unit": "active character DMG % at 200 Fighting Spirit (0.2% per point)",
           "source": "passive2: \"maximum increase obtainable this way is 40%\"",
           "duration": 20,
           "cd": 18,

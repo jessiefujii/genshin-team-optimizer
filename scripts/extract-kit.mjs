@@ -19,6 +19,7 @@ const COMBAT = { normal: "combat1", skill: "combat2", burst: "combat3" };
 // table: { talent, values: [{ kind, label, times?, cap?, unit, ...limits }], duration?, cd? } (labels matched before "|")
 // text:  { from, values: [{ kind, re, unit, percent?, max?, perHp?, ...limits }], duration?: re | label, cd?: { talent, label } }
 // scale: a factor on the read value (Yelan's ramping bonus averages about half its max)
+// condition: the value depends on the team (fightingSpirit: Mavuika, scaled in src/lib/scoring/kit.ts)
 // limits: elements (carry's element), appliesTo (carry's keyTalent, or 'plunge' for carries whose rotation plunges),
 //         reactions (one the carry deals), physical
 const SPEC = {
@@ -106,7 +107,7 @@ const SPEC = {
   },
   Lisa: { from: "passive2", values: [{ kind: "defShred", re: /DEF decreased by (\d+)%/, unit: "DEF", percent: true }], duration: /for (\d+)s/ },
   Lynette: { from: "passive1", values: [{ kind: "atkPct", re: /8%\/12%\/16%\/(\d+)% respectively/, unit: "ATK % with 4 elements", percent: true }], duration: /Within (\d+)s/, cd: { talent: "skill", label: "CD" } },
-  Mavuika: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase obtainable this way is (\d+)%/, unit: "active character DMG % (max)", percent: true }], duration: /lasts (\d+)s/, cd: { talent: "burst", label: "CD" } },
+  Mavuika: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase obtainable this way is (\d+)%/, unit: "active character DMG % at 200 Fighting Spirit (0.2% per point)", percent: true, condition: "fightingSpirit" }], duration: /lasts (\d+)s/, cd: { talent: "burst", label: "CD" } },
   Nahida: { from: "passive1", values: [{ kind: "emFromTopEm", re: /increased by (\d+)% of the Elemental Mastery of the party member with the highest/, unit: "of the party's highest EM", percent: true }] },
   Rosaria: { from: "passive2", values: [{ kind: "critRate", re: /cannot exceed (\d+)%/, unit: "CRIT Rate % (max)", percent: true }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
   Sigewinne: { from: "passive1", values: [{ kind: "flatDmg", re: /increases the DMG by (\d+)/, unit: "flat Skill DMG per 1,000 Max HP above 30,000", appliesTo: ["skill"] }] },
@@ -132,6 +133,7 @@ const limits = (v) => ({
   ...(v.appliesTo ? { appliesTo: v.appliesTo } : {}),
   ...(v.reactions ? { reactions: v.reactions } : {}),
   ...(v.physical ? { physical: true } : {}),
+  ...(v.condition ? { condition: v.condition } : {}),
 });
 
 // Reads a table label's first parameter at TALENT_LEVEL.

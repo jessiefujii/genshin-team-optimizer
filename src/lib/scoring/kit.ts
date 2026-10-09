@@ -14,6 +14,7 @@ export interface KitBuff {
   appliesTo?: string[];
   reactions?: string[];
   physical?: boolean;
+  condition?: "fightingSpirit";
   unit: string;
   source: string;
   uptime: number | null;
@@ -39,6 +40,18 @@ export const BENCHMARK = {
   buffer: { weaponBaseAtk: 500, atk: 2000, hp: 35000, def: 2400, em: 800 }, // buffers without a build
 };
 
+// Mavuika's burst bonus is 0.2% per point of Fighting Spirit, max 200. Her burst needs at least 100, and
+// Fighting Spirit comes from Nightsoul points the party spends and from the party's Normal Attacks hitting
+// (genshin-db burst text). So: 100 by default, +50 per other Nightsoul member, 200 for a carry whose
+// rotation is Normal Attacks (KQM "N", e.g. Hu Tao's "N2C x8"; not Neuvillette's charged attack or Xiao's plunges).
+const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a) => /(^|\s)N(\d|\s|$)/.test(a));
+
+function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
+  if (normalAttacks(carry)) return 200;
+  const nightsoul = team.filter((m) => m !== s && m.families?.includes("nightsoul")).length;
+  return Math.min(200, 100 + 50 * nightsoul);
+}
+
 // Plunging carries say so in their rotation tags (Xiao "plunge x10", Gaming "E plunge x4").
 const plunges = (c: ScoringCharacter) => c.rotation.actions.some((a) => /plunge/i.test(a));
 
@@ -58,7 +71,7 @@ function bufferStats(s: ScoringCharacter, base: KitCharacter["base"]) {
 }
 
 // The fraction of extra damage one buff value gives the benchmark carry, or 0 when it can't help this carry.
-function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: ScoringCharacter, carryReactions: readonly Reaction[]): number {
+function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: ScoringCharacter, carryReactions: readonly Reaction[], fs: number): number {
   if (buff.elements && !buff.elements.includes(carry.element)) return 0;
   if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return 0;
   if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return 0;
@@ -78,7 +91,7 @@ function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scori
     case "atkFlat":
       return buff.value / B.carryAtk;
     case "dmgBonus":
-      return dmg(buff.value);
+      return dmg(buff.condition === "fightingSpirit" ? (buff.value * fs) / 200 : buff.value);
     case "dmgBonusPerEm":
       return dmg(buff.value * stats.em);
     case "reactionBonus":
@@ -131,25 +144,31 @@ export interface KitBuffValue {
 // carry's reactions (objects, not ids: a test or a build can give the same id other stats).
 const cache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string, KitBuffValue | null>>>();
 
-export function kitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[]): KitBuffValue | null {
+export function kitBuffValue(
+  s: ScoringCharacter,
+  carry: ScoringCharacter,
+  carryReactions: readonly Reaction[],
+  team: readonly ScoringCharacter[],
+): KitBuffValue | null {
   let byCarry = cache.get(s);
   if (!byCarry) cache.set(s, (byCarry = new WeakMap()));
   let byReactions = byCarry.get(carry);
   if (!byReactions) byCarry.set(carry, (byReactions = new Map()));
-  const key = carryReactions.join(",");
+  const fs = fightingSpirit(s, carry, team);
+  const key = `${carryReactions.join(",")}|${fs}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
-  const value = computeKitBuffValue(s, carry, carryReactions);
+  const value = computeKitBuffValue(s, carry, carryReactions, fs);
   byReactions.set(key, value);
   return value;
 }
 
-function computeKitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[]): KitBuffValue | null {
+function computeKitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], fs: number): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
   const stats = bufferStats(s, entry.base);
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
-    const g = gain(b, stats, carry, carryReactions) * (b.uptime ?? 1);
+    const g = gain(b, stats, carry, carryReactions, fs) * (b.uptime ?? 1);
     best.set(b.kind, Math.max(best.get(b.kind) ?? 0, g));
   }
   let total = 1;

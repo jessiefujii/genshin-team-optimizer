@@ -341,6 +341,17 @@ describe("talent levels (#25)", () => {
     expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(8);
   });
 
+  test("Mavuika's bonus grows with the Fighting Spirit the team can build (#68)", () => {
+    const mavuika = (...ids: string[]) =>
+      score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Mavuika"))?.reason;
+    // Neuvillette's charged attacks build none: the 100 she needs to burst, 20%.
+    expect(mavuika("Neuvillette", "Mavuika", "Furina", "Escoffier")).toBe("Mavuika buffs Neuvillette (~+13% damage)");
+    // Two other Nightsoul members: 200, the full 40%.
+    expect(mavuika("Neuvillette", "Mavuika", "Citlali", "Xilonen")).toBe("Mavuika buffs Neuvillette (~+25% damage)");
+    // A Normal Attack carry (Clorinde's rotation is "N" attacks) also fills it.
+    expect(mavuika("Clorinde", "Mavuika", "Bennett", "Fischl")).toBe("Mavuika buffs Clorinde (~+25% damage)");
+  });
+
   test("a kit buff limited to an attack type only helps carries who use it (#68)", () => {
     const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
     // Xianyun's bonus is Plunging Attack DMG: Xiao's rotation plunges, Hu Tao's doesn't.

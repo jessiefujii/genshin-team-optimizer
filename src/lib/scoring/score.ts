@@ -228,7 +228,7 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     const talent = fit?.talent;
     const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
     // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
-    const kit = kitBuffValue(s, carry, carryActive);
+    const kit = kitBuffValue(s, carry, carryActive, ctx.members);
     if (kit && kit.gain <= 0) {
       out.add("Buffs", 0, () => `${s.id}: their kit's buff doesn't apply to ${carry.id}'s damage`);
       continue;
