@@ -81,8 +81,10 @@ export default function RosterPlanner({
   // Drop filters for characters that are no longer owned.
   const include = mustInclude.filter((id) => roster[id]).slice(0, 4);
   const skip = exclude.filter((id) => roster[id]);
+  // Hexerei characters whose Witch's Homework quest is done, sorted so the search key is stable.
+  const hexereiUnlocked = Object.keys(roster).filter((id) => roster[id].hexereiUnlocked).sort();
   // useTeamSearch keys on the option values, so a fresh object each render is fine.
-  const search = useTeamSearch(owned, { mustInclude: include, exclude: skip, limit: 20 });
+  const search = useTeamSearch(owned, { mustInclude: include, exclude: skip, limit: 20, hexereiUnlocked });
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
