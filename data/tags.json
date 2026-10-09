@@ -362,7 +362,6 @@
         "talent": "burst"
       }
     ],
-    "buffTier": "strong",
     "rotation": {
       "slot": "buffer",
       "actions": [
@@ -394,7 +393,6 @@
         "talent": "burst"
       }
     ],
-    "buffTier": "minor",
     "rotation": {
       "slot": "buffer",
       "actions": [
@@ -564,7 +562,6 @@
         "talent": "passive"
       }
     ],
-    "buffTier": "strong",
     "families": [
       "nightsoul"
     ],
@@ -661,7 +658,6 @@
         "talent": "burst"
       }
     ],
-    "buffTier": "strong",
     "families": [
       "moonsign"
     ],
@@ -736,7 +732,6 @@
         "talent": "passive"
       }
     ],
-    "buffTier": "minor",
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1120,7 +1115,6 @@
         "talent": "burst"
       }
     ],
-    "buffTier": "strong",
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1268,7 +1262,6 @@
         "talent": "burst"
       }
     ],
-    "buffTier": "strong",
     "families": [
       "nightsoul"
     ],
@@ -1488,7 +1481,6 @@
         "talent": "passive"
       }
     ],
-    "buffTier": "strong",
     "rotation": {
       "slot": "buffer",
       "actions": [
@@ -1767,7 +1759,6 @@
         "talent": "skill"
       }
     ],
-    "buffTier": "minor",
     "rotation": {
       "slot": "buffer",
       "actions": [
@@ -1847,7 +1838,6 @@
         "talent": "burst"
       }
     ],
-    "buffTier": "strong",
     "families": [
       "moonsign"
     ],
@@ -2151,7 +2141,6 @@
         "talent": "skill"
       }
     ],
-    "buffTier": "minor",
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2375,7 +2364,6 @@
         "talent": "skill"
       }
     ],
-    "buffTier": "strong",
     "families": [
       "hexerei"
     ],
@@ -2860,7 +2848,6 @@
         "talent": "passive"
       }
     ],
-    "buffTier": "minor",
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2923,7 +2910,6 @@
         "talent": "passive"
       }
     ],
-    "buffTier": "strong",
     "families": [
       "hexerei"
     ],
@@ -3342,7 +3328,6 @@
         "talent": "skill"
       }
     ],
-    "buffTier": "strong",
     "families": [
       "stellar"
     ],
@@ -3519,7 +3504,6 @@
         "talent": "skill"
       }
     ],
-    "buffTier": "strong",
     "families": [
       "nightsoul"
     ],
@@ -3775,7 +3759,6 @@
         "talent": "burst"
       }
     ],
-    "buffTier": "minor",
     "rotation": {
       "slot": "buffer",
       "actions": [

@@ -4,6 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, reactionElements } from "./reactions";
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
+import { kitBuffValue } from "./kit";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
 // Point values are starting guesses from the design doc; tune them against known-strong teams.
@@ -20,8 +21,8 @@ export const POINTS = {
   carryReactionsUnavailable: -10,
   supportReaction: 10,
   buffer: 10,
-  strongBuffer: 15, // buffTier 'strong' (#51)
-  minorBuffer: 5, // buffTier 'minor'
+  kitGainBenchmark: 0.2, // a buff worth +20% damage to the benchmark carry scores `buffer` points (#68)...
+  maxKitBuffer: 15, // ...up to this many
   maxBuffers: 2,
   hypercarryMaxBuffers: 3, // a hypercarry (mainReaction 'none') is built around buffers, not reactions
   survivability: 10,
@@ -226,13 +227,19 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     const fit = s.buffs?.[misfits.indexOf(null)];
     const talent = fit?.talent;
     const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
-    // A buff limited to the carry's element (Faruzan, Shenhe, Gorou) is worth as much as the best generic ones.
-    const tier = s.buffTier ?? (fit?.elements ? "strong" : undefined);
-    const base = tier === "strong" ? POINTS.strongBuffer : tier === "minor" ? POINTS.minorBuffer : POINTS.buffer;
+    // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
+    const kit = kitBuffValue(s, carry, carryActive);
+    if (kit && kit.gain <= 0) {
+      out.add("Buffs", 0, () => `${s.id}: their kit's buff doesn't apply to ${carry.id}'s damage`);
+      continue;
+    }
+    const base = kit ? Math.min(POINTS.maxKitBuffer, (POINTS.buffer * kit.gain) / POINTS.kitGainBenchmark) : POINTS.buffer;
+    const est = kit ? `~+${Math.round(kit.gain * 100)}% damage` : "";
+    const detail = [est, level === undefined ? "" : `${talent} level ${level}`].filter(Boolean).join(", ");
     fitting.push({
       id: s.id,
       points: Math.round(base * talentFactor(level)),
-      reason: () => `${s.id} buffs ${carry.id}${level === undefined ? "" : ` (${talent} level ${level})`}`,
+      reason: () => `${s.id} buffs ${carry.id}${detail ? ` (${detail})` : ""}`,
     });
   }
   fitting.sort((a, b) => b.points - a.points);

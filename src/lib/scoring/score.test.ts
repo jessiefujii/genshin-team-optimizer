@@ -178,23 +178,23 @@ describe("scoreTeam", () => {
     });
 
     test("ATK buffs count for carries that scale on ATK", () => {
-      expect(buffLine(score("Hu Tao", "Bennett", "Xingqiu", "Yelan"), "Bennett")?.points).toBe(15); // strong tier
-      expect(buffLine(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"), "Bennett")?.points).toBe(15);
+      expect(buffLine(score("Hu Tao", "Bennett", "Xingqiu", "Yelan"), "Bennett")?.points).toBe(12); // ~+24% (#68)
+      expect(buffLine(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"), "Bennett")?.points).toBe(12);
     });
 
     test("element buffs only count for that element", () => {
       expect(buffLine(score("Hu Tao", "Shenhe", "Xingqiu", "Zhongli"), "Shenhe")?.points).toBe(0);
-      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(15); // element-limited: strong (#60)
+      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(11);
     });
 
     test("EM buffs need a reaction that uses EM", () => {
       // Freeze does not scale with EM; Vaporize does.
       expect(buffLine(score("Kamisato Ayaka", "Sucrose", "Furina", "Shenhe"), "Sucrose")?.points).toBe(0);
-      expect(buffLine(score("Hu Tao", "Sucrose", "Xingqiu", "Yelan"), "Sucrose")?.points).toBe(15);
+      expect(buffLine(score("Hu Tao", "Sucrose", "Xingqiu", "Yelan"), "Sucrose")?.points).toBe(11);
     });
 
     test("reaction buffs need that reaction in the team", () => {
-      expect(buffLine(score("Alhaitham", "Baizhu", "Fischl", "Kuki Shinobu"), "Baizhu")?.points).toBe(10);
+      expect(buffLine(score("Alhaitham", "Baizhu", "Fischl", "Kuki Shinobu"), "Baizhu")?.points).toBe(9); // Spread bonus
       // Pyro + Dendro, but nobody here builds Burning, so no Dendro reaction is active.
       expect(buffLine(score("Diluc", "Baizhu", "Bennett", "Zhongli"), "Baizhu")?.points).toBe(0);
     });
@@ -207,14 +207,14 @@ describe("scoreTeam", () => {
         reason: "Columbina: buffs Lunar-charged/Lunar-bloom/Lunar-crystallize, which Neuvillette does not deal",
       });
       expect(buffLine(neuv, "Lauma")?.points).toBe(0);
-      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(15);
+      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(12);
       // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him.
       expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(15);
     });
 
     test("Kazuha's swirl buff does nothing for an Anemo carry (#58)", () => {
       expect(buffLine(score("Xiao", "Bennett", "Kaedehara Kazuha", "Nicole"), "Kaedehara Kazuha")?.points).toBe(0);
-      expect(buffLine(score("Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"), "Kaedehara Kazuha")?.points).toBe(15);
+      expect(buffLine(score("Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"), "Kaedehara Kazuha")?.points).toBe(10);
     });
 
     test("every main DPS has scalesOn", () => {
@@ -322,23 +322,34 @@ describe("talent levels (#25)", () => {
   test("a buffer's points scale with the talent its buff comes from", () => {
     const bennett = (levels: ReturnType<typeof talents>) =>
       lines(leveled({ Bennett: levels }, ...vape), "Buffs").find((l) => l.reason.startsWith("Bennett"));
-    expect(bennett(talents(1, 1, 13))).toEqual({ rule: "Buffs", points: 17, reason: "Bennett buffs Hu Tao (burst level 13)" });
-    expect(bennett(talents(13, 13, 6))?.points).toBe(11);
-    expect(bennett(talents(9, 9, 9))?.points).toBe(15);
+    expect(bennett(talents(1, 1, 13))).toEqual({ rule: "Buffs", points: 14, reason: "Bennett buffs Hu Tao (~+24% damage, burst level 13)" });
+    expect(bennett(talents(13, 13, 6))?.points).toBe(8);
+    expect(bennett(talents(9, 9, 9))?.points).toBe(12);
   });
 
   test("passive buffs don't scale", () => {
     const swirl = ["Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
     const kazuha = lines(leveled({ "Kaedehara Kazuha": talents(1, 1, 1) }, ...swirl), "Buffs").find((l) => l.reason.startsWith("Kaedehara"));
-    expect(kazuha).toEqual({ rule: "Buffs", points: 15, reason: "Kaedehara Kazuha buffs Hu Tao" });
+    expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Hu Tao (~+20% damage)" });
   });
 
-  test("buffer tiers: strong 15, standard 10, minor 5 (#51)", () => {
+  test("buffer points come from the kit's numbers: +20% damage = 10 points, capped at 15 (#68)", () => {
     const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
-    const hutao = score("Hu Tao", "Bennett", "Yun Jin", "Xingqiu");
-    expect(buffLine(hutao, "Bennett")?.points).toBe(15);
-    expect(buffLine(hutao, "Yun Jin")?.points).toBe(5);
-    expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(10);
+    const hutao = score("Hu Tao", "Furina", "Bennett", "Zhongli");
+    expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 15, reason: "Furina buffs Hu Tao (~+43% damage)" });
+    expect(buffLine(hutao, "Bennett")?.points).toBe(12);
+    expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(8);
+  });
+
+  test("a kit buff limited to an attack type only helps carries who use it (#68)", () => {
+    const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
+    // Xianyun's bonus is Plunging Attack DMG: Xiao's rotation plunges, Hu Tao's doesn't.
+    expect(buffLine(score("Xiao", "Xianyun", "Faruzan", "Furina"), "Xianyun")?.points).toBe(15);
+    expect(buffLine(score("Hu Tao", "Xianyun", "Xingqiu", "Zhongli"), "Xianyun")).toEqual({
+      rule: "Buffs",
+      points: 0,
+      reason: "Xianyun: their kit's buff doesn't apply to Hu Tao's damage",
+    });
   });
 
   test("Pyro resonance only counts for a carry that scales on ATK (#51)", () => {
@@ -352,16 +363,16 @@ describe("talent levels (#25)", () => {
   });
 
   test("the strongest fitting buffers count, whatever their team order (#60)", () => {
-    // Yun Jin (minor) is listed first, but Bennett and Furina (strong) are the two that count.
+    // Yun Jin is listed first, but Furina and Bennett are worth more, so they are the two that count.
     const s = score("Hu Tao", "Yun Jin", "Bennett", "Furina");
     const buffs = s.breakdown.filter((l) => l.rule === "Buffs").map((l) => [l.reason.split(" ")[0], l.points]);
-    expect(buffs).toEqual([["Bennett", 15], ["Furina", 15]]);
+    expect(buffs).toEqual([["Furina", 15], ["Bennett", 12]]);
   });
 
   test("Xiao wants Xianyun or Faruzan (#60)", () => {
     const s = score("Xiao", "Xianyun", "Faruzan", "Furina");
     expect(s.breakdown.map((l) => l.reason)).toContain("Xiao with Xianyun");
-    expect(s.breakdown.find((l) => l.reason.startsWith("Faruzan buffs"))?.points).toBe(15);
+    expect(s.breakdown.find((l) => l.reason.startsWith("Faruzan buffs"))?.points).toBe(13);
   });
 
   test("Electro enablers partner a Dendro carry's Spread (#61)", () => {

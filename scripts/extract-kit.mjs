@@ -1,5 +1,5 @@
 // Writes data/kit.json: each buffer's buff values read from genshin-db's talent data (#68).
-// Run with `npm run kit` after a genshin-db update. Raw values only; scoring does not read this file yet.
+// Run with `npm run kit` after a genshin-db update. src/lib/scoring/kit.ts turns the values into buffer points.
 //
 // The spec below is hand-written and reviewed: it says where each tags.json buff lives in the kit,
 // either a talent table label (values per talent level) or a sentence in the talent text (fixed values).
@@ -16,18 +16,21 @@ const TALENT_LEVEL = 9; // the scorer's talent benchmark (POINTS.talentBenchmark
 const COMBAT = { normal: "combat1", skill: "combat2", burst: "combat3" };
 
 // kind says what the value means; the unit text spells it out for review.
-// table: { talent, values: [{ kind, label, times?, unit }], duration?, cd? } (labels are matched before the "|")
-// text:  { from, values: [{ kind, re, unit, percent? }], duration?: re | seconds, cd?: { talent, label } }
+// table: { talent, values: [{ kind, label, times?, cap?, unit, ...limits }], duration?, cd? } (labels matched before "|")
+// text:  { from, values: [{ kind, re, unit, percent?, max?, perHp?, ...limits }], duration?: re | label, cd?: { talent, label } }
+// scale: a factor on the read value (Yelan's ramping bonus averages about half its max)
+// limits: elements (carry's element), appliesTo (carry's keyTalent, or 'plunge' for carries whose rotation plunges),
+//         reactions (one the carry deals), physical
 const SPEC = {
   Alyosha: { talent: "skill", values: [{ kind: "atkPct", label: "Hunter's Precision ATK Bonus", unit: "ATK %" }], duration: "Hunter's Precision Duration", cd: "CD" },
   Bennett: { talent: "burst", values: [{ kind: "atkFromBase", label: "ATK Bonus Ratio", unit: "of Bennett's base ATK" }], duration: "Duration", cd: "CD" },
-  Candace: { talent: "burst", values: [{ kind: "dmgBonus", label: "DMG Bonus", unit: "Normal Attack DMG %" }], duration: "Duration", cd: "CD" },
-  Columbina: { talent: "burst", values: [{ kind: "reactionBonus", label: "Lunar Reaction DMG Bonus", unit: "Lunar reaction DMG %" }], duration: "Lunar Domain Duration", cd: "CD" },
+  Candace: { talent: "burst", values: [{ kind: "dmgBonus", label: "DMG Bonus", unit: "Normal Attack DMG %", appliesTo: ["normal"] }], duration: "Duration", cd: "CD" },
+  Columbina: { talent: "burst", values: [{ kind: "reactionBonus", label: "Lunar Reaction DMG Bonus", unit: "Lunar reaction DMG %", reactions: ["lunar-charged", "lunar-bloom", "lunar-crystallize"] }], duration: "Lunar Domain Duration", cd: "CD" },
   Faruzan: {
     talent: "burst",
     values: [
-      { kind: "dmgBonus", label: "Anemo DMG Bonus", unit: "Anemo DMG %" },
-      { kind: "resShred", label: "Anemo RES Decrease", unit: "Anemo RES" },
+      { kind: "dmgBonus", label: "Anemo DMG Bonus", unit: "Anemo DMG %", elements: ["Anemo"] },
+      { kind: "resShred", label: "Anemo RES Decrease", unit: "Anemo RES", elements: ["Anemo"] },
     ],
     duration: "Duration",
     cd: "CD",
@@ -41,56 +44,63 @@ const SPEC = {
   Gorou: {
     talent: "skill",
     values: [
-      { kind: "dmgBonus", label: "Geo DMG Bonus", unit: "Geo DMG % (3 Geo members)" },
-      { kind: "defFlat", label: "DEF Increase", unit: "flat DEF" },
+      { kind: "dmgBonus", label: "Geo DMG Bonus", unit: "Geo DMG % (3 Geo members)", elements: ["Geo"] },
+      { kind: "defFlat", label: "DEF Increase", unit: "flat DEF", elements: ["Geo"] },
     ],
     duration: "Duration",
     cd: "CD",
   },
   Iansan: { talent: "burst", values: [{ kind: "atkFlat", label: "Max ATK Bonus", unit: "flat ATK (max)" }], duration: "Duration", cd: "CD" },
-  Illuga: { talent: "burst", values: [{ kind: "flatDmgFromEm", label: "Geo DMG Bonus", unit: "of Illuga's EM as flat Geo DMG" }], duration: "Duration", cd: "CD" },
+  Illuga: { talent: "burst", values: [{ kind: "flatDmgFromEm", label: "Geo DMG Bonus", unit: "of Illuga's EM as flat Geo DMG", elements: ["Geo"] }], duration: "Duration", cd: "CD" },
   "Kujou Sara": { talent: "skill", values: [{ kind: "atkFromBase", label: "ATK Bonus Ratio", unit: "of Sara's base ATK" }], duration: "ATK Bonus Duration", cd: "CD" },
   Lauma: {
     talent: "burst",
     values: [
-      { kind: "flatDmgFromEm", label: "Bloom, Hyperbloom, and Burgeon DMG Increase", unit: "of Lauma's EM as flat Bloom-type DMG" },
-      { kind: "flatDmgFromEm", label: "Lunar-Bloom DMG Increase", unit: "of Lauma's EM as flat Lunar-Bloom DMG" },
+      { kind: "flatDmgFromEm", label: "Bloom, Hyperbloom, and Burgeon DMG Increase", unit: "of Lauma's EM as flat Bloom-type DMG", reactions: ["bloom", "hyperbloom", "burgeon"] },
+      { kind: "flatDmgFromEm", label: "Lunar-Bloom DMG Increase", unit: "of Lauma's EM as flat Lunar-Bloom DMG", reactions: ["lunar-bloom"] },
     ],
     duration: "Pale Hymn Duration",
     cd: "CD",
   },
-  Mika: { talent: "skill", values: [{ kind: "atkSpd", label: "ATK SPD Bonus", unit: "ATK SPD %" }], duration: "Soulwind Duration", cd: "CD" },
+  Mika: { talent: "skill", values: [{ kind: "atkSpd", label: "ATK SPD Bonus", unit: "ATK SPD %", appliesTo: ["normal"] }], duration: "Soulwind Duration", cd: "CD" },
   Mona: { talent: "burst", values: [{ kind: "dmgBonus", label: "DMG Bonus", unit: "DMG % while Omen lasts" }], duration: "Omen Duration", cd: "CD" },
   Nicole: {
     talent: "skill",
     values: [
-      { kind: "atkFromAtk", label: "Grace of Kenosis ATK Bonus Ratio", unit: "of Nicole's ATK" },
-      { kind: "atkFlat", label: "Grace of Kenosis Max ATK Bonus", unit: "flat ATK (max)" },
+      { kind: "atkFromAtk", label: "Grace of Kenosis ATK Bonus Ratio", cap: "Grace of Kenosis Max ATK Bonus", unit: "of Nicole's ATK as flat ATK (capped)" },
     ],
     duration: "Grace of Kenosis Duration",
     cd: "CD",
   },
-  Shenhe: { talent: "skill", values: [{ kind: "flatDmgFromAtk", label: "DMG Bonus", unit: "of Shenhe's ATK as flat Cryo DMG" }], duration: "Press/Hold Duration", cd: "Press CD" },
-  Vodyanitsa: { talent: "skill", values: [{ kind: "resShred", label: "Hydro/Cryo RES Reduction", unit: "Hydro/Cryo RES" }], duration: "RES Reduction Duration", cd: "Skill CD" },
+  Shenhe: { talent: "skill", values: [{ kind: "flatDmgFromAtk", label: "DMG Bonus", unit: "of Shenhe's ATK as flat Cryo DMG", elements: ["Cryo"] }], duration: "Press/Hold Duration", cd: "Press CD" },
+  Vodyanitsa: { talent: "skill", values: [{ kind: "resShred", label: "Hydro/Cryo RES Reduction", unit: "Hydro/Cryo RES", elements: ["Hydro", "Cryo"] }], duration: "RES Reduction Duration", cd: "Skill CD" },
   Xilonen: { talent: "skill", values: [{ kind: "resShred", label: "Elemental RES Decrease", unit: "RES of the party's elements" }], duration: "Source Sample Activation Duration", cd: "CD" },
-  "Yun Jin": { talent: "burst", values: [{ kind: "flatDmgFromDef", label: "DMG Increase", unit: "of Yun Jin's DEF as flat Normal Attack DMG" }], duration: "Duration", cd: "CD" },
+  "Yun Jin": { talent: "burst", values: [{ kind: "flatDmgFromDef", label: "DMG Increase", unit: "of Yun Jin's DEF as flat Normal Attack DMG", appliesTo: ["normal"] }], duration: "Duration", cd: "CD" },
 
   Albedo: { from: "passive2", values: [{ kind: "em", re: /Elemental Mastery of nearby party members by (\d+)/, unit: "EM" }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
-  Baizhu: { from: "passive2", values: [{ kind: "reactionBonus", re: /reaction DMG dealt by these characters by (\d+)%/, unit: "Bloom-type and Burning DMG % per 1,000 of Baizhu's Max HP (up to 50,000)", percent: true }] },
+  Baizhu: {
+    from: "passive2",
+    values: [
+      { kind: "reactionBonus", re: /Burning, Bloom, Hyperbloom, and Burgeon reaction DMG dealt by these characters by (\d+)%/, unit: "Burning/Bloom-type DMG % per 1,000 of Baizhu's Max HP (up to 50,000)", percent: true, perHp: 1000, max: 1, reactions: ["burning", "bloom", "hyperbloom", "burgeon"] },
+      { kind: "reactionBonus", re: /their Lunar-Bloom DMG by ([\d.]+)%/, unit: "Lunar-Bloom DMG % per 1,000 of Baizhu's Max HP (up to 50,000)", percent: true, perHp: 1000, max: 0.35, reactions: ["lunar-bloom"] },
+      { kind: "reactionBonus", re: /provided by Aggravate and Spread by ([\d.]+)%/, unit: "Aggravate/Spread bonus % per 1,000 of Baizhu's Max HP (up to 50,000)", percent: true, perHp: 1000, max: 0.4, reactions: ["aggravate", "spread"] },
+    ],
+    duration: /lasts (\d+)s/,
+  },
   Chevreuse: {
     from: "passive1",
-    values: [{ kind: "resShred", re: /Pyro and Electro RES of the opponent\(s\) affected by this Overloaded reaction will be decreased by (\d+)%/, unit: "Pyro/Electro RES after Overloaded", percent: true }],
+    values: [{ kind: "resShred", re: /Pyro and Electro RES of the opponent\(s\) affected by this Overloaded reaction will be decreased by (\d+)%/, unit: "Pyro/Electro RES after Overloaded", percent: true, elements: ["Pyro", "Electro"] }],
     duration: /decreased by \d+% for (\d+)s/,
   },
-  Citlali: { from: "passive1", values: [{ kind: "resShred", re: /Pyro and Hydro RES of opponents affected by that reaction decreases by (\d+)%/, unit: "Pyro/Hydro RES after Frozen or Melt", percent: true }], duration: /decreases by \d+% for (\d+)s/ },
-  Dahlia: { from: "passive2", values: [{ kind: "atkSpd", re: /up to a maximum of (\d+)%/, unit: "ATK SPD % (max, HP-based)", percent: true }] },
-  Escoffier: { from: "passive2", values: [{ kind: "resShred", re: /by 5%\/10%\/15%\/(\d+)% for/, unit: "Hydro/Cryo RES with 4 Hydro or Cryo members", percent: true }], duration: /% for (\d+)s/ },
+  Citlali: { from: "passive1", values: [{ kind: "resShred", re: /Pyro and Hydro RES of opponents affected by that reaction decreases by (\d+)%/, unit: "Pyro/Hydro RES after Frozen or Melt", percent: true, elements: ["Pyro", "Hydro"] }], duration: /decreases by \d+% for (\d+)s/ },
+  Dahlia: { from: "passive2", values: [{ kind: "atkSpd", re: /up to a maximum of (\d+)%/, unit: "ATK SPD % (max, HP-based)", percent: true, appliesTo: ["normal"] }] },
+  Escoffier: { from: "passive2", values: [{ kind: "resShred", re: /by 5%\/10%\/15%\/(\d+)% for/, unit: "Hydro/Cryo RES with 4 Hydro or Cryo members", percent: true, elements: ["Hydro", "Cryo"] }], duration: /% for (\d+)s/ },
   Ineffa: { from: "passive2", values: [{ kind: "emFromAtk", re: /Elemental Mastery by (\d+)% of Ineffa's ATK/, unit: "of Ineffa's ATK as EM", percent: true }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
   "Kaedehara Kazuha": { from: "passive2", values: [{ kind: "dmgBonusPerEm", re: /a ([\d.]+)% Elemental DMG Bonus/, unit: "swirled-element DMG % per point of Kazuha's EM", percent: true }], duration: /for (\d+)s/ },
   Linnea: {
     from: ["passive1", "passive2"],
     values: [
-      { kind: "resShred", re: /Geo RES of opponents near Lumi will decrease by (\d+)%/, unit: "Geo RES", percent: true },
+      { kind: "resShred", re: /Geo RES of opponents near Lumi will decrease by (\d+)%/, unit: "Geo RES", percent: true, elements: ["Geo"] },
       { kind: "emFromDef", re: /based on (\d+)% of Linnea's DEF/, unit: "of Linnea's DEF as EM", percent: true },
     ],
   },
@@ -99,11 +109,11 @@ const SPEC = {
   Mavuika: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase obtainable this way is (\d+)%/, unit: "active character DMG % (max)", percent: true }], duration: /lasts (\d+)s/, cd: { talent: "burst", label: "CD" } },
   Nahida: { from: "passive1", values: [{ kind: "emFromTopEm", re: /increased by (\d+)% of the Elemental Mastery of the party member with the highest/, unit: "of the party's highest EM", percent: true }] },
   Rosaria: { from: "passive2", values: [{ kind: "critRate", re: /cannot exceed (\d+)%/, unit: "CRIT Rate % (max)", percent: true }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
-  Sigewinne: { from: "passive1", values: [{ kind: "flatDmg", re: /increases the DMG by (\d+)/, unit: "flat Skill DMG per 1,000 Max HP above 30,000" }] },
+  Sigewinne: { from: "passive1", values: [{ kind: "flatDmg", re: /increases the DMG by (\d+)/, unit: "flat Skill DMG per 1,000 Max HP above 30,000", appliesTo: ["skill"] }] },
   Sucrose: { from: "passive2", values: [{ kind: "emFromEm", re: /equal to (\d+)% of Sucrose's Elemental Mastery/, unit: "of Sucrose's EM as EM", percent: true }], duration: /for (\d+)s/ },
-  Xianyun: { from: "passive2", values: [{ kind: "flatDmgFromAtk", re: /increased by (\d+)% of Xianyun's ATK/, unit: "of Xianyun's ATK as flat Plunge DMG (max 9,000)", percent: true }] },
-  Xinyan: { from: "passive2", values: [{ kind: "dmgBonus", re: /deal (\d+)% increased Physical DMG/, unit: "Physical DMG %", percent: true }] },
-  Yelan: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase to DMG dealt is (\d+)%/, unit: "active character DMG % (max, ramps 1% + 3.5%/s)", percent: true }] },
+  Xianyun: { from: "passive2", values: [{ kind: "flatDmgFromAtk", re: /increased by (\d+)% of Xianyun's ATK/, unit: "of Xianyun's ATK as flat Plunge DMG (max 9,000)", percent: true, appliesTo: ["plunge"], max: 9000 }] },
+  Xinyan: { from: "passive2", values: [{ kind: "dmgBonus", re: /deal (\d+)% increased Physical DMG/, unit: "Physical DMG %", percent: true, physical: true }] },
+  Yelan: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase to DMG dealt is (\d+)%/, unit: "active character DMG %, averaged over the ramp from 1% to the max", percent: true, scale: 0.5 }] },
   Zhongli: { from: "combat2", values: [{ kind: "resShred", re: /Elemental RES and Physical RES of opponents in a small AoE by (\d+)%/, unit: "all RES", percent: true }], duration: "Shield Duration", cd: "Hold CD", table: "skill" },
 };
 
@@ -114,6 +124,15 @@ const NO_VALUE = {
 };
 
 const level = (params, key) => params[key]?.[TALENT_LEVEL - 1];
+
+// Who a buff value can help: the carry's element, the talent its damage comes from (keyTalent), or a
+// reaction it deals. Physical buffs never help an elemental carry.
+const limits = (v) => ({
+  ...(v.elements ? { elements: v.elements } : {}),
+  ...(v.appliesTo ? { appliesTo: v.appliesTo } : {}),
+  ...(v.reactions ? { reactions: v.reactions } : {}),
+  ...(v.physical ? { physical: true } : {}),
+});
 
 // Reads a table label's first parameter at TALENT_LEVEL.
 function tableValue(attrs, label, id) {
@@ -138,6 +157,8 @@ function readBuffs(id, spec) {
     return spec.values.map((v) => ({
       kind: v.kind,
       value: round(tableValue(attrs, v.label, id) * (v.times ? tableValue(attrs, v.times, id) : 1)),
+      ...(v.cap ? { max: tableValue(attrs, v.cap, id) } : {}),
+      ...limits(v),
       unit: v.unit,
       source: `${spec.talent} talent "${v.label}"${v.times ? ` x "${v.times}"` : ""}, level ${TALENT_LEVEL}`,
       duration,
@@ -165,7 +186,10 @@ function readBuffs(id, spec) {
     const cd = spec.cd === undefined ? null : typeof spec.cd === "string" ? tableValue(tableAttrs, spec.cd, id) : tableValue(talents[COMBAT[spec.cd.talent]].attributes, spec.cd.label, id);
     return {
       kind: v.kind,
-      value: round(Number(m[1]) / (v.percent ? 100 : 1)),
+      value: round((Number(m[1]) / (v.percent ? 100 : 1)) * (v.scale ?? 1)),
+      ...(v.max ? { max: v.max } : {}),
+      ...(v.perHp ? { perHp: v.perHp } : {}),
+      ...limits(v),
       unit: v.unit,
       source: `${from}: "${m[0]}"`,
       duration,
