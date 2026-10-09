@@ -303,6 +303,10 @@
     ],
     "energyNeed": "high",
     "erTarget": 170,
+    "families": [
+      "stellar"
+    ],
+    "revelation": true,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -658,6 +662,10 @@
       "EM"
     ],
     "keyTalent": "burst",
+    "families": [
+      "stellar"
+    ],
+    "revelation": true,
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -759,6 +767,10 @@
     ],
     "energyNeed": "high",
     "erTarget": 200,
+    "families": [
+      "stellar"
+    ],
+    "revelation": true,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2303,6 +2315,7 @@
     "families": [
       "stellar"
     ],
+    "stellarLinchpin": true,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2380,6 +2393,10 @@
     ],
     "energyNeed": "high",
     "erTarget": 220,
+    "families": [
+      "stellar"
+    ],
+    "revelation": true,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2494,6 +2511,7 @@
     "families": [
       "stellar"
     ],
+    "stellarLinchpin": true,
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3046,6 +3064,7 @@
     "families": [
       "stellar"
     ],
+    "stellarLinchpin": true,
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3138,6 +3157,10 @@
       "ATK"
     ],
     "keyTalent": "normal",
+    "families": [
+      "stellar"
+    ],
+    "revelation": true,
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3312,6 +3335,10 @@
     ],
     "energyNeed": "medium",
     "erTarget": 140,
+    "families": [
+      "stellar"
+    ],
+    "revelation": true,
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3446,6 +3473,10 @@
       "EM"
     ],
     "keyTalent": "skill",
+    "families": [
+      "stellar"
+    ],
+    "revelation": true,
     "rotation": {
       "slot": "carry",
       "actions": [

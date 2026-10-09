@@ -150,6 +150,19 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
                   Witch&apos;s Homework done
                 </label>
               )}
+              {owned && c.revelation && (
+                <label
+                  className="mt-1 flex items-center gap-1 text-xs"
+                  title="Stellar Glimmer only counts this character once their Witch's Revelation quest is done"
+                >
+                  <input
+                    type="checkbox"
+                    checked={!!owned.revelationUnlocked}
+                    onChange={(e) => onSetEntry(c.id, { revelationUnlocked: e.target.checked })}
+                  />
+                  Witch&apos;s Revelation done
+                </label>
+              )}
             </li>
           );
         })}

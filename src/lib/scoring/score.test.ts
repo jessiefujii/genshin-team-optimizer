@@ -25,6 +25,14 @@ describe("reactions", () => {
     expect(canTrigger("swirl", new Set(["Anemo", "Geo"]), new Set())).toBe(false);
   });
 
+  test("Stellar reactions need a Stellar Linchpin, not just a Stellar member (#45)", () => {
+    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]), new Set(["stellar"]))).toBe(false);
+    expect(canTrigger("stellar-conduct", new Set(["Electro", "Cryo"]), new Set(["stellar"]), true)).toBe(true);
+    // Alyosha benefits from Stellar-Conduct but can't enable it; Sandrone can.
+    expect(score("Alyosha", "Ganyu", "Bennett", "Zhongli").activeReactions).not.toContain("stellar-conduct");
+    expect(score("Alyosha", "Sandrone", "Bennett", "Zhongli").activeReactions).toContain("stellar-conduct");
+  });
+
   test("Lunar reactions need a Moonsign member", () => {
     expect(canTrigger("lunar-charged", new Set(["Electro", "Hydro"]), new Set())).toBe(false);
     expect(canTrigger("lunar-charged", new Set(["Electro", "Hydro"]), new Set(["moonsign"]))).toBe(true);
@@ -99,6 +107,14 @@ describe("scoreTeam", () => {
     expect(prefs(score("Raiden Shogun", "Chevreuse", "Bennett", "Xiangling")).find((l) => l.reason.startsWith("Chevreuse"))?.points).toBe(5);
     // Zibai carrying with her partner Columbina: full points.
     expect(prefs(score("Zibai", "Columbina", "Illuga", "Zhongli")).find((l) => l.reason === "Zibai with Columbina")?.points).toBe(15);
+  });
+
+  test("Witch's Revelation characters count as Stellar only once their quest is done (#45)", () => {
+    const ids = ["Wriothesley", "Sandrone", "Yae Miko", "Bennett"];
+    const stellarFamily = (s: ReturnType<typeof scoreTeam>) => s.breakdown.some((l) => l.rule === "Family" && l.reason.includes("Stellar"));
+    expect(stellarFamily(scoreTeam(team(...ids)))).toBe(true); // no option: all quests assumed done
+    expect(stellarFamily(scoreTeam(team(...ids), { revelationUnlocked: [] }))).toBe(false);
+    expect(stellarFamily(scoreTeam(team(...ids), { revelationUnlocked: ["Wriothesley"] }))).toBe(true);
   });
 
   test("partner preference: Zibai with Columbina", () => {

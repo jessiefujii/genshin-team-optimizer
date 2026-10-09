@@ -83,8 +83,9 @@ export default function RosterPlanner({
   const skip = exclude.filter((id) => roster[id]);
   // Hexerei characters whose Witch's Homework quest is done, sorted so the search key is stable.
   const hexereiUnlocked = Object.keys(roster).filter((id) => roster[id].hexereiUnlocked).sort();
+  const revelationUnlocked = Object.keys(roster).filter((id) => roster[id].revelationUnlocked).sort();
   // useTeamSearch keys on the option values, so a fresh object each render is fine.
-  const search = useTeamSearch(owned, { mustInclude: include, exclude: skip, limit: 20, hexereiUnlocked });
+  const search = useTeamSearch(owned, { mustInclude: include, exclude: skip, limit: 20, hexereiUnlocked, revelationUnlocked });
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
