@@ -208,6 +208,8 @@ describe("scoreTeam", () => {
       });
       expect(buffLine(neuv, "Lauma")?.points).toBe(0);
       expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(15);
+      // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him.
+      expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(15);
     });
 
     test("Kazuha's swirl buff does nothing for an Anemo carry (#58)", () => {
