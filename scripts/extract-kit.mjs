@@ -124,6 +124,25 @@ const SPEC = {
   Lynette: { from: "passive1", values: [{ kind: "atkPct", re: /(\d+)%\/(\d+)%\/(\d+)%\/(\d+)% respectively/, unit: "ATK % by the number of element types (1-4)", percent: true, steps: { count: "elementTypes" } }], duration: /Within (\d+)s/, cd: { talent: "skill", label: "CD" } },
   Mavuika: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase obtainable this way is (\d+)%/, unit: "active character DMG % at 200 Fighting Spirit (0.2% per point)", percent: true, condition: "fightingSpirit" }], duration: /lasts (\d+)s/, cd: { talent: "burst", label: "CD" } },
   Nahida: { from: "passive1", values: [{ kind: "emFromTopEm", re: /increased by (\d+)% of the Elemental Mastery of the party member with the highest/, unit: "of the party's highest EM", percent: true }] },
+  // Rescue Essentials points = Nightsoul points the party holds, up to the max in the text (#76).
+  Ifa: {
+    from: "passive1",
+    values: [
+      { kind: "reactionBonus", re: /Swirl and Electro-Charged DMG dealt by nearby party members by ([\d.]+)%/, unit: "Swirl/Electro-Charged DMG % per Rescue Essentials point", percent: true, reactions: ["swirl", "electrocharged"], condition: "rescueEssentials" },
+      { kind: "reactionBonus", re: /Lunar-Charged DMG dealt by ([\d.]+)%/, unit: "Lunar-Charged DMG % per Rescue Essentials point", percent: true, reactions: ["lunar-charged"], condition: "rescueEssentials" },
+      { kind: "reactionBonus", re: /Stellar Swirl reaction DMG dealt by ([\d.]+)%/, unit: "Stellar Swirl DMG % per Rescue Essentials point", percent: true, reactions: ["stellar-swirl"], condition: "rescueEssentials" },
+    ],
+    points: { max: /Max (\d+) points/, own: { talent: "skill", label: "Nightsoul Point Limit" } },
+  },
+  // Tolling Rally: DMG per point of Prune's ATK above a threshold, up to a max (#76).
+  Prune: {
+    from: "passive2",
+    values: [{ kind: "dmgBonusFromExcessAtk", re: /Every excess ATK point increases that instance of DMG by ([\d.]+)%/, unit: "DMG % per point of Prune's ATK above the threshold", percent: true }],
+    excessAtk: { threshold: /ATK in excess of ([\d,]+)/, max: /up to a total of (\d+)% max/ },
+    // Without a build: she is built for this buff (ATK above 2,000 is the whole point), not the generic benchmark.
+    buildFor: { atk: 3000 },
+    duration: /Tolling Rally effect for (\d+)s/,
+  },
   Rosaria: { from: "passive2", values: [{ kind: "critRate", re: /cannot exceed (\d+)%/, unit: "CRIT Rate % (max)", percent: true }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
   Sigewinne: { from: "passive1", values: [{ kind: "flatDmg", re: /increases the DMG by (\d+)/, unit: "flat Skill DMG per 1,000 Max HP above 30,000", appliesTo: ["skill"] }] },
   Sucrose: { from: "passive2", values: [{ kind: "emFromEm", re: /equal to (\d+)% of Sucrose's Elemental Mastery/, unit: "of Sucrose's EM as EM", percent: true }], duration: /for (\d+)s/ },
@@ -134,10 +153,8 @@ const SPEC = {
 };
 
 // Buffs we know about but can't read a number for: the value isn't in the text genshin-db gives.
-const NO_VALUE = {
-  Ifa: "Rescue Essentials' per-point bonus isn't stated in the passive text",
-  Prune: "Tolling Rally's bonus isn't stated in the passive text",
-};
+// (Ifa and Prune used to be here; their numbers come from data/kit-overrides.json since #75.)
+const NO_VALUE = {};
 
 const level = (params, key) => params[key]?.[TALENT_LEVEL - 1];
 
@@ -162,7 +179,7 @@ function tableValue(attrs, label, id) {
   return value;
 }
 
-const round = (n) => (n === null || n === undefined ? n : Math.round(n * 10000) / 10000);
+const round = (n) => (n === null || n === undefined ? n : Math.round(n * 1e6) / 1e6); // 6 places: Prune is 0.025% per ATK point
 const uptime = (duration, cd) => (duration && cd ? round(Math.min(1, duration / cd)) : null);
 
 function readBuffs(id, spec) {
@@ -204,9 +221,20 @@ function readBuffs(id, spec) {
     const steps = v.steps ? { ...v.steps, values: m.slice(1, 5).map((n) => round((Number(n) / (v.percent ? 100 : 1)) * (v.scale ?? 1))) } : null;
     const duration = seconds(spec.duration, text);
     const cd = spec.cd === undefined ? null : typeof spec.cd === "string" ? tableValue(tableAttrs, spec.cd, id) : tableValue(talents[COMBAT[spec.cd.talent]].attributes, spec.cd.label, id);
+    const num = (re) => {
+      const x = text.match(re);
+      if (!x) throw new Error(`${id}: pattern ${re} not found in ${from}`);
+      return Number(x[1].replace(/,/g, ""));
+    };
+    const points = spec.points
+      ? { max: num(spec.points.max), own: tableValue(talents[COMBAT[spec.points.own.talent]].attributes, spec.points.own.label, id) }
+      : null;
+    const excess = spec.excessAtk ? { threshold: num(spec.excessAtk.threshold), max: num(spec.excessAtk.max) / 100 } : null;
     return {
       kind: v.kind,
       value: steps ? steps.values[steps.values.length - 1] : round((Number(m[1]) / (v.percent ? 100 : 1)) * (v.scale ?? 1)),
+      ...(points ? { points } : {}),
+      ...(excess ? { threshold: excess.threshold, max: excess.max } : {}),
       ...(steps ? { steps } : {}),
       ...(v.max ? { max: v.max } : {}),
       ...(v.perHp ? { perHp: v.perHp } : {}),
@@ -272,7 +300,7 @@ for (const c of buffers) {
     continue;
   }
   if (!SPEC[c.id]) throw new Error(`${c.id} is a buffer in tags.json but has no SPEC entry`);
-  characters[c.id] = { base, buffs: readBuffs(c.id, SPEC[c.id]) };
+  characters[c.id] = { base, ...(SPEC[c.id].buildFor ? { buildFor: SPEC[c.id].buildFor } : {}), buffs: readBuffs(c.id, SPEC[c.id]) };
 }
 
 // Every Moonsign character with an Ascendant Gleam upgrade needs a GLEAM entry, so a new one can't be missed.
