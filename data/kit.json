@@ -750,5 +750,78 @@
         }
       ]
     }
+  },
+  "ascendantGleam": {
+    "Aino": {
+      "target": "self",
+      "source": "passive1: \"Ascendant Gleam: Her Elemental Burst **Precision Hydronic Cooler** is enhanced: The Cool Your Jets Ducky will fire water balls more frequently, and the water balls will deal AoE Hydro DMG over a larger area of effect.\""
+    },
+    "Columbina": {
+      "target": "self",
+      "source": "combat2: \"Ascendant Gleam: Gravity Ripple inflicts AoE Hydro DMG over a wider area.\""
+    },
+    "Flins": {
+      "target": "self",
+      "source": "passive1: \"Ascendant Gleam: Lunar-Charged reactions triggered by Flins will deal an additional 20% DMG.\""
+    },
+    "Illuga": {
+      "target": "party",
+      "source": "passive1: \"Ascendant Gleam Party members affected by the Lightkeeper's Oath effect have their Elemental Mastery increased by 50.\"",
+      "values": [
+        {
+          "kind": "em",
+          "value": 50,
+          "unit": "EM"
+        }
+      ]
+    },
+    "Jahoda": {
+      "target": "self",
+      "source": "combat2: \"Ascendant Gleam: When the Purr-loined Treasure Flask becomes full, Jahoda will not immediately discharge it. Instead, for a short duration, she steadily consumes the stored element inside and periodically fires Fluffy Meowballs at nearby opponents, dealing DMG of the corresponding element stored in the Purr-loined Treasure Flask.\""
+    },
+    "Lauma": {
+      "target": "party",
+      "source": "passive1: \"Ascendant Gleam All nearby party members' Lunar-Bloom DMG CRIT Rate +10%, CRIT DMG +20%.\"",
+      "values": [
+        {
+          "kind": "critRate",
+          "value": 0.1,
+          "unit": "Lunar-Bloom CRIT Rate",
+          "reactions": [
+            "lunar-bloom"
+          ]
+        },
+        {
+          "kind": "critDmg",
+          "value": 0.2,
+          "unit": "Lunar-Bloom CRIT DMG",
+          "reactions": [
+            "lunar-bloom"
+          ]
+        }
+      ]
+    },
+    "Linnea": {
+      "target": "party",
+      "source": "passive1: \"Ascendant Gleam: Linnea's Elemental Skill **Countermeasure: Lumi's Battle Cry!** and Elemental Burst **Memo: Survival Guide in Extreme Conditions** are enhanced. After summoning Lumi, the Geo RES of opponents near Lumi will be further decreased by 15%.\"",
+      "values": [
+        {
+          "kind": "resShred",
+          "value": 0.15,
+          "unit": "more Geo RES",
+          "elements": [
+            "Geo"
+          ]
+        }
+      ]
+    },
+    "Nefer": {
+      "target": "self",
+      "source": "passive1: \"Ascendant Gleam: When she unleashes her Elemental Skill **Senet Strategy: Dance of a Thousand Nights**, any Dendro Cores on the field will be converted to Seeds of Deceit, and any Lunar-Bloom reactions triggered by nearby characters in the following 15s that would create Dendro Cores or Bountiful Cores will instead create Seeds of Deceit. Seeds of Deceit cannot trigger Hyperbloom or Burgeon reactions and will not burst.\""
+    },
+    "Zibai": {
+      "target": "self",
+      "source": "combat2: \"Ascendant Gleam While in the Lunar Phase Shift mode, when Zibai performs Normal Attacks, the fourth attack will deal an additional instance of Geo DMG, which is considered Lunar-Crystallize Reaction DMG.\""
+    }
   }
 }

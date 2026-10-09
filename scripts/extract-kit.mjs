@@ -115,6 +115,12 @@ const NO_VALUE = {
 
 const level = (params, key) => params[key]?.[TALENT_LEVEL - 1];
 
+// Who a value can help: the carry's element or a reaction the carry deals.
+const limits = (v) => ({
+  ...(v.elements ? { elements: v.elements } : {}),
+  ...(v.reactions ? { reactions: v.reactions } : {}),
+});
+
 // Reads a table label's first parameter at TALENT_LEVEL.
 function tableValue(attrs, label, id) {
   const entry = attrs.labels.find((l) => l.split("|")[0].trim() === label);
@@ -175,6 +181,46 @@ function readBuffs(id, spec) {
   });
 }
 
+// Moonsign: Ascendant Gleam (#63). Every "Moonsign Benediction" passive raises the party's Moonsign by 1 level,
+// and Ascendant Gleam is level 2. target "party": a numeric buff for party members (read like the buffs above);
+// target "self": an upgrade to that character's own kit, kept as the quoted sentence.
+const GLEAM = {
+  Aino: { from: "passive1", target: "self" },
+  Columbina: { from: "combat2", target: "self" },
+  Flins: { from: "passive1", target: "self" },
+  Illuga: { from: "passive1", target: "party", values: [{ kind: "em", re: /have their Elemental Mastery increased by (\d+)/, unit: "EM" }] },
+  Jahoda: { from: "combat2", target: "self" },
+  Lauma: {
+    from: "passive1",
+    target: "party",
+    values: [
+      { kind: "critRate", re: /Lunar-Bloom DMG CRIT Rate \+(\d+)%/, unit: "Lunar-Bloom CRIT Rate", percent: true, reactions: ["lunar-bloom"] },
+      { kind: "critDmg", re: /Lunar-Bloom DMG CRIT Rate \+\d+%, CRIT DMG \+(\d+)%/, unit: "Lunar-Bloom CRIT DMG", percent: true, reactions: ["lunar-bloom"] },
+    ],
+  },
+  Linnea: { from: "passive1", target: "party", values: [{ kind: "resShred", re: /further decreased by (\d+)%/, unit: "more Geo RES", percent: true, elements: ["Geo"] }] },
+  Nefer: { from: "passive1", target: "self" },
+  Zibai: { from: "combat2", target: "self" },
+};
+
+function readGleam(id, spec) {
+  const text = genshindb.talents(id)[spec.from].description.replace(/\s+/g, " ");
+  const at = text.indexOf("Ascendant Gleam");
+  if (at < 0) throw new Error(`${id}: no "Ascendant Gleam" in ${spec.from}`);
+  const after = text.slice(at);
+  const quote = after.split(/(?<=\.) /).slice(0, 2).join(" ");
+  if (spec.target === "self") return { target: "self", source: `${spec.from}: "${quote}"` };
+  return {
+    target: "party",
+    source: `${spec.from}: "${quote}"`,
+    values: spec.values.map((v) => {
+      const m = after.match(v.re);
+      if (!m) throw new Error(`${id}: pattern ${v.re} not found after Ascendant Gleam in ${spec.from}`);
+      return { kind: v.kind, value: Number(m[1]) / (v.percent ? 100 : 1), unit: v.unit, ...limits(v) };
+    }),
+  };
+}
+
 const tags = require("../data/tags.json");
 const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0);
 const characters = {};
@@ -190,9 +236,20 @@ for (const c of buffers) {
   characters[c.id] = { base, buffs: readBuffs(c.id, SPEC[c.id]) };
 }
 
+// Every Moonsign character with an Ascendant Gleam upgrade needs a GLEAM entry, so a new one can't be missed.
+const ascendantGleam = {};
+for (const c of tags.filter((c) => (c.families ?? []).includes("moonsign"))) {
+  const t = genshindb.talents(c.id);
+  const has = t && ["combat1", "combat2", "combat3", "passive1", "passive2", "passive3"].some((k) => t[k]?.description.includes("Ascendant Gleam"));
+  if (has && !GLEAM[c.id]) throw new Error(`${c.id} has an Ascendant Gleam upgrade but no GLEAM entry`);
+  if (GLEAM[c.id]) ascendantGleam[c.id] = readGleam(c.id, GLEAM[c.id]);
+}
+
 const out = new URL("../data/kit.json", import.meta.url);
 writeFileSync(
   out,
-  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters }, null, 2) + "\n",
+  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, ascendantGleam }, null, 2) + "\n",
 );
-console.log(`Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value)`);
+console.log(
+  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades`,
+);
