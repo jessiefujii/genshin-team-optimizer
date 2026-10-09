@@ -66,7 +66,8 @@
     "fieldTime": "on",
     "reactions": [
       "spread",
-      "quicken"
+      "quicken",
+      "lunar-bloom"
     ],
     "mainReaction": "spread",
     "energyNeed": "medium",
@@ -1420,6 +1421,12 @@
       {
         "stat": "Swirled element DMG bonus (EM-based)",
         "scope": "team",
+        "elements": [
+          "Pyro",
+          "Hydro",
+          "Electro",
+          "Cryo"
+        ],
         "talent": "passive"
       }
     ],

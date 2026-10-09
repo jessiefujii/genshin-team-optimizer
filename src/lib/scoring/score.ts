@@ -294,6 +294,10 @@ function buffMisfit(buff: Buff, carry: ScoringCharacter, ctx: TeamContext, emUse
   if (buff.reactions && !buff.reactions.some((r) => ctx.active.includes(r))) {
     return () => `buffs ${buff.reactions!.map(label).join("/")}, which this team does not trigger`;
   }
+  // The team triggering the reaction is not enough: the carry has to deal it (#58).
+  if (buff.reactions && !buff.reactions.some((r) => ctx.active.includes(r) && carry.reactions.includes(r))) {
+    return () => `buffs ${buff.reactions!.map(label).join("/")}, which ${carry.id} does not deal`;
+  }
   return null;
 }
 
