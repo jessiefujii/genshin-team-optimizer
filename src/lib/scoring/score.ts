@@ -211,24 +211,33 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
 
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   const emUseful = carryActive.some((r) => !NO_EM_REACTIONS.has(r));
-  let counted = 0;
   const maxBuffers = main === "none" ? POINTS.hypercarryMaxBuffers : POINTS.maxBuffers;
+  // Every fitting buffer is scored, then the strongest count up to the cap (#60).
+  const fitting: { id: string; points: number; reason: () => string }[] = [];
   for (const s of supports.filter((m) => m.roles.includes("buffer"))) {
     // Anemo buffers (Kazuha, Sucrose) need something to swirl.
     if (s.element === "Anemo" && !swirlActive) continue;
     const misfits = (s.buffs ?? []).map((b) => buffMisfit(b, carry, ctx, emUseful));
     if (misfits.length > 0 && misfits.every((m) => m !== null)) {
       out.add("Buffs", 0, () => `${s.id}: ${misfits[0]!()}`);
-    } else if (counted < maxBuffers) {
-      counted++;
-      // A buff from a talent gets stronger with its level; scale by the first buff that fits.
-      const talent = s.buffs?.[misfits.indexOf(null)]?.talent;
-      const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
-      const base = s.buffTier === "strong" ? POINTS.strongBuffer : s.buffTier === "minor" ? POINTS.minorBuffer : POINTS.buffer;
-      const points = Math.round(base * talentFactor(level));
-      out.add("Buffs", points, () => `${s.id} buffs ${carry.id}${level === undefined ? "" : ` (${talent} level ${level})`}`);
+      continue;
     }
+    // A buff from a talent gets stronger with its level; scale by the first buff that fits.
+    const fit = s.buffs?.[misfits.indexOf(null)];
+    const talent = fit?.talent;
+    const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
+    // A buff limited to the carry's element (Faruzan, Shenhe, Gorou) is worth as much as the best generic ones.
+    const tier = s.buffTier ?? (fit?.elements ? "strong" : undefined);
+    const base = tier === "strong" ? POINTS.strongBuffer : tier === "minor" ? POINTS.minorBuffer : POINTS.buffer;
+    fitting.push({
+      id: s.id,
+      points: Math.round(base * talentFactor(level)),
+      reason: () => `${s.id} buffs ${carry.id}${level === undefined ? "" : ` (${talent} level ${level})`}`,
+    });
   }
+  fitting.sort((a, b) => b.points - a.points);
+  for (const f of fitting.slice(0, maxBuffers)) out.add("Buffs", f.points, f.reason);
+
   effectBuffLines(ctx, carry, emUseful, out);
 }
 
