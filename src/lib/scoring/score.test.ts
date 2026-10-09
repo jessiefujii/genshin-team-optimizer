@@ -385,6 +385,14 @@ describe("talent levels (#25)", () => {
     expect(res(score("Kinich", "Emilie", "Xiangling", "Bennett"), "Sprawling Greenery")?.points).toBe(5); // Burning uses EM
   });
 
+  test("a carry wants the off-field sub-DPS its guide teams use (#57)", () => {
+    const reasons = score("Kinich", "Emilie", "Xiangling", "Bennett").breakdown.map((l) => l.reason);
+    expect(reasons).toContain("Kinich with Emilie");
+    expect(score("Raiden Shogun", "Xingqiu", "Xiangling", "Bennett").breakdown.map((l) => l.reason)).toContain(
+      "Raiden Shogun with Xiangling",
+    );
+  });
+
   test("a hypercarry counts a third buffer (#51)", () => {
     const buffs = (s: ReturnType<typeof scoreTeam>) => s.breakdown.filter((l) => l.rule === "Buffs" && l.points > 0).length;
     expect(buffs(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(3);
