@@ -199,6 +199,22 @@ describe("scoreTeam", () => {
       expect(buffLine(score("Diluc", "Baizhu", "Bennett", "Zhongli"), "Baizhu")?.points).toBe(0);
     });
 
+    test("reaction buffs need a reaction the carry deals (#58)", () => {
+      const neuv = score("Neuvillette", "Citlali", "Columbina", "Lauma");
+      expect(buffLine(neuv, "Columbina")).toEqual({
+        rule: "Buffs",
+        points: 0,
+        reason: "Columbina: buffs Lunar-charged/Lunar-bloom/Lunar-crystallize, which Neuvillette does not deal",
+      });
+      expect(buffLine(neuv, "Lauma")?.points).toBe(0);
+      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(15);
+    });
+
+    test("Kazuha's swirl buff does nothing for an Anemo carry (#58)", () => {
+      expect(buffLine(score("Xiao", "Bennett", "Kaedehara Kazuha", "Nicole"), "Kaedehara Kazuha")?.points).toBe(0);
+      expect(buffLine(score("Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"), "Kaedehara Kazuha")?.points).toBe(15);
+    });
+
     test("every main DPS has scalesOn", () => {
       const missing = all.filter((c) => c.roles.includes("main-dps") && !c.scalesOn?.length).map((c) => c.id);
       expect(missing).toEqual([]);
