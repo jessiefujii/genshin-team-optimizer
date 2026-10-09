@@ -49,9 +49,46 @@
         {
           "kind": "reactionBonus",
           "value": 0.02,
-          "unit": "Bloom-type and Burning DMG % per 1,000 of Baizhu's Max HP (up to 50,000)",
-          "source": "passive2: \"reaction DMG dealt by these characters by 2%\"",
-          "duration": null,
+          "max": 1,
+          "perHp": 1000,
+          "reactions": [
+            "burning",
+            "bloom",
+            "hyperbloom",
+            "burgeon"
+          ],
+          "unit": "Burning/Bloom-type DMG % per 1,000 of Baizhu's Max HP (up to 50,000)",
+          "source": "passive2: \"Burning, Bloom, Hyperbloom, and Burgeon reaction DMG dealt by these characters by 2%\"",
+          "duration": 6,
+          "cd": null,
+          "uptime": null
+        },
+        {
+          "kind": "reactionBonus",
+          "value": 0.007,
+          "max": 0.35,
+          "perHp": 1000,
+          "reactions": [
+            "lunar-bloom"
+          ],
+          "unit": "Lunar-Bloom DMG % per 1,000 of Baizhu's Max HP (up to 50,000)",
+          "source": "passive2: \"their Lunar-Bloom DMG by 0.7%\"",
+          "duration": 6,
+          "cd": null,
+          "uptime": null
+        },
+        {
+          "kind": "reactionBonus",
+          "value": 0.008,
+          "max": 0.4,
+          "perHp": 1000,
+          "reactions": [
+            "aggravate",
+            "spread"
+          ],
+          "unit": "Aggravate/Spread bonus % per 1,000 of Baizhu's Max HP (up to 50,000)",
+          "source": "passive2: \"provided by Aggravate and Spread by 0.8%\"",
+          "duration": 6,
           "cd": null,
           "uptime": null
         }
@@ -85,6 +122,9 @@
         {
           "kind": "dmgBonus",
           "value": 0.2,
+          "appliesTo": [
+            "normal"
+          ],
           "unit": "Normal Attack DMG %",
           "source": "burst talent \"DMG Bonus\", level 9",
           "duration": 9,
@@ -103,7 +143,15 @@
         {
           "kind": "resShred",
           "value": 0.4,
-          "unit": "Pyro/Electro RES after Overloaded",
+          "elements": [
+            "Pyro",
+            "Electro"
+          ],
+          "teamOnly": [
+            "Pyro",
+            "Electro"
+          ],
+          "unit": "Pyro/Electro RES after Overloaded, only when every member is Pyro or Electro",
           "source": "passive1: \"Pyro and Electro RES of the opponent(s) affected by this Overloaded reaction will be decreased by 40%\"",
           "duration": 6,
           "cd": null,
@@ -121,6 +169,10 @@
         {
           "kind": "resShred",
           "value": 0.2,
+          "elements": [
+            "Pyro",
+            "Hydro"
+          ],
           "unit": "Pyro/Hydro RES after Frozen or Melt",
           "source": "passive1: \"Pyro and Hydro RES of opponents affected by that reaction decreases by 20%\"",
           "duration": 12,
@@ -139,6 +191,11 @@
         {
           "kind": "reactionBonus",
           "value": 0.37,
+          "reactions": [
+            "lunar-charged",
+            "lunar-bloom",
+            "lunar-crystallize"
+          ],
           "unit": "Lunar reaction DMG %",
           "source": "burst talent \"Lunar Reaction DMG Bonus\", level 9",
           "duration": 20,
@@ -157,6 +214,9 @@
         {
           "kind": "atkSpd",
           "value": 0.2,
+          "appliesTo": [
+            "normal"
+          ],
           "unit": "ATK SPD % (max, HP-based)",
           "source": "passive2: \"up to a maximum of 20%\"",
           "duration": null,
@@ -175,7 +235,24 @@
         {
           "kind": "resShred",
           "value": 0.55,
-          "unit": "Hydro/Cryo RES with 4 Hydro or Cryo members",
+          "steps": {
+            "count": "members",
+            "of": [
+              "Hydro",
+              "Cryo"
+            ],
+            "values": [
+              0.05,
+              0.1,
+              0.15,
+              0.55
+            ]
+          },
+          "elements": [
+            "Hydro",
+            "Cryo"
+          ],
+          "unit": "Hydro/Cryo RES by the number of Hydro or Cryo members (1-4)",
           "source": "passive2: \"by 5%/10%/15%/55% for\"",
           "duration": 12,
           "cd": null,
@@ -193,6 +270,9 @@
         {
           "kind": "dmgBonus",
           "value": 0.306,
+          "elements": [
+            "Anemo"
+          ],
           "unit": "Anemo DMG %",
           "source": "burst talent \"Anemo DMG Bonus\", level 9",
           "duration": 12,
@@ -202,6 +282,9 @@
         {
           "kind": "resShred",
           "value": 0.3,
+          "elements": [
+            "Anemo"
+          ],
           "unit": "Anemo RES",
           "source": "burst talent \"Anemo RES Decrease\", level 9",
           "duration": 12,
@@ -238,6 +321,9 @@
         {
           "kind": "dmgBonus",
           "value": 0.15,
+          "elements": [
+            "Geo"
+          ],
           "unit": "Geo DMG % (3 Geo members)",
           "source": "skill talent \"Geo DMG Bonus\", level 9",
           "duration": 10,
@@ -247,6 +333,9 @@
         {
           "kind": "defFlat",
           "value": 350.472,
+          "elements": [
+            "Geo"
+          ],
           "unit": "flat DEF",
           "source": "skill talent \"DEF Increase\", level 9",
           "duration": 10,
@@ -292,6 +381,9 @@
         {
           "kind": "flatDmgFromEm",
           "value": 0.5712,
+          "elements": [
+            "Geo"
+          ],
           "unit": "of Illuga's EM as flat Geo DMG",
           "source": "burst talent \"Geo DMG Bonus\", level 9",
           "duration": 20,
@@ -364,6 +456,11 @@
         {
           "kind": "flatDmgFromEm",
           "value": 4.7219,
+          "reactions": [
+            "bloom",
+            "hyperbloom",
+            "burgeon"
+          ],
           "unit": "of Lauma's EM as flat Bloom-type DMG",
           "source": "burst talent \"Bloom, Hyperbloom, and Burgeon DMG Increase\", level 9",
           "duration": 15,
@@ -373,6 +470,9 @@
         {
           "kind": "flatDmgFromEm",
           "value": 3.7781,
+          "reactions": [
+            "lunar-bloom"
+          ],
           "unit": "of Lauma's EM as flat Lunar-Bloom DMG",
           "source": "burst talent \"Lunar-Bloom DMG Increase\", level 9",
           "duration": 15,
@@ -391,6 +491,9 @@
         {
           "kind": "resShred",
           "value": 0.15,
+          "elements": [
+            "Geo"
+          ],
           "unit": "Geo RES",
           "source": "passive1: \"Geo RES of opponents near Lumi will decrease by 15%\"",
           "duration": null,
@@ -436,7 +539,16 @@
         {
           "kind": "atkPct",
           "value": 0.2,
-          "unit": "ATK % with 4 elements",
+          "steps": {
+            "count": "elementTypes",
+            "values": [
+              0.08,
+              0.12,
+              0.16,
+              0.2
+            ]
+          },
+          "unit": "ATK % by the number of element types (1-4)",
           "source": "passive1: \"8%/12%/16%/20% respectively\"",
           "duration": 10,
           "cd": 12,
@@ -454,7 +566,8 @@
         {
           "kind": "dmgBonus",
           "value": 0.4,
-          "unit": "active character DMG % (max)",
+          "condition": "fightingSpirit",
+          "unit": "active character DMG % at 200 Fighting Spirit (0.2% per point)",
           "source": "passive2: \"maximum increase obtainable this way is 40%\"",
           "duration": 20,
           "cd": 18,
@@ -472,6 +585,9 @@
         {
           "kind": "atkSpd",
           "value": 0.21,
+          "appliesTo": [
+            "normal"
+          ],
           "unit": "ATK SPD %",
           "source": "skill talent \"ATK SPD Bonus\", level 9",
           "duration": 12,
@@ -526,17 +642,9 @@
         {
           "kind": "atkFromAtk",
           "value": 0.1425,
-          "unit": "of Nicole's ATK",
+          "max": 570,
+          "unit": "of Nicole's ATK as flat ATK (capped)",
           "source": "skill talent \"Grace of Kenosis ATK Bonus Ratio\", level 9",
-          "duration": 20,
-          "cd": 16,
-          "uptime": 1
-        },
-        {
-          "kind": "atkFlat",
-          "value": 570,
-          "unit": "flat ATK (max)",
-          "source": "skill talent \"Grace of Kenosis Max ATK Bonus\", level 9",
           "duration": 20,
           "cd": 16,
           "uptime": 1
@@ -580,6 +688,9 @@
         {
           "kind": "flatDmgFromAtk",
           "value": 0.7762,
+          "elements": [
+            "Cryo"
+          ],
           "unit": "of Shenhe's ATK as flat Cryo DMG",
           "source": "skill talent \"DMG Bonus\", level 9",
           "duration": 10,
@@ -598,6 +709,9 @@
         {
           "kind": "flatDmg",
           "value": 80,
+          "appliesTo": [
+            "skill"
+          ],
           "unit": "flat Skill DMG per 1,000 Max HP above 30,000",
           "source": "passive1: \"increases the DMG by 80\"",
           "duration": null,
@@ -634,6 +748,10 @@
         {
           "kind": "resShred",
           "value": 0.285,
+          "elements": [
+            "Hydro",
+            "Cryo"
+          ],
           "unit": "Hydro/Cryo RES",
           "source": "skill talent \"Hydro/Cryo RES Reduction\", level 9",
           "duration": 6,
@@ -652,6 +770,10 @@
         {
           "kind": "flatDmgFromAtk",
           "value": 2,
+          "max": 9000,
+          "appliesTo": [
+            "plunge"
+          ],
           "unit": "of Xianyun's ATK as flat Plunge DMG (max 9,000)",
           "source": "passive2: \"increased by 200% of Xianyun's ATK\"",
           "duration": null,
@@ -688,6 +810,7 @@
         {
           "kind": "dmgBonus",
           "value": 0.15,
+          "physical": true,
           "unit": "Physical DMG %",
           "source": "passive2: \"deal 15% increased Physical DMG\"",
           "duration": null,
@@ -705,8 +828,8 @@
       "buffs": [
         {
           "kind": "dmgBonus",
-          "value": 0.5,
-          "unit": "active character DMG % (max, ramps 1% + 3.5%/s)",
+          "value": 0.25,
+          "unit": "active character DMG %, averaged over the ramp from 1% to the max",
           "source": "passive2: \"maximum increase to DMG dealt is 50%\"",
           "duration": null,
           "cd": null,
@@ -724,6 +847,9 @@
         {
           "kind": "flatDmgFromDef",
           "value": 0.5467,
+          "appliesTo": [
+            "normal"
+          ],
           "unit": "of Yun Jin's DEF as flat Normal Attack DMG",
           "source": "burst talent \"DMG Increase\", level 9",
           "duration": 12,

@@ -75,7 +75,6 @@ export interface CharacterTags {
   energyNeed: 'low' | 'medium' | 'high';
   erTarget?: number; // ER % this character wants for their burst; defaults by energyNeed (see ER_TARGETS)
   buffs?: Buff[];
-  buffTier?: 'strong' | 'minor'; // buffers only: how much their buff is worth; unset = standard (#51)
   scalesOn?: ScalingStat[]; // main DPS only: stats their damage scales on
   keyTalent?: Talent; // main DPS only: the talent most of their damage scales with
   families?: Family[];
