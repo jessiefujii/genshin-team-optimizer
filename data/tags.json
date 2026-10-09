@@ -77,6 +77,16 @@
       "EM"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Lauma",
+          "Xingqiu"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -103,6 +113,15 @@
       "ATK"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Xiangling"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -678,6 +697,15 @@
       "stellar"
     ],
     "revelation": true,
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Nahida"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -755,6 +783,15 @@
       "ATK"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Xingqiu"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1005,6 +1042,16 @@
     "families": [
       "moonsign"
     ],
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Aino",
+          "Ineffa"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1032,6 +1079,16 @@
       "ATK"
     ],
     "keyTalent": "skill",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Xingqiu",
+          "Fischl"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1513,6 +1570,15 @@
       "HP"
     ],
     "keyTalent": "skill",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Nahida"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1565,6 +1631,15 @@
       "ATK"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Fischl"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1592,6 +1667,16 @@
     "keyTalent": "skill",
     "families": [
       "nightsoul"
+    ],
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Emilie",
+          "Xiangling"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
     ],
     "rotation": {
       "slot": "carry",
@@ -1645,6 +1730,15 @@
     "keyTalent": "normal",
     "families": [
       "hexerei"
+    ],
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Furina"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
     ],
     "rotation": {
       "slot": "carry",
@@ -1926,6 +2020,15 @@
       "ATK"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Xiangling"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2011,6 +2114,15 @@
     ],
     "families": [
       "nightsoul"
+    ],
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Furina"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
     ],
     "rotation": {
       "slot": "carry",
@@ -2187,6 +2299,16 @@
     "families": [
       "moonsign"
     ],
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Lauma",
+          "Aino"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2217,6 +2339,15 @@
       "HP"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Raiden Shogun"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2467,6 +2598,15 @@
       "ATK"
     ],
     "keyTalent": "burst",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Xiangling"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2554,6 +2694,15 @@
       "stellar"
     ],
     "stellarLinchpin": true,
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Yae Miko"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2804,6 +2953,15 @@
       "ATK"
     ],
     "keyTalent": "skill",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Nahida"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2854,6 +3012,17 @@
       "EM"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Yae Miko",
+          "Nahida",
+          "Fischl"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3058,6 +3227,13 @@
           "min": 2
         },
         "note": "Mono-element Hexerei team with one other Anemo character, e.g. mono-Pyro Hexerei"
+      },
+      {
+        "kind": "partner",
+        "ids": [
+          "Durin"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
       }
     ],
     "rotation": {
@@ -3116,6 +3292,15 @@
       "stellar"
     ],
     "stellarLinchpin": true,
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Odette"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3214,6 +3399,15 @@
       "stellar"
     ],
     "revelation": true,
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Furina"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3435,6 +3629,15 @@
       "ATK"
     ],
     "keyTalent": "normal",
+    "teamPrefs": [
+      {
+        "kind": "partner",
+        "ids": [
+          "Xingqiu"
+        ],
+        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
+      }
+    ],
     "rotation": {
       "slot": "carry",
       "actions": [
