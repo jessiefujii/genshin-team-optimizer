@@ -107,10 +107,22 @@ describe("scoreTeam", () => {
     }
   });
 
-  test("a Moonsign pair needs a Lunar reaction the carry uses (#49)", () => {
-    const moonsign = (s: ReturnType<typeof scoreTeam>) => s.breakdown.some((l) => l.rule === "Family" && l.reason.includes("Moonsign"));
-    expect(moonsign(score("Raiden Shogun", "Aino", "Lauma", "Baizhu"))).toBe(false);
-    expect(moonsign(score("Flins", "Aino", "Ineffa", "Xilonen"))).toBe(true);
+  test("Ascendant Gleam scores what it unlocks for this team (#63)", () => {
+    const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Moonsign");
+    // Two Moonsign members (Aino, Ineffa) reach Ascendant Gleam: Flins's own kit upgrade counts.
+    expect(lines("Flins", "Aino", "Ineffa", "Xilonen")).toEqual([
+      { rule: "Moonsign", points: 10, reason: "Ascendant Gleam enhances Flins's kit" },
+    ]);
+    // One Moonsign member is only Nascent Gleam.
+    expect(lines("Flins", "Bennett", "Xingqiu", "Xilonen")).toEqual([]);
+    // Raiden isn't Moonsign and Lauma's upgrade is for Lunar-Bloom, which Raiden doesn't deal.
+    expect(lines("Raiden Shogun", "Aino", "Lauma", "Baizhu")).toEqual([]);
+    // Lauma's Lunar-Bloom crit helps Nefer; Nefer's own upgrade counts too.
+    const nefer = lines("Nefer", "Lauma", "Aino", "Yaoyao").map((l) => l.reason);
+    expect(nefer).toContain("Ascendant Gleam enhances Nefer's kit");
+    expect(nefer.some((r) => r.startsWith("Ascendant Gleam: Lauma gives Nefer"))).toBe(true);
+    // Linnea's extra Geo shred only helps a Geo carry.
+    expect(lines("Zibai", "Linnea", "Columbina", "Xilonen").some((l) => l.reason.startsWith("Ascendant Gleam: Linnea"))).toBe(true);
   });
 
   test("a team without a main DPS is penalized", () => {
@@ -144,10 +156,11 @@ describe("scoreTeam", () => {
     expect(score("Hu Tao", "Mona", "Nicole", "Zhongli").breakdown.some((l) => l.rule === "Family")).toBe(false);
     // Varka is Hexerei himself, so his Hexerei teammates count.
     expect(score("Varka", "Venti", "Klee", "Durin").breakdown.some((l) => l.rule === "Family")).toBe(true);
-    // Moonsign pays off once a Lunar reaction is active.
+    // Moonsign isn't a flat family pair any more: it scores through Ascendant Gleam (#63).
     const lunar = score("Flins", "Columbina", "Ineffa", "Zhongli");
     expect(lunar.activeReactions).toContain("lunar-charged");
-    expect(lunar.breakdown.some((l) => l.rule === "Family" && l.reason.includes("Moonsign"))).toBe(true);
+    expect(lunar.breakdown.some((l) => l.rule === "Family")).toBe(false);
+    expect(lunar.breakdown.some((l) => l.rule === "Moonsign")).toBe(true);
   });
 
   test("a support's own team preference counts less than the carry's (#43)", () => {
