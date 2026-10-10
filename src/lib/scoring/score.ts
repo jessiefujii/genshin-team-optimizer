@@ -5,6 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
+import { carryDamage } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
@@ -620,12 +621,15 @@ function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContex
 }
 
 // Off-field sub-DPS (#96): the damage their own hits add, from data/kit.json `subDps` (talent level 9), as a share
-// of the carry's damage (BENCHMARK hitDamage x carryHitsPerSecond), on the buffer scale: +20% = `buffer` points.
+// of the carry's own damage (damage.ts, #101), on the buffer scale: +20% = `buffer` points. A carry without kit data
+// yet, or with hits still missing, uses the generic BENCHMARK hit instead: an undercounted carry (Flins, 748/s) would
+// make every sub-DPS look several times bigger and win the carry slot from the real carry. Their hits add to the carry's: the carry keeps attacking while they fire.
 // Their stats come from their build, else the benchmark buffer's. Crit, enemy RES and reactions on their hits are
-// left out, as for the carry's benchmark hit.
+// left out, as on the carry's side.
 function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   if (!carry) return;
-  const carryDps = BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
+  const own = carryDamage(carry, ctx.active);
+  const carryDps = own && own.missing.length === 0 ? own.perSecond : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
     if (m === carry || !entry) continue;

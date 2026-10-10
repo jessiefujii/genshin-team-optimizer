@@ -1022,6 +1022,7 @@ function readSubDps(id, specs) {
 //     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types), addPerStack (+ATK multiplier per stack per hit
 //     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino),
 //     flatAtk (+ATK multiplier x stacks per hit, capped, while one of `reactions` is active: Clorinde)
+//   missing: parts of the rotation not modeled yet, so the damage is too low (Flins's Normal Attacks)
 // The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
 // Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer.
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
@@ -1253,6 +1254,7 @@ const CARRIES = {
   Flins: {
     // E (Manifest Flame), E (Northland Spearstorm), Q (Thunderous Symphony within 6s of it). His tags list no Normal
     // Attacks, so this undercounts until the rotation is filled in (#103).
+    missing: ["Normal Attacks (his rotation tags list none; the rotation needs a source, #103)"],
     hits: [
       { table: "skill", label: "Northland Spearstorm DMG", count: 1, type: SK },
       { table: "burst", label: "Thunderous Symphony DMG", count: 1, type: BU },
@@ -1349,7 +1351,7 @@ function readCarry(id, spec) {
     if (!m) throw new Error(`${id}: pattern ${re} not found in ${from}`);
     return Number(m[1].replace(/,/g, "")); // "1,800"
   };
-  const missing = [];
+  const missing = [...(spec.missing ?? [])];
   const readHits = (list) => {
     const hits = [];
     for (const h of list) {

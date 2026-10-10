@@ -3720,7 +3720,10 @@
           "count": 1
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "missing": [
+        "Normal Attacks (his rotation tags list none; the rotation needs a source, #103)"
+      ]
     },
     "Arlecchino": {
       "rotationSeconds": 15,
