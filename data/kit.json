@@ -3498,6 +3498,15 @@
             "atk": 1.226665
           },
           "count": 3
+        },
+        {
+          "label": "3-Mirror Projection Attack DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.4272,
+            "em": 6.8544
+          },
+          "count": 6
         }
       ],
       "buffs": [
@@ -3514,9 +3523,6 @@
             "Single-Instance DMG"
           ]
         }
-      ],
-      "missing": [
-        "3-Mirror Projection Attack DMG (how many 3-Mirror Projection Attacks fire per rotation: KQM's Alhaitham quick guide (Mirror Mechanics, https://keqingmains.com/q/alhaitham-quickguide/#Mirror_Mechanics) gives at most one every 1.6s while Mirrors last (4s each, one timer at a time), but no count for a rotation)"
       ]
     }
   },

@@ -589,8 +589,8 @@
     },
     "Alhaitham": {
       "carry: 3-Mirror Projection Attack DMG": {
-        "missing": "how many 3-Mirror Projection Attacks fire per rotation: KQM's Alhaitham quick guide (Mirror Mechanics, https://keqingmains.com/q/alhaitham-quickguide/#Mirror_Mechanics) gives at most one every 1.6s while Mirrors last (4s each, one timer at a time), but no count for a rotation",
-        "source": ""
+        "hits": 6,
+        "source": "KeqingMains Alhaitham quick guide, https://keqingmains.com/q/alhaitham-quickguide/ (pasted by Jessie 2026-10-11), ER assumptions: \"Rotations vary from 21–26s\", \"Alhaitham triggers 6–7 Projection Attacks per rotation\". Took the low end, since this rotation is his 18s Burst cooldown (#103), and counted them all as 3-Mirror."
       }
     }
   }
