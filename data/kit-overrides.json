@@ -414,8 +414,8 @@
     },
     "Durin": {
       "burst: Dragon of White Flame DMG": {
-        "every": 1.5,
-        "source": "pasted by Jessie 2026-10-10 from the Genshin Impact Wiki talent page Principle of Purity: As the Light Shifts (Advanced Properties): \"Dragon of White Flame DMG 1U Elemental Burst C 1.5s\" (Dragon of Dark Decay: 2s). That is the internal cooldown, used here as the attack interval: the talent text only says \"at intervals\". Fits Chaos Formed Like the Night's 10 Primordial Fusion stacks for 20s of dragon at Dark Decay's 2s."
+        "every": 1,
+        "source": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide: \"When Durin is in the Confirmation of Purity state, his Burst immediately deals 3 instances of AoE Pyro damage and then deals AoE Pyro damage every 1s.\" (Dark Form: every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown)"
       }
     },
     "Emilie": {
