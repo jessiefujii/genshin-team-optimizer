@@ -753,23 +753,29 @@ const SUBDPS = {
 };
 
 // A table row's multiplier per stat, at TALENT_LEVEL: "{p1:P} ATK+{p2:P} DEF" -> { atk, def }, "{p:F2P} Max HP" -> { hp },
-// "{p1:P}+{p2:P}" (two hits) -> their sum, "... ×3" -> three times, "{a}/{b}" (alternatives) -> the first.
+// "{p1:P}+{p2:P}" (two hits) -> their sum, "... ×3" -> three times, "({a} ATK+{b} EM)×2" -> both twice.
+// "{a}/{b}" lists alternatives (Low/High Plunge, Raiden's Initial/per-stack Resolve): `pick` chooses one (default
+// the first); a stat word only after the last alternative ("{a}/{b} Max HP") applies to all of them.
 const STAT_WORDS = [
   [/^Max HP/, "hp"],
   [/^DEF/, "def"],
   [/^Elemental Mastery/, "em"],
   [/^ATK/, "atk"],
 ];
-function scalingOf(attrs, label, id) {
+function scalingOf(attrs, label, id, pick = 0) {
   const entry = attrs.labels.find((l) => l.split("|")[0].trim() === label);
   if (!entry) throw new Error(`${id}: no talent label "${label}" (labels: ${attrs.labels.join("; ")})`);
-  let format = entry.slice(entry.indexOf("|") + 1);
-  const times = Number(format.match(/[×x](\d+)\s*$/)?.[1] ?? 1);
-  format = format.replace(/\s*[×x]\d+\s*$/, "");
-  const parts = format.split("/")[0] === format ? [format] : [format.split("/")[0] + format.slice(format.lastIndexOf("}") + 1)];
+  const format = entry.slice(entry.indexOf("|") + 1).replace(/[()]/g, "");
+  const alts = format.split(/(?<=\}[^{}]*)\/(?=[^{}]*\{)/);
+  if (pick >= alts.length) throw new Error(`${id}: label "${label}" has no alternative ${pick}`);
+  let alt = alts[pick];
+  const shared = alts[alts.length - 1].slice(alts[alts.length - 1].lastIndexOf("}") + 1).replace(/\s*[×x]\s*\d+\s*$/, "");
+  if (!alt.slice(alt.lastIndexOf("}") + 1).replace(/\s*[×x]\s*\d+\s*$/, "").trim()) alt = alt.replace(/(\s*[×x]\s*\d+\s*)?$/, shared + "$1");
+  const times = Number(alt.match(/[×x]\s*(\d+)\s*$/)?.[1] ?? 1);
+  alt = alt.replace(/\s*[×x]\s*\d+\s*$/, "");
   const out = {};
   // "{a}+{b}" with no stat words between them are hits of the same stat; a stat word after a value names its stat.
-  const terms = [...parts[0].matchAll(/\{(param\d+):[^}]*\}\s*([^{+]*)/g)];
+  const terms = [...alt.matchAll(/\{(param\d+):[^}]*\}\s*([^{+]*)/g)];
   let pending = [];
   for (const [, key, words] of terms) {
     const value = attrs.parameters[key]?.[TALENT_LEVEL - 1];
@@ -822,6 +828,273 @@ function readSubDps(id, specs) {
   return { sources, ...(missing.length ? { missing } : {}) };
 }
 
+// Carry damage (#101, part of #94): what one rotation of each main DPS deals, so #96 can measure sub-DPS damage
+// against the carry's own instead of a generic benchmark. First the 16 carries `npm run compare` measures; the rest
+// are listed as missing until later PRs. Read at talent level 9 and C0.
+//   hits: the rotation's hits, matched to the rotation tags in data/tags.json:
+//     table: normal | skill | burst (which talent table), label (+ pick for "a/b" rows), count per rotation,
+//     type: normal | charged | plunge | skill | burst (the DMG type, for buffs), instances (separate hits in one row,
+//     for buffs added per hit; default 1), count "rate" (kit-overrides.json hitRates, keyed "carry: <label>")
+//   buffs: the carry's own buffs during those hits:
+//     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types), addPerStack (+ATK multiplier per stack per hit
+//     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino)
+// The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
+// Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer.
+const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
+const CARRIES = {
+  "Hu Tao": {
+    // E, N2C x8, Q. Blood Blossom ticks every 4s for 8s ("Blood Blossom Duration").
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 8, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 8, type: N },
+      { table: "normal", label: "Charged Attack", count: 8, type: CH },
+      { table: "skill", label: "Blood Blossom DMG", count: 2, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [{ kind: "atkFromHp", table: "skill", label: "ATK Increase", cap: /cannot exceed (\d+)% of Hu Tao's Base ATK/ }],
+  },
+  "Raiden Shogun": {
+    // E, Q, N3C x3 in Musou Isshin (its Normal/Charged Attacks count as Elemental Burst DMG). The Eye's coordinated
+    // attacks: one every 0.9s while she attacks during Musou Isshin's 7s. Resolve: 60, the max, assumed full.
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "skill", label: "Coordinated ATK DMG", count: 7, type: SK },
+      { table: "burst", label: "Musou no Hitotachi Base DMG", count: 1, type: BU, resolve: "initial" },
+      { table: "burst", label: "1-Hit DMG", count: 3, type: BU, resolve: "isshin" },
+      { table: "burst", label: "2-Hit DMG", count: 3, type: BU, resolve: "isshin" },
+      { table: "burst", label: "3-Hit DMG", count: 3, type: BU, resolve: "isshin" },
+      { table: "burst", label: "Charged Attack DMG", count: 3, type: BU, resolve: "isshin", instances: 2 },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "burst", label: "Resolve Bonus", pick: 0, stacks: /maximum number of Resolve stacks is (\d+)/, hits: "initial" },
+      { kind: "addPerStack", table: "burst", label: "Resolve Bonus", pick: 1, stacks: /maximum number of Resolve stacks is (\d+)/, hits: "isshin" },
+      { kind: "dmgBonusPerEnergy", table: "skill", label: "Elemental Burst DMG Bonus", types: [BU] }, // x her own Energy Cost
+      { kind: "dmgBonusFromEr", from: "passive2", re: /([\d.]+)% Electro DMG Bonus/ }, // per 1% ER over 100%
+    ],
+  },
+  Xiao: {
+    // E, E, Q, plunge x10 (high plunges). Bane of All Evil's bonus; his passive 1 ramps 5% -> 25% over 15s (avg 15%).
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 2, type: SK },
+      { table: "normal", label: "Low/High Plunge DMG", pick: 1, count: 10, type: PL },
+    ],
+    buffs: [
+      { kind: "dmgBonus", table: "burst", label: "Normal/Charged/Plunging Attack DMG Bonus", types: [N, CH, PL] },
+      { kind: "dmgBonus", value: 0.15, types: [N, CH, PL, SK, BU], note: "passive 1: 5% + 5% per 3s up to 25% over the 15s Burst, about 15% on average" },
+    ],
+  },
+  Wriothesley: {
+    // E, N x8 (enhanced by Chilling Penalty), CA (Rebuke: Vaulting Fist, +50% DMG), Q.
+    hits: [
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG", "5-Hit DMG"].map((label, i) => ({ table: "normal", label, count: i < 3 ? 2 : 1, type: N })),
+      { table: "normal", label: "Charged Attack DMG", count: 1, type: CH },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Surging Blade DMG", count: 1, type: BU },
+    ],
+    buffs: [
+      { kind: "factor", table: "skill", label: "Enhanced Repelling Fist DMG", types: [N] },
+      { kind: "dmgBonus", from: "passive1", re: /will deal (\d+)% increased DMG/, types: [CH] },
+      { kind: "atkPct", from: "passive2", re: /increase Wriothesley's ATK by (\d+)%/, times: /Max (\d+) stacks/ }, // full stacks
+    ],
+  },
+  Varesa: {
+    // E, plunge, E, plunge, Q, plunge, in Fiery Passion. Her passive 1 adds 180% ATK to the plunge after each Skill.
+    hits: [
+      { table: "skill", label: "Fiery Passion Rush DMG", count: 2, type: SK },
+      { table: "normal", label: "Fiery Passion Low/High Plunge DMG", pick: 1, count: 3, type: PL },
+      { from: "passive1", re: /Fiery Passion state, this ground impact DMG is increased by (\d+)% of her ATK/, count: 2, type: PL },
+      { table: "burst", label: "Fiery Passion Flying Kick DMG", count: 1, type: BU },
+    ],
+    buffs: [],
+  },
+  Mavuika: {
+    // E (hold: Flamestrider), Q (Sunfell Slice), N x10 on the Flamestrider. Fighting Spirit 200 (she Normal Attacks).
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU, fightingSpirit: "sunfell" },
+      ...[1, 2, 3, 4, 5].map((n) => ({ table: "skill", label: `Flamestrider Normal Attack ${n}-Hit DMG`, count: 2, type: N, fightingSpirit: "na" })),
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "burst", label: "Sunfell Slice DMG Bonus", stacks: "Fighting Spirit Limit", hits: "sunfell" },
+      { kind: "addPerStack", table: "burst", label: "Flamestrider Normal Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "na" },
+    ],
+  },
+  Zibai: {
+    // E, N4E x4 in Lunar Phase Shift: each a Normal Attack string and a Spirit Steed's Stride (4 per mode).
+    hits: [
+      ...[1, 2, 3, 4].map((n) => ({ table: "skill", label: `Lunar Phase Shift ${n}-Hit DMG`, count: 4, type: N })),
+      { table: "skill", label: "Spirit Steed's Stride 1-Hit DMG", count: 4, type: SK },
+      { table: "skill", label: "Spirit Steed's Stride 2-Hit DMG", count: 4, type: SK },
+      { from: "passive1", re: /increased by (\d+)% of Zibai's DEF/, stat: "def", count: 1, type: SK }, // the first Stride, within 4s of the Skill
+    ],
+    buffs: [],
+  },
+  Skirk: {
+    // E (Seven-Phase Flash), N5 x3 with its Normal Attacks, Q (Havoc: Extinction: no Void Rifts assumed).
+    hits: [
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG", "5-Hit DMG"].map((label) => ({ table: "skill", label, count: 3, type: N })),
+    ],
+    buffs: [{ kind: "dmgBonus", table: "burst", label: "0/1/2/3 Void Rift Absorption DMG Bonus", pick: 0, types: [N], hitsCap: /canceled when it has triggered (\d+) times/ }],
+  },
+  Nefer: {
+    // E, Phantasm Performance x3, E, Phantasm Performance x3, Q.
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 2, type: SK },
+      ...["1-Hit DMG (Nefer)", "2-Hit DMG (Nefer)", "1-Hit DMG (Shades)", "2-Hit DMG (Shades)", "3-Hit DMG (Shades)"].map((p) => ({ table: "skill", label: `Phantasm Performance ${p}`, count: 6, type: CH })),
+      { table: "burst", label: "1-Hit DMG", count: 1, type: BU },
+      { table: "burst", label: "2-Hit DMG", count: 1, type: BU },
+    ],
+    buffs: [],
+  },
+  Clorinde: {
+    // E (Night Vigil), N x10 as Swift Hunt shots. Before her Burst her Bond of Life is under 100%, so the shots pierce
+    // and deal increased DMG: the second "Swift Hunt DMG" value.
+    hits: [
+      { table: "skill", label: "Swift Hunt DMG", pick: 1, count: 10, type: N },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [],
+  },
+  Flins: {
+    // E (Manifest Flame), E (Northland Spearstorm), Q (Thunderous Symphony within 6s of it). His tags list no Normal
+    // Attacks, so this undercounts until the rotation is filled in (#103).
+    hits: [
+      { table: "skill", label: "Northland Spearstorm DMG", count: 1, type: SK },
+      { table: "burst", label: "Thunderous Symphony DMG", count: 1, type: BU },
+    ],
+    buffs: [],
+  },
+  Arlecchino: {
+    // E, CA (absorbs the Blood-Debt Directive: Bond of Life up to 145% of Max HP), N5 x3, Q.
+    hits: [
+      { table: "skill", label: "Spike DMG", count: 1, type: SK },
+      { table: "skill", label: "Cleave DMG", count: 1, type: SK },
+      { table: "normal", label: "Charged Attack DMG", count: 1, type: CH },
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG", "5-Hit DMG"].map((label) => ({ table: "normal", label, count: 3, type: N, instances: label === "4-Hit DMG" ? 2 : 1 })),
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    // Masque of the Red Death: each Normal Attack hit adds ATK x the row's ratio x her Bond of Life %, and uses 7.5% of it.
+    buffs: [{ kind: "masque", table: "normal", label: "Masque of the Red Death Increase", start: { from: "combat2", re: /within 35s after using her Elemental Skill is (\d+)% of her Max HP/ }, use: { from: "combat1", re: /This will consume ([\d.]+)% of said current Bond of Life/ } }],
+  },
+  Kinich: {
+    // E, hold E swings x6 (Loop Shots), Q. Nightsoul points: 2 per second for 10s, 3 per Loop Shot, 4 from a Blind
+    // Spot = 42, so 2 Scalespiker Cannons (20 points each, "Nightsoul Point Limit"). Worked out from his kit.
+    hits: [
+      { table: "skill", label: "Loop Shot DMG", count: 6, type: SK },
+      { table: "skill", label: "Scalespiker Cannon DMG", count: 2, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
+    ],
+    buffs: [],
+  },
+  Neuvillette: {
+    // Q, E, CA x2 (Equitable Judgment, 3s each).
+    hits: [
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Waterfall DMG", count: 2, type: BU }, // "2 waterfalls will descend"
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "normal", label: "Charged Attack: Equitable Judgment", count: "rate", type: CH },
+    ],
+    buffs: [],
+  },
+  "Kamisato Ayaka": {
+    // E, Q, dash, N2C x3. Passive 1: +30% Normal/Charged DMG after the Skill; passive 2: +18% Cryo DMG after the dash.
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Cutting DMG", count: "rate", type: BU },
+      { table: "burst", label: "Bloom DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 3, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 3, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 3, type: CH },
+    ],
+    buffs: [
+      { kind: "dmgBonus", from: "passive1", re: /deal (\d+)% increased DMG for/, types: [N, CH] },
+      { kind: "dmgBonus", from: "passive2", re: /Gains (\d+)% Cryo DMG Bonus/, types: [N, CH, SK, BU] },
+    ],
+  },
+  Alhaitham: {
+    // E, Q, N4 x3. Q with 3 Mirrors: "3-Mirror Attack Instances". Projections fire on his attacks with 3 Mirrors.
+    hits: [
+      { table: "skill", label: "Rush Attack DMG", count: 1, type: SK },
+      { table: "burst", label: "Single-Instance DMG", count: { table: "burst", label: "3-Mirror Attack Instances" }, type: BU },
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG"].map((label) => ({ table: "normal", label, count: 3, type: N })),
+      { table: "skill", label: "3-Mirror Projection Attack DMG", count: "rate", type: SK },
+    ],
+    // Passive 2: +0.1% Projection and Burst DMG per EM, up to 100%.
+    buffs: [{ kind: "dmgBonusPerEm", from: "passive2", re: /by ([\d.]+)%\. The DMG of both/, max: /maximum of (\d+)% this way/, types: [SK, BU], labels: ["3-Mirror Projection Attack DMG", "Single-Instance DMG"] }],
+  },
+};
+
+// Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
+function readCarry(id, spec) {
+  const talents = talentsOf(id);
+  const rates = OVERRIDES.hitRates?.[id] ?? {};
+  const tableAttrs = (t) => talents[COMBAT[t === "normal" ? "normal" : t]]?.attributes;
+  const text = (from) => talents[from].description.replace(/\s+/g, " ");
+  const num = (from, re) => {
+    const m = text(from).match(re);
+    if (!m) throw new Error(`${id}: pattern ${re} not found in ${from}`);
+    return Number(m[1]);
+  };
+  const missing = [];
+  const hits = [];
+  for (const h of spec.hits) {
+    let count = h.count;
+    if (count === "rate") {
+      const r = rates[`carry: ${h.label}`];
+      if (!r) throw new Error(`${id}: "${h.label}" needs a kit-overrides.json hitRates "carry: ${h.label}" entry`);
+      if (r.missing) {
+        missing.push(`${h.label} (${r.missing})`);
+        continue;
+      }
+      count = r.hits;
+    } else if (typeof count === "object") count = tableValue(tableAttrs(count.table), count.label, id);
+    const scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+    hits.push({
+      label: h.from ? `${h.from} bonus` : h.label,
+      type: h.type,
+      scaling,
+      count,
+      ...(h.instances ? { instances: h.instances } : {}),
+      ...(h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
+    });
+  }
+  const raw = (t, label, pick = 0) => {
+    const s = scalingOf(tableAttrs(t), label, id, pick);
+    return Object.values(s)[0];
+  };
+  const buffs = spec.buffs.map((b) => {
+    switch (b.kind) {
+      case "atkFromHp":
+        return { kind: b.kind, value: raw(b.table, b.label), capOfBase: num(COMBAT[b.table], b.cap) / 100 };
+      case "addPerStack": {
+        const stacks = typeof b.stacks === "string" ? tableValue(tableAttrs(b.table), b.stacks, id) : num(COMBAT[b.table], b.stacks);
+        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits };
+      }
+      case "dmgBonus": {
+        const value = b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick));
+        const cap = b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
+        return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}) };
+      }
+      case "factor":
+        return { kind: b.kind, value: raw(b.table, b.label), types: b.types };
+      case "atkPct":
+        return { kind: b.kind, value: (num(b.from, b.re) / 100) * (b.times ? num(b.from, b.times) : 1) };
+      case "dmgBonusPerEnergy":
+        return { kind: "dmgBonus", value: round(raw(b.table, b.label) * tableValue(tableAttrs("burst"), "Energy Cost", id)), types: b.types };
+      case "dmgBonusFromEr":
+        return { kind: b.kind, perPercent: num(b.from, b.re) / 100 };
+      case "dmgBonusPerEm":
+        return { kind: b.kind, perEm: num(b.from, b.re) / 100, max: num(b.from, b.max) / 100, types: b.types, labels: b.labels };
+      case "masque":
+        return { kind: b.kind, ratio: raw(b.table, b.label), start: num(b.start.from, b.start.re) / 100, use: num(b.use.from, b.use.re) / 100 };
+      default:
+        throw new Error(`${id}: unknown carry buff ${b.kind}`);
+    }
+  });
+  return { rotationSeconds: tableValue(tableAttrs("burst"), "CD", id), hits, buffs, ...(missing.length ? { missing } : {}) };
+}
+
 const tags = require("../data/tags.json");
 const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0);
 const characters = {};
@@ -865,6 +1138,11 @@ for (const c of tags) {
 }
 const nightsoulRule = OVERRIDES.rules.nightsoulBurst;
 
+// Carries (#101): the 16 compare carries first; other main DPS are listed until they get an entry.
+const carries = {};
+for (const [id, spec] of Object.entries(CARRIES)) carries[id] = readCarry(id, spec);
+const carriesTodo = tags.filter((c) => c.roles.includes("main-dps") && !CARRIES[c.id]).map((c) => c.id);
+
 // Every off-field sub-DPS needs a SUBDPS entry, so none is silently left without damage.
 const subDps = {};
 for (const c of tags.filter((c) => c.roles.includes("sub-dps") && c.fieldTime === "off")) {
@@ -892,8 +1170,12 @@ writeFileSync(
         characters: nightsoulBurst,
       },
       stellar,
-      subDps }, null, 2) + "\n",
+      subDps,
+      carries,
+      carriesTodo }, null, 2) + "\n",
 );
+const missingCarryHits = Object.entries(carries).flatMap(([id, d]) => (d.missing ?? []).map((m) => `${id} ${m.split(" (")[0]}`));
+if (missingCarryHits.length) console.log(`carry hits with no count yet (kit-overrides.json hitRates "carry: ..."): ${missingCarryHits.join(", ")}`);
 const missingHits = Object.entries(subDps).flatMap(([id, d]) => (d.missing ?? []).map((m) => `${id} ${m.split(":")[0]}`));
 if (missingHits.length) console.log(`sub-DPS hits with no rate yet (kit-overrides.json hitRates): ${missingHits.join(", ")}`);
 const empty = Object.entries(OVERRIDES.characters).flatMap(([id, c]) => c.slots.filter((s) => !s.text.trim()).map((s) => `${id} ${s.talent || "(talent?)"}`));
@@ -902,5 +1184,5 @@ if (empty.length + nightsoul > 0) {
   console.log(`kit-overrides.json: ${empty.length + nightsoul} empty: ${[...empty, ...(nightsoul ? ["rules.nightsoulBurst"] : [])].join(", ")}`);
 }
 console.log(
-  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects, ${Object.keys(stellar).length} Stellar members, ${Object.keys(subDps).length} sub-DPS`,
+  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects, ${Object.keys(stellar).length} Stellar members, ${Object.keys(subDps).length} sub-DPS, ${Object.keys(carries).length} carries (${carriesTodo.length} to do)`,
 );

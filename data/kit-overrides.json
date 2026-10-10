@@ -568,6 +568,30 @@
         "hits": 5,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yae_Miko, fetched 2026-10-10: \"The Sesshou Sakura can strike 5 times over their 14 seconds duration.\""
       }
+    },
+    "Kinich": {
+      "carry: Dragon Breath DMG": {
+        "hits": 6,
+        "source": "HoYoLAB, [ Version 5.0 ] Kinich Guide, https://www.hoyolab.com/article/33579604, fetched 2026-10-11: \"Ajaw will launch a Dragon Breath every 2 seconds\"; \"Total number of Dragon Breath hits: 6 hits\". One Burst per rotation."
+      }
+    },
+    "Neuvillette": {
+      "carry: Charged Attack: Equitable Judgment": {
+        "hits": 16,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/As_Water_Seeks_Equilibrium, fetched 2026-10-11 (talent page): it hits each target \"no more than once per 0.4s\", plus \"one more instance of DMG\" when it ends, and \"a maximum of 8 times per use\". Over 3s that is the 8-hit maximum on a single target; 2 Charged Attacks per rotation (CARRIES): 16."
+      }
+    },
+    "Kamisato Ayaka": {
+      "carry: Cutting DMG": {
+        "hits": 19,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kamisato_Art:_Soumetsu, fetched 2026-10-11 (talent page): \"Deals up to 19× Cutting DMG followed by 1× Bloom DMG.\" One Burst per rotation."
+      }
+    },
+    "Alhaitham": {
+      "carry: 3-Mirror Projection Attack DMG": {
+        "hits": 6,
+        "source": "KeqingMains Alhaitham quick guide, https://keqingmains.com/q/alhaitham-quickguide/ (pasted by Jessie 2026-10-11), ER assumptions: \"Rotations vary from 21–26s\", \"Alhaitham triggers 6–7 Projection Attacks per rotation\". Took the low end, since this rotation is his 18s Burst cooldown (#103), and counted them all as 3-Mirror."
+      }
     }
   }
 }

@@ -2573,5 +2573,993 @@
         }
       ]
     }
-  }
+  },
+  "carries": {
+    "Hu Tao": {
+      "rotationSeconds": 15,
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.788544
+          },
+          "count": 8
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.811543
+          },
+          "count": 8
+        },
+        {
+          "label": "Charged Attack",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.2866
+          },
+          "count": 8
+        },
+        {
+          "label": "Blood Blossom DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.088
+          },
+          "count": 2
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 4.70344
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "atkFromHp",
+          "value": 0.05957,
+          "capOfBase": 4
+        }
+      ]
+    },
+    "Raiden Shogun": {
+      "rotationSeconds": 18,
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.9924
+          },
+          "count": 1
+        },
+        {
+          "label": "Coordinated ATK DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.714
+          },
+          "count": 7
+        },
+        {
+          "label": "Musou no Hitotachi Base DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 6.8136
+          },
+          "count": 1,
+          "tag": "initial"
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.752402
+          },
+          "count": 3,
+          "tag": "isshin"
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.73926
+          },
+          "count": 3,
+          "tag": "isshin"
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.905183
+          },
+          "count": 3,
+          "tag": "isshin"
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.2866
+          },
+          "count": 3,
+          "instances": 2,
+          "tag": "isshin"
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.066096,
+          "stacks": 60,
+          "tag": "initial"
+        },
+        {
+          "kind": "addPerStack",
+          "value": 0.012345,
+          "stacks": 60,
+          "tag": "isshin"
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.27,
+          "types": [
+            "burst"
+          ]
+        },
+        {
+          "kind": "dmgBonusFromEr",
+          "perPercent": 0.004
+        }
+      ]
+    },
+    "Xiao": {
+      "rotationSeconds": 18,
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 4.2976
+          },
+          "count": 2
+        },
+        {
+          "label": "Low/High Plunge DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 3.75499
+          },
+          "count": 10
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.9065,
+          "types": [
+            "normal",
+            "charged",
+            "plunge"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.15,
+          "types": [
+            "normal",
+            "charged",
+            "plunge",
+            "skill",
+            "burst"
+          ],
+          "note": "passive 1: 5% + 5% per 3s up to 25% over the 15s Burst, about 15% on average"
+        }
+      ]
+    },
+    "Wriothesley": {
+      "rotationSeconds": 15,
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.980327
+          },
+          "count": 2
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.95165
+          },
+          "count": 2
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.235023
+          },
+          "count": 2
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.392754
+          },
+          "count": 1
+        },
+        {
+          "label": "5-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.667121
+          },
+          "count": 1
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.60032
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 10.812
+          },
+          "count": 1
+        },
+        {
+          "label": "Surging Blade DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.7208
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "factor",
+          "value": 1.669515,
+          "types": [
+            "normal"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.5,
+          "types": [
+            "charged"
+          ]
+        },
+        {
+          "kind": "atkPct",
+          "value": 0.3
+        }
+      ]
+    },
+    "Varesa": {
+      "rotationSeconds": 18,
+      "hits": [
+        {
+          "label": "Fiery Passion Rush DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.8088
+          },
+          "count": 2
+        },
+        {
+          "label": "Fiery Passion Low/High Plunge DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 5.133776
+          },
+          "count": 3
+        },
+        {
+          "label": "passive1 bonus",
+          "type": "plunge",
+          "scaling": {
+            "atk": 1.8
+          },
+          "count": 2
+        },
+        {
+          "label": "Fiery Passion Flying Kick DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 9.7784
+          },
+          "count": 1
+        }
+      ],
+      "buffs": []
+    },
+    "Mavuika": {
+      "rotationSeconds": 18,
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.2648
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 7.5616
+          },
+          "count": 1,
+          "tag": "sunfell"
+        },
+        {
+          "label": "Flamestrider Normal Attack 1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.052075
+          },
+          "count": 2,
+          "tag": "na"
+        },
+        {
+          "label": "Flamestrider Normal Attack 2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.086392
+          },
+          "count": 2,
+          "tag": "na"
+        },
+        {
+          "label": "Flamestrider Normal Attack 3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.285804
+          },
+          "count": 2,
+          "tag": "na"
+        },
+        {
+          "label": "Flamestrider Normal Attack 4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.280622
+          },
+          "count": 2,
+          "tag": "na"
+        },
+        {
+          "label": "Flamestrider Normal Attack 5-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.671924
+          },
+          "count": 2,
+          "tag": "na"
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.0272,
+          "stacks": 200,
+          "tag": "sunfell"
+        },
+        {
+          "kind": "addPerStack",
+          "value": 0.00474,
+          "stacks": 200,
+          "tag": "na"
+        }
+      ]
+    },
+    "Zibai": {
+      "rotationSeconds": 15,
+      "hits": [
+        {
+          "label": "Lunar Phase Shift 1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "def": 0.961846
+          },
+          "count": 4
+        },
+        {
+          "label": "Lunar Phase Shift 2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "def": 0.885712
+          },
+          "count": 4
+        },
+        {
+          "label": "Lunar Phase Shift 3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "def": 1.175358
+          },
+          "count": 4
+        },
+        {
+          "label": "Lunar Phase Shift 4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "def": 1.48204
+          },
+          "count": 4
+        },
+        {
+          "label": "Spirit Steed's Stride 1-Hit DMG",
+          "type": "skill",
+          "scaling": {
+            "def": 2.932976
+          },
+          "count": 4
+        },
+        {
+          "label": "Spirit Steed's Stride 2-Hit DMG",
+          "type": "skill",
+          "scaling": {
+            "def": 2.396456
+          },
+          "count": 4
+        },
+        {
+          "label": "passive1 bonus",
+          "type": "skill",
+          "scaling": {
+            "def": 0.6
+          },
+          "count": 1
+        }
+      ],
+      "buffs": []
+    },
+    "Skirk": {
+      "rotationSeconds": 15,
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.440263
+          },
+          "count": 3
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.200972
+          },
+          "count": 3
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.78238
+          },
+          "count": 3
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.95934
+          },
+          "count": 3
+        },
+        {
+          "label": "5-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 3.612401
+          },
+          "count": 3
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.075,
+          "types": [
+            "normal"
+          ],
+          "hitsCap": 10
+        }
+      ]
+    },
+    "Nefer": {
+      "rotationSeconds": 15,
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.298528,
+            "em": 2.597056
+          },
+          "count": 2
+        },
+        {
+          "label": "Phantasm Performance 1-Hit DMG (Nefer)",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.41888,
+            "em": 0.83776
+          },
+          "count": 6
+        },
+        {
+          "label": "Phantasm Performance 2-Hit DMG (Nefer)",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.544544,
+            "em": 1.089088
+          },
+          "count": 6
+        },
+        {
+          "label": "Phantasm Performance 1-Hit DMG (Shades)",
+          "type": "charged",
+          "scaling": {
+            "em": 1.632
+          },
+          "count": 6
+        },
+        {
+          "label": "Phantasm Performance 2-Hit DMG (Shades)",
+          "type": "charged",
+          "scaling": {
+            "em": 1.632
+          },
+          "count": 6
+        },
+        {
+          "label": "Phantasm Performance 3-Hit DMG (Shades)",
+          "type": "charged",
+          "scaling": {
+            "em": 2.176
+          },
+          "count": 6
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 3.81888,
+            "em": 7.63776
+          },
+          "count": 1
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 5.72832,
+            "em": 11.45664
+          },
+          "count": 1
+        }
+      ],
+      "buffs": []
+    },
+    "Clorinde": {
+      "rotationSeconds": 15,
+      "hits": [
+        {
+          "label": "Swift Hunt DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.71258
+          },
+          "count": 10
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 10.7848
+          },
+          "count": 1
+        }
+      ],
+      "buffs": []
+    },
+    "Flins": {
+      "rotationSeconds": 20,
+      "hits": [
+        {
+          "label": "Northland Spearstorm DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.0328
+          },
+          "count": 1
+        },
+        {
+          "label": "Thunderous Symphony DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.214752
+          },
+          "count": 1
+        }
+      ],
+      "buffs": []
+    },
+    "Arlecchino": {
+      "rotationSeconds": 15,
+      "hits": [
+        {
+          "label": "Spike DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.25228
+          },
+          "count": 1
+        },
+        {
+          "label": "Cleave DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.27052
+          },
+          "count": 1
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 1.66848
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.872681
+          },
+          "count": 3,
+          "instances": 1
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.95729
+          },
+          "count": 3,
+          "instances": 1
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.201274
+          },
+          "count": 3,
+          "instances": 1
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.364868
+          },
+          "count": 3,
+          "instances": 2
+        },
+        {
+          "label": "5-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.285709
+          },
+          "count": 3,
+          "instances": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 6.2968
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "masque",
+          "ratio": 2.212,
+          "start": 1.45,
+          "use": 0.075
+        }
+      ]
+    },
+    "Kinich": {
+      "rotationSeconds": 18,
+      "hits": [
+        {
+          "label": "Loop Shot DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.94752
+          },
+          "count": 6
+        },
+        {
+          "label": "Scalespiker Cannon DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 11.68648
+          },
+          "count": 2
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.278
+          },
+          "count": 1
+        },
+        {
+          "label": "Dragon Breath DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.052512
+          },
+          "count": 6
+        }
+      ],
+      "buffs": []
+    },
+    "Neuvillette": {
+      "rotationSeconds": 18,
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "hp": 0.378383
+          },
+          "count": 1
+        },
+        {
+          "label": "Waterfall DMG",
+          "type": "burst",
+          "scaling": {
+            "hp": 0.154793
+          },
+          "count": 2
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "hp": 0.218688
+          },
+          "count": 1
+        },
+        {
+          "label": "Charged Attack: Equitable Judgment",
+          "type": "charged",
+          "scaling": {
+            "hp": 0.134458
+          },
+          "count": 16
+        }
+      ],
+      "buffs": []
+    },
+    "Kamisato Ayaka": {
+      "rotationSeconds": 20,
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 4.0664
+          },
+          "count": 1
+        },
+        {
+          "label": "Cutting DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.9091
+          },
+          "count": 19
+        },
+        {
+          "label": "Bloom DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.86365
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.84007
+          },
+          "count": 3
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.894438
+          },
+          "count": 3
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 3.03834
+          },
+          "count": 3
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.3,
+          "types": [
+            "normal",
+            "charged"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.18,
+          "types": [
+            "normal",
+            "charged",
+            "skill",
+            "burst"
+          ]
+        }
+      ]
+    },
+    "Alhaitham": {
+      "rotationSeconds": 18,
+      "hits": [
+        {
+          "label": "Rush Attack DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.2912,
+            "em": 2.63296
+          },
+          "count": 1
+        },
+        {
+          "label": "Single-Instance DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.0672,
+            "em": 1.65376
+          },
+          "count": 10
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.90989
+          },
+          "count": 3
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.932374
+          },
+          "count": 3
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.255862
+          },
+          "count": 3
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.226665
+          },
+          "count": 3
+        },
+        {
+          "label": "3-Mirror Projection Attack DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.4272,
+            "em": 6.8544
+          },
+          "count": 6
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonusPerEm",
+          "perEm": 0.001,
+          "max": 1,
+          "types": [
+            "skill",
+            "burst"
+          ],
+          "labels": [
+            "3-Mirror Projection Attack DMG",
+            "Single-Instance DMG"
+          ]
+        }
+      ]
+    }
+  },
+  "carriesTodo": [
+    "Aloy",
+    "Arataki Itto",
+    "Chasca",
+    "Columbina",
+    "Cyno",
+    "Diluc",
+    "Eula",
+    "Freminet",
+    "Gaming",
+    "Ganyu",
+    "Kamisato Ayato",
+    "Kaveh",
+    "Keqing",
+    "Klee",
+    "Lohen",
+    "Lyney",
+    "Manekin",
+    "Manekina",
+    "Mualani",
+    "Navia",
+    "Ningguang",
+    "Noelle",
+    "Razor",
+    "Sandrone",
+    "Sethos",
+    "Shikanoin Heizou",
+    "Tartaglia",
+    "Tighnari",
+    "Varka",
+    "Vesna",
+    "Wanderer",
+    "Yanfei",
+    "Yoimiya",
+    "Yumemizuki Mizuki"
+  ]
 }
