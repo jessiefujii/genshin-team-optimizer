@@ -571,25 +571,25 @@
     },
     "Kinich": {
       "carry: Dragon Breath DMG": {
-        "missing": "how often Ajaw's Dragon Breath hits during the 15s Burst isn't in genshin-db or on the wiki (\"at intervals\")",
-        "source": ""
+        "hits": 6,
+        "source": "HoYoLAB, [ Version 5.0 ] Kinich Guide, https://www.hoyolab.com/article/33579604, fetched 2026-10-11: \"Ajaw will launch a Dragon Breath every 2 seconds\"; \"Total number of Dragon Breath hits: 6 hits\". One Burst per rotation."
       }
     },
     "Neuvillette": {
       "carry: Charged Attack: Equitable Judgment": {
-        "missing": "how many times Equitable Judgment hits in its 3s isn't in genshin-db or on the character page (only that it \"lasts 3s\")",
-        "source": ""
+        "hits": 16,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/As_Water_Seeks_Equilibrium, fetched 2026-10-11 (talent page): it hits each target \"no more than once per 0.4s\", plus \"one more instance of DMG\" when it ends, and \"a maximum of 8 times per use\". Over 3s that is the 8-hit maximum on a single target; 2 Charged Attacks per rotation (CARRIES): 16."
       }
     },
     "Kamisato Ayaka": {
       "carry: Cutting DMG": {
-        "missing": "how many times Soumetsu's storm cuts in its 5s isn't in genshin-db or on the character page (\"slashes repeatedly\")",
-        "source": ""
+        "hits": 19,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kamisato_Art:_Soumetsu, fetched 2026-10-11 (talent page): \"Deals up to 19× Cutting DMG followed by 1× Bloom DMG.\" One Burst per rotation."
       }
     },
     "Alhaitham": {
       "carry: 3-Mirror Projection Attack DMG": {
-        "missing": "how many Projection Attacks fire during his rotation: they fire on his hits at most every 1.6s (\"Projection Attack Interval\") while Mirrors last, but how long the N4 x3 strings take isn't given",
+        "missing": "how many 3-Mirror Projection Attacks fire per rotation: KQM's Alhaitham quick guide (Mirror Mechanics, https://keqingmains.com/q/alhaitham-quickguide/#Mirror_Mechanics) gives at most one every 1.6s while Mirrors last (4s each, one timer at a time), but no count for a rotation",
         "source": ""
       }
     }

@@ -3323,12 +3323,17 @@
             "atk": 2.278
           },
           "count": 1
+        },
+        {
+          "label": "Dragon Breath DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.052512
+          },
+          "count": 6
         }
       ],
-      "buffs": [],
-      "missing": [
-        "Dragon Breath DMG (how often Ajaw's Dragon Breath hits during the 15s Burst isn't in genshin-db or on the wiki (\"at intervals\"))"
-      ]
+      "buffs": []
     },
     "Neuvillette": {
       "rotationSeconds": 18,
@@ -3356,12 +3361,17 @@
             "hp": 0.218688
           },
           "count": 1
+        },
+        {
+          "label": "Charged Attack: Equitable Judgment",
+          "type": "charged",
+          "scaling": {
+            "hp": 0.134458
+          },
+          "count": 16
         }
       ],
-      "buffs": [],
-      "missing": [
-        "Charged Attack: Equitable Judgment (how many times Equitable Judgment hits in its 3s isn't in genshin-db or on the character page (only that it \"lasts 3s\"))"
-      ]
+      "buffs": []
     },
     "Kamisato Ayaka": {
       "rotationSeconds": 20,
@@ -3373,6 +3383,14 @@
             "atk": 4.0664
           },
           "count": 1
+        },
+        {
+          "label": "Cutting DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.9091
+          },
+          "count": 19
         },
         {
           "label": "Bloom DMG",
@@ -3426,9 +3444,6 @@
             "burst"
           ]
         }
-      ],
-      "missing": [
-        "Cutting DMG (how many times Soumetsu's storm cuts in its 5s isn't in genshin-db or on the character page (\"slashes repeatedly\"))"
       ]
     },
     "Alhaitham": {
@@ -3501,7 +3516,7 @@
         }
       ],
       "missing": [
-        "3-Mirror Projection Attack DMG (how many Projection Attacks fire during his rotation: they fire on his hits at most every 1.6s (\"Projection Attack Interval\") while Mirrors last, but how long the N4 x3 strings take isn't given)"
+        "3-Mirror Projection Attack DMG (how many 3-Mirror Projection Attacks fire per rotation: KQM's Alhaitham quick guide (Mirror Mechanics, https://keqingmains.com/q/alhaitham-quickguide/#Mirror_Mechanics) gives at most one every 1.6s while Mirrors last (4s each, one timer at a time), but no count for a rotation)"
       ]
     }
   },
