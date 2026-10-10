@@ -566,7 +566,8 @@ function readStellar(id, spec) {
 //       skill isn't recast before it ends)
 //   hits: hits per use: a number, a pattern in the talent text, or "rate" (kit-overrides.json hitRates)
 //   every: seconds between hits while it lasts: a pattern in the text, a table label, or "rate"; with duration
-//   onCarryNormal: it hits when the active character's Normal Attacks hit (Xingqiu, Yelan, Beidou)
+//   onCarryNormal: it hits when the active character's Normal Attacks hit (Xingqiu, Yelan, Beidou), at most once per
+//       `every`; with `hits` too, that many hits each time (Xingqiu's swords per wave)
 //   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP)
 const SUBDPS = {
   Aino: [

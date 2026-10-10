@@ -557,8 +557,9 @@
     },
     "Xingqiu": {
       "burst: Sword Rain DMG": {
-        "missing": "one sword rain per second of Normal Attacks (wiki: \"Sword rain attacks have a 1-second cooldown.\"), but how many swords each wave has isn't in genshin-db or on the wiki",
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xingqiu, fetched 2026-10-10: \"Sword rain attacks have a 1-second cooldown.\""
+        "every": 1,
+        "hits": 2.5,
+        "source": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xingqiu, fetched 2026-10-10: \"Sword rain attacks have a 1-second cooldown.\" and \"Before unlocking this constellation, sword rain alternates between firing 2 swords and 3 swords. After unlocking this constellation, the order is 2 swords → 3 swords → 5 swords.\" (C0: 2.5 swords per wave)"
       }
     },
     "Yae Miko": {
