@@ -501,7 +501,7 @@ function secretRiteLines(ctx: TeamContext, carry: ScoringCharacter | null, out: 
     const entry = SECRET_RITE[m.id];
     if (m === carry || entry?.target !== "party") continue;
     const gain = partyValuesGain(entry.values, m, carry, ctx, dealt);
-    const points = Math.min(gainPoints(gain, POINTS.buffer), POINTS.maxKitBuffer); // capped like kit buffers
+    const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Hexerei", points, () => `Secret Rite: ${m.id} gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
   }
 }
@@ -548,7 +548,7 @@ function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
     const entry = STELLAR[m.id];
     if (m === carry || entry?.target !== "party") continue;
     const gain = partyValuesGain(entry.values, m, carry, ctx, dealt);
-    const points = Math.min(gainPoints(gain, POINTS.buffer), POINTS.maxKitBuffer); // capped like kit buffers
+    const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Stellar", points, () => `${m.id}'s Stellar buff gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
   }
 }
