@@ -78,6 +78,7 @@ function weapon(avatar: EnkaAvatar): CharacterBuild["weapon"] {
     id: (equip && getLookups().weapons.get(equip.itemId)) ?? "Unknown",
     level: equip?.weapon?.level ?? 1,
     refinement: (affix ?? 0) + 1,
+    ascension: equip?.weapon?.promoteLevel ?? 0, // Enka leaves out fields that are 0
   };
 }
 
@@ -108,6 +109,7 @@ export function toUidImport(data: EnkaResponse, fetchedAt: string): UidImport {
       constellation,
       build: {
         level: Number(avatar.propMap["4001"]?.val ?? 1),
+        ascension: Number(avatar.propMap["1002"]?.val ?? 0), // "1002" = ascension phase; left out when 0
         talents: talents(avatar, who.id, constellation),
         weapon: weapon(avatar),
         artifactSets: artifactSets(avatar),

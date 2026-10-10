@@ -18,8 +18,11 @@ export interface CharacterStats {
 // One character's build, from a UID import or (later) the build editor.
 export interface CharacterBuild {
   level: number;
+  // Ascension phase 0-6 (src/lib/build/ascension.ts, #82): at level 80 it says 80/80 (5) or 80/90 (6), which
+  // changes base stats. Optional: builds saved before it existed count as before ascending.
+  ascension?: number;
   talents: { normal: number; skill: number; burst: number }; // as shown in game, C3/C5 bonus included
-  weapon: { id: string; level: number; refinement: number }; // genshin-db weapon name
+  weapon: { id: string; level: number; refinement: number; ascension?: number }; // genshin-db weapon name
   artifactSets: { set: string; pieces: 2 | 4 }[]; // genshin-db set names, active bonuses only
   stats: CharacterStats;
 }

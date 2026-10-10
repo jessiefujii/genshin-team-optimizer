@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ascensionOf, isAscensionLevel, levelCap } from "@/lib/build/ascension";
 import { control } from "@/lib/ui/elements";
 import type { CharacterBuild } from "@/types/build";
 import { parseForm, STAT_FIELDS, toForm, type BuildForm } from "./build-form";
@@ -17,6 +18,33 @@ interface Props {
 }
 
 const field = `${control} w-full`;
+
+// At an ascension level (20, 40, ... 80) the game shows 80/80 before ascending and 80/90 after; base stats
+// differ, so the editor asks (#82). Nothing to ask at other levels.
+interface AscensionChoiceProps {
+  level: string;
+  ascended: boolean;
+  onChange: (ascended: boolean) => void;
+  className: string;
+}
+
+function AscensionChoice({ level, ascended, onChange, className }: AscensionChoiceProps) {
+  const n = Number(level);
+  if (!isAscensionLevel(n)) return null;
+  return (
+    <label className={className}>
+      Ascended?
+      <select value={ascended ? "after" : "before"} onChange={(e) => onChange(e.target.value === "after")} className={field}>
+        <option value="before">
+          {n}/{n}, not yet
+        </option>
+        <option value="after">
+          {n}/{levelCap(ascensionOf(n, true))}, ascended
+        </option>
+      </select>
+    </label>
+  );
+}
 const label = "block text-xs text-zinc-600 dark:text-zinc-400";
 
 // Base ATK from the character's and weapon's levels (genshin-db, on the server, #80). If the lookup fails the
@@ -25,8 +53,10 @@ async function fetchBaseAtk(characterId: string, build: CharacterBuild): Promise
   const q = new URLSearchParams({
     character: characterId,
     level: String(build.level),
+    ascension: String(build.ascension ?? ""),
     weapon: build.weapon.id,
     weaponLevel: String(build.weapon.level),
+    weaponAscension: String(build.weapon.ascension ?? ""),
   });
   try {
     const res = await fetch(`/api/base-atk?${q}`);
@@ -100,6 +130,12 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
               <input inputMode="numeric" value={form[key]} onChange={(e) => set(key, e.target.value)} className={field} />
             </label>
           ))}
+          <AscensionChoice
+            level={form.level}
+            ascended={form.ascended}
+            onChange={(v) => set("ascended", v)}
+            className={`${label} col-span-4`}
+          />
         </fieldset>
 
         <fieldset className="grid grid-cols-[1fr_5rem_4rem] gap-2">
@@ -132,6 +168,12 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
               ))}
             </select>
           </label>
+          <AscensionChoice
+            level={form.weaponLevel}
+            ascended={form.weaponAscended}
+            onChange={(v) => set("weaponAscended", v)}
+            className={`${label} col-span-3`}
+          />
         </fieldset>
 
         <fieldset className="grid grid-cols-[1fr_5rem] gap-2">

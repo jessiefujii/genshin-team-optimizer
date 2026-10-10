@@ -1,13 +1,16 @@
+import { ascensionOf } from "../../lib/build/ascension";
 import type { CharacterBuild, CharacterStats } from "@/types/build";
 
 // The build editor's form state: every field as typed, so half-entered numbers survive re-renders.
 export interface BuildForm {
   level: string;
+  ascended: boolean; // at an ascension level: 80/90 rather than 80/80 (#82)
   normal: string;
   skill: string;
   burst: string;
   weapon: string;
   weaponLevel: string;
+  weaponAscended: boolean;
   refinement: string;
   set1: string;
   set1Pieces: "2" | "4";
@@ -34,11 +37,13 @@ export function toForm(build: CharacterBuild | undefined): BuildForm {
   ) as BuildForm["stats"];
   return {
     level: String(build?.level ?? 90),
+    ascended: !!build && (build.ascension ?? 0) > ascensionOf(build.level, false),
     normal: String(build?.talents.normal ?? 1),
     skill: String(build?.talents.skill ?? 1),
     burst: String(build?.talents.burst ?? 1),
     weapon: build?.weapon.id ?? "",
     weaponLevel: String(build?.weapon.level ?? 90),
+    weaponAscended: !!build && (build.weapon.ascension ?? 0) > ascensionOf(build.weapon.level, false),
     refinement: String(build?.weapon.refinement ?? 1),
     set1: first?.set ?? "",
     set1Pieces: first?.pieces === 2 ? "2" : "4",
@@ -99,5 +104,8 @@ export function parseForm(form: BuildForm): { build: CharacterBuild } | { errors
     }
   }
 
-  return errors.length > 0 ? { errors } : { build: { level, talents, weapon, artifactSets, stats } };
+  if (errors.length > 0) return { errors };
+  // The ascension phase follows from the level; at an ascension level the form says which side (#82).
+  const ascension = ascensionOf(level, form.ascended);
+  return { build: { level, ascension, talents, weapon: { ...weapon, ascension: ascensionOf(weapon.level, form.weaponAscended) }, artifactSets, stats } };
 }

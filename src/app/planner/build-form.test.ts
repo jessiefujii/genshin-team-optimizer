@@ -5,7 +5,8 @@ import { parseForm, toForm, type BuildForm } from "./build-form";
 const raiden: CharacterBuild = {
   level: 90,
   talents: { normal: 6, skill: 7, burst: 10 },
-  weapon: { id: '"The Catch"', level: 90, refinement: 5 },
+  ascension: 6,
+  weapon: { id: '"The Catch"', level: 90, refinement: 5, ascension: 6 },
   artifactSets: [{ set: "Emblem of Severed Fate", pieces: 4 }],
   stats: {
     atk: 1952, hp: 18886, def: 981, critRate: 42.3, critDmg: 112.2,
@@ -21,6 +22,17 @@ const errorsOf = (form: BuildForm) => {
 describe("build form", () => {
   test("an imported build round-trips through the form unchanged", () => {
     expect(parseForm(toForm(raiden))).toEqual({ build: raiden });
+  });
+
+  test("at an ascension level the form keeps which side of ascending it is (#82)", () => {
+    const ayaka: CharacterBuild = { ...raiden, level: 80, ascension: 5, weapon: { ...raiden.weapon, level: 80, ascension: 6 } };
+    const form = toForm(ayaka);
+    expect(form.ascended).toBe(false); // 80/80
+    expect(form.weaponAscended).toBe(true); // 80/90
+    expect(parseForm(form)).toEqual({ build: ayaka });
+    expect(parseForm({ ...form, ascended: true })).toEqual({ build: { ...ayaka, ascension: 6 } });
+    // Not an ascension level: the choice is ignored.
+    expect(parseForm({ ...form, level: "85", ascended: true })).toMatchObject({ build: { level: 85, ascension: 6 } });
   });
 
   test("a new build needs a weapon and every stat", () => {
