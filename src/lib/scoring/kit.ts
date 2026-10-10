@@ -16,7 +16,9 @@ export interface KitBuff {
   appliesTo?: string[];
   reactions?: string[];
   physical?: boolean;
-  condition?: "fightingSpirit" | "rescueEssentials";
+  condition?: "fightingSpirit" | "rescueEssentials" | "fanfare";
+  maxFanfare?: number; // fanfare: Furina's Fanfare cap
+  drainFloor?: number; // fanfare: her Salon Members only drain characters above this share of HP
   points?: { max: number; own: number }; // rescueEssentials: the cap, and Ifa's own Nightsoul points from his Skill
   threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
@@ -83,12 +85,24 @@ interface TeamShape {
   elements: string[]; // one per member
   fightingSpirit: number;
   nightsoulOthers: number; // Nightsoul members other than the buffer
+  healersOthers: number; // healers other than the buffer
 }
 
 // Ifa's Rescue Essentials: one point per Nightsoul point the party holds, up to the max. His Skill gives him
 // `own` points that drain while he hovers, so half count; other Nightsoul members are assumed to hold about
 // 40 each (their pools vary by kit).
 const rescueEssentials = (p: { max: number; own: number }, team: TeamShape) => Math.min(p.max, p.own / 2 + 40 * team.nightsoulOthers);
+
+// Furina's Fanfare (#90): 1 point per 1% of Max HP any party member gains or loses during her Burst, cleared when
+// it ends. Her Salon Members drain HP only down to drainFloor, so without another healer each member gives at most
+// (1 - floor) x 100 points; with one, healing adds the rest, up to the max. It builds up during the Burst: assumed
+// to reach that ceiling halfway through (genshin-db has no Salon attack intervals), so it averages 3/4 of it.
+const FANFARE_RAMP = 0.5;
+function fanfareShare(buff: KitBuff, team: TeamShape): number {
+  const fromDrain = ((1 - buff.drainFloor!) * 100 * team.elements.length) / buff.maxFanfare!;
+  const ceiling = team.healersOthers > 0 ? 1 : Math.min(1, fromDrain);
+  return ceiling * (1 - FANFARE_RAMP / 2);
+}
 
 // A stepped value at this team's count (Escoffier: 1-4 Hydro/Cryo members; Lynette: 1-4 element types).
 function stepValue(buff: KitBuff, team: TeamShape): number {
@@ -120,6 +134,7 @@ function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scori
     case "atkFlat":
       return buff.value / B.carryAtk;
     case "dmgBonus":
+      if (buff.condition === "fanfare") return dmg(buff.value * fanfareShare(buff, team));
       return dmg(buff.condition === "fightingSpirit" ? (buff.value * fs) / 200 : buff.value);
     case "dmgBonusPerEm":
       return dmg(buff.value * stats.em);
@@ -186,8 +201,9 @@ export function kitBuffValue(
     elements: team.map((m) => m.element),
     fightingSpirit: fightingSpirit(s, carry, team),
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
+    healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
   };
-  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${[...shape.elements].sort().join(",")}`;
+  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
   const value = computeKitBuffValue(s, carry, carryReactions, shape);
   byReactions.set(key, value);

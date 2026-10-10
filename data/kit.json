@@ -303,6 +303,9 @@
         {
           "kind": "dmgBonus",
           "value": 0.69,
+          "maxFanfare": 300,
+          "drainFloor": 0.5,
+          "condition": "fanfare",
           "unit": "DMG % at max Fanfare",
           "source": "burst talent \"Fanfare to DMG Increase Conversion Ratio\" x \"Maximum Fanfare\", level 9",
           "duration": 18,
