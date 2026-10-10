@@ -1,4 +1,4 @@
-import type { Element, Reaction } from "./types";
+import type { Element, Reaction, ScoringCharacter } from "./types";
 
 const AURA_ELEMENTS: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
 
@@ -35,6 +35,58 @@ const REQUIREMENTS: Record<Reaction, ReactionRequirement> = {
 export function reactionElements(reaction: Reaction): Element[] {
   const req = REQUIREMENTS[reaction];
   return [...req.all, ...(req.anyOf ?? [])];
+}
+
+// The reaction a carry's teams are built around: tagged, or their only reaction (#49). undefined = not decided.
+export function mainReactionOf(carry: ScoringCharacter): Reaction | "none" | undefined {
+  return carry.mainReaction ?? (carry.reactions.length === 1 ? carry.reactions[0] : undefined);
+}
+
+// Roughly how much of a carry's damage a bonus to that reaction's DMG applies to (#87), when it's their main
+// reaction or another one they deal. Estimates until Phase 3 works it out from talent damage:
+// - Lunar, Stellar and Bloom-type: the carry's damage largely is reaction damage.
+// - Vaporize, Melt: the bonus multiplies the hits that react.
+// - Aggravate, Spread: the bonus is only on the flat damage the reaction adds to a hit.
+// - Other transformative reactions: separate, smaller reaction hits beside the carry's own.
+const SHARES = {
+  reactionDamage: { main: 0.8, side: 0.3 },
+  amplifying: { main: 0.7, side: 0.3 },
+  additive: { main: 0.3, side: 0.15 },
+  transformative: { main: 0.25, side: 0.1 },
+};
+const SHARE_OF: Record<Reaction, keyof typeof SHARES> = {
+  "lunar-charged": "reactionDamage",
+  "lunar-bloom": "reactionDamage",
+  "lunar-crystallize": "reactionDamage",
+  "stellar-conduct": "reactionDamage",
+  "stellar-swirl": "reactionDamage",
+  bloom: "reactionDamage",
+  hyperbloom: "reactionDamage",
+  burgeon: "reactionDamage",
+  vaporize: "amplifying",
+  melt: "amplifying",
+  aggravate: "additive",
+  spread: "additive",
+  quicken: "additive",
+  swirl: "transformative",
+  overloaded: "transformative",
+  electrocharged: "transformative",
+  superconduct: "transformative",
+  burning: "transformative",
+  crystallize: "transformative",
+  freeze: "transformative",
+};
+
+// The share of the carry's damage a bonus to `reactions` reaches: the reactions the carry deals, added up, at most 1.
+export function reactionShare(carry: ScoringCharacter, reactions: readonly string[], dealt: readonly Reaction[]): number {
+  const main = mainReactionOf(carry);
+  let share = 0;
+  for (const r of dealt) {
+    if (!reactions.includes(r)) continue;
+    const s = SHARES[SHARE_OF[r]];
+    share += r === main ? s.main : s.side;
+  }
+  return Math.min(1, share);
 }
 
 // Whether the team's elements (and converters) can trigger a reaction at all.

@@ -4,6 +4,7 @@
 import kitJson from "../../../data/kit.json";
 import type { Reaction } from "../../types/tags";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, resShredGain } from "./benchmark";
+import { reactionShare } from "./reactions";
 import type { ScoringCharacter } from "./types";
 
 export interface KitBuff {
@@ -199,7 +200,9 @@ function computeKitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carry
   const stats = bufferStats(s, entry.base, entry.buildFor);
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
-    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1);
+    // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
+    const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions) : 1;
+    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share;
     best.set(b.kind, Math.max(best.get(b.kind) ?? 0, g));
   }
   let total = 1;
