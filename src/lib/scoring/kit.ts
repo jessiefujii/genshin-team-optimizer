@@ -38,6 +38,10 @@ interface KitCharacter {
 const KIT = kitJson.characters as Record<string, KitCharacter>;
 
 
+// Whether the carry's rotation has Normal Attacks (KQM "N", e.g. Hu Tao's "N2C x8", Clorinde's "6[N3E]"; not
+// Neuvillette's charged attack, Mavuika's "C8F" or Xiao's plunges): Xingqiu's, Yelan's and Beidou's hits need them.
+export const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a) => /(^|[\s[])N(\d|\s|$)/.test(a));
+
 // Mavuika's Fighting Spirit per rotation (#116), from data/kit.json `fightingSpirit` (her Burst text and each Nightsoul
 // member's points, sources there): her own Skill's points, plus each teammate's Nightsoul points, plus 1.5 per Normal
 // Attack hit (at most one per 0.1s) of the carry, up to the 200 limit.

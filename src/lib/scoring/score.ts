@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { atkPctGain, baseAtkOf, kitBuffValue } from "./kit";
+import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
@@ -598,6 +598,51 @@ function nightsoulBurstLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   }
 }
 
+interface SubDpsSource {
+  label: string;
+  scaling: { atk?: number; hp?: number; def?: number; em?: number };
+  hits?: number;
+  every?: number;
+  duration?: number;
+  onCarryNormal?: boolean;
+  needsReaction?: boolean;
+  times?: number;
+  cd: number;
+}
+const SUB_DPS = kitJson.subDps as Record<string, { sources: SubDpsSource[]; missing?: string[] }>;
+
+// Hits per second of one source, averaged over its cooldown; 0 when it can't fire in this team.
+function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext): number {
+  if (s.onCarryNormal && !normalAttacks(carry)) return 0; // Xingqiu's rain swords need the carry's Normal Attacks
+  if (s.needsReaction && ctx.active.length === 0) return 0; // Nahida's Tri-Karma needs a reaction
+  const perUse = s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1;
+  return ((s.hits ?? 1) * perUse * (s.times ?? 1)) / s.cd;
+}
+
+// Off-field sub-DPS (#96): the damage their own hits add, from data/kit.json `subDps` (talent level 9), as a share
+// of the carry's damage (BENCHMARK hitDamage x carryHitsPerSecond), on the buffer scale: +20% = `buffer` points.
+// Their stats come from their build, else the benchmark buffer's. Crit, enemy RES and reactions on their hits are
+// left out, as for the carry's benchmark hit.
+function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  if (!carry) return;
+  const carryDps = BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
+  for (const m of ctx.members) {
+    const entry = SUB_DPS[m.id];
+    if (m === carry || !entry) continue;
+    const b = BENCHMARK.buffer;
+    const stat = { atk: m.stats?.atk ?? b.atk, hp: m.stats?.hp ?? b.hp, def: m.stats?.def ?? b.def, em: m.stats?.elementalMastery ?? b.em };
+    const dmgBonus = m.stats ? m.stats.elementalDmgBonus / 100 : BENCHMARK.subDpsDmgBonus;
+    let dps = 0;
+    for (const s of entry.sources) {
+      const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
+      dps += perHit * hitsPerSecond(s, carry, ctx);
+    }
+    const gain = (dps * (1 + dmgBonus)) / carryDps;
+    const points = gainPoints(gain, POINTS.buffer);
+    if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage`);
+  }
+}
+
 // Team preferences: the carry's count fully; a support's describe what that support wants, so they count less (#43).
 function prefLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   for (const m of ctx.members) {
@@ -725,6 +770,7 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
     secretRiteLines(ctx, carry, out);
     nightsoulBurstLines(ctx, carry, out);
     stellarLines(ctx, carry, out);
+    subDpsLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);

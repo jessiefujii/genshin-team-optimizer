@@ -718,6 +718,7 @@ function readStellar(id, spec) {
 //   onCarryNormal: it hits when the active character's Normal Attacks hit (Xingqiu, Yelan, Beidou), at most once per
 //       `every`; with `hits` too, that many hits each time (Xingqiu's swords per wave)
 //   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP)
+//   needsReaction: it only fires after the party triggers a reaction (Nahida's Tri-Karma Purification)
 const SUBDPS = {
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
@@ -845,7 +846,7 @@ const SUBDPS = {
   ],
   Nahida: [
     { talent: "skill", label: "Hold DMG", hits: 1, cd: "Seed of Skandha Duration" },
-    { talent: "skill", label: "Tri-Karma Purification DMG", every: "Tri-Karma Purification Trigger Interval", duration: "Seed of Skandha Duration", cd: "Hold CD" },
+    { talent: "skill", label: "Tri-Karma Purification DMG", every: "Tri-Karma Purification Trigger Interval", duration: "Seed of Skandha Duration", cd: "Hold CD", needsReaction: /(After you trigger Elemental Reactions on opponents)/ },
   ],
   Nilou: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
@@ -978,6 +979,10 @@ function readSubDps(id, specs) {
       if (!m) throw new Error(`${id}: pattern ${re} not found in ${s.talent}: ${text}`);
       return m[1] === "second" ? 1 : Number(m[1]);
     };
+    const fromTextRaw = (re) => {
+      if (!re.test(text)) throw new Error(`${id}: pattern ${re} not found in ${s.talent}: ${text}`);
+      return true;
+    };
     const value = (v, rateKey) =>
       v === undefined ? undefined : v === "rate" ? rate[rateKey] : typeof v === "number" ? v : typeof v === "string" ? tableValue(attrs, v, id) : fromText(v);
     const every = s.perSecond ? 1 / fromText(s.perSecond) : value(s.every, "every");
@@ -988,6 +993,7 @@ function readSubDps(id, specs) {
       ...(s.hits !== undefined ? { hits: value(s.hits, "hits") } : {}),
       ...(every !== undefined ? { every, duration: value(s.duration, "duration") } : {}),
       ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
+      ...(s.needsReaction && fromTextRaw(s.needsReaction) ? { needsReaction: true } : {}),
       ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),

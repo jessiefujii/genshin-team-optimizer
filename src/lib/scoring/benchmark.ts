@@ -14,6 +14,7 @@ export const BENCHMARK = {
   buffer: { weaponBaseAtk: 500, atk: 2000, hp: 35000, def: 2400, em: 800 }, // buffers without a build
   // Carry stats without a build (#101): the stat they scale on is built up, the others are about character base.
   carry: { hp: 16000, hpBuilt: 35000, def: 900, defBuilt: 2500, emBuilt: 700 },
+  subDpsDmgBonus: 0.466, // an elemental DMG goblet, for an off-field sub-DPS without a build (#96)
 };
 
 // A value worth this much extra damage scores `points` points.
