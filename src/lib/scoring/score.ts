@@ -526,14 +526,14 @@ function partyValuesGain(values: PartyValue[], m: ScoringCharacter, carry: Scori
 }
 
 type StellarEntry =
-  | { target: "self" | "own" | "none"; radiance: Reaction[]; note?: string; source?: string }
+  | { target: "self" | "own"; radiance: Reaction[]; note?: string; source: string }
   | { target: "party"; radiance: Reaction[]; source: string; values: PartyValue[] };
 const STELLAR = kitJson.stellar as Record<string, StellarEntry>;
 
 // Stellar Glimmer: Radiance (#63). Stellar members enter Radiance: Stellar-Conduct inside a Polestar Field (made by
 // Stellar-Conduct) and Radiance: Stellar Swirl for 8s after a Stellar Swirl, so a Radiance is on while the team has
 // that reaction. data/kit.json says what each one does: a Stellar carry's own kit upgrade (Sandrone, Vesna,
-// Wriothesley) counts as ownRadiance; a member's party buff (Alyosha, Qiqi, Vodyanitsa) by the damage it adds.
+// Wriothesley, Cyno, Mizuki) counts as ownRadiance; a member's party buff (Alyosha, Qiqi, Vodyanitsa) by the damage it adds.
 // Witch's Revelation characters count once their quest is done (familiesOf).
 function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   if (!carry) return;

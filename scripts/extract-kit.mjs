@@ -473,11 +473,10 @@ function readNightsoulBurst(id, spec) {
 // Stellar Glimmer: Radiance (#63). A Stellar member enters Radiance: Stellar-Conduct inside a Polestar Field
 // (made when Stellar-Conduct is triggered) and Radiance: Stellar Swirl for 8s after a Stellar Swirl, so a
 // Radiance is on when the team has that reaction. What it does is in each kit:
-//   target "self": an upgrade to that character's own kit (Sandrone, Vesna, Wriothesley), scored when they carry
+//   target "self": an upgrade to that character's own kit (Sandrone, Vesna, Wriothesley, Cyno, Mizuki), scored when they carry
 //   target "party": buffs that reach the carry (Alyosha, Qiqi, Vodyanitsa), read like SECRET_RITE values; each
 //     value's `radiance` is the Radiance it needs, and uptime comes from table labels or a cd sentence
 //   target "own": Radiance only changes that support's own damage (sub-DPS damage is Phase 3); recorded, not scored
-//   target "none": no Radiance text to read (yet); the character only enables or uses the reactions
 // `radiance` lists the Radiance states the character can enter.
 const SC = "stellar-conduct";
 const SS = "stellar-swirl";
@@ -489,7 +488,7 @@ const STELLAR = {
     values: [{ kind: "reactionBonus", re: /increase Stellar-Conduct reaction DMG dealt by the character when on the field by (\d+)%/, unit: "Stellar-Conduct DMG % for the on-field character (Hunter's Precision)", percent: true, reactions: [SC], radiance: SC, uptime: { talent: "skill", duration: "Hunter's Precision Duration", cd: "CD" } }],
   },
   Beidou: { from: "passive4", target: "own", radiance: [SC], note: "enters Radiance; no effect on others" },
-  Cyno: { target: "none", note: "no Radiance text in genshin-db or kit-overrides.json" },
+  Cyno: { from: "passive1", target: "self", radiance: [SC] },
   Diona: { from: "passive4", target: "own", radiance: [SC, SS], note: "enters Radiance; no effect on others" },
   Odette: { from: "passive3", target: "own", radiance: [SC, SS], note: "enters Radiance; no effect on others" },
   // Herald of Frost buffs the party's Stellar reactions; passive4 cuts its CD to 15s, its duration is the skill table's.
@@ -513,11 +512,10 @@ const STELLAR = {
   },
   Wriothesley: { from: "passive4", target: "self", radiance: [SC] },
   "Yae Miko": { from: "passive4", target: "own", radiance: [SC], note: "her own Stellar-Conduct hits" },
-  "Yumemizuki Mizuki": { target: "none", note: "no Radiance text in genshin-db or kit-overrides.json" },
+  "Yumemizuki Mizuki": { from: "passive4", target: "self", radiance: [SS] },
 };
 
 function readStellar(id, spec) {
-  if (spec.target === "none") return { target: "none", radiance: [], note: spec.note };
   const text = talentsOf(id)[spec.from].description.replace(/\s+/g, " ");
   const at = text.search(/Radiance|Wandering Vortex/);
   if (at < 0) throw new Error(`${id}: no Radiance text in ${spec.from}`);

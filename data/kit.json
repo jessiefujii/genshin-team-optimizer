@@ -1307,9 +1307,11 @@
       "source": "passive4: \"Additionally, when inside a Polestar Field, Beidou will enter the Radiance: Stellar-Conduct state.\""
     },
     "Cyno": {
-      "target": "none",
-      "radiance": [],
-      "note": "no Radiance text in genshin-db or kit-overrides.json"
+      "target": "self",
+      "radiance": [
+        "stellar-conduct"
+      ],
+      "source": "passive1: \"Radiance: Stellar-Conduct: When Judication is triggered, Cyno will instead fire 3 Duststalker Bolts - Starsame to his front, dealing Electro DMG at 200% of his ATK.\""
     },
     "Diona": {
       "target": "own",
@@ -1409,9 +1411,11 @@
       "source": "passive4: \"Radiance: Stellar-Conduct: An enhanced Sesshou Sakura lightning bolt hit on an opponent will also cause an additional instance of Electro DMG at 200% of Yae Miko's ATK.\""
     },
     "Yumemizuki Mizuki": {
-      "target": "none",
-      "radiance": [],
-      "note": "no Radiance text in genshin-db or kit-overrides.json"
+      "target": "self",
+      "radiance": [
+        "stellar-swirl"
+      ],
+      "source": "passive4: \"Radiance: Stellar Swirl: When Yumemizuki Mizuki deals to an opponent the above enhanced AoE Anemo DMG, she will also deal an additional instance of Anemo DMG at 1,000% of her Elemental Mastery.\""
     }
   }
 }
