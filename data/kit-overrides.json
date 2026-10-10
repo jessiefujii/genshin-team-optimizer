@@ -396,8 +396,8 @@
     },
     "Citlali": {
       "skill: Frostfall Storm DMG": {
-        "missing": "hits once per second (wiki), but it only runs while Citlali has 50+ Nightsoul points, so its uptime depends on her Nightsoul gains",
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Citlali, fetched 2026-10-10: \"Frostfall Storm hits once every second.\""
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dawnfrost_Darkstar, fetched 2026-10-10 (talent page): \"Frostfall Storm hits once every second.\" It runs while Opal Fire burns 8 Nightsoul points per second (genshin-db skill table). Per rotation she gains 24 (skill) + 24 (burst, \"Ice Storm Nightsoul Point Gain\") + 3 (one Spiritvessel Skull) = 51 points, so ~6.4s of storm: 6 hits. Worked out here, not a wiki number."
       }
     },
     "Collei": {
@@ -408,14 +408,14 @@
     },
     "Dehya": {
       "burst: Flame-Mane's Fist DMG": {
-        "missing": "how many Flame-Mane's Fists one Blazing Lioness throws isn't in genshin-db or on the wiki",
-        "source": ""
+        "hits": 10,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Leonine_Bite, fetched 2026-10-10 (talent page, Gameplay Notes): \"Dehya can perform up to 10 or 6 Flame-Mane's Fists with and without Roaring Barrage respectively.\" (10: pressing Roaring Barrage, the usual play)"
       }
     },
     "Durin": {
       "burst: Dragon of White Flame DMG": {
-        "missing": "the dragon's attack interval isn't in genshin-db or on the wiki (\"at intervals\")",
-        "source": ""
+        "missing": "the dragon's attack interval isn't in genshin-db, on the character page or on the talent page (\"at intervals\")",
+        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Principle_of_Purity:_As_the_Light_Shifts, fetched 2026-10-10 (only its internal cooldown is given)"
       }
     },
     "Emilie": {
@@ -426,8 +426,8 @@
     },
     "Escoffier": {
       "skill: Frosty Parfait DMG": {
-        "missing": "the Frosty Parfait interval isn't in genshin-db or on the wiki (\"at intervals\")",
-        "source": ""
+        "missing": "the Frosty Parfait interval isn't in genshin-db, on the character page or on the talent page (\"at intervals\")",
+        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Low-Temperature_Cooking, fetched 2026-10-10 (only its internal cooldown is given)"
       }
     },
     "Fischl": {
@@ -459,14 +459,14 @@
     },
     "Jahoda": {
       "burst: Purrsonal Coordinated Assistance Robot DMG": {
-        "missing": "the robots' attack interval isn't in genshin-db or on the wiki (\"periodically\")",
-        "source": ""
+        "missing": "the robots' attack interval isn't in genshin-db, on the character page or on the talent page (\"periodically\")",
+        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Hidden_Aces:_Seven_Tools_of_the_Hunter, fetched 2026-10-10 (only its internal cooldown is given)"
       }
     },
     "Kachina": {
       "skill: Turbo Twirly Independent DMG": {
-        "missing": "slams every 2s (wiki), but Turbo Twirly lasts until Kachina's Nightsoul points run out, and her point use per second isn't given",
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kachina, fetched 2026-10-10: \"Turbo Twirly Independent DMG is triggered once every 2 seconds. ... Turbo Twirly lasts until Nightsoul points are depleted.\""
+        "missing": "slams every 2s (wiki), but Turbo Twirly lasts until Kachina's 60 Nightsoul points run out, and the talent page's consumption table only covers riding it (e.g. \"Perform Attack 10\"), not independent mode",
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Go,_Go_Turbo_Twirly!, fetched 2026-10-10 (talent page): \"Turbo Twirly Independent DMG is triggered once every 2 seconds.\""
       }
     },
     "Kaeya": {
@@ -505,8 +505,8 @@
     },
     "Ororon": {
       "burst: Soundwave Collision DMG": {
-        "missing": "how often the Supersonic Oculus's sonic waves hit isn't in genshin-db or on the wiki (\"continuously\")",
-        "source": ""
+        "missing": "how often the Supersonic Oculus's sonic waves hit isn't in genshin-db, on the character page or on the talent page (\"continuously\")",
+        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dark_Voices_Echo, fetched 2026-10-10 (only its internal cooldown is given)"
       }
     },
     "Prune": {

@@ -602,7 +602,7 @@ const SUBDPS = {
   ],
   Citlali: [
     { talent: "skill", label: "Obsidian Tzitzimitl DMG", hits: 1, cd: "CD" },
-    { talent: "skill", label: "Frostfall Storm DMG", every: "rate", duration: "rate", cd: "CD" },
+    { talent: "skill", label: "Frostfall Storm DMG", hits: "rate", cd: "CD" }, // limited by her Nightsoul points (kit-overrides.json)
     { talent: "burst", label: "Ice Storm DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Spiritvessel Skull DMG", hits: 1, cd: "CD" },
   ],
