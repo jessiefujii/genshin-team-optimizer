@@ -23,7 +23,8 @@ type CarryBuff =
   | { kind: "atkPct"; value: number }
   | { kind: "dmgBonusFromEr"; perPercent: number }
   | { kind: "dmgBonusPerEm"; perEm: number; max: number; types: HitType[]; labels: string[] }
-  | { kind: "masque"; ratio: number; start: number; use: number };
+  | { kind: "masque"; ratio: number; start: number; use: number }
+  | { kind: "flatAtk"; value: number; cap: number; types: HitType[]; reactions: Reaction[] };
 interface CarryKit {
   rotationSeconds: number;
   hits: CarryHit[];
@@ -91,6 +92,8 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
     let factor = 1;
     for (const b of kit.buffs) {
       if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (h.instances ?? 1) * atk;
+      if (b.kind === "flatAtk" && b.types.includes(h.type) && b.reactions.some((r) => active.includes(r)))
+        perHit += Math.min(b.value * atk, b.cap);
       if (b.kind === "dmgBonus" && b.types.includes(h.type)) {
         const share = b.hitsCap ? Math.min(1, b.hitsCap / instancesOf(b.types)) : 1;
         bonus += b.value * share;
