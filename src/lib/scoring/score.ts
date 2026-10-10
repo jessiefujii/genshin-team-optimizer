@@ -452,7 +452,7 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
 }
 
 interface SecretRiteValue {
-  kind: "dmgBonus" | "atkPct" | "em" | "reactionBonus" | "resShred";
+  kind: "dmgBonus" | "atkPct" | "em" | "reactionBonus" | "resShred" | "flatDmgFromAtk";
   value: number;
   max?: number;
   perDef?: number;
@@ -462,6 +462,7 @@ interface SecretRiteValue {
   teamReactions?: string[];
   hexereiOnly?: boolean;
   ownAttacks?: boolean;
+  perBurst?: { hits: number; cd: number };
   uptime: number | null;
 }
 type SecretRiteEntry = { target: "self"; source: string } | { target: "party"; source: string; values: SecretRiteValue[] };
@@ -475,6 +476,13 @@ function secretRiteGain(v: SecretRiteValue, m: ScoringCharacter, carry: ScoringC
   if (v.hexereiOnly && !familiesOf(carry, ctx.options).includes("hexerei")) return 0;
   if (v.ownAttacks && m.fieldTime === "off") return 0; // Mona's stacks need her own Normal Attacks
   const value = v.perDef ? Math.min(v.max ?? Infinity, (v.value * (m.stats?.def ?? BENCHMARK.buffer.def)) / v.perDef) : v.value;
+  if (v.kind === "flatDmgFromAtk") {
+    // Extra damage on the member's own hits each Burst cooldown (Nicole's Arcane Projections), against what the
+    // carry deals in that time.
+    const { hits, cd } = v.perBurst!;
+    const extra = hits * v.value * (m.stats?.atk ?? BENCHMARK.buffer.atk);
+    return (extra / (cd * BENCHMARK.carryHitsPerSecond * BENCHMARK.hitDamage)) * (v.uptime ?? 1);
+  }
   const usesEm = carry.scalesOn?.includes("EM") || usesEmReaction(carry, ctx);
   const g =
     v.kind === "dmgBonus" || v.kind === "reactionBonus"
@@ -492,8 +500,8 @@ function secretRiteGain(v: SecretRiteValue, m: ScoringCharacter, carry: ScoringC
 // Hexerei: Secret Rite (#63). With 2+ Hexerei members, each Hexerei member's "Hexerei: Secret Rite" text turns
 // on (data/kit.json, from the Witch's Eve Rite passives in data/kit-overrides.json). A Hexerei carry's own kit
 // upgrade (Klee, Lohen, Razor, Varka) counts as ownSecretRite; a member's party buff (Albedo, Sucrose, Fischl,
-// Venti, Durin) counts by the damage it adds to the carry. Some only reach Hexerei members (Albedo's Silver
-// Isotoma, Sucrose's Large Wind Spirit), so a Hexerei carry gets more from them.
+// Venti, Durin, Nicole) counts by the damage it adds to the carry. Some only reach Hexerei members (Albedo's
+// Silver Isotoma, Sucrose's Large Wind Spirit, Nicole's Arcane Projections), so a Hexerei carry gets more.
 function secretRiteLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   if (!carry) return;
   const hexerei = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("hexerei"));

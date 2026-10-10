@@ -296,7 +296,8 @@ function readGleam(id, spec) {
 //   teamReactions: any member triggering one of these turns it on (Fischl's Oz), not only the carry
 //   perDef: the value is per this much of the member's DEF, up to max (Albedo)
 //   ownAttacks: it builds from the member's own Normal/Charged Attacks, so it does nothing while they're off-field (Mona)
-//   uptime: { talent, duration, cd } table labels, or a fixed `uptimeFrom` ratio of two numbers in the text
+//   uptime: { talent, duration, cd } table labels
+//   perBurst: { talent, hits, cd } table labels: flat damage on that many hits each Burst cooldown (Nicole)
 //   ofBase: the value raises a base effect by this ratio; base is read from another talent (Durin: 20% shred +75%)
 const SECRET_RITE = {
   Albedo: {
@@ -324,6 +325,13 @@ const SECRET_RITE = {
   },
   Klee: { from: ["passive1", "passive4"], target: "self" },
   Lohen: { from: "passive4", target: "self" },
+  // Each Arcane Projection a Hexerei character triggers deals 300% of Nicole's ATK more; her Burst summons
+  // up to "Arcane Projection Attack Count" of them per Burst.
+  Nicole: {
+    from: "passive4",
+    target: "party",
+    values: [{ kind: "flatDmgFromAtk", re: /Arcane Projections by (\d+)% of Nicole's ATK/, unit: "of Nicole's ATK as flat DMG on each Arcane Projection (Hexerei members)", percent: true, hexereiOnly: true, perBurst: { talent: "burst", hits: "Arcane Projection Attack Count", cd: "CD" } }],
+  },
   Mona: {
     from: "passive4",
     target: "party",
@@ -381,6 +389,7 @@ function readSecretRite(id, spec) {
         value = base * value; // +75% of a 20% shred = 15% more
       }
       const u = v.uptime && talentsOf(id)[COMBAT[v.uptime.talent]].attributes;
+      const pb = v.perBurst && talentsOf(id)[COMBAT[v.perBurst.talent]].attributes;
       return {
         kind: v.kind,
         value: round(value),
@@ -391,6 +400,7 @@ function readSecretRite(id, spec) {
         ...(v.hexereiOnly ? { hexereiOnly: true } : {}),
         ...(v.teamReactions ? { teamReactions: v.teamReactions } : {}),
         ...(v.ownAttacks ? { ownAttacks: true } : {}),
+        ...(pb ? { perBurst: { hits: tableValue(pb, v.perBurst.hits, id), cd: tableValue(pb, v.perBurst.cd, id) } } : {}),
         unit: v.unit,
         uptime: u ? uptime(tableValue(u, v.uptime.duration, id), tableValue(u, v.uptime.cd, id)) : null,
       };

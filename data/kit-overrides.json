@@ -323,6 +323,17 @@
           "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Prune, fetched 2026-10-10"
         }
       ]
+    },
+    "Nicole": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite passive (not in genshin-db 5.2.14)",
+      "slots": [
+        {
+          "talent": "passive4",
+          "name": "Light in the Darkness",
+          "text": "After completing Witch's Homework: The Role of a Guide...?, Nicole becomes a Hexerei character. When the party includes at least 2 Hexerei characters, you gain the Hexerei: Secret Rite effect, which enhances Hexerei characters.\n\nHexerei: Secret Rite\nIncreases the DMG dealt by Hexerei characters' Arcane Projections by 300% of Nicole's ATK.",
+          "source": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Nicole, fetched 2026-10-10"
+        }
+      ]
     }
   },
   "rules": {

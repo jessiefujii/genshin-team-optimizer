@@ -10,6 +10,7 @@ export const BENCHMARK = {
   carryEm: 100,
   enemyRes: 0.1,
   hitDamage: 7000, // one non-crit hit before flat bonuses, to weigh flat damage against
+  carryHitsPerSecond: 1.5, // rough; weighs extra hits per Burst cooldown (Nicole's Arcane Projections) against the carry's own
   buffer: { weaponBaseAtk: 500, atk: 2000, hp: 35000, def: 2400, em: 800 }, // buffers without a build
 };
 

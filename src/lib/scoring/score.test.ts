@@ -163,6 +163,9 @@ describe("scoreTeam", () => {
     const albedo = (...ids: string[]) => lines(...ids).find((l) => l.reason.startsWith("Secret Rite: Albedo"))?.points ?? 0;
     expect(albedo("Klee", "Albedo", "Sucrose", "Furina")).toBeGreaterThan(albedo("Hu Tao", "Albedo", "Sucrose", "Xingqiu"));
     expect(albedo("Hu Tao", "Albedo", "Sucrose", "Xingqiu")).toBeGreaterThan(0);
+    // Nicole's bigger Arcane Projections only reach Hexerei members.
+    expect(reasons("Varka", "Nicole", "Venti", "Bennett").some((r) => r.startsWith("Secret Rite: Nicole gives Varka"))).toBe(true);
+    expect(reasons("Hu Tao", "Nicole", "Mona", "Zhongli")).toEqual([]);
     // Fischl's buffs need Overloaded or Electro-Charged in the team; Mona's need her on the field.
     expect(reasons("Klee", "Fischl", "Durin", "Bennett").some((r) => r.startsWith("Secret Rite: Fischl"))).toBe(true);
     expect(reasons("Varka", "Fischl", "Venti", "Sucrose").some((r) => r.startsWith("Secret Rite: Fischl"))).toBe(false);

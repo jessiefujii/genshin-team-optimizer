@@ -1111,6 +1111,23 @@
         }
       ]
     },
+    "Nicole": {
+      "target": "party",
+      "source": "passive4: \"Increases the DMG dealt by Hexerei characters' Arcane Projections by 300% of Nicole's ATK.\"",
+      "values": [
+        {
+          "kind": "flatDmgFromAtk",
+          "value": 3,
+          "hexereiOnly": true,
+          "perBurst": {
+            "hits": 4,
+            "cd": 15
+          },
+          "unit": "of Nicole's ATK as flat DMG on each Arcane Projection (Hexerei members)",
+          "uptime": null
+        }
+      ]
+    },
     "Razor": {
       "target": "self",
       "source": "passive4: \"While the Wolf Within summoned by Razor's Elemental Burst Lightning Fang is active, if the Electro Sigils from Razor's Elemental Skill Claw and Thunder overflow, the Wolf Within will call down a lightning strike on nearby enemies, dealing AoE Electro DMG equal to 150% of Razor's ATK and restoring 7 Energy to Razor.\""
