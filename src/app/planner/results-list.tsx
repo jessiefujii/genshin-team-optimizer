@@ -46,7 +46,7 @@ export default function ResultsList({ teams, byId }: Props) {
                   {team.members.map((id) => (
                     <span
                       key={id}
-                      className={`${elementChip(byId.get(id)?.element ?? "")} ${id === team.carry ? "font-semibold ring-1 ring-current" : ""}`}
+                      className={`${elementChip(byId.get(id)?.element ?? "")} ${id === team.mainDps ? "font-semibold ring-1 ring-current" : ""}`}
                     >
                       {id}
                     </span>
@@ -68,9 +68,14 @@ export default function ResultsList({ teams, byId }: Props) {
             {expanded && (
               <div className="border-t border-zinc-200 px-3 py-2 text-sm dark:border-zinc-800">
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  {team.carry ? (
+                  {team.mainDps ? (
                     <>
-                      Carry: <span className="font-medium text-zinc-900 dark:text-zinc-100">{team.carry}</span>
+                      Main DPS: <span className="font-medium text-zinc-900 dark:text-zinc-100">{team.mainDps}</span>
+                      {team.onField && team.onField !== team.mainDps && (
+                        <>
+                          {" · "}On-field: <span className="font-medium text-zinc-900 dark:text-zinc-100">{team.onField}</span>
+                        </>
+                      )}
                     </>
                   ) : (
                     "No main DPS"

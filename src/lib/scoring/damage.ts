@@ -130,8 +130,18 @@ export interface CarryDamage {
 // The carry's damage per second, or null when kit.json has no entry for them yet (carriesTodo).
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
 // `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit) and picks the combo (#114);
-// default: the carry alone.
+// default: the carry alone. Cached per character, reactions and team: the team search scores each carry in thousands
+// of teams.
+const cache = new WeakMap<ScoringCharacter, Map<string, CarryDamage | null>>();
 export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [], team: readonly ScoringCharacter[] = [c]): CarryDamage | null {
+  let byKey = cache.get(c);
+  if (!byKey) cache.set(c, (byKey = new Map()));
+  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}`;
+  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team));
+  return byKey.get(key)!;
+}
+
+function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): CarryDamage | null {
   if (!CARRIES[c.id]) return null;
   const { kit, combo, reaction } = pickCombo(CARRIES[c.id], c, active, team);
   const s = carryStats(c);

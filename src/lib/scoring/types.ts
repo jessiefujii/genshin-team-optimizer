@@ -25,7 +25,8 @@ export interface ScoreLine {
 
 export interface ScoredTeam {
   members: [string, string, string, string];
-  carry: string | null;
+  mainDps: string | null; // who deals the most damage: the on-field carry, or an off-field DPS who out-damages them (#96)
+  onField: string | null; // the on-field carry the rotation and buffs are built around
   score: number;
   breakdown: ScoreLine[];
   activeReactions: Reaction[];

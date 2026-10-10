@@ -620,16 +620,23 @@ function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContex
   return ((s.hits ?? 1) * perUse * (s.times ?? 1)) / s.cd;
 }
 
+// The carry's own damage per second (damage.ts, #101), or null when it isn't modeled yet: no kit data, or hits still
+// missing. An undercounted carry (Flins, 748/s) would make every sub-DPS look several times bigger.
+function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext): number | null {
+  const own = carryDamage(carry, ctx.active, ctx.members);
+  return own && own.missing.length === 0 ? own.perSecond : null;
+}
+
 // Off-field sub-DPS (#96): the damage their own hits add, from data/kit.json `subDps` (talent level 9), as a share
-// of the carry's own damage (damage.ts, #101), on the buffer scale: +20% = `buffer` points. A carry without kit data
-// yet, or with hits still missing, uses the generic BENCHMARK hit instead: an undercounted carry (Flins, 748/s) would
-// make every sub-DPS look several times bigger and win the carry slot from the real carry. Their hits add to the carry's: the carry keeps attacking while they fire.
+// of the carry's own damage (the generic BENCHMARK hit for a carry that isn't modeled yet), on the buffer scale:
+// +20% = `buffer` points. Their hits add to the carry's: the carry keeps attacking while they fire.
 // Their stats come from their build, else the benchmark buffer's. Crit, enemy RES and reactions on their hits are
 // left out, as on the carry's side.
-function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  if (!carry) return;
-  const own = carryDamage(carry, ctx.active);
-  const carryDps = own && own.missing.length === 0 ? own.perSecond : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
+// Returns the sub-DPS who out-damages the carry, if one does: the team is really theirs (Jessie, #96).
+function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): ScoringCharacter | null {
+  if (!carry) return null;
+  const carryDps = modeledCarryDps(carry, ctx) ?? BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
+  let lead: { m: ScoringCharacter; dps: number } | null = null;
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
     if (m === carry || !entry) continue;
@@ -641,10 +648,17 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
       dps += perHit * hitsPerSecond(s, carry, ctx);
     }
-    const gain = (dps * (1 + dmgBonus)) / carryDps;
+    dps *= 1 + dmgBonus;
+    const gain = dps / carryDps;
     const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage`);
+    if (dps > carryDps && (!lead || dps > lead.dps)) lead = { m, dps };
   }
+  if (lead) {
+    const { m, dps } = lead;
+    out.add("Carry", 0, () => `${m.id} out-damages ${carry.id} (~${Math.round(dps)} vs ~${Math.round(carryDps)} per second): ${m.id} is the main DPS`);
+  }
+  return lead?.m ?? null;
 }
 
 // Team preferences: the carry's count fully; a support's describe what that support wants, so they count less (#43).
@@ -756,9 +770,14 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
   const ctx = buildContext(team, options);
   const shared = sink();
   teamLines(ctx, shared);
-  const candidates = team.filter((m) => m.roles.includes("main-dps"));
+  // The member who deals the most damage carries (#96): of the main DPS whose damage is modeled, only the strongest
+  // is tried as the on-field carry. The others are still tried by score.
+  const mainDps = team.filter((m) => m.roles.includes("main-dps"));
+  const modeled = mainDps.map((m) => ({ m, dps: modeledCarryDps(m, ctx) })).filter((x) => x.dps !== null);
+  const strongest = modeled.reduce<(typeof modeled)[number] | null>((a, x) => (!a || x.dps! > a.dps! ? x : a), null);
+  const candidates = mainDps.filter((m) => !modeled.some((x) => x.m === m) || m === strongest?.m);
 
-  let best: { carry: ScoringCharacter | null; out: Sink } | null = null;
+  let best: { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink } | null = null;
   for (const carry of candidates.length > 0 ? candidates : [null]) {
     const out = sink();
     carryLines(ctx, carry, out);
@@ -774,14 +793,14 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
     secretRiteLines(ctx, carry, out);
     nightsoulBurstLines(ctx, carry, out);
     stellarLines(ctx, carry, out);
-    subDpsLines(ctx, carry, out);
+    const lead = subDpsLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);
     statLines(ctx, carry, out);
-    if (!best || out.total > best.out.total) best = { carry, out };
+    if (!best || out.total > best.out.total) best = { carry, lead, out };
   }
-  return { ctx, carry: best!.carry, out: best!.out };
+  return { ctx, carry: best!.carry, lead: best!.lead, out: best!.out };
 }
 
 // The team's score alone, without building the breakdown; the search uses it to skip teams outside the top.
@@ -790,11 +809,12 @@ export function teamScore(team: ScoringCharacter[], options: ScoreOptions = {}):
 }
 
 export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
-  const { ctx, carry, out } = bestReading(team, options, true);
-  const rotation = generateRotation(team, carry?.id ?? null);
+  const { ctx, carry, lead, out } = bestReading(team, options, true);
+  const rotation = generateRotation(team, carry?.id ?? null); // the on-field carry's, even when a sub-DPS out-damages them
   return {
     members: team.map((m) => m.id) as ScoredTeam["members"],
-    carry: carry?.id ?? null,
+    mainDps: (lead ?? carry)?.id ?? null,
+    onField: carry?.id ?? null,
     score: out.total,
     breakdown: (out as Breakdown).lines,
     activeReactions: ctx.active,
