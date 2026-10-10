@@ -151,6 +151,14 @@ describe("scoreTeam", () => {
     expect(done.breakdown.some((l) => l.rule === "Hexerei")).toBe(true);
   });
 
+  test("a reaction bonus reaches only the share of the carry's damage that is that reaction (#87)", () => {
+    const gain = (id: string, ...ids: string[]) =>
+      Number(score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id))?.reason.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // The same Ifa bonus (Swirl, ~60%) is worth less to a Swirl carry than Columbina's Lunar bonus to a Lunar
+    // carry, whose damage mostly is the reaction.
+    expect(gain("Ifa", "Varka", "Ifa", "Durin", "Bennett")).toBeLessThan(gain("Columbina", "Nefer", "Aino", "Columbina", "Baizhu"));
+  });
+
   test("Hexerei: Secret Rite scores what it turns on for this team (#63)", () => {
     const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Hexerei");
     const reasons = (...ids: string[]) => lines(...ids).map((l) => l.reason);
@@ -275,7 +283,8 @@ describe("scoreTeam", () => {
     });
 
     test("reaction buffs need that reaction in the team", () => {
-      expect(buffLine(score("Alhaitham", "Baizhu", "Fischl", "Kuki Shinobu"), "Baizhu")?.points).toBe(9); // Spread bonus
+      // Spread bonus: it only adds to Spread's flat damage, ~0.3 of a Spread carry's damage (#87).
+      expect(buffLine(score("Alhaitham", "Baizhu", "Fischl", "Kuki Shinobu"), "Baizhu")?.points).toBe(3);
       // Pyro + Dendro, but nobody here builds Burning, so no Dendro reaction is active.
       expect(buffLine(score("Diluc", "Baizhu", "Bennett", "Zhongli"), "Baizhu")?.points).toBe(0);
     });
@@ -288,9 +297,11 @@ describe("scoreTeam", () => {
         reason: "Columbina: buffs Lunar-charged/Lunar-bloom/Lunar-crystallize, which Neuvillette does not deal",
       });
       expect(buffLine(neuv, "Lauma")?.points).toBe(0);
-      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(12);
-      // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him.
-      expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(15);
+      // Lunar-Bloom is Nefer's main reaction: ~0.8 of her damage (#87).
+      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(9);
+      // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him, on the
+      // ~0.3 of his damage that a side reaction is.
+      expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(6);
     });
 
     test("Kazuha's swirl buff does nothing for an Anemo carry (#58)", () => {
@@ -454,10 +465,11 @@ describe("talent levels (#25)", () => {
   test("Ifa's and Prune's buffs come from their kit values (#76)", () => {
     const buff = (id: string, ...ids: string[]) =>
       score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id))?.reason;
-    // Ifa alone holds ~40 Rescue Essentials points (half his 80): 60% Swirl DMG.
-    expect(buff("Ifa", "Varka", "Ifa", "Durin", "Bennett")).toBe("Ifa buffs Varka (~+38% damage)");
+    // Ifa alone holds ~40 Rescue Essentials points (half his 80): 60% Swirl DMG, on the ~0.25 of a Swirl
+    // carry's damage that Swirl hits are (#87).
+    expect(buff("Ifa", "Varka", "Ifa", "Durin", "Bennett")).toBe("Ifa buffs Varka (~+9% damage)");
     // Lunar-Charged gets only 0.2% per point.
-    expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+5% damage)");
+    expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+4% damage)");
     // Prune: 0.025% per ATK point above 2,000; without a build she is assumed at 3,000 ATK.
     expect(buff("Prune", "Klee", "Prune", "Mona", "Bennett")).toBe("Prune buffs Klee (~+16% damage)");
     const stats: CharacterStats = {

@@ -1,7 +1,7 @@
 import type { EffectTag } from "../../types/effects";
 import { type Buff, type CompositionPref, type Role, type Talent } from "../../types/tags";
 import { effectKey, effectLabel, isDraft } from "./effects";
-import { canTrigger, reactionElements } from "./reactions";
+import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { atkPctGain, baseAtkOf, kitBuffValue } from "./kit";
@@ -23,7 +23,10 @@ export const POINTS = {
   carryReactionsUnavailable: -10,
   supportReaction: 10,
   buffer: 10,
-  maxKitBuffer: 15, // a buffer scores by the damage their kit adds (+20% = `buffer` points, benchmark.ts), up to this (#68)
+  // A buffer scores by the damage their kit adds (+20% = `buffer` points, benchmark.ts), up to this (#68). Reaction
+  // bonuses no longer need it (weighted by the carry's share of that reaction, #87), but some values are still read
+  // at their peak, like Furina at max Fanfare: without the cap, `npm run compare` drops from 11/16 to 9/16.
+  maxKitBuffer: 15,
   maxBuffers: 2,
   hypercarryMaxBuffers: 3, // a hypercarry (mainReaction 'none') is built around buffers, not reactions
   survivability: 10,
@@ -114,11 +117,6 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
 // A support only partners a reaction if it brings an element the carry lacks (Bennett is not a Vaporize partner for Hu Tao).
 function suppliesElement(support: ScoringCharacter, carry: ScoringCharacter, reaction: Reaction): boolean {
   return support.element !== carry.element && reactionElements(reaction).includes(support.element);
-}
-
-// The reaction a carry's teams are built around: tagged, or their only reaction (#49). undefined = not decided.
-function mainReactionOf(carry: ScoringCharacter): Reaction | "none" | undefined {
-  return carry.mainReaction ?? (carry.reactions.length === 1 ? carry.reactions[0] : undefined);
 }
 
 function mainReactionLines(carry: ScoringCharacter, r: Reaction, partners: ScoringCharacter[], out: Sink) {
@@ -410,7 +408,9 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     const fits = g.values.filter(
       (v) => (!v.elements || v.elements.includes(carry.element)) && (!v.reactions || v.reactions.some((r) => dealt.includes(r as Reaction))),
     );
-    const sum = (kind: GleamValue["kind"]) => fits.filter((v) => v.kind === kind).reduce((a, v) => a + v.value, 0);
+    // A value for some reactions (Lauma's Lunar-Bloom crit) only reaches that share of the carry's damage (#87).
+    const sum = (kind: GleamValue["kind"]) =>
+      fits.filter((v) => v.kind === kind).reduce((a, v) => a + v.value * (v.reactions ? reactionShare(carry, v.reactions, dealt) : 1), 0);
     // Linnea's extra Geo shred stacks on her base shred, so it is worth less than the same shred alone.
     const baseShred = KIT_BUFFS[m.id]?.buffs.filter((b) => b.kind === "resShred").reduce((a, b) => a + b.value, 0) ?? 0;
     const gain =
@@ -471,8 +471,12 @@ function partyValueGain(v: PartyValue, m: ScoringCharacter, carry: ScoringCharac
     return (extra / (cd * BENCHMARK.carryHitsPerSecond * BENCHMARK.hitDamage)) * (v.uptime ?? 1);
   }
   const usesEm = carry.scalesOn?.includes("EM") || usesEmReaction(carry, ctx);
+  // A reaction DMG bonus only reaches the share of the carry's damage that is that reaction (#87); for other kinds
+  // `reactions` is just what turns the buff on (Venti's DMG after a Swirl).
   const g =
-    v.kind === "dmgBonus" || v.kind === "reactionBonus"
+    v.kind === "reactionBonus"
+      ? dmgBonusGain(value) * reactionShare(carry, v.reactions ?? [], dealt)
+      : v.kind === "dmgBonus"
       ? dmgBonusGain(value)
       : v.kind === "atkPct"
         ? atkPctGain(carry, value)
