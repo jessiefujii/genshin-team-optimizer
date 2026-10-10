@@ -14,6 +14,11 @@
      "type": 4001,
      "ival": "90",
      "val": "90"
+    },
+    "1002": {
+     "type": 1002,
+     "ival": "6",
+     "val": "6"
     }
    },
    "fightPropMap": {
@@ -108,7 +113,8 @@
       "level": 90,
       "affixMap": {
        "113415": 4
-      }
+      },
+      "promoteLevel": 6
      },
      "flat": {
       "itemType": "ITEM_WEAPON",
@@ -125,6 +131,11 @@
      "type": 4001,
      "ival": "90",
      "val": "90"
+    },
+    "1002": {
+     "type": 1002,
+     "ival": "6",
+     "val": "6"
     }
    },
    "talentIdList": [
@@ -227,7 +238,8 @@
       "level": 90,
       "affixMap": {
        "111417": 1
-      }
+      },
+      "promoteLevel": 6
      },
      "flat": {
       "itemType": "ITEM_WEAPON",
@@ -244,6 +256,11 @@
      "type": 4001,
      "ival": "80",
      "val": "80"
+    },
+    "1002": {
+     "type": 1002,
+     "ival": "5",
+     "val": "5"
     }
    },
    "talentIdList": [
@@ -342,7 +359,8 @@
       "level": 90,
       "affixMap": {
        "111414": 0
-      }
+      },
+      "promoteLevel": 6
      },
      "flat": {
       "itemType": "ITEM_WEAPON",
@@ -359,6 +377,11 @@
      "type": 4001,
      "ival": "90",
      "val": "90"
+    },
+    "1002": {
+     "type": 1002,
+     "ival": "6",
+     "val": "6"
     }
    },
    "fightPropMap": {
@@ -453,7 +476,8 @@
       "level": 90,
       "affixMap": {
        "113303": 4
-      }
+      },
+      "promoteLevel": 6
      },
      "flat": {
       "itemType": "ITEM_WEAPON",

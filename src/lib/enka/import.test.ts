@@ -18,9 +18,14 @@ describe("toUidImport", () => {
     const raiden = byId.get("Raiden Shogun")!;
     expect(raiden.constellation).toBe(0);
     expect(raiden.build.level).toBe(90);
-    expect(raiden.build.weapon).toEqual({ id: '"The Catch"', level: 90, refinement: 5 });
+    expect(raiden.build.weapon).toEqual({ id: '"The Catch"', level: 90, refinement: 5, ascension: 6 });
+    expect(raiden.build.ascension).toBe(6);
     expect(raiden.build.artifactSets).toEqual([{ set: "Emblem of Severed Fate", pieces: 4 }]);
     expect(raiden.build.talents).toEqual({ normal: 6, skill: 7, burst: 10 });
+  });
+
+  test("reads ascension: level 80 before ascending is phase 5 (#82)", () => {
+    expect(byId.get("Kamisato Ayaka")!.build.ascension).toBe(5);
   });
 
   test("adds the C3 and C5 talent bonus", () => {

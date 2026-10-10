@@ -25,7 +25,7 @@ export interface EnkaAvatar {
 
 export interface EnkaEquip {
   itemId: number;
-  weapon?: { level: number; affixMap?: Record<string, number> }; // affix value + 1 = refinement
+  weapon?: { level: number; promoteLevel?: number; affixMap?: Record<string, number> }; // affix value + 1 = refinement; promoteLevel = ascension
   reliquary?: { level: number };
   flat: {
     itemType: "ITEM_WEAPON" | "ITEM_RELIQUARY";
