@@ -557,6 +557,270 @@ function readStellar(id, spec) {
   };
 }
 
+// Sub-DPS hits (#95, part of #94). Each off-field sub-DPS's own damage: every hit source as its multiplier and
+// scaling stat (talent level 9, from the talent tables), how often it hits and its cooldown. #96 turns this into
+// damage over a rotation. How often a summon hits is mostly not in genshin-db's text ("at intervals"), so those
+// rates come from data/kit-overrides.json `hitRates`, sourced from the Genshin Impact Wiki's Gameplay Notes.
+//   talent, label: the table row with the multiplier; "A|{p} ATK+{q} DEF" and "×3" are read as such
+//   cd: the table label for how often this source comes back (a summon recast, or the field duration when the
+//       skill isn't recast before it ends)
+//   hits: hits per use: a number, a pattern in the talent text, or "rate" (kit-overrides.json hitRates)
+//   every: seconds between hits while it lasts: a pattern in the text, a table label, or "rate"; with duration
+//   onCarryNormal: it hits when the active character's Normal Attacks hit (Xingqiu, Yelan, Beidou)
+//   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP)
+const SUBDPS = {
+  Aino: [
+    { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Stage 2 DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Water Ball DMG", hits: "rate", cd: "CD" },
+  ],
+  Albedo: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "Duration" },
+    { talent: "skill", label: "Transient Blossom DMG", every: /generated once every (\d+)s/, duration: "Duration", cd: "Duration" },
+    { talent: "burst", label: "Burst DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Fatal Blossom DMG", hits: /(\d+) Fatal Blossoms/, cd: "CD" },
+  ],
+  Alyosha: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Fulgurite Hunting Field DMG", every: /Every (\d+)s, deals/, duration: "Duration", cd: "CD" },
+    { talent: "burst", label: "Tugarin DMG", every: /maul them every (\d+)s/, duration: "Duration", cd: "CD" },
+  ],
+  Amber: [
+    { talent: "skill", label: "Explosion DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Total Fiery Rain DMG", hits: 1, cd: "CD" },
+  ],
+  Beidou: [
+    { talent: "skill", label: "Base DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Lightning DMG", onCarryNormal: true, perSecond: /A maximum of (\d+) lightning discharge can be triggered per second/, duration: "Duration", cd: "CD" },
+  ],
+  Chiori: [
+    { talent: "skill", label: "Upward Sweep Attack DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Tamoto DMG", every: "Tamoto Attack Interval", duration: "Tamoto Duration", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Citlali: [
+    { talent: "skill", label: "Obsidian Tzitzimitl DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Frostfall Storm DMG", every: "rate", duration: "rate", cd: "CD" },
+    { talent: "burst", label: "Ice Storm DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Spiritvessel Skull DMG", hits: 1, cd: "CD" },
+  ],
+  Collei: [
+    { talent: "skill", label: "Skill DMG", hits: 2, cd: "CD" }, // out and back ("dealing Dendro DMG once again")
+    { talent: "burst", label: "Explosion DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Leap DMG", hits: "rate", cd: "CD" },
+  ],
+  Dehya: [
+    { talent: "skill", label: "Indomitable Flame DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Field DMG", every: /This effect can be triggered once every ([\d.]+)s/, duration: "Field Duration", cd: "CD" },
+    { talent: "burst", label: "Flame-Mane's Fist DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Incineration Drive DMG", hits: 1, cd: "CD" },
+  ],
+  Durin: [
+    { talent: "skill", label: "Transmutation: Confirmation of Purity DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Principle of Purity: As the Light Shifts DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Dragon of White Flame DMG", every: "rate", duration: "Dragon of White Flame Duration", cd: "CD" },
+  ],
+  Emilie: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "Skill CD" },
+    { talent: "skill", label: "Level 1 Lumidouce Case Attack DMG", every: "rate", duration: "Lumidouce Case Duration", cd: "Skill CD" },
+    { talent: "skill", label: "Spiritbreath Thorn DMG", every: "Spiritbreath Thorn Interval", duration: "Lumidouce Case Duration", cd: "Skill CD" },
+    // Dew falls every 0.3s, but one opponent can be targeted only every 0.7s: that's the single-target rate.
+    { talent: "burst", label: "Level 3 Lumidouce Case Attack DMG", every: /1 opponent can become the target every ([\d.]+) seconds/, duration: "Level 3 Lumidouce Case Duration", cd: "CD" },
+  ],
+  Escoffier: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "Press CD" },
+    { talent: "skill", label: "Frosty Parfait DMG", every: "rate", duration: "Cold Storage Mode Duration", cd: "Press CD" },
+    { talent: "skill", label: "Surging Blade DMG", every: "Surging Blade CD Interval", duration: "Cold Storage Mode Duration", cd: "Press CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Fischl: [
+    { talent: "skill", label: "Summoning DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Oz's ATK DMG", every: "rate", duration: "rate", cd: "CD" },
+    { talent: "burst", label: "Falling Thunder DMG", hits: 1, cd: "CD" },
+  ],
+  Furina: [
+    { talent: "skill", label: "Ousia Bubble DMG", hits: 1, cd: "CD" },
+    ...["Gentilhomme Usher DMG", "Surintendante Chevalmarin DMG", "Mademoiselle Crabaletta DMG"].map((label) => ({
+      talent: "skill",
+      label,
+      every: "rate",
+      duration: "Duration",
+      cd: "CD",
+      times: /(\d+)% of their original DMG/, // the 4-character value of "110%/120%/130%/140%"
+    })),
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Ineffa: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Birgitta Discharge DMG", every: "rate", duration: "Birgitta Duration", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Jahoda: [
+    { talent: "skill", label: "Filled Treasure Flask DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Purrsonal Coordinated Assistance Robot DMG", every: "rate", duration: "Purrsonal Coordinated Assistance Robot Duration", cd: "CD" },
+  ],
+  Kachina: [
+    { talent: "skill", label: "Turbo Twirly Independent DMG", every: "rate", duration: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Kaeya: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: "rate", cd: "CD" },
+  ],
+  Lauma: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Frostgrove Sanctuary Attack DMG", every: "rate", duration: "Frostgrove Sanctuary Duration", cd: "CD" },
+  ],
+  Linnea: [{ talent: "skill", label: "Lumi Pound-Pound Pummeler DMG", every: "rate", duration: "Lumi Duration", cd: "CD" }],
+  Lisa: [
+    { talent: "skill", label: "Stack 3 Conductive Hold DMG", hits: 1, cd: "Holding CD" },
+    { talent: "burst", label: "Discharge DMG", hits: "rate", cd: "CD" },
+  ],
+  Nahida: [
+    { talent: "skill", label: "Hold DMG", hits: 1, cd: "Seed of Skandha Duration" },
+    { talent: "skill", label: "Tri-Karma Purification DMG", every: "Tri-Karma Purification Trigger Interval", duration: "Seed of Skandha Duration", cd: "Hold CD" },
+  ],
+  Nilou: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Luminous Illusion/Water Wheel DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Lingering Aeon DMG", hits: 1, cd: "CD" },
+  ],
+  Odette: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: '"Plume" Dance Move DMG', every: "rate", duration: "Solo Dance Double Duration", cd: "CD" },
+    { talent: "skill", label: '"Wing" Dance Move DMG', every: "rate", duration: "Solo Dance Double Duration", cd: "CD" },
+    { talent: "skill", label: "Coda at Dawn's Tolling Stellar-Conduct/Stellar Swirl DMG", hits: 1, cd: "Coda at Dawn's Tolling CD" },
+    { talent: "burst", label: "Slash DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Final Slash DMG", hits: 1, cd: "CD" },
+  ],
+  Ororon: [
+    { talent: "skill", label: "Spirit Orb DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Ritual DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Soundwave Collision DMG", every: "rate", duration: "Duration", cd: "CD" },
+  ],
+  Prune: [
+    { talent: "skill", label: "Ring-A-Ding-Ding! Hexhunter Chime DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Witchlure Bell DMG", hits: "rate", cd: "CD" },
+  ],
+  Rosaria: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Ice Lance DoT", hits: "rate", cd: "CD" },
+  ],
+  Sigewinne: [
+    { talent: "skill", label: "Bolstering Bubblebalm DMG", hits: /After bouncing (\d+) times/, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", every: "rate", duration: "Duration", cd: "CD" },
+  ],
+  "Traveler (Dendro)": [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Lea Lotus Lamp Attack DMG", hits: "rate", cd: "CD" },
+  ],
+  "Traveler (Geo)": [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "DMG Per Shockwave", hits: "rate", cd: "CD" },
+  ],
+  Venti: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "Press CD" },
+    { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
+  ],
+  Xiangling: [
+    { talent: "skill", label: "Flame DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "1-Hit Swing DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "2-Hit Swing DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "3-Hit Swing DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Pyronado DMG", hits: "rate", cd: "CD" },
+  ],
+  Xingqiu: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Sword Rain DMG", onCarryNormal: true, every: "rate", hits: "rate", duration: "Duration", cd: "CD" },
+  ],
+  "Yae Miko": [
+    // Three Sesshou Sakura at level 3 ("A maximum of 3"), each striking as often as the wiki says.
+    { talent: "skill", label: "Sesshou Sakura DMG: Level 3", hits: "rate", times: /A maximum of (\d+) Sesshou Sakura/, cd: "Duration" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Tenko Thunderbolt DMG", hits: 3, cd: "CD" }, // one per Sesshou Sakura
+  ],
+  Yelan: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Exquisite Throw DMG", onCarryNormal: true, every: /Can occur once every (second)/, duration: "Duration", cd: "CD" },
+  ],
+};
+
+// A table row's multiplier per stat, at TALENT_LEVEL: "{p1:P} ATK+{p2:P} DEF" -> { atk, def }, "{p:F2P} Max HP" -> { hp },
+// "{p1:P}+{p2:P}" (two hits) -> their sum, "... ×3" -> three times, "{a}/{b}" (alternatives) -> the first.
+const STAT_WORDS = [
+  [/^Max HP/, "hp"],
+  [/^DEF/, "def"],
+  [/^Elemental Mastery/, "em"],
+  [/^ATK/, "atk"],
+];
+function scalingOf(attrs, label, id) {
+  const entry = attrs.labels.find((l) => l.split("|")[0].trim() === label);
+  if (!entry) throw new Error(`${id}: no talent label "${label}" (labels: ${attrs.labels.join("; ")})`);
+  let format = entry.slice(entry.indexOf("|") + 1);
+  const times = Number(format.match(/[×x](\d+)\s*$/)?.[1] ?? 1);
+  format = format.replace(/\s*[×x]\d+\s*$/, "");
+  const parts = format.split("/")[0] === format ? [format] : [format.split("/")[0] + format.slice(format.lastIndexOf("}") + 1)];
+  const out = {};
+  // "{a}+{b}" with no stat words between them are hits of the same stat; a stat word after a value names its stat.
+  const terms = [...parts[0].matchAll(/\{(param\d+):[^}]*\}\s*([^{+]*)/g)];
+  let pending = [];
+  for (const [, key, words] of terms) {
+    const value = attrs.parameters[key]?.[TALENT_LEVEL - 1];
+    if (value === undefined) throw new Error(`${id}: label "${label}" has no level ${TALENT_LEVEL} value for ${key}`);
+    pending.push(value);
+    const w = words.trim();
+    if (!w && terms[terms.length - 1][1] !== key) continue; // a bare term: its stat comes later (or ATK)
+    const stat = STAT_WORDS.find(([re]) => re.test(w))?.[1] ?? "atk";
+    out[stat] = round((out[stat] ?? 0) + pending.reduce((a, b) => a + b, 0) * times);
+    pending = [];
+  }
+  return out;
+}
+
+function readSubDps(id, specs) {
+  const talents = talentsOf(id);
+  const rates = OVERRIDES.hitRates?.[id] ?? {};
+  const missing = [];
+  const sources = [];
+  for (const s of specs) {
+    const attrs = talents[COMBAT[s.talent]].attributes;
+    const text = talents[COMBAT[s.talent]].description.replace(/\s+/g, " ");
+    const rate = rates[`${s.talent}: ${s.label}`];
+    const needsRate = [s.hits, s.every, s.duration].includes("rate");
+    if (needsRate && !rate) throw new Error(`${id}: "${s.label}" needs a kit-overrides.json hitRates entry`);
+    if (needsRate && rate.missing) {
+      missing.push(`${s.label}: ${rate.missing}`);
+      continue;
+    }
+    const fromText = (re) => {
+      const m = text.match(re);
+      if (!m) throw new Error(`${id}: pattern ${re} not found in ${s.talent}: ${text}`);
+      return m[1] === "second" ? 1 : Number(m[1]);
+    };
+    const value = (v, rateKey) =>
+      v === undefined ? undefined : v === "rate" ? rate[rateKey] : typeof v === "number" ? v : typeof v === "string" ? tableValue(attrs, v, id) : fromText(v);
+    const every = s.perSecond ? 1 / fromText(s.perSecond) : value(s.every, "every");
+    sources.push({
+      talent: s.talent,
+      label: s.label,
+      scaling: scalingOf(attrs, s.label, id),
+      ...(s.hits !== undefined ? { hits: value(s.hits, "hits") } : {}),
+      ...(every !== undefined ? { every, duration: value(s.duration, "duration") } : {}),
+      ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
+      ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
+      cd: tableValue(attrs, s.cd, id),
+      ...(needsRate ? { rateSource: rate.source } : {}),
+    });
+  }
+  return { sources, ...(missing.length ? { missing } : {}) };
+}
+
 const tags = require("../data/tags.json");
 const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0);
 const characters = {};
@@ -600,6 +864,13 @@ for (const c of tags) {
 }
 const nightsoulRule = OVERRIDES.rules.nightsoulBurst;
 
+// Every off-field sub-DPS needs a SUBDPS entry, so none is silently left without damage.
+const subDps = {};
+for (const c of tags.filter((c) => c.roles.includes("sub-dps") && c.fieldTime === "off")) {
+  if (!SUBDPS[c.id]) throw new Error(`${c.id} is an off-field sub-DPS in tags.json but has no SUBDPS entry`);
+  subDps[c.id] = readSubDps(c.id, SUBDPS[c.id]);
+}
+
 // Every Stellar member needs a STELLAR entry, so a new one (or new Radiance text) can't be missed.
 const stellar = {};
 for (const c of tags.filter((c) => (c.families ?? []).includes("stellar"))) {
@@ -619,13 +890,16 @@ writeFileSync(
         source: nightsoulRule.source,
         characters: nightsoulBurst,
       },
-      stellar }, null, 2) + "\n",
+      stellar,
+      subDps }, null, 2) + "\n",
 );
+const missingHits = Object.entries(subDps).flatMap(([id, d]) => (d.missing ?? []).map((m) => `${id} ${m.split(":")[0]}`));
+if (missingHits.length) console.log(`sub-DPS hits with no rate yet (kit-overrides.json hitRates): ${missingHits.join(", ")}`);
 const empty = Object.entries(OVERRIDES.characters).flatMap(([id, c]) => c.slots.filter((s) => !s.text.trim()).map((s) => `${id} ${s.talent || "(talent?)"}`));
 const nightsoul = OVERRIDES.rules.nightsoulBurst.whoCanTrigger.trim() ? 0 : 1;
 if (empty.length + nightsoul > 0) {
   console.log(`kit-overrides.json: ${empty.length + nightsoul} empty: ${[...empty, ...(nightsoul ? ["rules.nightsoulBurst"] : [])].join(", ")}`);
 }
 console.log(
-  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects, ${Object.keys(stellar).length} Stellar members`,
+  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects, ${Object.keys(stellar).length} Stellar members, ${Object.keys(subDps).length} sub-DPS`,
 );
