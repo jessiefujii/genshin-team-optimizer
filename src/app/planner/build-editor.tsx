@@ -19,6 +19,23 @@ interface Props {
 const field = `${control} w-full`;
 const label = "block text-xs text-zinc-600 dark:text-zinc-400";
 
+// Base ATK from the character's and weapon's levels (genshin-db, on the server, #80). If the lookup fails the
+// build is still saved; the scorer then assumes a benchmark weapon's base ATK.
+async function fetchBaseAtk(characterId: string, build: CharacterBuild): Promise<number | undefined> {
+  const q = new URLSearchParams({
+    character: characterId,
+    level: String(build.level),
+    weapon: build.weapon.id,
+    weaponLevel: String(build.weapon.level),
+  });
+  try {
+    const res = await fetch(`/api/base-atk?${q}`);
+    return res.ok ? ((await res.json()) as { baseAtk: number }).baseAtk : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // Modal form for one character's build. Opens pre-filled with the current (imported or saved) build.
 export default function BuildEditor({ character, entry, catalog, onSave, onClear, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -37,14 +54,16 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
   // Keep a saved weapon selectable even if the catalog no longer lists it.
   const weaponOptions = form.weapon && !weapons.includes(form.weapon) ? [form.weapon, ...weapons] : weapons;
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const result = parseForm(form);
     if ("errors" in result) {
       setErrors(result.errors);
       return;
     }
-    onSave(result.build);
+    const { build } = result;
+    const baseAtk = await fetchBaseAtk(character.id, build);
+    onSave(baseAtk === undefined ? build : { ...build, stats: { ...build.stats, baseAtk } });
     onClose();
   }
 
@@ -152,11 +171,10 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
 
         <fieldset className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <legend className="mb-1 text-sm font-medium">Final stats</legend>
-          {STAT_FIELDS.map(({ key, label: text, percent, optional }) => (
+          {STAT_FIELDS.map(({ key, label: text, percent }) => (
             <label key={key} className={label}>
               {text}
               {percent ? " (%)" : ""}
-              {optional ? " (optional)" : ""}
               <input
                 inputMode="decimal"
                 value={form.stats[key]}

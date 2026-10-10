@@ -27,15 +27,7 @@ describe("build form", () => {
     const errors = errorsOf(toForm(undefined));
     expect(errors).toContain("Pick a weapon.");
     expect(errors).toContain("CRIT Rate is required.");
-    expect(errors).toHaveLength(9); // weapon + 8 stats; Base ATK is optional
-  });
-
-  test("Base ATK is optional, and kept when filled in (#80)", () => {
-    const form = toForm(raiden);
-    expect(form.stats.baseAtk).toBe("");
-    form.stats.baseAtk = "942";
-    const result = parseForm(form);
-    expect("build" in result && result.build.stats.baseAtk).toBe(942);
+    expect(errors).toHaveLength(9); // weapon + 8 stats
   });
 
   test("percent stats typed as fractions are caught", () => {
