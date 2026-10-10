@@ -9,6 +9,9 @@ export interface CharacterStats {
   energyRecharge: number;
   elementalMastery: number;
   elementalDmgBonus: number; // for the character's own element
+  // Character + weapon base ATK: the white number on the Attributes screen. ATK % buffs are a percent of
+  // this (#80). Optional: builds saved before it existed don't have it.
+  baseAtk?: number;
 }
 
 // One character's build, from a UID import or (later) the build editor.

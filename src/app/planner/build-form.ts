@@ -15,10 +15,11 @@ export interface BuildForm {
   stats: Record<keyof CharacterStats, string>;
 }
 
-// `min` is the stat's base value in game, so typing 0.489 for 48.9% is caught.
-export const STAT_FIELDS: { key: keyof CharacterStats; label: string; percent: boolean; min: number }[] = [
+// `min` is the stat's base value in game, so typing 0.489 for 48.9% is caught. `optional` stats can be left blank.
+export const STAT_FIELDS: { key: keyof CharacterStats; label: string; percent: boolean; min: number; optional?: boolean }[] = [
   { key: "hp", label: "Max HP", percent: false, min: 1 },
   { key: "atk", label: "ATK", percent: false, min: 1 },
+  { key: "baseAtk", label: "Base ATK", percent: false, min: 1, optional: true },
   { key: "def", label: "DEF", percent: false, min: 1 },
   { key: "elementalMastery", label: "Elemental Mastery", percent: false, min: 0 },
   { key: "critRate", label: "CRIT Rate", percent: true, min: 5 },
@@ -30,7 +31,7 @@ export const STAT_FIELDS: { key: keyof CharacterStats; label: string; percent: b
 export function toForm(build: CharacterBuild | undefined): BuildForm {
   const [first, second] = build?.artifactSets ?? [];
   const stats = Object.fromEntries(
-    STAT_FIELDS.map(({ key }) => [key, build ? String(build.stats[key]) : ""]),
+    STAT_FIELDS.map(({ key }) => [key, String(build?.stats[key] ?? "")]),
   ) as BuildForm["stats"];
   return {
     level: String(build?.level ?? 90),
@@ -87,9 +88,10 @@ export function parseForm(form: BuildForm): { build: CharacterBuild } | { errors
   }
 
   const stats = {} as CharacterStats;
-  for (const { key, label, percent, min } of STAT_FIELDS) {
+  for (const { key, label, percent, min, optional } of STAT_FIELDS) {
     const raw = form.stats[key].trim().replace(/%$/, "");
     const n = Number(raw);
+    if (raw === "" && optional) continue;
     if (raw === "" || !Number.isFinite(n)) {
       errors.push(`${label} is required.`);
     } else if (n < min) {

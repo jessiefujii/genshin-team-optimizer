@@ -285,6 +285,22 @@ describe("scoreTeam", () => {
     const lines = (t: ScoringCharacter[], rule: string) => scoreTeam(t).breakdown.filter((l) => l.rule === rule);
     const vape = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli"];
 
+    test("ATK % buffs use the build's base ATK when it has one (#80)", () => {
+      // The ~+N% in a line's reason, so small differences show even when points round the same.
+      const pct = (t: ScoringCharacter[], start: string) =>
+        Number(scoreTeam(t).breakdown.find((l) => l.reason.startsWith(start))?.reason.match(/~\+(\d+)%/)?.[1] ?? 0);
+      // Bennett's burst adds a ratio of his base ATK.
+      const bennett = ["Hu Tao", "Bennett", "Xingqiu", "Zhongli"];
+      const lowBase = pct(built({ Bennett: { baseAtk: 700 } }, ...bennett), "Bennett buffs");
+      const highBase = pct(built({ Bennett: { baseAtk: 1100 } }, ...bennett), "Bennett buffs");
+      expect(highBase).toBeGreaterThan(lowBase);
+      // Prune's Secret Rite: +60% of her base ATK, below her Tolling Rally cap at 2,600 ATK.
+      const prune = ["Varka", "Prune", "Venti", "Bennett"];
+      const benchmarkWeapon = pct(built({ Prune: { atk: 2600 } }, ...prune), "Secret Rite: Prune");
+      const realWeapon = pct(built({ Prune: { atk: 2600, baseAtk: 900 } }, ...prune), "Secret Rite: Prune");
+      expect(realWeapon).toBeGreaterThan(benchmarkWeapon);
+    });
+
     test("no stats: no build lines, and the team says it assumes default builds", () => {
       const result = score(...vape);
       expect(result.breakdown.some((l) => l.rule === "Carry build")).toBe(false);

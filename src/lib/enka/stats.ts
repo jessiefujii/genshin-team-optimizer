@@ -3,6 +3,7 @@ import type { Element } from "@/types/tags";
 
 // Enka fight prop IDs for final stats. Percent stats come as fractions (0.489 = 48.9%).
 // https://github.com/EnkaNetwork/API-docs/blob/master/docs/gi/api.md
+const BASE_ATK = 4; // character + weapon
 const FINAL_HP = 2000;
 const FINAL_ATK = 2001;
 const FINAL_DEF = 2002;
@@ -34,5 +35,6 @@ export function mapFightProps(props: Record<string, number>, element: Element): 
     energyRecharge: percent(props[ENERGY_RECHARGE]),
     elementalMastery: flat(props[ELEMENTAL_MASTERY]),
     elementalDmgBonus: percent(props[DMG_BONUS[element]]),
+    ...(props[BASE_ATK] ? { baseAtk: flat(props[BASE_ATK]) } : {}),
   };
 }

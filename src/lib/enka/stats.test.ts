@@ -10,6 +10,7 @@ const zhongli = {
   "30": 0,
   "42": 0,
   "45": 0.7539999485015869,
+  "4": 755.94,
   "2000": 40489.12,
   "2001": 1206.73,
   "2002": 1043.5,
@@ -26,6 +27,7 @@ describe("mapFightProps", () => {
       energyRecharge: 106.5,
       elementalMastery: 100,
       elementalDmgBonus: 75.4,
+      baseAtk: 756,
     });
   });
 

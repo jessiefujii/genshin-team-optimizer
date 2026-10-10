@@ -152,10 +152,11 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
 
         <fieldset className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <legend className="mb-1 text-sm font-medium">Final stats</legend>
-          {STAT_FIELDS.map(({ key, label: text, percent }) => (
+          {STAT_FIELDS.map(({ key, label: text, percent, optional }) => (
             <label key={key} className={label}>
               {text}
               {percent ? " (%)" : ""}
+              {optional ? " (optional)" : ""}
               <input
                 inputMode="decimal"
                 value={form.stats[key]}

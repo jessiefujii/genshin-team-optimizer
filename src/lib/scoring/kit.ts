@@ -50,11 +50,25 @@ function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: read
 // Plunging carries say so in their rotation tags (Xiao "plunge x10", Gaming "E plunge x4").
 const plunges = (c: ScoringCharacter) => c.rotation.actions.some((a) => /plunge/i.test(a));
 
+// Base ATK (character + weapon), which ATK % buffs are a percent of (#80): the build's when it has one, else
+// the character's level 90 base plus a benchmark weapon (or the benchmark carry's, for a carry not in kit.json).
+export function baseAtkOf(m: ScoringCharacter): number {
+  if (m.stats?.baseAtk) return m.stats.baseAtk;
+  const base = KIT[m.id]?.base;
+  return base ? base.atk + BENCHMARK.buffer.weaponBaseAtk : BENCHMARK.carryBaseAtk;
+}
+
+// What +pct ATK % is worth to the carry: a percent of their base ATK, against their total ATK.
+export function atkPctGain(carry: ScoringCharacter, pct: number): number {
+  const atk = carry.stats?.atk ?? BENCHMARK.carryAtk;
+  return ((carry.stats?.baseAtk ?? BENCHMARK.carryBaseAtk) * pct) / atk;
+}
+
 // The buffer's own stats: from their build when the player has one, else the benchmark.
 function bufferStats(s: ScoringCharacter, base: KitCharacter["base"], buildFor: KitCharacter["buildFor"]) {
   const b = BENCHMARK.buffer;
   return {
-    baseAtk: (base?.atk ?? 0) + b.weaponBaseAtk,
+    baseAtk: s.stats?.baseAtk ?? (base?.atk ?? 0) + b.weaponBaseAtk,
     atk: s.stats?.atk ?? buildFor?.atk ?? b.atk,
     hp: s.stats?.hp ?? b.hp,
     def: s.stats?.def ?? b.def,
@@ -101,7 +115,7 @@ function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scori
     case "atkFromAtk":
       return cap(stats.atk * buff.value) / B.carryAtk;
     case "atkPct":
-      return (B.carryBaseAtk * buff.value) / B.carryAtk;
+      return atkPctGain(carry, buff.value);
     case "atkFlat":
       return buff.value / B.carryAtk;
     case "dmgBonus":

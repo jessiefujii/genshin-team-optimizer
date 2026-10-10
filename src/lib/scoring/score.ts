@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, reactionElements } from "./reactions";
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { kitBuffValue } from "./kit";
+import { atkPctGain, baseAtkOf, kitBuffValue } from "./kit";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
@@ -473,13 +473,13 @@ type SecretRiteEntry = { target: "self"; source: string } | { target: "party"; s
 const SECRET_RITE = kitJson.secretRite as Record<string, SecretRiteEntry>;
 
 // More ATK for a member whose buff grows with ATK above a threshold (Prune's Tolling Rally): the extra
-// DMG bonus that buff then gives. ATK % is of base ATK: the character's plus a benchmark weapon.
+// DMG bonus that buff then gives. ATK % is of base ATK (character + weapon; baseAtkOf).
 function excessAtkBuffRaise(m: ScoringCharacter, atkPct: number): number {
   const kit = KIT_BUFFS[m.id];
   const buff = kit?.buffs.find((b) => b.kind === "dmgBonusFromExcessAtk");
   if (!kit?.base || !buff) return 0;
   const atk = m.stats?.atk ?? kit.buildFor?.atk ?? BENCHMARK.buffer.atk;
-  const raise = (kit.base.atk + BENCHMARK.buffer.weaponBaseAtk) * atkPct;
+  const raise = baseAtkOf(m) * atkPct;
   const bonus = (a: number) => Math.min(buff.max!, buff.value * Math.max(0, a - buff.threshold!));
   return dmgBonusGain(bonus(atk + raise)) - dmgBonusGain(bonus(atk));
 }
@@ -506,7 +506,7 @@ function secretRiteGain(v: SecretRiteValue, m: ScoringCharacter, carry: ScoringC
     v.kind === "dmgBonus" || v.kind === "reactionBonus"
       ? dmgBonusGain(value)
       : v.kind === "atkPct"
-        ? (BENCHMARK.carryBaseAtk * value) / BENCHMARK.carryAtk
+        ? atkPctGain(carry, value)
         : v.kind === "em"
           ? usesEm
             ? emGain(value)
