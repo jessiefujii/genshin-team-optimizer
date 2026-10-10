@@ -414,8 +414,8 @@
     },
     "Durin": {
       "burst: Dragon of White Flame DMG": {
-        "missing": "the dragon's attack interval isn't in genshin-db, on the character page or on the talent page (\"at intervals\")",
-        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Principle_of_Purity:_As_the_Light_Shifts, fetched 2026-10-10 (only its internal cooldown is given)"
+        "every": 1.5,
+        "source": "pasted by Jessie 2026-10-10 from the Genshin Impact Wiki talent page Principle of Purity: As the Light Shifts (Advanced Properties): \"Dragon of White Flame DMG 1U Elemental Burst C 1.5s\" (Dragon of Dark Decay: 2s). That is the internal cooldown, used here as the attack interval: the talent text only says \"at intervals\". Fits Chaos Formed Like the Night's 10 Primordial Fusion stacks for 20s of dragon at Dark Decay's 2s."
       }
     },
     "Emilie": {
