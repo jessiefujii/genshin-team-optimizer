@@ -568,6 +568,30 @@
         "hits": 5,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yae_Miko, fetched 2026-10-10: \"The Sesshou Sakura can strike 5 times over their 14 seconds duration.\""
       }
+    },
+    "Kinich": {
+      "carry: Dragon Breath DMG": {
+        "missing": "how often Ajaw's Dragon Breath hits during the 15s Burst isn't in genshin-db or on the wiki (\"at intervals\")",
+        "source": ""
+      }
+    },
+    "Neuvillette": {
+      "carry: Charged Attack: Equitable Judgment": {
+        "missing": "how many times Equitable Judgment hits in its 3s isn't in genshin-db or on the character page (only that it \"lasts 3s\")",
+        "source": ""
+      }
+    },
+    "Kamisato Ayaka": {
+      "carry: Cutting DMG": {
+        "missing": "how many times Soumetsu's storm cuts in its 5s isn't in genshin-db or on the character page (\"slashes repeatedly\")",
+        "source": ""
+      }
+    },
+    "Alhaitham": {
+      "carry: 3-Mirror Projection Attack DMG": {
+        "missing": "how many Projection Attacks fire during his rotation: they fire on his hits at most every 1.6s (\"Projection Attack Interval\") while Mirrors last, but how long the N4 x3 strings take isn't given",
+        "source": ""
+      }
     }
   }
 }
