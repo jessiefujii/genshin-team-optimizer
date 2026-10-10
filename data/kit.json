@@ -2008,6 +2008,17 @@
     "Kachina": {
       "sources": [
         {
+          "talent": "skill",
+          "label": "Turbo Twirly Independent DMG",
+          "scaling": {
+            "def": 1.08392
+          },
+          "every": 2,
+          "duration": 12,
+          "cd": 20,
+          "rateSource": "HoYoLAB, \"Kachina: Overview and Build Guide\" by Airmitchbaby, https://www.hoyolab.com/article/34606441 (from Jessie, fetched 2026-10-10): \"In Independent mode, Turbo Twirly will do a ground slam every two seconds, consuming Nightsoul points. If she has full points when using the skill, it'll slam six times over the course of twelve seconds.\""
+        },
+        {
           "talent": "burst",
           "label": "Skill DMG",
           "scaling": {
@@ -2016,9 +2027,6 @@
           "hits": 1,
           "cd": 18
         }
-      ],
-      "missing": [
-        "Turbo Twirly Independent DMG: slams every 2s (wiki), but Turbo Twirly lasts until Kachina's 60 Nightsoul points run out, and the talent page's consumption table only covers riding it (e.g. \"Perform Attack 10\"), not independent mode"
       ]
     },
     "Kaeya": {

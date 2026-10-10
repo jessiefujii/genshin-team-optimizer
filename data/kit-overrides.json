@@ -465,8 +465,9 @@
     },
     "Kachina": {
       "skill: Turbo Twirly Independent DMG": {
-        "missing": "slams every 2s (wiki), but Turbo Twirly lasts until Kachina's 60 Nightsoul points run out, and the talent page's consumption table only covers riding it (e.g. \"Perform Attack 10\"), not independent mode",
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Go,_Go_Turbo_Twirly!, fetched 2026-10-10 (talent page): \"Turbo Twirly Independent DMG is triggered once every 2 seconds.\""
+        "every": 2,
+        "duration": 12,
+        "source": "HoYoLAB, \"Kachina: Overview and Build Guide\" by Airmitchbaby, https://www.hoyolab.com/article/34606441 (from Jessie, fetched 2026-10-10): \"In Independent mode, Turbo Twirly will do a ground slam every two seconds, consuming Nightsoul points. If she has full points when using the skill, it'll slam six times over the course of twelve seconds.\""
       }
     },
     "Kaeya": {
