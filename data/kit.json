@@ -2252,10 +2252,17 @@
           },
           "hits": 1,
           "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Soundwave Collision DMG",
+          "scaling": {
+            "atk": 0.5644
+          },
+          "hits": 9,
+          "cd": 15,
+          "rateSource": "pasted by Jessie 2026-10-10 (Ororon guide, Constellation 4 notes): \"This Constellation increases the frequency of Ororon's Burst hits, totalling ~12 hits instead of ~9.\" (C0: ~9)"
         }
-      ],
-      "missing": [
-        "Soundwave Collision DMG: how often the Supersonic Oculus's sonic waves hit isn't in genshin-db, on the character page or on the talent page (\"continuously\")"
       ]
     },
     "Prune": {

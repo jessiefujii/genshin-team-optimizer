@@ -505,8 +505,8 @@
     },
     "Ororon": {
       "burst: Soundwave Collision DMG": {
-        "missing": "how often the Supersonic Oculus's sonic waves hit isn't in genshin-db, on the character page or on the talent page (\"continuously\")",
-        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dark_Voices_Echo, fetched 2026-10-10 (only its internal cooldown is given)"
+        "hits": 9,
+        "source": "pasted by Jessie 2026-10-10 (Ororon guide, Constellation 4 notes): \"This Constellation increases the frequency of Ororon's Burst hits, totalling ~12 hits instead of ~9.\" (C0: ~9)"
       }
     },
     "Prune": {

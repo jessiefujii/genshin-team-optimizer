@@ -700,7 +700,7 @@ const SUBDPS = {
   Ororon: [
     { talent: "skill", label: "Spirit Orb DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Ritual DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Soundwave Collision DMG", every: "rate", duration: "Duration", cd: "CD" },
+    { talent: "burst", label: "Soundwave Collision DMG", hits: "rate", cd: "CD" },
   ],
   Prune: [
     { talent: "skill", label: "Ring-A-Ding-Ding! Hexhunter Chime DMG", hits: 1, cd: "CD" },
