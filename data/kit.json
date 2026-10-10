@@ -1618,6 +1618,28 @@
         }
       ]
     },
+    "Chongyun": {
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 2.92468
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 2.4208
+          },
+          "hits": 3,
+          "cd": 12
+        }
+      ]
+    },
     "Citlali": {
       "sources": [
         {
@@ -1653,6 +1675,39 @@
           "label": "Spiritvessel Skull DMG",
           "scaling": {
             "atk": 2.2848
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Columbina": {
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "hp": 0.28424
+          },
+          "hits": 1,
+          "cd": 17
+        },
+        {
+          "talent": "skill",
+          "label": "Gravity Ripple: Continuous DMG",
+          "scaling": {
+            "hp": 0.15912
+          },
+          "every": 2,
+          "duration": 25,
+          "cd": 17,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-11 (talent page): \"Gravity Ripple attacks once every 2 seconds.\""
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "hp": 0.54808
           },
           "hits": 1,
           "cd": 15
@@ -2115,6 +2170,39 @@
         }
       ]
     },
+    "Lynette": {
+      "sources": [
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.4144
+          },
+          "hits": 1,
+          "cd": 18
+        },
+        {
+          "talent": "burst",
+          "label": "Bogglecat Box DMG",
+          "scaling": {
+            "atk": 0.8704
+          },
+          "hits": 11,
+          "cd": 18,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Magic_Trick:_Astonishing_Shift, fetched 2026-10-11 (talent page): \"Bogglecat Box deals Anemo DMG to nearby opponents every 1 second and fires a Vivid Shot every 2.3 seconds for a total of 11 instances of Anemo DMG and 5 Vivid Shots.\""
+        },
+        {
+          "talent": "burst",
+          "label": "Vivid Shot DMG",
+          "scaling": {
+            "atk": 0.7752
+          },
+          "hits": 5,
+          "cd": 18,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Magic_Trick:_Astonishing_Shift, fetched 2026-10-11 (talent page): \"Bogglecat Box deals Anemo DMG to nearby opponents every 1 second and fires a Vivid Shot every 2.3 seconds for a total of 11 instances of Anemo DMG and 5 Vivid Shots.\" Vivid Shots need the Box to absorb Hydro, Pyro, Cryo or Electro."
+        }
+      ]
+    },
     "Nahida": {
       "sources": [
         {
@@ -2381,6 +2469,30 @@
           "hits": 8,
           "cd": 20,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Traveler/Dendro, fetched 2026-10-10: \"The Lea Lotus Lamp in its original state or after Hydro transformation attacks every 1.5 seconds, resulting in a total of 8 hits.\" (10 with C2)"
+        }
+      ]
+    },
+    "Traveler (Pyro)": {
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Blazing Threshold",
+          "scaling": {
+            "atk": 0.47736
+          },
+          "every": 1,
+          "duration": 9,
+          "cd": 18,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Flowfire_Blade, fetched 2026-10-11 (talent page): \"Blazing Threshold attacks once every 1s.\" It lasts while Nightsoul's Blessing does, which uses \"7.5 Nightsoul Points per second\": 42 from the skill plus 7 per second for 4s from the burst (genshin-db) = 70 points, ~9s. Worked out here, not a wiki number."
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 7.2624
+          },
+          "hits": 1,
+          "cd": 18
         }
       ]
     },
@@ -3530,7 +3642,6 @@
     "Aloy",
     "Arataki Itto",
     "Chasca",
-    "Columbina",
     "Cyno",
     "Diluc",
     "Eula",
@@ -3541,6 +3652,7 @@
     "Kaveh",
     "Keqing",
     "Klee",
+    "Lan Yan",
     "Lohen",
     "Lyney",
     "Manekin",
@@ -3555,6 +3667,8 @@
     "Shikanoin Heizou",
     "Tartaglia",
     "Tighnari",
+    "Traveler (Anemo)",
+    "Traveler (Hydro)",
     "Varka",
     "Vesna",
     "Wanderer",

@@ -600,11 +600,21 @@ const SUBDPS = {
     { talent: "skill", label: "Tamoto DMG", every: "Tamoto Attack Interval", duration: "Tamoto Duration", cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
   ],
+  Chongyun: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: /summons (\d+) giant spirit blades/, cd: "CD" },
+  ],
   Citlali: [
     { talent: "skill", label: "Obsidian Tzitzimitl DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Frostfall Storm DMG", hits: "rate", cd: "CD" }, // limited by her Nightsoul points (kit-overrides.json)
     { talent: "burst", label: "Ice Storm DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Spiritvessel Skull DMG", hits: 1, cd: "CD" },
+  ],
+  Columbina: [
+    // Gravity Interference needs Lunar reactions and is left out for now.
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Gravity Ripple: Continuous DMG", every: "rate", duration: "Gravity Ripple Duration", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
   ],
   Collei: [
     { talent: "skill", label: "Skill DMG", hits: 2, cd: "CD" }, // out and back ("dealing Dendro DMG once again")
@@ -679,6 +689,11 @@ const SUBDPS = {
     { talent: "skill", label: "Stack 3 Conductive Hold DMG", hits: 1, cd: "Holding CD" },
     { talent: "burst", label: "Discharge DMG", hits: "rate", cd: "CD" },
   ],
+  Lynette: [
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Bogglecat Box DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Vivid Shot DMG", hits: "rate", cd: "CD" }, // once it absorbs Hydro/Pyro/Cryo/Electro
+  ],
   Nahida: [
     { talent: "skill", label: "Hold DMG", hits: 1, cd: "Seed of Skandha Duration" },
     { talent: "skill", label: "Tri-Karma Purification DMG", every: "Tri-Karma Purification Trigger Interval", duration: "Seed of Skandha Duration", cd: "Hold CD" },
@@ -719,6 +734,10 @@ const SUBDPS = {
   "Traveler (Dendro)": [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Lea Lotus Lamp Attack DMG", hits: "rate", cd: "CD" },
+  ],
+  "Traveler (Pyro)": [
+    { talent: "skill", label: "Blazing Threshold", every: "rate", duration: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
   ],
   "Traveler (Geo)": [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
@@ -1143,12 +1162,13 @@ const carries = {};
 for (const [id, spec] of Object.entries(CARRIES)) carries[id] = readCarry(id, spec);
 const carriesTodo = tags.filter((c) => c.roles.includes("main-dps") && !CARRIES[c.id]).map((c) => c.id);
 
-// Every off-field sub-DPS needs a SUBDPS entry, so none is silently left without damage.
-const subDps = {};
+// Every off-field sub-DPS needs a SUBDPS entry, so none is silently left without damage. Entries for supports whose
+// in-game roles aren't DPS (#105: Citlali, Lauma) stay: their hits still deal damage.
 for (const c of tags.filter((c) => c.roles.includes("sub-dps") && c.fieldTime === "off")) {
   if (!SUBDPS[c.id]) throw new Error(`${c.id} is an off-field sub-DPS in tags.json but has no SUBDPS entry`);
-  subDps[c.id] = readSubDps(c.id, SUBDPS[c.id]);
 }
+const subDps = {};
+for (const [id, spec] of Object.entries(SUBDPS)) subDps[id] = readSubDps(id, spec);
 
 // Every Stellar member needs a STELLAR entry, so a new one (or new Radiance text) can't be missed.
 const stellar = {};

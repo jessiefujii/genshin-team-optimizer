@@ -10,7 +10,8 @@
     "test": "vitest run --exclude \"**/*.perf.test.ts\" --exclude \"**/*.compare.test.ts\"",
     "bench": "vitest run src/lib/scoring/search.perf.test.ts",
     "compare": "vitest run src/lib/scoring/known-teams.compare.test.ts",
-    "kit": "node scripts/extract-kit.mjs"
+    "kit": "node scripts/extract-kit.mjs",
+    "roles": "node scripts/fetch-roles.mjs"
   },
   "dependencies": {
     "genshin-db": "^5.2.14",
