@@ -420,6 +420,56 @@ function readSecretRite(id, spec) {
   };
 }
 
+// Nightsoul Burst (#63). A party with a Natlanese member triggers a Nightsoul Burst when anyone deals Elemental
+// DMG, at most once per cooldown that shortens with more Natlanese members (data/kit-overrides.json
+// rules.nightsoulBurst). Every effect it triggers is the character's own, so only the carry's counts:
+//   target "self", kind atkPct: the carry's ATK % (Mavuika, Varesa), value x stacks up
+//   target "self", no kind: an upgrade to the carry's own kit (Kinich, Mualani, Chasca), scored like Secret Rite
+//   duration / max stacks: how long each stack lasts and how many can be up; no duration = one-off (Chasca's shot)
+//   target "own": a support's effect on their own stats or resources; recorded, not scored (sub-DPS damage is
+//   Phase 3, resources are the energy check's job)
+const NIGHTSOUL_BURST = {
+  Chasca: { from: "passive2", target: "self" },
+  Citlali: { from: "passive2", target: "own", note: "regains Nightsoul points" },
+  Iansan: { from: "passive2", target: "own", note: "Warming Up (her own resource)" },
+  Ifa: { from: "passive2", target: "own", note: "his own EM" },
+  Kachina: { from: "passive1", target: "own", note: "her own Geo DMG" },
+  Kinich: { from: "passive2", target: "self", duration: /lasts (\d+)s/, max: /Max (\d+) stacks/ },
+  Mavuika: { from: "passive1", target: "self", kind: "atkPct", re: /ATK increases by (\d+)% for/, duration: /for (\d+)s/ },
+  Mualani: { from: "passive2", target: "self", duration: /lasts for (\d+)s/, max: /Max (\d+) stacks/ },
+  Ororon: { from: "passive1", target: "own", note: "gains Nightsoul points" },
+  "Traveler (Pyro)": { from: "passive2", target: "own", note: "regains Energy" },
+  Varesa: { from: "passive2", target: "self", kind: "atkPct", re: /ATK increases by (\d+)% for/, duration: /for (\d+)s/, max: /Max (\d+) stacks/ },
+  Xilonen: { from: "passive2", target: "own", note: "her own DEF" },
+};
+
+// The sentence that says what a Nightsoul Burst does for this character.
+function nightsoulBurstSentence(id, from) {
+  const text = talentsOf(id)?.[from]?.description?.replace(/\s+/g, " ") ?? "";
+  const sentences = text.split(/(?<=\.) /);
+  const at = sentences.findIndex((s) => /triggers? (a )?Nightsoul Bursts?/.test(s));
+  if (at < 0) throw new Error(`${id}: no Nightsoul Burst trigger in ${from}`);
+  return sentences.slice(at).join(" ");
+}
+
+function readNightsoulBurst(id, spec) {
+  const text = nightsoulBurstSentence(id, spec.from);
+  const source = `${spec.from}: "${text.split(/(?<=\.) /)[0]}"`;
+  if (spec.target === "own") return { target: "own", note: spec.note, source };
+  const num = (re) => {
+    const m = text.match(re);
+    if (!m) throw new Error(`${id}: pattern ${re} not found in ${spec.from}: ${text}`);
+    return Number(m[1]);
+  };
+  return {
+    target: "self",
+    ...(spec.kind ? { kind: spec.kind, value: num(spec.re) / 100 } : {}),
+    duration: spec.duration ? num(spec.duration) : null,
+    maxStacks: spec.max ? num(spec.max) : 1,
+    source,
+  };
+}
+
 const tags = require("../data/tags.json");
 const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0);
 const characters = {};
@@ -453,10 +503,28 @@ for (const c of tags.filter((c) => (c.families ?? []).includes("hexerei"))) {
   if (SECRET_RITE[c.id]) secretRite[c.id] = readSecretRite(c.id, SECRET_RITE[c.id]);
 }
 
+// Every character whose kit reacts to a party member's Nightsoul Burst needs a NIGHTSOUL_BURST entry.
+const nightsoulBurst = {};
+for (const c of tags) {
+  const t = talentsOf(c.id);
+  const has = t && ["passive1", "passive2", "passive3"].some((k) => /triggers? (a )?Nightsoul Bursts?/.test(t[k]?.description ?? ""));
+  if (has && !NIGHTSOUL_BURST[c.id]) throw new Error(`${c.id} reacts to Nightsoul Bursts but has no NIGHTSOUL_BURST entry`);
+  if (NIGHTSOUL_BURST[c.id]) nightsoulBurst[c.id] = readNightsoulBurst(c.id, NIGHTSOUL_BURST[c.id]);
+}
+const nightsoulRule = OVERRIDES.rules.nightsoulBurst;
+
 const out = new URL("../data/kit.json", import.meta.url);
 writeFileSync(
   out,
-  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, ascendantGleam, secretRite }, null, 2) + "\n",
+  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, ascendantGleam, secretRite,
+      nightsoulBurst: {
+        // Seconds between Nightsoul Bursts by the number of Natlanese members; the top count means "or more".
+        cooldownByNatlanese: nightsoulRule.cooldownSecondsByNatlanMembers,
+        // Nightsoul characters who aren't Natlanese, so don't count toward triggering it.
+        notNatlanese: ["Traveler (Pyro)"],
+        source: nightsoulRule.source,
+        characters: nightsoulBurst,
+      } }, null, 2) + "\n",
 );
 const empty = Object.entries(OVERRIDES.characters).flatMap(([id, c]) => c.slots.filter((s) => !s.text.trim()).map((s) => `${id} ${s.talent || "(talent?)"}`));
 const nightsoul = OVERRIDES.rules.nightsoulBurst.whoCanTrigger.trim() ? 0 : 1;
@@ -464,5 +532,5 @@ if (empty.length + nightsoul > 0) {
   console.log(`kit-overrides.json: ${empty.length + nightsoul} empty: ${[...empty, ...(nightsoul ? ["rules.nightsoulBurst"] : [])].join(", ")}`);
 }
 console.log(
-  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects`,
+  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects`,
 );

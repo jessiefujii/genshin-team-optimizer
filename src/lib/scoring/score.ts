@@ -33,7 +33,7 @@ export const POINTS = {
   familyPair: 10,
   ownAscendantGleam: 10, // a Moonsign carry's own kit upgrade at Ascendant Gleam (#63)
   ownSecretRite: 10, // a Hexerei carry's own kit upgrade at Hexerei: Secret Rite (#63)
-  nightsoulPair: 5,
+  ownNightsoulBurst: 10, // a Natlan carry's own kit upgrade from Nightsoul Bursts, at full stacks (#63)
   prefMet: 15, // the carry's own team preferences...
   onlyElementsBroken: -10,
   supportPrefMet: 5, // ...count for more than a support's (#43)
@@ -394,21 +394,21 @@ const FAMILY_REACTIONS: Partial<Record<Family, Reaction[]>> = {
   stellar: ["stellar-conduct", "stellar-swirl"],
 };
 
-// Family bonus (#43): two or more members only count when the family helps this team: a Stellar reaction
-// is active and the carry uses it or belongs to the family (#49), or (Nightsoul) the carry belongs to the family.
+// Family bonus (#43): two or more Stellar members only count when a Stellar reaction is active and the carry
+// uses it or belongs to the family (#49).
 function familyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const counts = new Map<Family, number>();
   for (const m of ctx.members) for (const f of familiesOf(m, ctx.options)) counts.set(f, (counts.get(f) ?? 0) + 1);
   for (const [f, n] of counts) {
-    // Moonsign and Hexerei score what Ascendant Gleam and Secret Rite unlock for this team
-    // (ascendantGleamLines, secretRiteLines), not a flat pair.
-    if (n < 2 || f === "moonsign" || f === "hexerei") continue;
+    // Moonsign, Hexerei and Nightsoul score what Ascendant Gleam, Secret Rite and Nightsoul Bursts do for this
+    // team (ascendantGleamLines, secretRiteLines, nightsoulBurstLines), not a flat pair.
+    if (n < 2 || f === "moonsign" || f === "hexerei" || f === "nightsoul") continue;
     const reactions = FAMILY_REACTIONS[f];
     const carryInFamily = !!carry && familiesOf(carry, ctx.options).includes(f);
     const helps = reactions
       ? reactions.some((r) => ctx.active.includes(r)) && (!carry || carryInFamily || reactions.some((r) => carry.reactions.includes(r)))
       : carryInFamily;
-    if (helps) out.add("Family", f === "nightsoul" ? POINTS.nightsoulPair : POINTS.familyPair, () => `${n} ${FAMILY_NAMES[f]} members`);
+    if (helps) out.add("Family", POINTS.familyPair, () => `${n} ${FAMILY_NAMES[f]} members`);
   }
 }
 
@@ -542,6 +542,49 @@ function secretRiteLines(ctx: TeamContext, carry: ScoringCharacter | null, out: 
   }
 }
 
+type NightsoulBurstEntry =
+  | { target: "own"; note: string; source: string }
+  | { target: "self"; kind?: "atkPct"; value?: number; duration: number | null; maxStacks: number; source: string };
+const NIGHTSOUL_BURST = kitJson.nightsoulBurst as {
+  cooldownByNatlanese: Record<string, number>;
+  notNatlanese: string[];
+  characters: Record<string, NightsoulBurstEntry>;
+};
+const COOLDOWNS = Object.entries(NIGHTSOUL_BURST.cooldownByNatlanese).map(([n, s]) => [Number(n), s] as const);
+
+// Seconds between Nightsoul Bursts with n Natlanese members; the largest listed count means "or more".
+function nightsoulCooldown(n: number): number {
+  const [, seconds] = COOLDOWNS.filter(([count]) => count <= n).reduce((a, b) => (b[0] > a[0] ? b : a));
+  return seconds;
+}
+const FASTEST_NIGHTSOUL = Math.min(...COOLDOWNS.map(([, s]) => s));
+
+// Nightsoul Burst (#63). A party with a Natlanese member triggers one whenever someone deals Elemental DMG, at most
+// once per cooldown (18s with 1 Natlanese member, 12s with 2, 9s with 3 or more; data/kit.json). Every effect it
+// triggers is that character's own, so only the carry's counts: Mavuika's and Varesa's ATK by the damage it adds,
+// Kinich's, Mualani's and Chasca's kit upgrade as ownNightsoulBurst. Either way, by how much of it a faster cooldown
+// keeps up: average stacks (each lasts `duration`, up to maxStacks) or, for a one-off like Chasca's shot, how often.
+function nightsoulBurstLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  const entry = carry && NIGHTSOUL_BURST.characters[carry.id];
+  if (!carry || entry?.target !== "self") return;
+  const natlanese = ctx.members.filter(
+    (m) => familiesOf(m, ctx.options).includes("nightsoul") && !NIGHTSOUL_BURST.notNatlanese.includes(m.id),
+  ).length;
+  if (natlanese === 0) return;
+  const cd = nightsoulCooldown(natlanese);
+  const stacks = entry.duration === null ? FASTEST_NIGHTSOUL / cd : Math.min(entry.maxStacks, entry.duration / cd);
+  const share = stacks / entry.maxStacks;
+  const every = `Nightsoul Burst every ${cd}s (${natlanese} Natlan)`;
+  if (entry.kind === "atkPct") {
+    const gain = atkPctGain(carry, entry.value! * stacks);
+    const points = gainPoints(gain, POINTS.buffer);
+    if (points > 0) out.add("Nightsoul", points, () => `${every}: ${carry.id} ~+${Math.round(gain * 100)}% damage`);
+  } else {
+    const points = Math.round(POINTS.ownNightsoulBurst * share);
+    if (points > 0) out.add("Nightsoul", points, () => `${every} powers ${carry.id}'s kit (${Math.round(share * 100)}%)`);
+  }
+}
+
 // Team preferences: the carry's count fully; a support's describe what that support wants, so they count less (#43).
 function prefLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   for (const m of ctx.members) {
@@ -668,6 +711,7 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
     familyLines(ctx, carry, out);
     ascendantGleamLines(ctx, carry, out);
     secretRiteLines(ctx, carry, out);
+    nightsoulBurstLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);

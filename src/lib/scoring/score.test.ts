@@ -174,6 +174,24 @@ describe("scoreTeam", () => {
     expect(reasons("Klee", "Mona", "Albedo", "Furina").some((r) => r.startsWith("Secret Rite: Mona"))).toBe(false);
   });
 
+  test("Nightsoul Bursts power the carry's own kit, more often with more Natlanese members (#63)", () => {
+    const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Nightsoul");
+    // Mavuika alone: every 18s, her +30% ATK is up 10s of it; with 3 Natlanese members every 9s, always up.
+    const solo = line("Mavuika", "Bennett", "Furina", "Xingqiu")!;
+    const three = line("Mavuika", "Xilonen", "Citlali", "Bennett")!;
+    expect(solo.reason).toMatch(/^Nightsoul Burst every 18s \(1 Natlan\)/);
+    expect(three.reason).toMatch(/^Nightsoul Burst every 9s \(3 Natlan\)/);
+    expect(three.points).toBeGreaterThan(solo.points);
+    // Pyro Traveler has Nightsoul but isn't Natlanese.
+    expect(line("Mavuika", "Traveler (Pyro)", "Bennett", "Furina")!.reason).toContain("(1 Natlan)");
+    // Kinich's Hunter's Experience stacks: a kit upgrade, scaled by how many stacks are up.
+    expect(line("Kinich", "Xilonen", "Citlali", "Bennett")!.points).toBeGreaterThan(line("Kinich", "Emilie", "Xiangling", "Bennett")!.points);
+    // A support's own Nightsoul Burst effect (Kachina's Geo DMG) doesn't score for a non-Natlan carry, and nor
+    // does the old flat Nightsoul pair.
+    const geo = score("Navia", "Kachina", "Xilonen", "Zhongli").breakdown;
+    expect(geo.some((l) => l.rule === "Nightsoul" || (l.rule === "Family" && l.reason.includes("Nightsoul")))).toBe(false);
+  });
+
   test("a family pair only counts when it helps the team (#43)", () => {
     // Mona and Nicole are Hexerei, but neither has a Secret Rite buff Hu Tao can use.
     const huTao = score("Hu Tao", "Mona", "Nicole", "Zhongli").breakdown;

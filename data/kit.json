@@ -1195,5 +1195,87 @@
         }
       ]
     }
+  },
+  "nightsoulBurst": {
+    "cooldownByNatlanese": {
+      "1": 18,
+      "2": 12,
+      "3": 9
+    },
+    "notNatlanese": [
+      "Traveler (Pyro)"
+    ],
+    "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Nightsoul_Burst, fetched 2026-10-10 (Nightsoul Burst section); Pyro Traveler: Prydwen",
+    "characters": {
+      "Chasca": {
+        "target": "self",
+        "duration": null,
+        "maxStacks": 1,
+        "source": "passive2: \"When a nearby party member triggers a Nightsoul Burst, Chasca will fire a \"Burning Shadowhunt Shot\" at a nearby opponent, dealing Nightsoul-aligned Anemo DMG equal to 150% of the Shadowhunt Shell DMG from her Elemental Skill Spirit Reins, Shadow Hunt.\""
+      },
+      "Citlali": {
+        "target": "own",
+        "note": "regains Nightsoul points",
+        "source": "passive2: \"In addition, when nearby party members trigger Nightsoul Bursts, Citlali regains 4 Nightsoul points.\""
+      },
+      "Iansan": {
+        "target": "own",
+        "note": "Warming Up (her own resource)",
+        "source": "passive2: \"When a nearby party member triggers a Nightsoul Burst, Iansan will obtain the Warming Up effect for 10s.\""
+      },
+      "Ifa": {
+        "target": "own",
+        "note": "his own EM",
+        "source": "passive2: \"When nearby party members trigger Nightsoul Bursts, Ifa's Elemental Mastery increases by 80 for 10s.\""
+      },
+      "Kachina": {
+        "target": "own",
+        "note": "her own Geo DMG",
+        "source": "passive1: \"After nearby party members trigger a Nightsoul Burst, Kachina's Geo DMG Bonus increases by 20% for 12s.\""
+      },
+      "Kinich": {
+        "target": "self",
+        "duration": 15,
+        "maxStacks": 2,
+        "source": "passive2: \"After a nearby party member triggers a Nightsoul Burst, Kinich will gain 1 stack of Hunter's Experience that lasts 15s.\""
+      },
+      "Mavuika": {
+        "target": "self",
+        "kind": "atkPct",
+        "value": 0.3,
+        "duration": 10,
+        "maxStacks": 1,
+        "source": "passive1: \"When a nearby party member triggers a Nightsoul Burst, Mavuika's ATK increases by 30% for 10s.\""
+      },
+      "Mualani": {
+        "target": "self",
+        "duration": 20,
+        "maxStacks": 3,
+        "source": "passive2: \"After a nearby party member triggers a Nightsoul Burst, Mualani will gain 1 stack of Wavechaser's Exploits, which lasts for 20s.\""
+      },
+      "Ororon": {
+        "target": "own",
+        "note": "gains Nightsoul points",
+        "source": "passive1: \"After a nearby party member triggers Nightsoul Burst, Ororon will gain 40 Nightsoul points.\""
+      },
+      "Traveler (Pyro)": {
+        "target": "own",
+        "note": "regains Energy",
+        "source": "passive2: \"Additionally, when a nearby party member triggers a Nightsoul Burst, the Traveler will regain 4 Energy.\""
+      },
+      "Varesa": {
+        "target": "self",
+        "kind": "atkPct",
+        "value": 0.35,
+        "duration": 12,
+        "maxStacks": 2,
+        "source": "passive2: \"When a nearby party member triggers a Nightsoul Burst, Varesa's ATK increases by 35% for 12s.\""
+      },
+      "Xilonen": {
+        "target": "own",
+        "note": "her own DEF",
+        "source": "passive2: \"Additionally, when nearby party members trigger a Nightsoul Burst, Xilonen's DEF is increased by 20% for 15s.\""
+      }
+    }
   }
 }
