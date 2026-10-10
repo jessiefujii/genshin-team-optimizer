@@ -30,9 +30,9 @@ export const POINTS = {
   noSurvivability: -10,
   battery: 5,
   starvedBursts: -5,
-  familyPair: 10,
   ownAscendantGleam: 10, // a Moonsign carry's own kit upgrade at Ascendant Gleam (#63)
   ownSecretRite: 10, // a Hexerei carry's own kit upgrade at Hexerei: Secret Rite (#63)
+  ownRadiance: 10, // a Stellar carry's own kit upgrade in Radiance (#63)
   ownNightsoulBurst: 10, // a Natlan carry's own kit upgrade from Nightsoul Bursts, at full stacks (#63)
   prefMet: 15, // the carry's own team preferences...
   onlyElementsBroken: -10,
@@ -67,13 +67,6 @@ const RESONANCE: Record<Element, { points: number; name: string }> = {
   Anemo: { points: 3, name: "Impetuous Winds" },
 };
 
-const FAMILY_NAMES: Record<Family, string> = {
-  moonsign: "Moonsign (Ascendant Gleam)",
-  hexerei: "Hexerei (Secret Rite)",
-  stellar: "Stellar",
-  nightsoul: "Nightsoul",
-};
-
 const label = (r: Reaction) => r.charAt(0).toUpperCase() + r.slice(1);
 
 // Effect lines built on unreviewed effects.json entries say so (#23).
@@ -86,7 +79,6 @@ const hasRole = (m: ScoringCharacter, role: Role) => m.roles.includes(role) || !
 interface TeamContext {
   members: ScoringCharacter[];
   elements: Set<Element>;
-  families: Set<Family>;
   active: Reaction[];
   options: ScoreOptions;
 }
@@ -108,17 +100,15 @@ function familiesOf(member: ScoringCharacter, options: ScoreOptions): Family[] {
 // Runs for every team the search tries, so it sticks to plain loops (#4).
 function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamContext {
   const elements = new Set<Element>();
-  const families = new Set<Family>();
   const listed: Reaction[] = [];
   for (const m of members) {
     elements.add(m.element);
-    for (const f of familiesOf(m, options)) families.add(f);
     for (const r of m.reactions) if (!listed.includes(r)) listed.push(r);
   }
   const converted = new Set<Reaction>();
   for (const m of members) for (const r of m.converts ?? []) converted.add(r);
   const active = listed.filter((r) => canTrigger(r, elements, converted));
-  return { members, elements, families, active, options };
+  return { members, elements, active, options };
 }
 
 // A support only partners a reaction if it brings an element the carry lacks (Bennett is not a Vaporize partner for Hu Tao).
@@ -388,30 +378,6 @@ function carryResonanceLines(ctx: TeamContext, carry: ScoringCharacter | null, o
 const usesEmReaction = (carry: ScoringCharacter, ctx: TeamContext) =>
   carry.reactions.some((r) => ctx.active.includes(r) && !NO_EM_REACTIONS.has(r));
 
-// Reactions that only exist with a family member, so a pair of that family pays off when one is active.
-const FAMILY_REACTIONS: Partial<Record<Family, Reaction[]>> = {
-  moonsign: ["lunar-charged", "lunar-bloom", "lunar-crystallize"],
-  stellar: ["stellar-conduct", "stellar-swirl"],
-};
-
-// Family bonus (#43): two or more Stellar members only count when a Stellar reaction is active and the carry
-// uses it or belongs to the family (#49).
-function familyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  const counts = new Map<Family, number>();
-  for (const m of ctx.members) for (const f of familiesOf(m, ctx.options)) counts.set(f, (counts.get(f) ?? 0) + 1);
-  for (const [f, n] of counts) {
-    // Moonsign, Hexerei and Nightsoul score what Ascendant Gleam, Secret Rite and Nightsoul Bursts do for this
-    // team (ascendantGleamLines, secretRiteLines, nightsoulBurstLines), not a flat pair.
-    if (n < 2 || f === "moonsign" || f === "hexerei" || f === "nightsoul") continue;
-    const reactions = FAMILY_REACTIONS[f];
-    const carryInFamily = !!carry && familiesOf(carry, ctx.options).includes(f);
-    const helps = reactions
-      ? reactions.some((r) => ctx.active.includes(r)) && (!carry || carryInFamily || reactions.some((r) => carry.reactions.includes(r)))
-      : carryInFamily;
-    if (helps) out.add("Family", POINTS.familyPair, () => `${n} ${FAMILY_NAMES[f]} members`);
-  }
-}
-
 interface GleamValue {
   kind: "em" | "critRate" | "critDmg" | "resShred";
   value: number;
@@ -454,7 +420,8 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   }
 }
 
-interface SecretRiteValue {
+// A party buff from a family mechanic (Secret Rite, Stellar Radiance), read from data/kit.json.
+interface PartyValue {
   kind: "dmgBonus" | "atkPct" | "em" | "reactionBonus" | "resShred" | "flatDmgFromAtk" | "ownAtkPct";
   value: number;
   max?: number;
@@ -467,9 +434,10 @@ interface SecretRiteValue {
   ownAttacks?: boolean;
   anyReaction?: boolean;
   perBurst?: { hits: number; cd: number };
+  radiance?: Reaction; // Stellar: the Radiance it needs, on while the team has that reaction
   uptime: number | null;
 }
-type SecretRiteEntry = { target: "self"; source: string } | { target: "party"; source: string; values: SecretRiteValue[] };
+type SecretRiteEntry = { target: "self"; source: string } | { target: "party"; source: string; values: PartyValue[] };
 const SECRET_RITE = kitJson.secretRite as Record<string, SecretRiteEntry>;
 
 // More ATK for a member whose buff grows with ATK above a threshold (Prune's Tolling Rally): the extra
@@ -484,8 +452,9 @@ function excessAtkBuffRaise(m: ScoringCharacter, atkPct: number): number {
   return dmgBonusGain(bonus(atk + raise)) - dmgBonusGain(bonus(atk));
 }
 
-// What one Secret Rite value adds to the carry's damage, or 0 when it can't help them.
-function secretRiteGain(v: SecretRiteValue, m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext, dealt: Reaction[]): number {
+// What one party value adds to the carry's damage, or 0 when it can't help them.
+function partyValueGain(v: PartyValue, m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext, dealt: Reaction[]): number {
+  if (v.radiance && !ctx.active.includes(v.radiance)) return 0;
   if (v.elements && !v.elements.includes(carry.element)) return 0;
   if (v.reactions && !v.reactions.some((r) => dealt.includes(r as Reaction))) return 0;
   if (v.teamReactions && !v.teamReactions.some((r) => ctx.active.includes(r as Reaction))) return 0;
@@ -531,14 +500,56 @@ function secretRiteLines(ctx: TeamContext, carry: ScoringCharacter | null, out: 
   for (const m of hexerei) {
     const entry = SECRET_RITE[m.id];
     if (m === carry || entry?.target !== "party") continue;
-    // Values of one kind add up (Albedo's two Isotomas); different kinds multiply.
-    const byKind = new Map<string, number>();
-    for (const v of entry.values) byKind.set(v.kind, (byKind.get(v.kind) ?? 0) + secretRiteGain(v, m, carry, ctx, dealt));
-    let gain = 1;
-    for (const g of byKind.values()) gain *= 1 + g;
-    gain -= 1;
-    const points = gainPoints(gain, POINTS.buffer);
+    const gain = partyValuesGain(entry.values, m, carry, ctx, dealt);
+    const points = Math.min(gainPoints(gain, POINTS.buffer), POINTS.maxKitBuffer); // capped like kit buffers
     if (points > 0) out.add("Hexerei", points, () => `Secret Rite: ${m.id} gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
+  }
+}
+
+// Values of one kind add up (Albedo's two Isotomas); different kinds multiply. Bonuses to different reactions
+// are alternatives, since a hit is one reaction (Qiqi's Stellar-Conduct or Stellar Swirl bonus): the best counts.
+function partyValuesGain(values: PartyValue[], m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext, dealt: Reaction[]): number {
+  const byKind = new Map<string, number>();
+  for (const v of values) {
+    const g = partyValueGain(v, m, carry, ctx, dealt);
+    const key = v.kind === "reactionBonus" ? `${v.kind}|${v.reactions?.join(",") ?? ""}` : v.kind;
+    byKind.set(key, (byKind.get(key) ?? 0) + g);
+  }
+  const best = new Map<string, number>();
+  for (const [key, g] of byKind) {
+    const kind = key.split("|")[0];
+    best.set(kind, Math.max(best.get(kind) ?? 0, g));
+  }
+  let gain = 1;
+  for (const g of best.values()) gain *= 1 + g;
+  return gain - 1;
+}
+
+type StellarEntry =
+  | { target: "self" | "own" | "none"; radiance: Reaction[]; note?: string; source?: string }
+  | { target: "party"; radiance: Reaction[]; source: string; values: PartyValue[] };
+const STELLAR = kitJson.stellar as Record<string, StellarEntry>;
+
+// Stellar Glimmer: Radiance (#63). Stellar members enter Radiance: Stellar-Conduct inside a Polestar Field (made by
+// Stellar-Conduct) and Radiance: Stellar Swirl for 8s after a Stellar Swirl, so a Radiance is on while the team has
+// that reaction. data/kit.json says what each one does: a Stellar carry's own kit upgrade (Sandrone, Vesna,
+// Wriothesley) counts as ownRadiance; a member's party buff (Alyosha, Qiqi, Vodyanitsa) by the damage it adds.
+// Witch's Revelation characters count once their quest is done (familiesOf).
+function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  if (!carry) return;
+  const stellar = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("stellar"));
+  const own = stellar.includes(carry) ? STELLAR[carry.id] : undefined;
+  const on = own?.radiance.filter((r) => ctx.active.includes(r)) ?? [];
+  if (own?.target === "self" && on.length > 0) {
+    out.add("Stellar", POINTS.ownRadiance, () => `Radiance: ${on.map(label).join(", ")} enhances ${carry.id}'s kit`);
+  }
+  const dealt = carry.reactions.filter((r) => ctx.active.includes(r));
+  for (const m of stellar) {
+    const entry = STELLAR[m.id];
+    if (m === carry || entry?.target !== "party") continue;
+    const gain = partyValuesGain(entry.values, m, carry, ctx, dealt);
+    const points = Math.min(gainPoints(gain, POINTS.buffer), POINTS.maxKitBuffer); // capped like kit buffers
+    if (points > 0) out.add("Stellar", points, () => `${m.id}'s Stellar buff gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
   }
 }
 
@@ -708,10 +719,10 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
     }
     out.addAll(shared);
     carryResonanceLines(ctx, carry, out);
-    familyLines(ctx, carry, out);
     ascendantGleamLines(ctx, carry, out);
     secretRiteLines(ctx, carry, out);
     nightsoulBurstLines(ctx, carry, out);
+    stellarLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);

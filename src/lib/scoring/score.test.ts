@@ -192,6 +192,21 @@ describe("scoreTeam", () => {
     expect(geo.some((l) => l.rule === "Nightsoul" || (l.rule === "Family" && l.reason.includes("Nightsoul")))).toBe(false);
   });
 
+  test("Stellar Radiance scores what it does for this team (#63)", () => {
+    const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Stellar").map((l) => l.reason);
+    // Sandrone converts Superconduct (Cryo + Electro) to Stellar-Conduct: her Radiance kit upgrade, plus
+    // Alyosha's +20% Stellar-Conduct DMG for the on-field carry.
+    const sandrone = lines("Sandrone", "Alyosha", "Fischl", "Bennett");
+    expect(sandrone).toContain("Radiance: Stellar-conduct enhances Sandrone's kit");
+    expect(sandrone.some((r) => r.startsWith("Alyosha's Stellar buff gives Sandrone"))).toBe(true);
+    // No Stellar reaction (no Electro or Anemo partner): no Radiance.
+    expect(lines("Sandrone", "Bennett", "Xingqiu", "Zhongli")).toEqual([]);
+    // Qiqi's Herald of Frost buffs the carry's Stellar-Conduct.
+    expect(lines("Wriothesley", "Qiqi", "Sandrone", "Fischl").some((r) => r.startsWith("Qiqi's Stellar buff"))).toBe(true);
+    // Stellar isn't a flat family pair any more.
+    expect(score("Sandrone", "Alyosha", "Fischl", "Bennett").breakdown.some((l) => l.rule === "Family")).toBe(false);
+  });
+
   test("a family pair only counts when it helps the team (#43)", () => {
     // Mona and Nicole are Hexerei, but neither has a Secret Rite buff Hu Tao can use.
     const huTao = score("Hu Tao", "Mona", "Nicole", "Zhongli").breakdown;
@@ -216,8 +231,9 @@ describe("scoreTeam", () => {
   });
 
   test("Witch's Revelation characters count as Stellar only once their quest is done (#45)", () => {
-    const ids = ["Wriothesley", "Sandrone", "Yae Miko", "Bennett"];
-    const stellarFamily = (s: ReturnType<typeof scoreTeam>) => s.breakdown.some((l) => l.rule === "Family" && l.reason.includes("Stellar"));
+    const ids = ["Wriothesley", "Sandrone", "Fischl", "Furina"];
+    // Wriothesley's Radiance: Stellar-Conduct upgrade counts only once his quest is done.
+    const stellarFamily = (s: ReturnType<typeof scoreTeam>) => s.breakdown.some((l) => l.rule === "Stellar" && l.reason.includes("Wriothesley's kit"));
     expect(stellarFamily(scoreTeam(team(...ids)))).toBe(true); // no option: all quests assumed done
     expect(stellarFamily(scoreTeam(team(...ids), { revelationUnlocked: [] }))).toBe(false);
     expect(stellarFamily(scoreTeam(team(...ids), { revelationUnlocked: ["Wriothesley"] }))).toBe(true);
