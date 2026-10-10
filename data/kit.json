@@ -1826,6 +1826,17 @@
         },
         {
           "talent": "skill",
+          "label": "Frosty Parfait DMG",
+          "scaling": {
+            "atk": 2.04
+          },
+          "every": 1,
+          "duration": 20,
+          "cd": 15,
+          "rateSource": "pasted by Jessie 2026-10-10 (guide text for Low-Temperature Cooking; its level 9 values, e.g. Frosty Parfait DMG 204% and Cold Storage Mode Duration 20 s, match genshin-db): \"Note: The Frosty Parfaits are fired once every second to the closest enemy.\""
+        },
+        {
+          "talent": "skill",
           "label": "Surging Blade DMG",
           "scaling": {
             "atk": 0.5712
@@ -1843,9 +1854,6 @@
           "hits": 1,
           "cd": 15
         }
-      ],
-      "missing": [
-        "Frosty Parfait DMG: the Frosty Parfait interval isn't in genshin-db, on the character page or on the talent page (\"at intervals\")"
       ]
     },
     "Fischl": {

@@ -426,8 +426,8 @@
     },
     "Escoffier": {
       "skill: Frosty Parfait DMG": {
-        "missing": "the Frosty Parfait interval isn't in genshin-db, on the character page or on the talent page (\"at intervals\")",
-        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Low-Temperature_Cooking, fetched 2026-10-10 (only its internal cooldown is given)"
+        "every": 1,
+        "source": "pasted by Jessie 2026-10-10 (guide text for Low-Temperature Cooking; its level 9 values, e.g. Frosty Parfait DMG 204% and Cold Storage Mode Duration 20 s, match genshin-db): \"Note: The Frosty Parfaits are fired once every second to the closest enemy.\""
       }
     },
     "Fischl": {
