@@ -146,16 +146,42 @@ describe("scoreTeam", () => {
   test("Hexerei only counts for characters whose quest is done", () => {
     const ids = ["Varka", "Venti", "Klee", "Durin"];
     const locked = scoreTeam(team(...ids), { hexereiUnlocked: ["Varka"] });
-    expect(locked.breakdown.some((l) => l.reason.includes("Hexerei"))).toBe(false);
+    expect(locked.breakdown.some((l) => l.rule === "Hexerei")).toBe(false);
     const done = scoreTeam(team(...ids), { hexereiUnlocked: ids });
-    expect(done.breakdown.some((l) => l.reason.includes("Hexerei"))).toBe(true);
+    expect(done.breakdown.some((l) => l.rule === "Hexerei")).toBe(true);
+  });
+
+  test("Hexerei: Secret Rite scores what it turns on for this team (#63)", () => {
+    const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Hexerei");
+    const reasons = (...ids: string[]) => lines(...ids).map((l) => l.reason);
+    // Varka's own kit upgrade, plus Venti's +50% DMG after the carry's own Swirl.
+    expect(reasons("Varka", "Venti", "Klee", "Durin")).toContain("Secret Rite enhances Varka's kit");
+    expect(reasons("Varka", "Venti", "Klee", "Durin").some((r) => r.startsWith("Secret Rite: Venti gives Varka"))).toBe(true);
+    // One Hexerei member: no Secret Rite.
+    expect(lines("Varka", "Kaedehara Kazuha", "Bennett", "Xiangling")).toEqual([]);
+    // Albedo's Silver Isotoma bonus only reaches Hexerei members, so a Hexerei carry gets more from him.
+    const albedo = (...ids: string[]) => lines(...ids).find((l) => l.reason.startsWith("Secret Rite: Albedo"))?.points ?? 0;
+    expect(albedo("Klee", "Albedo", "Sucrose", "Furina")).toBeGreaterThan(albedo("Hu Tao", "Albedo", "Sucrose", "Xingqiu"));
+    expect(albedo("Hu Tao", "Albedo", "Sucrose", "Xingqiu")).toBeGreaterThan(0);
+    // Nicole's bigger Arcane Projections only reach Hexerei members.
+    expect(reasons("Varka", "Nicole", "Venti", "Bennett").some((r) => r.startsWith("Secret Rite: Nicole gives Varka"))).toBe(true);
+    expect(reasons("Hu Tao", "Nicole", "Mona", "Zhongli")).toEqual([]);
+    // Prune's ATK (so her Tolling Rally) grows when a Hexerei carry triggers a reaction.
+    expect(reasons("Varka", "Prune", "Venti", "Bennett").some((r) => r.startsWith("Secret Rite: Prune gives Varka"))).toBe(true);
+    // Fischl's buffs need Overloaded or Electro-Charged in the team; Mona's need her on the field.
+    expect(reasons("Klee", "Fischl", "Durin", "Bennett").some((r) => r.startsWith("Secret Rite: Fischl"))).toBe(true);
+    expect(reasons("Varka", "Fischl", "Venti", "Sucrose").some((r) => r.startsWith("Secret Rite: Fischl"))).toBe(false);
+    expect(reasons("Klee", "Mona", "Albedo", "Furina").some((r) => r.startsWith("Secret Rite: Mona"))).toBe(false);
   });
 
   test("a family pair only counts when it helps the team (#43)", () => {
-    // Mona and Nicole are Hexerei, but Hu Tao isn't: no Secret Rite bonus for her team.
-    expect(score("Hu Tao", "Mona", "Nicole", "Zhongli").breakdown.some((l) => l.rule === "Family")).toBe(false);
-    // Varka is Hexerei himself, so his Hexerei teammates count.
-    expect(score("Varka", "Venti", "Klee", "Durin").breakdown.some((l) => l.rule === "Family")).toBe(true);
+    // Mona and Nicole are Hexerei, but neither has a Secret Rite buff Hu Tao can use.
+    const huTao = score("Hu Tao", "Mona", "Nicole", "Zhongli").breakdown;
+    expect(huTao.some((l) => l.rule === "Family" || l.rule === "Hexerei")).toBe(false);
+    // Hexerei isn't a flat family pair any more: it scores through Secret Rite (#63).
+    const varka = score("Varka", "Venti", "Klee", "Durin").breakdown;
+    expect(varka.some((l) => l.rule === "Family")).toBe(false);
+    expect(varka.some((l) => l.rule === "Hexerei")).toBe(true);
     // Moonsign isn't a flat family pair any more: it scores through Ascendant Gleam (#63).
     const lunar = score("Flins", "Columbina", "Ineffa", "Zhongli");
     expect(lunar.activeReactions).toContain("lunar-charged");

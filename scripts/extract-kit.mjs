@@ -288,6 +288,138 @@ function readGleam(id, spec) {
   };
 }
 
+// Hexerei: Secret Rite (#63). With 2+ Hexerei members the party gains Secret Rite, which turns on each Hexerei
+// member's "Hexerei: Secret Rite" text (data/kit-overrides.json: Witch's Eve Rite passives and Hexerei Buff tabs).
+// target "self": an upgrade to that character's own kit, kept as the quoted text. target "party": numeric buffs
+// read like the buffs above, with these extra limits:
+//   hexereiOnly: only Hexerei members get it ("nearby Hexerei party members")
+//   teamReactions: any member triggering one of these turns it on (Fischl's Oz), not only the carry
+//   perDef: the value is per this much of the member's DEF, up to max (Albedo)
+//   anyReaction: the carry has to trigger some reaction (Prune)
+//   ownAttacks: it builds from the member's own Normal/Charged Attacks, so it does nothing while they're off-field (Mona)
+//   uptime: { talent, duration, cd } table labels
+//   perBurst: { talent, hits, cd } table labels: flat damage on that many hits each Burst cooldown (Nicole)
+//   ofBase: the value raises a base effect by this ratio; base is read from another talent (Durin: 20% shred +75%)
+const SECRET_RITE = {
+  Albedo: {
+    from: "passive4",
+    target: "party",
+    values: [
+      { kind: "dmgBonus", re: /increased by (\d+)% for every 1,000 DEF Albedo has for \d+s\. The maximum increase that can be achieved this way is \d+%\. After generating a Silver/, max: /The maximum increase that can be achieved this way is (\d+)%\. After generating a Silver/, perDef: 1000, unit: "Attack DMG % per 1,000 of Albedo's DEF (Solar Isotoma, everyone)", percent: true },
+      { kind: "dmgBonus", re: /Hexerei party members' .*? increased by (\d+)% for every 1,000 DEF/, max: /Hexerei party members' .*? The maximum increase that can be achieved this way is (\d+)%/, perDef: 1000, unit: "Attack DMG % per 1,000 of Albedo's DEF (Silver Isotoma, Hexerei members)", percent: true, hexereiOnly: true },
+    ],
+  },
+  Durin: {
+    from: "passive4",
+    target: "party",
+    // White Flame's RES shred (passive1) raised by Secret Rite. Only after Burning, Overloaded, Pyro Swirl or Pyro Crystallize.
+    values: [{ kind: "resShred", re: /\(except for Duration\) by (\d+)%/, ofBase: { from: "passive1", re: /are decreased by (\d+)% for/ }, unit: "more Pyro RES shred (White Flame)", percent: true, elements: ["Pyro"], teamReactions: ["burning", "overloaded", "swirl", "crystallize"] }],
+  },
+  Fischl: {
+    from: "passive4",
+    target: "party",
+    // Oz is out almost the whole rotation: her Skill and Burst both summon him, and they alternate.
+    values: [
+      { kind: "atkPct", re: /Overloaded reaction, Fischl and other nearby active party members have their ATK increased by ([\d.]+)%/, unit: "ATK % after Overloaded, while Oz is out", percent: true, teamReactions: ["overloaded"] },
+      { kind: "em", re: /Lunar-Charged reaction, Fischl and other nearby active party members have their Elemental Mastery increased by (\d+)/, unit: "EM after Electro-Charged or Lunar-Charged, while Oz is out", teamReactions: ["electrocharged", "lunar-charged"] },
+    ],
+  },
+  Klee: { from: ["passive1", "passive4"], target: "self" },
+  Lohen: { from: "passive4", target: "self" },
+  // Each Arcane Projection a Hexerei character triggers deals 300% of Nicole's ATK more; her Burst summons
+  // up to "Arcane Projection Attack Count" of them per Burst.
+  Nicole: {
+    from: "passive4",
+    target: "party",
+    values: [{ kind: "flatDmgFromAtk", re: /Arcane Projections by (\d+)% of Nicole's ATK/, unit: "of Nicole's ATK as flat DMG on each Arcane Projection (Hexerei members)", percent: true, hexereiOnly: true, perBurst: { talent: "burst", hits: "Arcane Projection Attack Count", cd: "CD" } }],
+  },
+  Mona: {
+    from: "passive4",
+    target: "party",
+    values: [{ kind: "reactionBonus", re: /increases the damage of that Vaporize reaction by (\d+)%/, times: /Max (\d+) stacks/, unit: "Vaporize DMG % (one Vaporize, with stacks from Mona's own attacks)", percent: true, reactions: ["vaporize"], ownAttacks: true }],
+  },
+  // A Hexerei carry inside Tolling Rally who triggers a reaction raises Prune's own ATK, so her Tolling Rally
+  // bonus (0.025% DMG per ATK above 2,000, data above) grows; a Swirl or Stellar Swirl also raises theirs.
+  Prune: {
+    from: "passive4",
+    target: "party",
+    values: [
+      { kind: "ownAtkPct", re: /Prune's ATK is increased by (\d+)%/, unit: "Prune's ATK %, raising her Tolling Rally bonus", percent: true, hexereiOnly: true, anyReaction: true },
+      { kind: "atkPct", re: /triggering character's ATK will additionally be increased by (\d+)%/, unit: "ATK % after the carry's own Swirl or Stellar Swirl", percent: true, hexereiOnly: true, reactions: ["swirl", "stellar-swirl"] },
+    ],
+  },
+  Razor: { from: "passive4", target: "self" },
+  Sucrose: {
+    from: "passive4",
+    target: "party",
+    values: [
+      { kind: "dmgBonus", re: /Small Wind Spirit, nearby party members' .*? increased by ([\d.]+)%/, unit: "Attack DMG % (Small Wind Spirit, everyone)", percent: true },
+      { kind: "dmgBonus", re: /Large Wind Spirit, nearby Hexerei party members' .*? increased by ([\d.]+)%/, unit: "Attack DMG % (Large Wind Spirit, Hexerei members)", percent: true, hexereiOnly: true },
+    ],
+  },
+  Varka: { from: "passive4", target: "self" },
+  Venti: {
+    from: ["combat1", "passive4"],
+    target: "party",
+    // The active character's own Swirl turns it on, and only while the Stormeye (Burst) is out.
+    values: [{ kind: "dmgBonus", re: /that character's DMG is increased by (\d+)%/, unit: "DMG % for 4s after the carry's own Swirl, while the Stormeye is out", percent: true, reactions: ["swirl"], uptime: { talent: "burst", duration: "Duration", cd: "CD" } }],
+  },
+};
+
+// The heading on a line of its own; the Witch's Eve Rite intro also names "the Hexerei: Secret Rite effect".
+const SECRET_RITE_HEADING = /(?:^|\n)Hexerei: Secret Rite[ \t]*\r?\n/;
+
+// The Secret Rite part of a talent's text: everything after its heading.
+function secretRiteText(id, from) {
+  const text = talentsOf(id)?.[from]?.description ?? "";
+  const m = text.match(SECRET_RITE_HEADING);
+  if (!m) throw new Error(`${id}: no "Hexerei: Secret Rite" heading in ${from}`);
+  return text.slice(m.index + m[0].length).replace(/\s+/g, " ").trim();
+}
+
+function readSecretRite(id, spec) {
+  const froms = [spec.from].flat();
+  const texts = froms.map((f) => secretRiteText(id, f));
+  const source = froms.map((f, i) => `${f}: "${texts[i].split(/(?<=\.) /)[0]}"`).join(" + ");
+  if (spec.target === "self") return { target: "self", source };
+  const text = texts.join(" ");
+  const num = (re, where = text) => {
+    const m = where.match(re);
+    if (!m) throw new Error(`${id}: pattern ${re} not found in Secret Rite text`);
+    return Number(m[1].replace(/,/g, ""));
+  };
+  return {
+    target: "party",
+    source,
+    values: spec.values.map((v) => {
+      const pct = (n) => n / (v.percent ? 100 : 1);
+      let value = pct(num(v.re)) * (v.times ? num(v.times) : 1);
+      let base;
+      if (v.ofBase) {
+        base = pct(num(v.ofBase.re, talentsOf(id)[v.ofBase.from].description.replace(/\s+/g, " ")));
+        value = base * value; // +75% of a 20% shred = 15% more
+      }
+      const u = v.uptime && talentsOf(id)[COMBAT[v.uptime.talent]].attributes;
+      const pb = v.perBurst && talentsOf(id)[COMBAT[v.perBurst.talent]].attributes;
+      return {
+        kind: v.kind,
+        value: round(value),
+        ...(v.max ? { max: pct(num(v.max)) } : {}),
+        ...(v.perDef ? { perDef: v.perDef } : {}),
+        ...(base !== undefined ? { base } : {}),
+        ...limits(v),
+        ...(v.hexereiOnly ? { hexereiOnly: true } : {}),
+        ...(v.teamReactions ? { teamReactions: v.teamReactions } : {}),
+        ...(v.ownAttacks ? { ownAttacks: true } : {}),
+        ...(v.anyReaction ? { anyReaction: true } : {}),
+        ...(pb ? { perBurst: { hits: tableValue(pb, v.perBurst.hits, id), cd: tableValue(pb, v.perBurst.cd, id) } } : {}),
+        unit: v.unit,
+        uptime: u ? uptime(tableValue(u, v.uptime.duration, id), tableValue(u, v.uptime.cd, id)) : null,
+      };
+    }),
+  };
+}
+
 const tags = require("../data/tags.json");
 const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0);
 const characters = {};
@@ -312,10 +444,19 @@ for (const c of tags.filter((c) => (c.families ?? []).includes("moonsign"))) {
   if (GLEAM[c.id]) ascendantGleam[c.id] = readGleam(c.id, GLEAM[c.id]);
 }
 
+// Every Hexerei character with Secret Rite text needs a SECRET_RITE entry, the same way.
+const secretRite = {};
+for (const c of tags.filter((c) => (c.families ?? []).includes("hexerei"))) {
+  const t = talentsOf(c.id);
+  const has = t && Object.values(t).some((x) => SECRET_RITE_HEADING.test(x?.description ?? ""));
+  if (has && !SECRET_RITE[c.id]) throw new Error(`${c.id} has Hexerei: Secret Rite text but no SECRET_RITE entry`);
+  if (SECRET_RITE[c.id]) secretRite[c.id] = readSecretRite(c.id, SECRET_RITE[c.id]);
+}
+
 const out = new URL("../data/kit.json", import.meta.url);
 writeFileSync(
   out,
-  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, ascendantGleam }, null, 2) + "\n",
+  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, ascendantGleam, secretRite }, null, 2) + "\n",
 );
 const empty = Object.entries(OVERRIDES.characters).flatMap(([id, c]) => c.slots.filter((s) => !s.text.trim()).map((s) => `${id} ${s.talent || "(talent?)"}`));
 const nightsoul = OVERRIDES.rules.nightsoulBurst.whoCanTrigger.trim() ? 0 : 1;
@@ -323,5 +464,5 @@ if (empty.length + nightsoul > 0) {
   console.log(`kit-overrides.json: ${empty.length + nightsoul} empty: ${[...empty, ...(nightsoul ? ["rules.nightsoulBurst"] : [])].join(", ")}`);
 }
 console.log(
-  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades`,
+  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects`,
 );

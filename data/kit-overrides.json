@@ -314,13 +314,30 @@
       ]
     },
     "Prune": {
-      "why": "Tolling Rally's bonus isn't in genshin-db's text (genshin-builds: 0.025% per ATK above 2,000, max 50%)",
+      "why": "Tolling Rally's bonus isn't in genshin-db's text (genshin-builds: 0.025% per ATK above 2,000, max 50%); Witch's Eve Rite (Hexerei / Secret Rite) passive",
       "slots": [
         {
           "talent": "passive2",
           "name": "Tolling Synchronicity",
           "text": "After Prune hits an opponent with the Banehunter Oathhammer [Banehunter Oathhammer: A witchhunter's trusty companion! Under the right conditions, the Banehunter Oathhammer undergoes Elemental Conversion, turning all its DMG into DMG of the corresponding Elemental Type.\nPrune can summon the Banehunter Oathhammer that has undergone Elemental Conversion in the following ways:\nFor a certain time after triggering a Swirl Reaction on an opponent with the Elemental Skill Ring-A-Ding-Ding! Hexhunter Chime, Prune can unleash the special Elemental Skill Clang Clang! Witch-tribution Comes!. When using this special Elemental Skill, the Banehunter Oathhammer will be converted to the other Elemental Type involved in the aforementioned Swirl Reaction.\nAfter the Ascension Talent \"Verdict and Punishment\" is unlocked, when the Witchlure Bell in Hunter-Seeker mode triggers Swirl on an opponent, it will summon a Banehunter Oathhammer that has undergone the corresponding Elemental Conversion to attack the opponent.] that has undergone Elemental Conversion, other nearby party members will gain the Tolling Rally effect for 5s: When Normal, Charged, or Plunging Attacks, or Elemental Skills and Bursts deal DMG to opponents, that attack's DMG will be increased based on the portion of Prune's ATK in excess of 2,000 when they become affected by the Tolling Rally effect. Every excess ATK point increases that instance of DMG by 0.025%, up to a total of 50% max.",
           "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Prune, fetched 2026-10-10"
+        },
+        {
+          "talent": "passive4",
+          "name": "Witchseeker's Vow",
+          "text": "After completing Witch's Homework: Of What is Contested, Prune becomes a Hexerei character. When the party includes at least 2 Hexerei characters, you gain the Hexerei: Secret Rite effect, which enhances Hexerei characters.\n\nHexerei: Secret Rite\nAfter a Hexerei character in the party affected by the Tolling Rally effect triggers an Elemental Reaction on an opponent, Prune's ATK is increased by 60% for 5s. If the Elemental Reaction triggered is a Swirl or Stellar Swirl reaction, the triggering character's ATK will additionally be increased by 30% for 5s.",
+          "source": "pasted by Jessie 2026-10-10 (two typos fixed); Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Prune, fetched 2026-10-10, has the same text but says only \"a Swirl Reaction\" (no Stellar Swirl)"
+        }
+      ]
+    },
+    "Nicole": {
+      "why": "Witch's Homework: the Hexerei / Secret Rite passive (not in genshin-db 5.2.14)",
+      "slots": [
+        {
+          "talent": "passive4",
+          "name": "Light in the Darkness",
+          "text": "After completing Witch's Homework: The Role of a Guide...?, Nicole becomes a Hexerei character. When the party includes at least 2 Hexerei characters, you gain the Hexerei: Secret Rite effect, which enhances Hexerei characters.\n\nHexerei: Secret Rite\nIncreases the DMG dealt by Hexerei characters' Arcane Projections by 300% of Nicole's ATK.",
+          "source": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Nicole, fetched 2026-10-10"
         }
       ]
     }

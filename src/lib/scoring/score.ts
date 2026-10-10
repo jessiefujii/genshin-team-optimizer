@@ -5,7 +5,7 @@ import { canTrigger, reactionElements } from "./reactions";
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { kitBuffValue } from "./kit";
-import { critGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
+import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
@@ -32,6 +32,7 @@ export const POINTS = {
   starvedBursts: -5,
   familyPair: 10,
   ownAscendantGleam: 10, // a Moonsign carry's own kit upgrade at Ascendant Gleam (#63)
+  ownSecretRite: 10, // a Hexerei carry's own kit upgrade at Hexerei: Secret Rite (#63)
   nightsoulPair: 5,
   prefMet: 15, // the carry's own team preferences...
   onlyElementsBroken: -10,
@@ -393,14 +394,15 @@ const FAMILY_REACTIONS: Partial<Record<Family, Reaction[]>> = {
   stellar: ["stellar-conduct", "stellar-swirl"],
 };
 
-// Family bonus (#43): two or more members only count when the family helps this team: a Moonsign or
-// Stellar reaction is active and the carry uses it or belongs to the family (#49), or (Hexerei, Nightsoul) the carry belongs to the family.
+// Family bonus (#43): two or more members only count when the family helps this team: a Stellar reaction
+// is active and the carry uses it or belongs to the family (#49), or (Nightsoul) the carry belongs to the family.
 function familyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const counts = new Map<Family, number>();
   for (const m of ctx.members) for (const f of familiesOf(m, ctx.options)) counts.set(f, (counts.get(f) ?? 0) + 1);
   for (const [f, n] of counts) {
-    // Moonsign scores what Ascendant Gleam actually unlocks for this team (ascendantGleamLines), not a flat pair.
-    if (n < 2 || f === "moonsign") continue;
+    // Moonsign and Hexerei score what Ascendant Gleam and Secret Rite unlock for this team
+    // (ascendantGleamLines, secretRiteLines), not a flat pair.
+    if (n < 2 || f === "moonsign" || f === "hexerei") continue;
     const reactions = FAMILY_REACTIONS[f];
     const carryInFamily = !!carry && familiesOf(carry, ctx.options).includes(f);
     const helps = reactions
@@ -418,7 +420,10 @@ interface GleamValue {
 }
 type GleamEntry = { target: "self"; source: string } | { target: "party"; source: string; values: GleamValue[] };
 const GLEAM = kitJson.ascendantGleam as Record<string, GleamEntry>;
-const KIT_BUFFS = kitJson.characters as Record<string, { buffs: { kind: string; value: number }[] }>;
+const KIT_BUFFS = kitJson.characters as Record<
+  string,
+  { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number }[] }
+>;
 
 // Moonsign: Ascendant Gleam (#63). Each Moonsign member's "Moonsign Benediction" raises the party's Moonsign by
 // 1 level, and Ascendant Gleam is level 2. What it unlocks comes from data/kit.json: a Moonsign carry's own kit
@@ -446,6 +451,94 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
       (1 + critGain(sum("critRate"), sum("critDmg"))) * (1 + (usesEm ? emGain(sum("em")) : 0)) * (1 + resShredGain(sum("resShred"), baseShred)) - 1;
     const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Moonsign", points, () => `Ascendant Gleam: ${m.id} gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
+  }
+}
+
+interface SecretRiteValue {
+  kind: "dmgBonus" | "atkPct" | "em" | "reactionBonus" | "resShred" | "flatDmgFromAtk" | "ownAtkPct";
+  value: number;
+  max?: number;
+  perDef?: number;
+  base?: number;
+  elements?: string[];
+  reactions?: string[];
+  teamReactions?: string[];
+  hexereiOnly?: boolean;
+  ownAttacks?: boolean;
+  anyReaction?: boolean;
+  perBurst?: { hits: number; cd: number };
+  uptime: number | null;
+}
+type SecretRiteEntry = { target: "self"; source: string } | { target: "party"; source: string; values: SecretRiteValue[] };
+const SECRET_RITE = kitJson.secretRite as Record<string, SecretRiteEntry>;
+
+// More ATK for a member whose buff grows with ATK above a threshold (Prune's Tolling Rally): the extra
+// DMG bonus that buff then gives. ATK % is of base ATK: the character's plus a benchmark weapon.
+function excessAtkBuffRaise(m: ScoringCharacter, atkPct: number): number {
+  const kit = KIT_BUFFS[m.id];
+  const buff = kit?.buffs.find((b) => b.kind === "dmgBonusFromExcessAtk");
+  if (!kit?.base || !buff) return 0;
+  const atk = m.stats?.atk ?? kit.buildFor?.atk ?? BENCHMARK.buffer.atk;
+  const raise = (kit.base.atk + BENCHMARK.buffer.weaponBaseAtk) * atkPct;
+  const bonus = (a: number) => Math.min(buff.max!, buff.value * Math.max(0, a - buff.threshold!));
+  return dmgBonusGain(bonus(atk + raise)) - dmgBonusGain(bonus(atk));
+}
+
+// What one Secret Rite value adds to the carry's damage, or 0 when it can't help them.
+function secretRiteGain(v: SecretRiteValue, m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext, dealt: Reaction[]): number {
+  if (v.elements && !v.elements.includes(carry.element)) return 0;
+  if (v.reactions && !v.reactions.some((r) => dealt.includes(r as Reaction))) return 0;
+  if (v.teamReactions && !v.teamReactions.some((r) => ctx.active.includes(r as Reaction))) return 0;
+  if (v.hexereiOnly && !familiesOf(carry, ctx.options).includes("hexerei")) return 0;
+  if (v.ownAttacks && m.fieldTime === "off") return 0; // Mona's stacks need her own Normal Attacks
+  if (v.anyReaction && dealt.length === 0) return 0;
+  if (v.kind === "ownAtkPct") return excessAtkBuffRaise(m, v.value);
+  const value = v.perDef ? Math.min(v.max ?? Infinity, (v.value * (m.stats?.def ?? BENCHMARK.buffer.def)) / v.perDef) : v.value;
+  if (v.kind === "flatDmgFromAtk") {
+    // Extra damage on the member's own hits each Burst cooldown (Nicole's Arcane Projections), against what the
+    // carry deals in that time.
+    const { hits, cd } = v.perBurst!;
+    const extra = hits * v.value * (m.stats?.atk ?? BENCHMARK.buffer.atk);
+    return (extra / (cd * BENCHMARK.carryHitsPerSecond * BENCHMARK.hitDamage)) * (v.uptime ?? 1);
+  }
+  const usesEm = carry.scalesOn?.includes("EM") || usesEmReaction(carry, ctx);
+  const g =
+    v.kind === "dmgBonus" || v.kind === "reactionBonus"
+      ? dmgBonusGain(value)
+      : v.kind === "atkPct"
+        ? (BENCHMARK.carryBaseAtk * value) / BENCHMARK.carryAtk
+        : v.kind === "em"
+          ? usesEm
+            ? emGain(value)
+            : 0
+          : resShredGain(value, v.base ?? 0);
+  return g * (v.uptime ?? 1);
+}
+
+// Hexerei: Secret Rite (#63). With 2+ Hexerei members, each Hexerei member's "Hexerei: Secret Rite" text turns
+// on (data/kit.json, from the Witch's Eve Rite passives in data/kit-overrides.json). A Hexerei carry's own kit
+// upgrade (Klee, Lohen, Razor, Varka) counts as ownSecretRite; a member's party buff (Albedo, Sucrose, Fischl,
+// Venti, Durin, Nicole, Prune) counts by the damage it adds to the carry. Some only reach Hexerei members (Albedo's
+// Silver Isotoma, Sucrose's Large Wind Spirit, Nicole's Arcane Projections), so a Hexerei carry gets more.
+function secretRiteLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  if (!carry) return;
+  const hexerei = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("hexerei"));
+  if (hexerei.length < 2) return;
+  if (hexerei.includes(carry) && SECRET_RITE[carry.id]?.target === "self") {
+    out.add("Hexerei", POINTS.ownSecretRite, () => `Secret Rite enhances ${carry.id}'s kit`);
+  }
+  const dealt = carry.reactions.filter((r) => ctx.active.includes(r));
+  for (const m of hexerei) {
+    const entry = SECRET_RITE[m.id];
+    if (m === carry || entry?.target !== "party") continue;
+    // Values of one kind add up (Albedo's two Isotomas); different kinds multiply.
+    const byKind = new Map<string, number>();
+    for (const v of entry.values) byKind.set(v.kind, (byKind.get(v.kind) ?? 0) + secretRiteGain(v, m, carry, ctx, dealt));
+    let gain = 1;
+    for (const g of byKind.values()) gain *= 1 + g;
+    gain -= 1;
+    const points = gainPoints(gain, POINTS.buffer);
+    if (points > 0) out.add("Hexerei", points, () => `Secret Rite: ${m.id} gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
   }
 }
 
@@ -574,6 +667,7 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
     carryResonanceLines(ctx, carry, out);
     familyLines(ctx, carry, out);
     ascendantGleamLines(ctx, carry, out);
+    secretRiteLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);
