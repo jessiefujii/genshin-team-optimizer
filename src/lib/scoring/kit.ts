@@ -15,7 +15,9 @@ export interface KitBuff {
   appliesTo?: string[];
   reactions?: string[];
   physical?: boolean;
-  condition?: "fightingSpirit";
+  condition?: "fightingSpirit" | "rescueEssentials";
+  points?: { max: number; own: number }; // rescueEssentials: the cap, and Ifa's own Nightsoul points from his Skill
+  threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
   unit: string;
@@ -25,6 +27,7 @@ export interface KitBuff {
 
 interface KitCharacter {
   base: { hp: number; atk: number; def: number } | null;
+  buildFor?: { atk?: number }; // stats to assume without a build, for a buffer built for their buff (Prune)
   buffs: KitBuff[];
   missing?: string;
 }
@@ -48,11 +51,11 @@ function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: read
 const plunges = (c: ScoringCharacter) => c.rotation.actions.some((a) => /plunge/i.test(a));
 
 // The buffer's own stats: from their build when the player has one, else the benchmark.
-function bufferStats(s: ScoringCharacter, base: KitCharacter["base"]) {
+function bufferStats(s: ScoringCharacter, base: KitCharacter["base"], buildFor: KitCharacter["buildFor"]) {
   const b = BENCHMARK.buffer;
   return {
     baseAtk: (base?.atk ?? 0) + b.weaponBaseAtk,
-    atk: s.stats?.atk ?? b.atk,
+    atk: s.stats?.atk ?? buildFor?.atk ?? b.atk,
     hp: s.stats?.hp ?? b.hp,
     def: s.stats?.def ?? b.def,
     em: s.stats?.elementalMastery ?? b.em,
@@ -64,7 +67,13 @@ function bufferStats(s: ScoringCharacter, base: KitCharacter["base"]) {
 interface TeamShape {
   elements: string[]; // one per member
   fightingSpirit: number;
+  nightsoulOthers: number; // Nightsoul members other than the buffer
 }
+
+// Ifa's Rescue Essentials: one point per Nightsoul point the party holds, up to the max. His Skill gives him
+// `own` points that drain while he hovers, so half count; other Nightsoul members are assumed to hold about
+// 40 each (their pools vary by kit).
+const rescueEssentials = (p: { max: number; own: number }, team: TeamShape) => Math.min(p.max, p.own / 2 + 40 * team.nightsoulOthers);
 
 // A stepped value at this team's count (Escoffier: 1-4 Hydro/Cryo members; Lynette: 1-4 element types).
 function stepValue(buff: KitBuff, team: TeamShape): number {
@@ -100,7 +109,10 @@ function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scori
     case "dmgBonusPerEm":
       return dmg(buff.value * stats.em);
     case "reactionBonus":
+      if (buff.condition === "rescueEssentials") return dmg(buff.value * rescueEssentials(buff.points!, team));
       return dmg(cap(buff.perHp ? (buff.value * stats.hp) / buff.perHp : buff.value));
+    case "dmgBonusFromExcessAtk":
+      return dmg(cap(buff.value * Math.max(0, stats.atk - buff.threshold!)));
     case "resShred":
       return resShredGain(buff.value);
     case "defShred":
@@ -155,8 +167,12 @@ export function kitBuffValue(
   if (!byCarry) cache.set(s, (byCarry = new WeakMap()));
   let byReactions = byCarry.get(carry);
   if (!byReactions) byCarry.set(carry, (byReactions = new Map()));
-  const shape: TeamShape = { elements: team.map((m) => m.element), fightingSpirit: fightingSpirit(s, carry, team) };
-  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${[...shape.elements].sort().join(",")}`;
+  const shape: TeamShape = {
+    elements: team.map((m) => m.element),
+    fightingSpirit: fightingSpirit(s, carry, team),
+    nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
+  };
+  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${[...shape.elements].sort().join(",")}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
   const value = computeKitBuffValue(s, carry, carryReactions, shape);
   byReactions.set(key, value);
@@ -166,7 +182,7 @@ export function kitBuffValue(
 function computeKitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
-  const stats = bufferStats(s, entry.base);
+  const stats = bufferStats(s, entry.base, entry.buildFor);
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
     const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1);

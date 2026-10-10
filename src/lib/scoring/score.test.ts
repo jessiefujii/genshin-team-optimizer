@@ -375,6 +375,23 @@ describe("talent levels (#25)", () => {
     );
   });
 
+  test("Ifa's and Prune's buffs come from their kit values (#76)", () => {
+    const buff = (id: string, ...ids: string[]) =>
+      score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id))?.reason;
+    // Ifa alone holds ~40 Rescue Essentials points (half his 80): 60% Swirl DMG.
+    expect(buff("Ifa", "Varka", "Ifa", "Durin", "Bennett")).toBe("Ifa buffs Varka (~+38% damage)");
+    // Lunar-Charged gets only 0.2% per point.
+    expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+5% damage)");
+    // Prune: 0.025% per ATK point above 2,000; without a build she is assumed at 3,000 ATK.
+    expect(buff("Prune", "Klee", "Prune", "Mona", "Bennett")).toBe("Prune buffs Klee (~+16% damage)");
+    const stats: CharacterStats = {
+      atk: 4200, hp: 15000, def: 800, critRate: 50, critDmg: 100, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 0,
+    };
+    const built = team("Klee", "Prune", "Mona", "Bennett").map((c) => (c.id === "Prune" ? { ...c, stats } : c));
+    // At 4,200 ATK she hits the 50% cap.
+    expect(scoreTeam(built).breakdown.find((l) => l.reason.startsWith("Prune"))?.reason).toBe("Prune buffs Klee (~+31% damage)");
+  });
+
   test("Mavuika's bonus grows with the Fighting Spirit the team can build (#68)", () => {
     const mavuika = (...ids: string[]) =>
       score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Mavuika"))?.reason;

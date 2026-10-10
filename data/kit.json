@@ -17,7 +17,7 @@
           "source": "passive2: \"Elemental Mastery of nearby party members by 125\"",
           "duration": 10,
           "cd": 12,
-          "uptime": 0.8333
+          "uptime": 0.833333
         }
       ]
     },
@@ -358,7 +358,7 @@
           "source": "burst talent \"Max ATK Bonus\", level 9",
           "duration": 12,
           "cd": 18,
-          "uptime": 0.6667
+          "uptime": 0.666667
         }
       ]
     },
@@ -368,8 +368,60 @@
         "atk": 178,
         "def": 605
       },
-      "buffs": [],
-      "missing": "Rescue Essentials' per-point bonus isn't stated in the passive text"
+      "buffs": [
+        {
+          "kind": "reactionBonus",
+          "value": 0.015,
+          "points": {
+            "max": 150,
+            "own": 80
+          },
+          "reactions": [
+            "swirl",
+            "electrocharged"
+          ],
+          "condition": "rescueEssentials",
+          "unit": "Swirl/Electro-Charged DMG % per Rescue Essentials point",
+          "source": "passive1: \"Swirl and Electro-Charged DMG dealt by nearby party members by 1.5%\"",
+          "duration": null,
+          "cd": null,
+          "uptime": null
+        },
+        {
+          "kind": "reactionBonus",
+          "value": 0.002,
+          "points": {
+            "max": 150,
+            "own": 80
+          },
+          "reactions": [
+            "lunar-charged"
+          ],
+          "condition": "rescueEssentials",
+          "unit": "Lunar-Charged DMG % per Rescue Essentials point",
+          "source": "passive1: \"Lunar-Charged DMG dealt by 0.2%\"",
+          "duration": null,
+          "cd": null,
+          "uptime": null
+        },
+        {
+          "kind": "reactionBonus",
+          "value": 0.0024,
+          "points": {
+            "max": 150,
+            "own": 80
+          },
+          "reactions": [
+            "stellar-swirl"
+          ],
+          "condition": "rescueEssentials",
+          "unit": "Stellar Swirl DMG % per Rescue Essentials point",
+          "source": "passive1: \"Stellar Swirl reaction DMG dealt by 0.24%\"",
+          "duration": null,
+          "cd": null,
+          "uptime": null
+        }
+      ]
     },
     "Illuga": {
       "base": {
@@ -437,7 +489,7 @@
       "buffs": [
         {
           "kind": "atkFromBase",
-          "value": 0.7303,
+          "value": 0.73032,
           "unit": "of Sara's base ATK",
           "source": "skill talent \"ATK Bonus Ratio\", level 9",
           "duration": 6,
@@ -455,7 +507,7 @@
       "buffs": [
         {
           "kind": "flatDmgFromEm",
-          "value": 4.7219,
+          "value": 4.72192,
           "reactions": [
             "bloom",
             "hyperbloom",
@@ -469,7 +521,7 @@
         },
         {
           "kind": "flatDmgFromEm",
-          "value": 3.7781,
+          "value": 3.77808,
           "reactions": [
             "lunar-bloom"
           ],
@@ -552,7 +604,7 @@
           "source": "passive1: \"8%/12%/16%/20% respectively\"",
           "duration": 10,
           "cd": 12,
-          "uptime": 0.8333
+          "uptime": 0.833333
         }
       ]
     },
@@ -610,7 +662,7 @@
           "source": "burst talent \"DMG Bonus\", level 9",
           "duration": 5,
           "cd": 15,
-          "uptime": 0.3333
+          "uptime": 0.333333
         }
       ]
     },
@@ -657,8 +709,22 @@
         "atk": 221,
         "def": 580
       },
-      "buffs": [],
-      "missing": "Tolling Rally's bonus isn't stated in the passive text"
+      "buildFor": {
+        "atk": 3000
+      },
+      "buffs": [
+        {
+          "kind": "dmgBonusFromExcessAtk",
+          "value": 0.00025,
+          "threshold": 2000,
+          "max": 0.5,
+          "unit": "DMG % per point of Prune's ATK above the threshold",
+          "source": "passive2: \"Every excess ATK point increases that instance of DMG by 0.025%\"",
+          "duration": 5,
+          "cd": null,
+          "uptime": null
+        }
+      ]
     },
     "Rosaria": {
       "base": {
@@ -674,7 +740,7 @@
           "source": "passive2: \"cannot exceed 15%\"",
           "duration": 10,
           "cd": 15,
-          "uptime": 0.6667
+          "uptime": 0.666667
         }
       ]
     },
@@ -687,7 +753,7 @@
       "buffs": [
         {
           "kind": "flatDmgFromAtk",
-          "value": 0.7762,
+          "value": 0.776152,
           "elements": [
             "Cryo"
           ],
@@ -846,7 +912,7 @@
       "buffs": [
         {
           "kind": "flatDmgFromDef",
-          "value": 0.5467,
+          "value": 0.54672,
           "appliesTo": [
             "normal"
           ],
