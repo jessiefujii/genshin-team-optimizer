@@ -441,12 +441,23 @@ describe("talent levels (#25)", () => {
     expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Hu Tao (~+20% damage)" });
   });
 
-  test("buffer points come from the kit's numbers: +20% damage = 10 points, capped at 15 (#68)", () => {
+  test("buffer points come from the kit's numbers: +20% damage = 10 points, no cap (#68, #90)", () => {
     const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
     const hutao = score("Hu Tao", "Furina", "Bennett", "Zhongli");
-    expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 15, reason: "Furina buffs Hu Tao (~+43% damage)" });
+    // Furina's Fanfare averages 3/4 of its max with a healer (Bennett) here (#90): +52% DMG, ~+32% damage.
+    expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 16, reason: "Furina buffs Hu Tao (~+32% damage)" });
     expect(buffLine(hutao, "Bennett")?.points).toBe(12);
     expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(8);
+  });
+
+  test("Furina's Fanfare: averaged over her Burst, higher with another healer (#90)", () => {
+    const pct = (...ids: string[]) =>
+      Number(score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Furina"))?.reason.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Without a healer her Salon Members drain each member to 50% HP at most: 200 of 300 Fanfare.
+    const healer = pct("Hu Tao", "Furina", "Bennett", "Zhongli");
+    const noHealer = pct("Hu Tao", "Furina", "Xingqiu", "Zhongli");
+    expect(healer).toBeGreaterThan(noHealer);
+    expect(healer).toBeLessThan(43); // what max Fanfare all Burst gave before #90
   });
 
   test("kit values that depend on the team follow their conditions (#68)", () => {
@@ -494,7 +505,7 @@ describe("talent levels (#25)", () => {
   test("a kit buff limited to an attack type only helps carries who use it (#68)", () => {
     const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
     // Xianyun's bonus is Plunging Attack DMG: Xiao's rotation plunges, Hu Tao's doesn't.
-    expect(buffLine(score("Xiao", "Xianyun", "Faruzan", "Furina"), "Xianyun")?.points).toBe(15);
+    expect(buffLine(score("Xiao", "Xianyun", "Faruzan", "Furina"), "Xianyun")?.points).toBe(29); // uncapped since #90
     expect(buffLine(score("Hu Tao", "Xianyun", "Xingqiu", "Zhongli"), "Xianyun")).toEqual({
       rule: "Buffs",
       points: 0,
@@ -516,7 +527,7 @@ describe("talent levels (#25)", () => {
     // Yun Jin is listed first, but Furina and Bennett are worth more, so they are the two that count.
     const s = score("Hu Tao", "Yun Jin", "Bennett", "Furina");
     const buffs = s.breakdown.filter((l) => l.rule === "Buffs").map((l) => [l.reason.split(" ")[0], l.points]);
-    expect(buffs).toEqual([["Furina", 15], ["Bennett", 12]]);
+    expect(buffs).toEqual([["Furina", 16], ["Bennett", 12]]);
   });
 
   test("Xiao wants Xianyun or Faruzan (#60)", () => {

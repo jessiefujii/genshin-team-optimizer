@@ -23,10 +23,8 @@ export const POINTS = {
   carryReactionsUnavailable: -10,
   supportReaction: 10,
   buffer: 10,
-  // A buffer scores by the damage their kit adds (+20% = `buffer` points, benchmark.ts), up to this (#68). Reaction
-  // bonuses no longer need it (weighted by the carry's share of that reaction, #87), but some values are still read
-  // at their peak, like Furina at max Fanfare: without the cap, `npm run compare` drops from 11/16 to 9/16.
-  maxKitBuffer: 15,
+  // A buffer scores by the damage their kit adds: +20% = `buffer` points (benchmark.ts, #68). No cap since #90: reaction
+  // bonuses are weighted by the carry's share (#87) and Furina's Fanfare is averaged, the overestimates it hid.
   maxBuffers: 2,
   hypercarryMaxBuffers: 3, // a hypercarry (mainReaction 'none') is built around buffers, not reactions
   survivability: 10,
@@ -225,7 +223,7 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
       out.add("Buffs", 0, () => `${s.id}: their kit's buff doesn't apply to ${carry.id}'s damage`);
       continue;
     }
-    const base = kit ? Math.min(POINTS.maxKitBuffer, (POINTS.buffer * kit.gain) / GAIN_FOR_POINTS) : POINTS.buffer;
+    const base = kit ? (POINTS.buffer * kit.gain) / GAIN_FOR_POINTS : POINTS.buffer;
     const est = kit ? `~+${Math.round(kit.gain * 100)}% damage` : "";
     const detail = [est, level === undefined ? "" : `${talent} level ${level}`].filter(Boolean).join(", ");
     fitting.push({

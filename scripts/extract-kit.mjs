@@ -32,7 +32,7 @@ const COMBAT = { normal: "combat1", skill: "combat2", burst: "combat3" };
 // table: { talent, values: [{ kind, label, times?, cap?, unit, ...limits }], duration?, cd? } (labels matched before "|")
 // text:  { from, values: [{ kind, re, unit, percent?, max?, perHp?, ...limits }], duration?: re | label, cd?: { talent, label } }
 // scale: a factor on the read value (Yelan's ramping bonus averages about half its max)
-// condition: the value depends on the team (fightingSpirit: Mavuika, scaled in src/lib/scoring/kit.ts)
+// condition: the value depends on the team (fightingSpirit: Mavuika, fanfare: Furina; scaled in src/lib/scoring/kit.ts)
 // steps: the value steps with the team (members of some elements, or element types); teamOnly: every member's
 //        element must be one of these (Chevreuse)
 // limits: elements (carry's element), appliesTo (carry's keyTalent, or 'plunge' for carries whose rotation plunges),
@@ -53,7 +53,9 @@ const SPEC = {
   },
   Furina: {
     talent: "burst",
-    values: [{ kind: "dmgBonus", label: "Fanfare to DMG Increase Conversion Ratio", times: "Maximum Fanfare", unit: "DMG % at max Fanfare" }],
+    values: [{ kind: "dmgBonus", label: "Fanfare to DMG Increase Conversion Ratio", times: "Maximum Fanfare", unit: "DMG % at max Fanfare", condition: "fanfare" }],
+    // Fanfare comes from party HP changes; her Salon Members only drain characters above this HP (#90).
+    fanfare: { max: "Maximum Fanfare", drainFloor: { from: "combat2", re: /character\(s\) with more than (\d+)% HP/ } },
     duration: "Duration",
     cd: "CD",
   },
@@ -189,9 +191,18 @@ function readBuffs(id, spec) {
     const attrs = talents[COMBAT[spec.talent]].attributes;
     const duration = spec.duration ? tableValue(attrs, spec.duration, id) : null;
     const cd = spec.cd ? tableValue(attrs, spec.cd, id) : null;
+    const fanfare = spec.fanfare && {
+      maxFanfare: tableValue(attrs, spec.fanfare.max, id),
+      drainFloor: (() => {
+        const m = talents[spec.fanfare.drainFloor.from].description.replace(/\s+/g, " ").match(spec.fanfare.drainFloor.re);
+        if (!m) throw new Error(`${id}: pattern ${spec.fanfare.drainFloor.re} not found in ${spec.fanfare.drainFloor.from}`);
+        return Number(m[1]) / 100;
+      })(),
+    };
     return spec.values.map((v) => ({
       kind: v.kind,
       value: round(tableValue(attrs, v.label, id) * (v.times ? tableValue(attrs, v.times, id) : 1)),
+      ...(fanfare ?? {}),
       ...(v.cap ? { max: tableValue(attrs, v.cap, id) } : {}),
       ...limits(v),
       unit: v.unit,
