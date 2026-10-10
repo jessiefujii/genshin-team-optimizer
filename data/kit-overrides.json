@@ -381,5 +381,193 @@
       },
       "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Nightsoul_Burst, fetched 2026-10-10 (Nightsoul Burst section); Pyro Traveler: Prydwen"
     }
+  },
+  "hitRates": {
+    "_howTo": [
+      "How often a sub-DPS's hits land, where genshin-db's talent text only says 'at intervals' (#95). Keyed by character, then '<talent>: <talent table label>'.",
+      "hits: hits per use; every: seconds between hits; duration: seconds it lasts when the table has no duration. source: where the number comes from.",
+      "missing: why there's no number yet. npm run kit leaves that source out and lists it, and npm test shows it as a todo."
+    ],
+    "Aino": {
+      "burst: Water Ball DMG": {
+        "hits": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Aino, fetched 2026-10-10: \"Water balls are fired every 1.5 seconds and up to 9 can be fired during the skill's duration.\""
+      }
+    },
+    "Citlali": {
+      "skill: Frostfall Storm DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dawnfrost_Darkstar, fetched 2026-10-10 (talent page): \"Frostfall Storm hits once every second.\" It runs while Opal Fire burns 8 Nightsoul points per second (genshin-db skill table). Per rotation she gains 24 (skill) + 24 (burst, \"Ice Storm Nightsoul Point Gain\") + 3 (one Spiritvessel Skull) = 51 points, so ~6.4s of storm: 6 hits. Worked out here, not a wiki number."
+      }
+    },
+    "Collei": {
+      "burst: Leap DMG": {
+        "hits": 12,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Collei, fetched 2026-10-10: \"This skill ticks a total of 12 times, in addition to the initial hit.\""
+      }
+    },
+    "Dehya": {
+      "burst: Flame-Mane's Fist DMG": {
+        "hits": 10,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Leonine_Bite, fetched 2026-10-10 (talent page, Gameplay Notes): \"Dehya can perform up to 10 or 6 Flame-Mane's Fists with and without Roaring Barrage respectively.\" (10: pressing Roaring Barrage, the usual play)"
+      }
+    },
+    "Durin": {
+      "burst: Dragon of White Flame DMG": {
+        "every": 1,
+        "source": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide: \"When Durin is in the Confirmation of Purity state, his Burst immediately deals 3 instances of AoE Pyro damage and then deals AoE Pyro damage every 1s.\" (Dark Form: every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown)"
+      }
+    },
+    "Emilie": {
+      "skill: Level 1 Lumidouce Case Attack DMG": {
+        "every": 1.5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Emilie, fetched 2026-10-10: \"Level 1/2 Lumidouce Case attacks once every 1.5 seconds.\""
+      }
+    },
+    "Escoffier": {
+      "skill: Frosty Parfait DMG": {
+        "every": 1,
+        "source": "HoYoLAB, \"[5.6] Escoffier - COMPLETE GUIDE\" by Magnus Minorium, https://www.hoyolab.com/article/38652033 (from Jessie, fetched 2026-10-10; talent values at Lv.9 match genshin-db): \"Note: The Frosty Parfaits are fired once every second to the closest enemy.\""
+      }
+    },
+    "Fischl": {
+      "skill: Oz's ATK DMG": {
+        "every": 1,
+        "duration": 20,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Fischl, fetched 2026-10-10: \"Oz attacks at 1-second intervals. ... With proper rotation between this skill and Fischl's Elemental Skill, Oz can be on the field for 20s (or 24s with Fischl's C6) every 25s.\""
+      }
+    },
+    "Furina": {
+      "skill: Gentilhomme Usher DMG": {
+        "every": 2.9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Gentilhomme Usher Will attack if target is within 6m, with 2.9s CD.\""
+      },
+      "skill: Surintendante Chevalmarin DMG": {
+        "every": 1.19,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Surintendante Chevalmarin Will attack if target is within 9.5m, with 1.19s CD.\""
+      },
+      "skill: Mademoiselle Crabaletta DMG": {
+        "every": 4.8,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Mademoiselle Crabaletta Will attack if target is within 20m, with 4.8s CD.\""
+      }
+    },
+    "Ineffa": {
+      "skill: Birgitta Discharge DMG": {
+        "every": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\""
+      }
+    },
+    "Jahoda": {
+      "burst: Purrsonal Coordinated Assistance Robot DMG": {
+        "missing": "the robots' attack interval isn't in genshin-db, on the wiki or in KQM's guide. They only deal damage in Ascendant Gleam teams (2+ Moonsign members), after converting to an element; there are 2 robots, each converting on its own",
+        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Hidden_Aces:_Seven_Tools_of_the_Hunter, fetched 2026-10-10 (only its internal cooldown is given); KQM (keqingmains.com) Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams; otherwise, it deals one instance of Anemo damage and provides healing.\""
+      }
+    },
+    "Kachina": {
+      "skill: Turbo Twirly Independent DMG": {
+        "every": 2,
+        "duration": 12,
+        "source": "HoYoLAB, \"Kachina: Overview and Build Guide\" by Airmitchbaby, https://www.hoyolab.com/article/34606441 (from Jessie, fetched 2026-10-10): \"In Independent mode, Turbo Twirly will do a ground slam every two seconds, consuming Nightsoul points. If she has full points when using the skill, it'll slam six times over the course of twelve seconds.\""
+      }
+    },
+    "Kaeya": {
+      "burst: Skill DMG": {
+        "hits": 15,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kaeya, fetched 2026-10-10: \"Glacial Waltz can hit ~15 times across the initial burst, icicle rotations and final icicle explosions.\""
+      }
+    },
+    "Lauma": {
+      "skill: Frostgrove Sanctuary Attack DMG": {
+        "every": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lauma, fetched 2026-10-10: \"The Frostgrove Sanctuary will follow the active character, dealing a single instance of AoE Dendro DMG to opponents within the array every 2s.\""
+      }
+    },
+    "Linnea": {
+      "skill: Lumi Pound-Pound Pummeler DMG": {
+        "every": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Linnea, fetched 2026-10-10: \"In Super Power Form, she will use Pound-Pound Pummeler every ~2 seconds\""
+      }
+    },
+    "Lisa": {
+      "burst: Discharge DMG": {
+        "hits": 29,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lisa, fetched 2026-10-10: \"Lightning Rose has a weak initial hit on cast to enemies within a certain radius, and then arcs another 29 times before disappearing.\""
+      }
+    },
+    "Odette": {
+      "skill: \"Plume\" Dance Move DMG": {
+        "every": 4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)"
+      },
+      "skill: \"Wing\" Dance Move DMG": {
+        "every": 4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)"
+      }
+    },
+    "Ororon": {
+      "burst: Soundwave Collision DMG": {
+        "hits": 9,
+        "source": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Ororon guide, Constellation 4 notes: \"This Constellation increases the frequency of Ororon's Burst hits, totalling ~12 hits instead of ~9.\" (C0: ~9)"
+      }
+    },
+    "Prune": {
+      "burst: Witchlure Bell DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Prune, fetched 2026-10-10: \"The hammer attacks every 2 seconds and up to 6 attacks can happen during the skill's duration.\""
+      }
+    },
+    "Rosaria": {
+      "burst: Ice Lance DoT": {
+        "hits": 4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Rosaria, fetched 2026-10-10: \"Ice Lance releases a blast of cold air every 2 seconds for a total of 4 blasts.\""
+      }
+    },
+    "Sigewinne": {
+      "burst: Skill DMG": {
+        "every": 0.4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Sigewinne, fetched 2026-10-10: \"This skill deals DMG every 0.4s to opponents within its AoE.\""
+      }
+    },
+    "Traveler (Dendro)": {
+      "burst: Lea Lotus Lamp Attack DMG": {
+        "hits": 8,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Traveler/Dendro, fetched 2026-10-10: \"The Lea Lotus Lamp in its original state or after Hydro transformation attacks every 1.5 seconds, resulting in a total of 8 hits.\" (10 with C2)"
+      }
+    },
+    "Traveler (Geo)": {
+      "burst: DMG Per Shockwave": {
+        "hits": 4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Traveler/Geo, fetched 2026-10-10: \"There are 4 instances of Shockwave DMG.\""
+      }
+    },
+    "Venti": {
+      "burst: DoT": {
+        "hits": 20,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Venti, fetched 2026-10-10: \"The Stormeye deals 20x Anemo DMG within 8 seconds.\""
+      }
+    },
+    "Xiangling": {
+      "skill: Flame DMG": {
+        "hits": 4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xiangling, fetched 2026-10-10: \"After 2s from skill activation, Guoba will breathe fire at opponents every 1.5s, 4 times.\""
+      },
+      "burst: Pyronado DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xiangling, fetched 2026-10-10: \"the Pyronado will hit smaller enemies 7-8 times with no player/enemy movement.\" (the lower count)"
+      }
+    },
+    "Xingqiu": {
+      "burst: Sword Rain DMG": {
+        "every": 1,
+        "hits": 2.5,
+        "source": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xingqiu, fetched 2026-10-10: \"Sword rain attacks have a 1-second cooldown.\" and \"Before unlocking this constellation, sword rain alternates between firing 2 swords and 3 swords. After unlocking this constellation, the order is 2 swords → 3 swords → 5 swords.\" (C0: 2.5 swords per wave)"
+      }
+    },
+    "Yae Miko": {
+      "skill: Sesshou Sakura DMG: Level 3": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yae_Miko, fetched 2026-10-10: \"The Sesshou Sakura can strike 5 times over their 14 seconds duration.\""
+      }
+    }
   }
 }

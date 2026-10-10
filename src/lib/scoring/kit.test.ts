@@ -59,6 +59,34 @@ test("converts matches the conversion sentence in genshin-db's kit text", { time
   expect(fromTags).toEqual(fromKit);
 });
 
+// Sub-DPS hits (#95): every off-field sub-DPS has an entry, each source has a multiplier, a rate and a cooldown.
+type SubDpsSource = { label: string; scaling: Record<string, number>; hits?: number; every?: number; duration?: number; cd: number };
+const subDps = (kit as unknown as { subDps: Record<string, { sources: SubDpsSource[]; missing?: string[] }> }).subDps;
+
+test("every off-field sub-DPS has hit data with a multiplier, a rate and a cooldown", () => {
+  const offField = tags.filter((c) => c.roles.includes("sub-dps") && c.fieldTime === "off").map((c) => c.id);
+  expect(Object.keys(subDps).sort()).toEqual(offField.sort());
+  for (const [id, d] of Object.entries(subDps)) {
+    expect(d.sources.length, id).toBeGreaterThan(0);
+    for (const s of d.sources) {
+      expect(Object.values(s.scaling).every((v) => v > 0) && Object.keys(s.scaling).length > 0, `${id} ${s.label}`).toBe(true);
+      expect((s.hits ?? 0) > 0 || ((s.every ?? 0) > 0 && (s.duration ?? 0) > 0), `${id} ${s.label}: hits or every + duration`).toBe(true);
+      expect(s.cd, `${id} ${s.label}`).toBeGreaterThan(0);
+    }
+  }
+});
+
+test("talent table labels are read per stat, hit and multiple (#95)", () => {
+  const source = (id: string, label: string) => subDps[id].sources.find((s) => s.label === label)!;
+  expect(Object.keys(source("Chiori", "Tamoto DMG").scaling).sort()).toEqual(["atk", "def"]); // "{p} ATK+{q} DEF"
+  expect(source("Xingqiu", "Skill DMG").scaling.atk).toBeCloseTo(2.856 + 3.2504, 4); // "{p}+{q}": two hits
+  expect(source("Yelan", "Exquisite Throw DMG").scaling.hp).toBeCloseTo(0.082824 * 3, 6); // "... Max HP ×3"
+});
+
+for (const [id, d] of Object.entries(subDps)) {
+  for (const m of d.missing ?? []) test.todo(`kit-overrides hitRates: ${id} ${m}`);
+}
+
 // data/kit-overrides.json fills what genshin-db is missing (#73). The shape is checked here; each slot that is
 // still empty shows as a todo, so `npm test` lists what is left to copy from the game.
 
