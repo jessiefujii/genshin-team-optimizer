@@ -1128,6 +1128,31 @@
         }
       ]
     },
+    "Prune": {
+      "target": "party",
+      "source": "passive4: \"After a Hexerei character in the party affected by the Tolling Rally effect triggers an Elemental Reaction on an opponent, Prune's ATK is increased by 60% for 5s.\"",
+      "values": [
+        {
+          "kind": "ownAtkPct",
+          "value": 0.6,
+          "hexereiOnly": true,
+          "anyReaction": true,
+          "unit": "Prune's ATK %, raising her Tolling Rally bonus",
+          "uptime": null
+        },
+        {
+          "kind": "atkPct",
+          "value": 0.3,
+          "reactions": [
+            "swirl",
+            "stellar-swirl"
+          ],
+          "hexereiOnly": true,
+          "unit": "ATK % after the carry's own Swirl or Stellar Swirl",
+          "uptime": null
+        }
+      ]
+    },
     "Razor": {
       "target": "self",
       "source": "passive4: \"While the Wolf Within summoned by Razor's Elemental Burst Lightning Fang is active, if the Electro Sigils from Razor's Elemental Skill Claw and Thunder overflow, the Wolf Within will call down a lightning strike on nearby enemies, dealing AoE Electro DMG equal to 150% of Razor's ATK and restoring 7 Energy to Razor.\""

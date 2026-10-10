@@ -295,6 +295,7 @@ function readGleam(id, spec) {
 //   hexereiOnly: only Hexerei members get it ("nearby Hexerei party members")
 //   teamReactions: any member triggering one of these turns it on (Fischl's Oz), not only the carry
 //   perDef: the value is per this much of the member's DEF, up to max (Albedo)
+//   anyReaction: the carry has to trigger some reaction (Prune)
 //   ownAttacks: it builds from the member's own Normal/Charged Attacks, so it does nothing while they're off-field (Mona)
 //   uptime: { talent, duration, cd } table labels
 //   perBurst: { talent, hits, cd } table labels: flat damage on that many hits each Burst cooldown (Nicole)
@@ -336,6 +337,16 @@ const SECRET_RITE = {
     from: "passive4",
     target: "party",
     values: [{ kind: "reactionBonus", re: /increases the damage of that Vaporize reaction by (\d+)%/, times: /Max (\d+) stacks/, unit: "Vaporize DMG % (one Vaporize, with stacks from Mona's own attacks)", percent: true, reactions: ["vaporize"], ownAttacks: true }],
+  },
+  // A Hexerei carry inside Tolling Rally who triggers a reaction raises Prune's own ATK, so her Tolling Rally
+  // bonus (0.025% DMG per ATK above 2,000, data above) grows; a Swirl or Stellar Swirl also raises theirs.
+  Prune: {
+    from: "passive4",
+    target: "party",
+    values: [
+      { kind: "ownAtkPct", re: /Prune's ATK is increased by (\d+)%/, unit: "Prune's ATK %, raising her Tolling Rally bonus", percent: true, hexereiOnly: true, anyReaction: true },
+      { kind: "atkPct", re: /triggering character's ATK will additionally be increased by (\d+)%/, unit: "ATK % after the carry's own Swirl or Stellar Swirl", percent: true, hexereiOnly: true, reactions: ["swirl", "stellar-swirl"] },
+    ],
   },
   Razor: { from: "passive4", target: "self" },
   Sucrose: {
@@ -400,6 +411,7 @@ function readSecretRite(id, spec) {
         ...(v.hexereiOnly ? { hexereiOnly: true } : {}),
         ...(v.teamReactions ? { teamReactions: v.teamReactions } : {}),
         ...(v.ownAttacks ? { ownAttacks: true } : {}),
+        ...(v.anyReaction ? { anyReaction: true } : {}),
         ...(pb ? { perBurst: { hits: tableValue(pb, v.perBurst.hits, id), cd: tableValue(pb, v.perBurst.cd, id) } } : {}),
         unit: v.unit,
         uptime: u ? uptime(tableValue(u, v.uptime.duration, id), tableValue(u, v.uptime.cd, id)) : null,
