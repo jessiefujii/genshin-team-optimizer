@@ -1277,5 +1277,145 @@
         "source": "passive2: \"Additionally, when nearby party members trigger a Nightsoul Burst, Xilonen's DEF is increased by 20% for 15s.\""
       }
     }
+  },
+  "stellar": {
+    "Alyosha": {
+      "target": "party",
+      "radiance": [
+        "stellar-conduct"
+      ],
+      "source": "passive3: \"Alyosha will enter the Radiance: Stellar-Conduct state when inside a **Polestar Field**.\"",
+      "values": [
+        {
+          "kind": "reactionBonus",
+          "value": 0.2,
+          "reactions": [
+            "stellar-conduct"
+          ],
+          "radiance": "stellar-conduct",
+          "unit": "Stellar-Conduct DMG % for the on-field character (Hunter's Precision)",
+          "uptime": 1
+        }
+      ]
+    },
+    "Beidou": {
+      "target": "own",
+      "radiance": [
+        "stellar-conduct"
+      ],
+      "note": "enters Radiance; no effect on others",
+      "source": "passive4: \"Additionally, when inside a Polestar Field, Beidou will enter the Radiance: Stellar-Conduct state.\""
+    },
+    "Cyno": {
+      "target": "self",
+      "radiance": [
+        "stellar-conduct"
+      ],
+      "source": "passive1: \"Radiance: Stellar-Conduct: When Judication is triggered, Cyno will instead fire 3 Duststalker Bolts - Starsame to his front, dealing Electro DMG at 200% of his ATK.\""
+    },
+    "Diona": {
+      "target": "own",
+      "radiance": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "note": "enters Radiance; no effect on others",
+      "source": "passive4: \"Additionally, Diona will also enter the Radiance: Stellar-Conduct state when she is inside a Polestar Field [Polestar Field: When Stellar-Conduct is triggered, the surrounding area will transform into a Polestar Field for a short period of time, and when inside a Polestar Field, certain characters will enter the Radiance: Stellar-Conduct state, which grants various skill buffs], or the Radiance: Stellar Swirl state for 8s after a nearby party member triggers a Stellar Swirl reaction.\""
+    },
+    "Odette": {
+      "target": "own",
+      "radiance": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "note": "enters Radiance; no effect on others",
+      "source": "passive3: \"Odette will enter the Radiance: Stellar-Conduct state when she is inside a **Polestar Field**, or the Radiance: Stellar Swirl state for 8s after a nearby party member triggers a Stellar Swirl reaction.\""
+    },
+    "Qiqi": {
+      "target": "party",
+      "radiance": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "source": "passive4: \"Radiance: Stellar Glimmer: While the Herald of Frost is on the field, Qiqi's own party members will have the DMG they deal via the corresponding reactions enhanced: Radiance: Stellar-Conduct: Superconduct and Stellar-Conduct reaction DMG is increased by 50%.\"",
+      "values": [
+        {
+          "kind": "reactionBonus",
+          "value": 0.5,
+          "reactions": [
+            "stellar-conduct"
+          ],
+          "radiance": "stellar-conduct",
+          "unit": "Stellar-Conduct DMG % while Herald of Frost is out",
+          "uptime": 1
+        },
+        {
+          "kind": "reactionBonus",
+          "value": 0.5,
+          "reactions": [
+            "stellar-swirl"
+          ],
+          "radiance": "stellar-swirl",
+          "unit": "Stellar Swirl DMG % while Herald of Frost is out",
+          "uptime": 1
+        }
+      ]
+    },
+    "Sandrone": {
+      "target": "self",
+      "radiance": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "source": "passive1: \"**Radiance: Stellar Glimmer**: When using the Elemental Skill **Formule Phenomenale: Differential Analysis**, if Fagio's **Decoding Power** is greater than 50, the second Prism Shot fired by Fagio at nearby opponents will deal 400% of its original DMG as Fagio's Decoding Power is decreased.\""
+    },
+    "Vesna": {
+      "target": "self",
+      "radiance": [
+        "stellar-swirl"
+      ],
+      "source": "combat2: \"Radiance: Stellar Swirl: DMG dealt with the Spirit Blades becomes Anemo DMG that is also considered Stellar Swirl reaction DMG.\""
+    },
+    "Vodyanitsa": {
+      "target": "party",
+      "radiance": [],
+      "source": "passive1: \"When the Elemental Skill Rechitativ: Sonorous Dawn is used, any Stellar Vortex on the field will turn into a Wandering Vortex instead.\"",
+      "values": [
+        {
+          "kind": "resShred",
+          "value": 0.35,
+          "elements": [
+            "Anemo"
+          ],
+          "teamReactions": [
+            "stellar-swirl"
+          ],
+          "unit": "Anemo RES from Wandering Vortex (Stellar Swirl during Song of Ages Past)",
+          "uptime": 1
+        }
+      ]
+    },
+    "Wriothesley": {
+      "target": "self",
+      "radiance": [
+        "stellar-conduct"
+      ],
+      "source": "passive4: \"Radiance: Stellar-Conduct: The Ascension Talent \"There Shall Be a Plea for Justice\" is changed to the following: When Wriothesley's HP is less than 60%, he will obtain a \"Gracious Rebuke: Unveiling.\" This enhances the next Charged Attack of his Normal Attack: Forceful Fists of Frost into Luster: Vaulting Fist, which will not consume Stamina and restores 30% Max HP to Wriothesley upon hit.\""
+    },
+    "Yae Miko": {
+      "target": "own",
+      "radiance": [
+        "stellar-conduct"
+      ],
+      "note": "her own Stellar-Conduct hits",
+      "source": "passive4: \"Radiance: Stellar-Conduct: An enhanced Sesshou Sakura lightning bolt hit on an opponent will also cause an additional instance of Electro DMG at 200% of Yae Miko's ATK.\""
+    },
+    "Yumemizuki Mizuki": {
+      "target": "self",
+      "radiance": [
+        "stellar-swirl"
+      ],
+      "source": "passive4: \"Radiance: Stellar Swirl: When Yumemizuki Mizuki deals to an opponent the above enhanced AoE Anemo DMG, she will also deal an additional instance of Anemo DMG at 1,000% of her Elemental Mastery.\""
+    }
   }
 }

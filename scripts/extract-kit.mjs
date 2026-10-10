@@ -470,6 +470,82 @@ function readNightsoulBurst(id, spec) {
   };
 }
 
+// Stellar Glimmer: Radiance (#63). A Stellar member enters Radiance: Stellar-Conduct inside a Polestar Field
+// (made when Stellar-Conduct is triggered) and Radiance: Stellar Swirl for 8s after a Stellar Swirl, so a
+// Radiance is on when the team has that reaction. What it does is in each kit:
+//   target "self": an upgrade to that character's own kit (Sandrone, Vesna, Wriothesley, Cyno, Mizuki), scored when they carry
+//   target "party": buffs that reach the carry (Alyosha, Qiqi, Vodyanitsa), read like SECRET_RITE values; each
+//     value's `radiance` is the Radiance it needs, and uptime comes from table labels or a cd sentence
+//   target "own": Radiance only changes that support's own damage (sub-DPS damage is Phase 3); recorded, not scored
+// `radiance` lists the Radiance states the character can enter.
+const SC = "stellar-conduct";
+const SS = "stellar-swirl";
+const STELLAR = {
+  Alyosha: {
+    from: "passive3",
+    target: "party",
+    radiance: [SC],
+    values: [{ kind: "reactionBonus", re: /increase Stellar-Conduct reaction DMG dealt by the character when on the field by (\d+)%/, unit: "Stellar-Conduct DMG % for the on-field character (Hunter's Precision)", percent: true, reactions: [SC], radiance: SC, uptime: { talent: "skill", duration: "Hunter's Precision Duration", cd: "CD" } }],
+  },
+  Beidou: { from: "passive4", target: "own", radiance: [SC], note: "enters Radiance; no effect on others" },
+  Cyno: { from: "passive1", target: "self", radiance: [SC] },
+  Diona: { from: "passive4", target: "own", radiance: [SC, SS], note: "enters Radiance; no effect on others" },
+  Odette: { from: "passive3", target: "own", radiance: [SC, SS], note: "enters Radiance; no effect on others" },
+  // Herald of Frost buffs the party's Stellar reactions; passive4 cuts its CD to 15s, its duration is the skill table's.
+  Qiqi: {
+    from: "passive4",
+    target: "party",
+    radiance: [SC, SS],
+    values: [
+      { kind: "reactionBonus", re: /Superconduct and Stellar-Conduct reaction DMG is increased by (\d+)%/, unit: "Stellar-Conduct DMG % while Herald of Frost is out", percent: true, reactions: [SC], radiance: SC, uptime: { talent: "skill", duration: "Duration", cdText: /reduced to (\d+)s/ } },
+      { kind: "reactionBonus", re: /Cryo Swirl and Stellar Swirl reaction DMG dealt is increased by (\d+)%/, unit: "Stellar Swirl DMG % while Herald of Frost is out", percent: true, reactions: [SS], radiance: SS, uptime: { talent: "skill", duration: "Duration", cdText: /reduced to (\d+)s/ } },
+    ],
+  },
+  Sandrone: { from: "passive1", target: "self", radiance: [SC, SS] },
+  Vesna: { from: "combat2", target: "self", radiance: [SS] },
+  // While Song of Ages Past (her Skill) lasts, Stellar Swirls make Wandering Vortexes, which shred Anemo RES.
+  Vodyanitsa: {
+    from: "passive1",
+    target: "party",
+    radiance: [],
+    values: [{ kind: "resShred", re: /reduce nearby opponents' Anemo RES by (\d+)%/, unit: "Anemo RES from Wandering Vortex (Stellar Swirl during Song of Ages Past)", percent: true, elements: ["Anemo"], teamReactions: [SS], uptime: { talent: "skill", duration: "Duration", cd: "Skill CD" } }],
+  },
+  Wriothesley: { from: "passive4", target: "self", radiance: [SC] },
+  "Yae Miko": { from: "passive4", target: "own", radiance: [SC], note: "her own Stellar-Conduct hits" },
+  "Yumemizuki Mizuki": { from: "passive4", target: "self", radiance: [SS] },
+};
+
+function readStellar(id, spec) {
+  const text = talentsOf(id)[spec.from].description.replace(/\s+/g, " ");
+  const at = text.search(/Radiance|Wandering Vortex/);
+  if (at < 0) throw new Error(`${id}: no Radiance text in ${spec.from}`);
+  const start = text.lastIndexOf(". ", at) + 1; // the whole sentence it's in
+  const source = `${spec.from}: "${text.slice(start).trim().split(/(?<=\.) /)[0]}"`;
+  if (spec.target !== "party") return { target: spec.target, radiance: spec.radiance, ...(spec.note ? { note: spec.note } : {}), source };
+  return {
+    target: "party",
+    radiance: spec.radiance,
+    source,
+    values: spec.values.map((v) => {
+      const m = text.match(v.re);
+      if (!m) throw new Error(`${id}: pattern ${v.re} not found in ${spec.from}: ${text}`);
+      const attrs = talentsOf(id)[COMBAT[v.uptime.talent]].attributes;
+      const cdMatch = v.uptime.cdText && text.match(v.uptime.cdText);
+      if (v.uptime.cdText && !cdMatch) throw new Error(`${id}: pattern ${v.uptime.cdText} not found in ${spec.from}`);
+      const cd = cdMatch ? Number(cdMatch[1]) : tableValue(attrs, v.uptime.cd, id);
+      return {
+        kind: v.kind,
+        value: round(Number(m[1]) / (v.percent ? 100 : 1)),
+        ...limits(v),
+        ...(v.teamReactions ? { teamReactions: v.teamReactions } : {}),
+        ...(v.radiance ? { radiance: v.radiance } : {}),
+        unit: v.unit,
+        uptime: uptime(tableValue(attrs, v.uptime.duration, id), cd),
+      };
+    }),
+  };
+}
+
 const tags = require("../data/tags.json");
 const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0);
 const characters = {};
@@ -513,6 +589,13 @@ for (const c of tags) {
 }
 const nightsoulRule = OVERRIDES.rules.nightsoulBurst;
 
+// Every Stellar member needs a STELLAR entry, so a new one (or new Radiance text) can't be missed.
+const stellar = {};
+for (const c of tags.filter((c) => (c.families ?? []).includes("stellar"))) {
+  if (!STELLAR[c.id]) throw new Error(`${c.id} is Stellar in tags.json but has no STELLAR entry`);
+  stellar[c.id] = readStellar(c.id, STELLAR[c.id]);
+}
+
 const out = new URL("../data/kit.json", import.meta.url);
 writeFileSync(
   out,
@@ -524,7 +607,8 @@ writeFileSync(
         notNatlanese: ["Traveler (Pyro)"],
         source: nightsoulRule.source,
         characters: nightsoulBurst,
-      } }, null, 2) + "\n",
+      },
+      stellar }, null, 2) + "\n",
 );
 const empty = Object.entries(OVERRIDES.characters).flatMap(([id, c]) => c.slots.filter((s) => !s.text.trim()).map((s) => `${id} ${s.talent || "(talent?)"}`));
 const nightsoul = OVERRIDES.rules.nightsoulBurst.whoCanTrigger.trim() ? 0 : 1;
@@ -532,5 +616,5 @@ if (empty.length + nightsoul > 0) {
   console.log(`kit-overrides.json: ${empty.length + nightsoul} empty: ${[...empty, ...(nightsoul ? ["rules.nightsoulBurst"] : [])].join(", ")}`);
 }
 console.log(
-  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects`,
+  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects, ${Object.keys(stellar).length} Stellar members`,
 );

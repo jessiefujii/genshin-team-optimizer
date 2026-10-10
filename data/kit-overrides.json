@@ -340,6 +340,34 @@
           "source": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Nicole, fetched 2026-10-10"
         }
       ]
+    },
+    "Cyno": {
+      "why": "Witch's Revelation: Stellar Glimmer passive and Revelation Buff tabs (not in genshin-db 5.2.14)",
+      "slots": [
+        {
+          "talent": "passive1",
+          "name": "Featherfall Judgment",
+          "text": "When Cyno is in the Pactsworn Pathclearer state, he will enter the Endseer stance at intervals. If he activates Secret Rite: Chasmic Soulfarer while affected by this stance, he will activate the Judication effect, increasing the DMG of this Secret Rite: Chasmic Soulfarer by 35%, and firing off 3 Duststalker Bolts that deal 100% of Cyno's ATK as Electro DMG. Duststalker Bolt DMG is considered Elemental Skill DMG.\n\nRadiance: Stellar-Conduct: When Judication is triggered, Cyno will instead fire 3 Duststalker Bolts - Starsame to his front, dealing Electro DMG at 200% of his ATK. This DMG is considered Stellar-Conduct DMG.",
+          "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Cyno, fetched 2026-10-10 (Revelation Buff tab)"
+        },
+        {
+          "talent": "passive4",
+          "name": "A Star With Which to Start the Journey",
+          "text": "If Cyno unleashes the Elemental Skill Secret Rite: Chasmic Soulfarer while not in the Pactsworn Pathclearer state, he will enter Pactsworn Pathclearer for 6s.\nAdditionally, when in a Polestar Field, Cyno will enter the Radiance: Stellar-Conduct state.",
+          "source": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Cyno, fetched 2026-10-10"
+        }
+      ]
+    },
+    "Yumemizuki Mizuki": {
+      "why": "Witch's Revelation: Stellar Glimmer passive (not in genshin-db 5.2.14)",
+      "slots": [
+        {
+          "talent": "passive4",
+          "name": "Vast Be the Dream",
+          "text": "When Yumemizuki Mizuki triggers a Swirl or Stellar Swirl reaction while in the Dreamdrifter state, the next instance of periodic AoE Anemo DMG she deals to nearby enemies during that same state will be increased by 1,000% of her Elemental Mastery. The aforementioned effect can trigger once every 2.5s.\nRadiance: Stellar Swirl: When Yumemizuki Mizuki deals to an opponent the above enhanced AoE Anemo DMG, she will also deal an additional instance of Anemo DMG at 1,000% of her Elemental Mastery. This DMG is considered Stellar Swirl reaction DMG.\n\nAdditionally, while Yumemizuki Mizuki is in the Dreamdrifter state, the Elemental Mastery of nearby party characters is also increased by 10% of her Elemental Mastery.\nYumemizuki Mizuki will also enter the Radiance: Stellar Swirl state for 8s when a nearby party member triggers a Stellar Swirl reaction.",
+          "source": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yumemizuki_Mizuki, fetched 2026-10-10"
+        }
+      ]
     }
   },
   "rules": {
