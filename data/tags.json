@@ -1243,7 +1243,7 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N2C x8",
+        "N2C x7",
         "Q"
       ]
     },
@@ -2362,8 +2362,8 @@
       "slot": "carry",
       "actions": [
         "Q",
-        "E",
-        "CA x2"
+        "C E C",
+        "C E"
       ]
     }
   },

@@ -1028,15 +1028,21 @@ const mavuikaHits = ({ cyclic, cyclicReacting, final = 0, finalReacting }) => [
 ];
 const CARRIES = {
   "Hu Tao": {
-    // E, N2C x8, Q. Blood Blossom ticks every 4s for 8s ("Blood Blossom Duration").
+    // E, N2C x7, Q every other rotation. KeqingMains quick guide (fetched 2026-10-12): N2C is "optimal for most Hu Tao
+    // teams", "around 7N2CJ" at C0; Burst "every other rotation", since building Energy for it each rotation costs
+    // damage. Blood Blossom ticks every 4s for 8s ("Blood Blossom Duration").
     hits: [
-      { table: "normal", label: "1-Hit DMG", count: 8, type: N },
-      { table: "normal", label: "2-Hit DMG", count: 8, type: N },
-      { table: "normal", label: "Charged Attack", count: 8, type: CH },
+      { table: "normal", label: "1-Hit DMG", count: 7, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 7, type: N },
+      { table: "normal", label: "Charged Attack", count: 7, type: CH },
       { table: "skill", label: "Blood Blossom DMG", count: 2, type: SK },
-      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Skill DMG", count: 0.5, type: BU },
     ],
-    buffs: [{ kind: "atkFromHp", table: "skill", label: "ATK Increase", cap: /cannot exceed (\d+)% of Hu Tao's Base ATK/ }],
+    buffs: [
+      { kind: "atkFromHp", table: "skill", label: "ATK Increase", cap: /cannot exceed (\d+)% of Hu Tao's Base ATK/ },
+      // Passive 2: +33% Pyro DMG at 50% HP or less; KQM: keep her "below 50% HP to maximize her damage".
+      { kind: "dmgBonus", from: "passive2", re: /Pyro DMG Bonus is increased by (\d+)%/, types: [N, CH, PL, SK, BU] },
+    ],
   },
   "Raiden Shogun": {
     // E, Q, N3C x3 in Musou Isshin (its Normal/Charged Attacks count as Elemental Burst DMG). The Eye's coordinated
@@ -1270,14 +1276,30 @@ const CARRIES = {
     buffs: [],
   },
   Neuvillette: {
-    // Q, E, CA x2 (Equitable Judgment, 3s each).
+    // KeqingMains quick guide (fetched 2026-10-12): "Neuvillette can perform 2–4 Charged Attacks per rotation"; its
+    // 3-CA rotation, "Q > Team > C E C > Team > C E", is "Easier for managing buff and ability uptimes" (the 4-CA one,
+    // for teams where he deals most of the damage, is #119). So Q, E x2, CA x3 (Equitable Judgment, 3s each).
     hits: [
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
       { table: "burst", label: "Waterfall DMG", count: 2, type: BU }, // "2 waterfalls will descend"
-      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "skill", label: "Skill DMG", count: 2, type: SK },
       { table: "normal", label: "Charged Attack: Equitable Judgment", count: "rate", type: CH },
     ],
-    buffs: [],
+    buffs: [
+      // Passive 1: a stack per kind of reaction the party triggers from the list (they "exist independently"), max 3:
+      // Equitable Judgment deals 110%/125%/160%. The scorer counts the team's active reactions in that list.
+      {
+        kind: "factorByReactions",
+        from: "passive1",
+        re: /deal (\d+)%\/(\d+)%\/(\d+)% of its original DMG/,
+        types: [CH],
+        reactions: ["vaporize", "freeze", "electrocharged", "lunar-charged", "bloom", "lunar-bloom", "swirl", "crystallize", "lunar-crystallize"],
+      },
+      // Passive 2: 0.6% Hydro DMG per 1% HP over 30%, max 30%. Equitable Judgment drains him while he is above 50% HP
+      // and Droplets heal him only as it starts (KQM: "he will gradually lose this Hydro DMG Bonus over the course of
+      // the attack"), so read at 50% HP: 12%.
+      { kind: "dmgBonusFromHp", from: "passive2", per: /gain ([\d.]+)% Hydro DMG Bonus/, above: /greater than (\d+)% of Max HP/, max: /maximum bonus of (\d+)%/, hp: 0.5, types: [N, CH, PL, SK, BU] },
+    ],
   },
   "Kamisato Ayaka": {
     // E, Q, dash, N2C x3. Passive 1: +30% Normal/Charged DMG after the Skill; passive 2: +18% Cryo DMG after the dash.
@@ -1365,6 +1387,15 @@ function readCarry(id, spec) {
       }
       case "factor":
         return { kind: b.kind, value: raw(b.table, b.label), types: b.types };
+      case "factorByReactions": {
+        const m = text(b.from).match(b.re);
+        if (!m) throw new Error(`${id}: pattern ${b.re} not found in ${b.from}`);
+        return { kind: b.kind, values: m.slice(1).map((v) => Number(v) / 100), types: b.types, reactions: b.reactions };
+      }
+      case "dmgBonusFromHp": {
+        const value = Math.min(num(b.from, b.max), num(b.from, b.per) * (b.hp * 100 - num(b.from, b.above))) / 100;
+        return { kind: "dmgBonus", value: round(value), types: b.types, note: `${b.from} at ${b.hp * 100}% HP` };
+      }
       case "atkPct":
         return { kind: b.kind, value: (num(b.from, b.re) / 100) * (b.times ? num(b.from, b.times) : 1) };
       case "dmgBonusPerEnergy":

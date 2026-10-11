@@ -610,8 +610,8 @@
     },
     "Neuvillette": {
       "carry: Charged Attack: Equitable Judgment": {
-        "hits": 16,
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/As_Water_Seeks_Equilibrium, fetched 2026-10-11 (talent page): it hits each target \"no more than once per 0.4s\", plus \"one more instance of DMG\" when it ends, and \"a maximum of 8 times per use\". Over 3s that is the 8-hit maximum on a single target; 2 Charged Attacks per rotation (CARRIES): 16."
+        "hits": 24,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/As_Water_Seeks_Equilibrium, fetched 2026-10-11 (talent page): it hits each target \"no more than once per 0.4s\", plus \"one more instance of DMG\" when it ends, and \"a maximum of 8 times per use\". Over 3s that is the 8-hit maximum on a single target; 3 Charged Attacks per rotation (KQM's 3-CA rotation, CARRIES): 24."
       }
     },
     "Kamisato Ayaka": {

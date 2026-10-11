@@ -22,6 +22,7 @@ type CarryBuff =
   | { kind: "addPerStack"; value: number; stacks: number; tag: string; fightingSpirit?: boolean }
   | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number; fightingSpirit?: boolean }
   | { kind: "factor"; value: number; types: HitType[] }
+  | { kind: "factorByReactions"; values: number[]; types: HitType[]; reactions: Reaction[] }
   | { kind: "atkPct"; value: number }
   | { kind: "dmgBonusFromEr"; perPercent: number }
   | { kind: "dmgBonusPerEm"; perEm: number; max: number; types: HitType[]; labels: string[] }
@@ -146,6 +147,10 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
       if (b.kind === "dmgBonusFromEr") bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * s.em);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
+      if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
+        const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
+        if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
+      }
     }
     total += perHit * h.count * (1 + bonus) * factor * (1 + reactingShare(h) * amp);
   }

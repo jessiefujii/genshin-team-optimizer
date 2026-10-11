@@ -14,7 +14,7 @@ describe("generateRotation", () => {
       "Xingqiu Q", "Xingqiu E",
       "Bennett Q", "Bennett E", // 12 s buff
       "Kaedehara Kazuha E", "Kaedehara Kazuha plunge", "Kaedehara Kazuha Q", // 8 s: last before the carry
-      "Hu Tao E", "Hu Tao N2C x8", "Hu Tao Q",
+      "Hu Tao E", "Hu Tao N2C x7", "Hu Tao Q",
     ]);
   });
 

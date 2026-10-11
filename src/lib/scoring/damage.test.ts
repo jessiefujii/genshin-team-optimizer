@@ -67,6 +67,15 @@ describe("carry damage (#101)", () => {
     });
   });
 
+  test("Neuvillette's passive 1 grows with the kinds of reaction his team triggers (#129)", () => {
+    const neuvillette = byId.get("Neuvillette")!;
+    const dps = (active: Reaction[]) => carryDamage(neuvillette, active)!.perSecond;
+    // 110%/125%/160% on Equitable Judgment for 1/2/3 kinds; reactions outside his list (Melt) add none.
+    expect(dps(["swirl"])).toBeGreaterThan(dps([]));
+    expect(dps(["swirl", "crystallize", "vaporize"])).toBeGreaterThan(dps(["swirl", "crystallize"]));
+    expect(dps(["melt"])).toBe(dps([]));
+  });
+
   test("a build's stats change the damage", () => {
     const raiden = byId.get("Raiden Shogun")!;
     const built: ScoringCharacter = {
