@@ -3023,49 +3023,22 @@
           "tag": "sunfell"
         },
         {
-          "label": "Flamestrider Normal Attack 1-Hit DMG",
-          "type": "normal",
+          "label": "Flamestrider Charged Attack Cyclic DMG",
+          "type": "charged",
           "scaling": {
-            "atk": 1.052075
+            "atk": 1.817
           },
-          "count": 2,
-          "tag": "na"
+          "count": 8,
+          "tag": "ca"
         },
         {
-          "label": "Flamestrider Normal Attack 2-Hit DMG",
-          "type": "normal",
+          "label": "Flamestrider Charged Attack Final DMG",
+          "type": "charged",
           "scaling": {
-            "atk": 1.086392
+            "atk": 2.528
           },
-          "count": 2,
-          "tag": "na"
-        },
-        {
-          "label": "Flamestrider Normal Attack 3-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.285804
-          },
-          "count": 2,
-          "tag": "na"
-        },
-        {
-          "label": "Flamestrider Normal Attack 4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.280622
-          },
-          "count": 2,
-          "tag": "na"
-        },
-        {
-          "label": "Flamestrider Normal Attack 5-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.671924
-          },
-          "count": 2,
-          "tag": "na"
+          "count": 1,
+          "tag": "ca"
         }
       ],
       "buffs": [
@@ -3077,9 +3050,9 @@
         },
         {
           "kind": "addPerStack",
-          "value": 0.00474,
+          "value": 0.00948,
           "stacks": 200,
-          "tag": "na"
+          "tag": "ca"
         },
         {
           "kind": "dmgBonus",

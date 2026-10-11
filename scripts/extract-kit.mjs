@@ -928,15 +928,17 @@ const CARRIES = {
     buffs: [],
   },
   Mavuika: {
-    // E (hold: Flamestrider), Q (Sunfell Slice), N x10 on the Flamestrider. Fighting Spirit 200 (she Normal Attacks).
+    // E (hold: Flamestrider), Q (Sunfell Slice), C8F on the Flamestrider (KQM's simplest combo; by team: #114).
+    // Fighting Spirit 200.
     hits: [
       { table: "skill", label: "Skill DMG", count: 1, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU, fightingSpirit: "sunfell" },
-      ...[1, 2, 3, 4, 5].map((n) => ({ table: "skill", label: `Flamestrider Normal Attack ${n}-Hit DMG`, count: 2, type: N, fightingSpirit: "na" })),
+      { table: "skill", label: "Flamestrider Charged Attack Cyclic DMG", count: "rate", type: CH, fightingSpirit: "ca" },
+      { table: "skill", label: "Flamestrider Charged Attack Final DMG", count: "rate", type: CH, fightingSpirit: "ca" },
     ],
     buffs: [
       { kind: "addPerStack", table: "burst", label: "Sunfell Slice DMG Bonus", stacks: "Fighting Spirit Limit", hits: "sunfell" },
-      { kind: "addPerStack", table: "burst", label: "Flamestrider Normal Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "na" },
+      { kind: "addPerStack", table: "burst", label: "Flamestrider Charged Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "ca" },
       // Passive 2: the active character (her too) deals up to 40% more DMG at 200 Fighting Spirit after her Burst.
       { kind: "dmgBonus", from: "passive2", re: /maximum increase obtainable this way is (\d+)%/, types: [SK, BU, N, CH, PL] },
     ],

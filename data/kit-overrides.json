@@ -598,6 +598,16 @@
         "source": "HoYoLAB, [ Version 5.0 ] Kinich Guide, https://www.hoyolab.com/article/33579604, fetched 2026-10-11: \"Ajaw will launch a Dragon Breath every 2 seconds\"; \"Total number of Dragon Breath hits: 6 hits\". One Burst per rotation."
       }
     },
+    "Mavuika": {
+      "carry: Flamestrider Charged Attack Cyclic DMG": {
+        "hits": 8,
+        "source": "KeqingMains Mavuika guide, on-field combos (pasted by Jessie 2026-10-12): \"Q C8F / C9F The simplest combo that only consists of Charged Attack spam for non-Amplifying Reaction teams.\" (C = Flamestrider Cyclic Charged Attack, F = Final Charged Attack). Took C8F: 8 Cyclic + 1 Final per Burst. KQM's Melt/Vape combos (Q C3F D C3F, Q C2D C3D C4) deal about as much before reactions; picking the combo by team is #114."
+      },
+      "carry: Flamestrider Charged Attack Final DMG": {
+        "hits": 1,
+        "source": "KeqingMains Mavuika guide, on-field combos (pasted by Jessie 2026-10-12): \"Q C8F / C9F The simplest combo that only consists of Charged Attack spam for non-Amplifying Reaction teams.\" (C = Flamestrider Cyclic Charged Attack, F = Final Charged Attack). Took C8F: 8 Cyclic + 1 Final per Burst. KQM's Melt/Vape combos (Q C3F D C3F, Q C2D C3D C4) deal about as much before reactions; picking the combo by team is #114."
+      }
+    },
     "Neuvillette": {
       "carry: Charged Attack: Equitable Judgment": {
         "hits": 16,
