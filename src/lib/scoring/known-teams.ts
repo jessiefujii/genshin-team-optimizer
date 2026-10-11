@@ -1,10 +1,12 @@
 // Teams that build guides recommend, used by `npm run compare` to check the scorer (design doc Phase 4).
 // Source: each carry's KeqingMains quick guide, Teams section, fetched 2026-10-12 (#108). Rules (Jessie):
-// - Only the guide's fully named teams, in its order; archetypes with open slots ("an Anemo unit") are left out.
+// - Only the guide's fully named teams, in its order, including archetype images with no open slot (Hu Tao's Double
+//   Geo); archetypes with open slots ("an Anemo unit") or only flex examples are left out.
 // - A slot with named alternatives ("Xilonen / Iansan") is expanded into one team per option.
 // - Teams that need a constellation ("C6 Candace", "C2+ Rosaria") are left out until constellation kits exist (#106).
 // - "Limited Roster Alternatives" (KQM: lower damage, for new players) are left out.
-// - Only sections where the character is the on-field DPS (not Raiden as a Hyperbloom trigger or off-field Mavuika).
+// - Only sections where the character is the DPS: Raiden as the Hyperbloom trigger counts; not her Overloaded trigger
+//   teams (a Pyro DPS carries) or off-field Mavuika.
 // KQM calls these example teams, "not a comprehensive list", not ranked: so there's no top pick (ranked: false).
 
 export interface KnownTeams {
@@ -18,9 +20,12 @@ export const KNOWN_TEAMS: KnownTeams[] = [
   {
     carry: "Hu Tao",
     teams: [
+      ["Hu Tao", "Xingqiu", "Zhongli", "Albedo"],
+      ["Hu Tao", "Xingqiu", "Zhongli", "Yun Jin"],
+      ["Hu Tao", "Yelan", "Zhongli", "Albedo"],
+      ["Hu Tao", "Yelan", "Zhongli", "Yun Jin"],
       ["Hu Tao", "Xingqiu", "Yelan", "Zhongli"],
       ["Hu Tao", "Xingqiu", "Sucrose", "Thoma"],
-      ["Hu Tao", "Xingqiu", "Zhongli", "Albedo"],
       ["Hu Tao", "Xingqiu", "Kaeya", "Diona"],
     ],
     source: "https://keqingmains.com/q/hu-tao-quickguide/",
@@ -30,12 +35,6 @@ export const KNOWN_TEAMS: KnownTeams[] = [
     carry: "Raiden Shogun",
     teams: [
       ["Raiden Shogun", "Xiangling", "Xingqiu", "Bennett"],
-      ["Raiden Shogun", "Furina", "Kujou Sara", "Xilonen"],
-      ["Raiden Shogun", "Yaoyao", "Fischl", "Sucrose"],
-      ["Raiden Shogun", "Nahida", "Kuki Shinobu", "Kaedehara Kazuha"],
-      ["Raiden Shogun", "Nahida", "Furina", "Baizhu"],
-      ["Raiden Shogun", "Eula", "Mika", "Furina"],
-      ["Raiden Shogun", "Navia", "Kujou Sara", "Xilonen"],
       ["Raiden Shogun", "Yae Miko", "Kujou Sara", "Xilonen"],
       ["Raiden Shogun", "Yae Miko", "Kujou Sara", "Sayu"],
       ["Raiden Shogun", "Furina", "Yelan", "Xilonen"],
@@ -44,6 +43,16 @@ export const KNOWN_TEAMS: KnownTeams[] = [
       ["Raiden Shogun", "Chevreuse", "Kujou Sara", "Traveler (Pyro)"],
       ["Raiden Shogun", "Kaedehara Kazuha", "Kujou Sara", "Bennett"],
       ["Raiden Shogun", "Chevreuse", "Kujou Sara", "Bennett"],
+      ["Raiden Shogun", "Furina", "Kujou Sara", "Xilonen"],
+      ["Raiden Shogun", "Yaoyao", "Fischl", "Sucrose"],
+      ["Raiden Shogun", "Nahida", "Kuki Shinobu", "Kaedehara Kazuha"],
+      ["Raiden Shogun", "Nahida", "Furina", "Baizhu"],
+      ["Raiden Shogun", "Eula", "Mika", "Furina"],
+      ["Raiden Shogun", "Navia", "Kujou Sara", "Xilonen"],
+      ["Raiden Shogun", "Baizhu", "Xingqiu", "Yelan"],
+      ["Raiden Shogun", "Nahida", "Sangonomiya Kokomi", "Beidou"],
+      ["Raiden Shogun", "Alhaitham", "Xingqiu", "Yaoyao"],
+      ["Raiden Shogun", "Alhaitham", "Xingqiu", "Kirara"],
     ],
     source: "https://keqingmains.com/q/raiden-quickguide/",
     ranked: false,
