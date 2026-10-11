@@ -1281,6 +1281,75 @@
       }
     }
   },
+  "fightingSpirit": {
+    "limit": 200,
+    "burstMin": 100,
+    "perNormalHit": 1.5,
+    "normalHitEvery": 0.1,
+    "source": "combat3: \"When Mavuika has at least 50% Fighting Spirit\", \"Normal Attacks hit opponents, Mavuika gains 1.5 Fighting Spirit\", \"This can trigger once every 0.1s\"; burst \"Fighting Spirit Limit\"",
+    "own": {
+      "points": 80,
+      "note": "her Skill fills her Nightsoul points",
+      "source": "skill \"Nightsoul Point Limit\""
+    },
+    "teammates": {
+      "Xilonen": {
+        "points": 90,
+        "note": "Skill + 2 Normal Attack hits (her N x2), capped at her max; assumes 2 converted Source Samples",
+        "source": "combat2: \"Xilonen will gain 45 Nightsoul points\"; passive1: \"she gains 35 Nightsoul points when her Normal or Plunging Attacks hit\" x2; max: skill \"Nightsoul Point Limit\""
+      },
+      "Citlali": {
+        "points": 67,
+        "note": "Skill + Burst + 1 Skull + passive 1 once (Melt with Mavuika); passive 2 left out",
+        "source": "combat2: \"Citlali gains 24 Nightsoul points\"; burst \"Ice Storm Nightsoul Point Gain\"; burst \"Spiritvessel Skull Nightsoul Point Gain\"; passive1: \"Citlali will regain 16 Nightsoul points\""
+      },
+      "Iansan": {
+        "points": 69,
+        "note": "Skill + Burst; the Scale's movement points left out",
+        "source": "combat2: \"Iansan will regain 54 Nightsoul points\"; combat3: \"Iansan will gain 15 Nightsoul points\""
+      },
+      "Kachina": {
+        "points": 60,
+        "note": "Skill",
+        "source": "combat2: \"Kachina will gain 60 Nightsoul points\""
+      },
+      "Chasca": {
+        "points": 80,
+        "note": "Skill",
+        "source": "combat2: \"Chasca gains 80 Nightsoul points\""
+      },
+      "Mualani": {
+        "points": 100,
+        "note": "Skill + both Puffers",
+        "source": "combat2: \"Mualani will gain 60 Nightsoul points\"; passive1: \"restore 20 Nightsoul points when she picks up a Puffer\" x \"Only 2 such Puffers\""
+      },
+      "Ifa": {
+        "points": 80,
+        "note": "Skill",
+        "source": "combat2: \"Ifa gains 80 Nightsoul points\""
+      },
+      "Kinich": {
+        "points": 40,
+        "note": "Blessing ticks + 6 Loop Shots + 1 Blind Spot, spent in full Cannons",
+        "source": "combat2: \"Blessing lasts 10s and generates 2 Nightsoul points every second\"; combat2: \"generating 3 Nightsoul points. Loop Shot\" x6; combat2: \"he will generate 4 Nightsoul points\"; spent 20 at a time: skill \"Nightsoul Point Limit\""
+      },
+      "Ororon": {
+        "points": 40,
+        "note": "one Nightsoul Burst; the Hydro/Electro hit points left out",
+        "source": "passive1: \"After a nearby party member triggers Nightsoul Burst, Ororon will gain 40 Nightsoul points\""
+      },
+      "Varesa": {
+        "points": 120,
+        "note": "her max, 3 Fiery Passion entries per rotation",
+        "source": "skill \"Nightsoul Point Limit\" x3"
+      },
+      "Traveler (Pyro)": {
+        "points": 70,
+        "note": "Skill + Burst",
+        "source": "combat2: \"the Traveler gains 42 Nightsoul points\"; combat3: \"restores 7 Nightsoul points per second for the next 4s\""
+      }
+    }
+  },
   "stellar": {
     "Alyosha": {
       "target": "party",

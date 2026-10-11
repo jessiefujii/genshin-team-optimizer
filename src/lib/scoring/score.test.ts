@@ -494,12 +494,15 @@ describe("talent levels (#25)", () => {
   test("Mavuika's bonus grows with the Fighting Spirit the team can build (#68)", () => {
     const mavuika = (...ids: string[]) =>
       score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Mavuika"))?.reason;
-    // Neuvillette's charged attacks build none: the 100 she needs to burst, 20%.
-    expect(mavuika("Neuvillette", "Mavuika", "Furina", "Escoffier")).toBe("Mavuika buffs Neuvillette (~+13% damage)");
-    // Two other Nightsoul members: 200, the full 40%.
+    // Her own Skill gives 80 and Neuvillette's Charged Attacks none: under the 100 her Burst needs, so no buff (#116).
+    expect(mavuika("Neuvillette", "Mavuika", "Furina", "Escoffier")).toBe("Mavuika: their kit's buff doesn't apply to Neuvillette's damage");
+    // Kachina's Skill adds 60: 140 of 200.
+    expect(mavuika("Neuvillette", "Mavuika", "Kachina", "Furina")).toBe("Mavuika buffs Neuvillette (~+18% damage)");
+    // Citlali (67) and Xilonen (90): past the 200 limit, the full 40%.
     expect(mavuika("Neuvillette", "Mavuika", "Citlali", "Xilonen")).toBe("Mavuika buffs Neuvillette (~+25% damage)");
-    // A Normal Attack carry (Clorinde's rotation is "N" attacks) also fills it.
-    expect(mavuika("Clorinde", "Mavuika", "Bennett", "Fischl")).toBe("Mavuika buffs Clorinde (~+25% damage)");
+    // Normal Attack hits add 1.5 each: Clorinde's 36 make 134, Hu Tao's 16 make 104 (not the old flat 200).
+    expect(mavuika("Clorinde", "Mavuika", "Bennett", "Fischl")).toBe("Mavuika buffs Clorinde (~+17% damage)");
+    expect(mavuika("Hu Tao", "Mavuika", "Xingqiu", "Zhongli")).toBe("Mavuika buffs Hu Tao (~+13% damage)");
   });
 
   test("a kit buff limited to an attack type only helps carries who use it (#68)", () => {

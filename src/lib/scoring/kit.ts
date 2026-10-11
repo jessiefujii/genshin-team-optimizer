@@ -38,17 +38,43 @@ interface KitCharacter {
 const KIT = kitJson.characters as Record<string, KitCharacter>;
 
 
-// Mavuika's burst bonus is 0.2% per point of Fighting Spirit, max 200. Her burst needs at least 100, and
-// Fighting Spirit comes from Nightsoul points the party spends and from the party's Normal Attacks hitting
-// (genshin-db burst text). So: 100 by default, +50 per other Nightsoul member, 200 for a carry whose
-// rotation is Normal Attacks (KQM "N", e.g. Hu Tao's "N2C x8", Clorinde's "6[N3E]"; not Neuvillette's charged
-// attack, Mavuika's "C8F" or Xiao's plunges).
-const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a) => /(^|[\s[])N(\d|\s|$)/.test(a));
+// Mavuika's Fighting Spirit per rotation (#116), from data/kit.json `fightingSpirit` (her Burst text and each Nightsoul
+// member's points, sources there): her own Skill's points, plus each teammate's Nightsoul points, plus 1.5 per Normal
+// Attack hit (at most one per 0.1s) of the carry, up to the 200 limit.
+// The Normal Attack hits are the carry's `type: "normal"` hits x instances in kit.json `carries`, so Raiden's Musou
+// Isshin (Burst DMG) and Kinich's Loop Shots (Skill DMG) don't count. A carry not in `carries` yet counts 0 (not the
+// old "200 for a Normal Attack rotation"): it only undercounts until that carry gets an entry. Teammates' own Normal
+// Attacks (Xilonen's N x2) are left out, and every rotation is taken as one of Mavuika's Bursts (no rescaling by length).
+// Her Burst needs at least 100 (50% of the limit). Below that she can't Burst (KQM's "E only" teams): returns 0, so her
+// passive 2 buff and the Burst's own damage drop out, and only her Skill (Flamestrider) damage counts.
+interface FightingSpiritKit {
+  limit: number;
+  burstMin: number;
+  perNormalHit: number;
+  normalHitEvery: number;
+  own: { points: number };
+  teammates: Record<string, { points: number }>;
+}
+const FIGHTING_SPIRIT = (kitJson as unknown as { fightingSpirit: FightingSpiritKit }).fightingSpirit;
+export const FIGHTING_SPIRIT_LIMIT = FIGHTING_SPIRIT.limit;
 
+type CarryHits = { rotationSeconds: number; hits: { type: string; count: number; instances?: number }[] };
+const CARRY_HITS = (kitJson as unknown as { carries: Record<string, CarryHits> }).carries;
+
+// Normal Attack hits in one rotation of the carry, at most one per normalHitEvery seconds.
+function normalAttackHits(carry: ScoringCharacter): number {
+  const kit = CARRY_HITS[carry.id];
+  if (!kit) return 0;
+  const hits = kit.hits.filter((h) => h.type === "normal").reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
+  return Math.min(hits, kit.rotationSeconds / FIGHTING_SPIRIT.normalHitEvery);
+}
+
+// The Fighting Spirit Mavuika (s) bursts with in this team, or 0 when the team can't build the minimum.
 export function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
-  if (normalAttacks(carry)) return 200;
-  const nightsoul = team.filter((m) => m !== s && m.families?.includes("nightsoul")).length;
-  return Math.min(200, 100 + 50 * nightsoul);
+  const fs = FIGHTING_SPIRIT;
+  const points = team.filter((m) => m !== s).reduce((a, m) => a + (fs.teammates[m.id]?.points ?? 0), fs.own.points);
+  const total = Math.min(fs.limit, points + fs.perNormalHit * normalAttackHits(carry));
+  return total >= fs.burstMin ? total : 0;
 }
 
 // Plunging carries say so in their rotation tags (Xiao "plunge x10", Gaming "E plunge x4", KQM "P" as in Varesa's "ECP").
@@ -136,7 +162,7 @@ function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scori
       return buff.value / B.carryAtk;
     case "dmgBonus":
       if (buff.condition === "fanfare") return dmg(buff.value * fanfareShare(buff, team));
-      return dmg(buff.condition === "fightingSpirit" ? (buff.value * fs) / 200 : buff.value);
+      return dmg(buff.condition === "fightingSpirit" ? (buff.value * fs) / FIGHTING_SPIRIT_LIMIT : buff.value);
     case "dmgBonusPerEm":
       return dmg(buff.value * stats.em);
     case "reactionBonus":
