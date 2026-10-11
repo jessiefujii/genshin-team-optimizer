@@ -135,7 +135,6 @@
   {
     "id": "Alyosha",
     "roles": [
-      "sub-dps",
       "buffer",
       "healer"
     ],
@@ -520,7 +519,7 @@
       "enabler",
       "sub-dps"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "off",
     "reactions": [
       "freeze",
       "melt",
@@ -541,8 +540,7 @@
     "id": "Citlali",
     "roles": [
       "shielder",
-      "buffer",
-      "sub-dps"
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -629,11 +627,10 @@
     "id": "Columbina",
     "roles": [
       "sub-dps",
-      "main-dps",
       "buffer",
       "enabler"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "off",
     "reactions": [
       "lunar-charged",
       "lunar-bloom",
@@ -644,7 +641,6 @@
       "lunar-bloom",
       "lunar-crystallize"
     ],
-    "mainReaction": "lunar-charged",
     "energyNeed": "medium",
     "erTarget": 150,
     "scalesOn": [
@@ -1161,10 +1157,9 @@
   {
     "id": "Ganyu",
     "roles": [
-      "main-dps",
-      "sub-dps"
+      "main-dps"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "on",
     "reactions": [
       "melt",
       "freeze"
@@ -1288,7 +1283,7 @@
       "healer",
       "buffer"
     ],
-    "fieldTime": "off",
+    "fieldTime": "on",
     "reactions": [
       "swirl",
       "electrocharged",
@@ -1396,7 +1391,6 @@
     "id": "Jahoda",
     "roles": [
       "enabler",
-      "sub-dps",
       "healer"
     ],
     "fieldTime": "off",
@@ -1554,10 +1548,9 @@
   {
     "id": "Kamisato Ayato",
     "roles": [
-      "main-dps",
-      "sub-dps"
+      "main-dps"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "on",
     "reactions": [
       "vaporize",
       "electrocharged",
@@ -1804,15 +1797,21 @@
   {
     "id": "Lan Yan",
     "roles": [
+      "main-dps",
+      "sub-dps",
       "shielder",
       "buffer"
     ],
-    "fieldTime": "off",
+    "fieldTime": "flex",
     "reactions": [
       "swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 180,
+    "scalesOn": [
+      "ATK"
+    ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1824,8 +1823,7 @@
   {
     "id": "Lauma",
     "roles": [
-      "buffer",
-      "sub-dps"
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -1989,6 +1987,7 @@
   {
     "id": "Lynette",
     "roles": [
+      "sub-dps",
       "buffer"
     ],
     "fieldTime": "off",
@@ -2591,10 +2590,9 @@
     "id": "Raiden Shogun",
     "roles": [
       "main-dps",
-      "battery",
-      "sub-dps"
+      "battery"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "on",
     "reactions": [
       "electrocharged",
       "overloaded",
@@ -2732,10 +2730,9 @@
     "id": "Sangonomiya Kokomi",
     "roles": [
       "healer",
-      "enabler",
-      "sub-dps"
+      "enabler"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "off",
     "reactions": [
       "bloom",
       "electrocharged",
@@ -2856,8 +2853,7 @@
     "id": "Sigewinne",
     "roles": [
       "healer",
-      "buffer",
-      "sub-dps"
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -3047,14 +3043,18 @@
   {
     "id": "Traveler (Anemo)",
     "roles": [
-      "sub-dps"
+      "main-dps"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "on",
     "reactions": [
       "swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3132,15 +3132,20 @@
   {
     "id": "Traveler (Hydro)",
     "roles": [
-      "sub-dps"
+      "main-dps"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "on",
     "reactions": [
       "bloom",
       "vaporize"
     ],
     "energyNeed": "medium",
     "erTarget": 170,
+    "scalesOn": [
+      "ATK",
+      "HP"
+    ],
+    "keyTalent": "skill",
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3155,7 +3160,7 @@
     "roles": [
       "sub-dps"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "off",
     "reactions": [
       "burning",
       "vaporize"
@@ -3521,7 +3526,7 @@
       "buffer",
       "healer"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "off",
     "reactions": [],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -3746,7 +3751,7 @@
       "main-dps",
       "healer"
     ],
-    "fieldTime": "flex",
+    "fieldTime": "on",
     "reactions": [
       "swirl"
     ],

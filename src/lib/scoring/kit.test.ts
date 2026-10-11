@@ -65,7 +65,8 @@ const subDps = (kit as unknown as { subDps: Record<string, { sources: SubDpsSour
 
 test("every off-field sub-DPS has hit data with a multiplier, a rate and a cooldown", () => {
   const offField = tags.filter((c) => c.roles.includes("sub-dps") && c.fieldTime === "off").map((c) => c.id);
-  expect(Object.keys(subDps).sort()).toEqual(offField.sort());
+  // Supports whose in-game roles aren't DPS (#105) may have entries too: their hits still deal damage.
+  for (const id of offField) expect(subDps, id).toHaveProperty([id]);
   for (const [id, d] of Object.entries(subDps)) {
     expect(d.sources.length, id).toBeGreaterThan(0);
     for (const s of d.sources) {

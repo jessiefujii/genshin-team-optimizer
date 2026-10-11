@@ -1,0 +1,928 @@
+{
+  "fetched": "2026-10-10",
+  "characters": {
+    "Aino": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Aino"
+    },
+    "Albedo": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Albedo"
+    },
+    "Alhaitham": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Alhaitham"
+    },
+    "Aloy": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Aloy"
+    },
+    "Alyosha": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Alyosha"
+    },
+    "Amber": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Amber"
+    },
+    "Arataki Itto": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Arataki_Itto"
+    },
+    "Arlecchino": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Arlecchino"
+    },
+    "Baizhu": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Baizhu"
+    },
+    "Barbara": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Barbara"
+    },
+    "Beidou": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Beidou"
+    },
+    "Bennett": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Bennett"
+    },
+    "Candace": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Candace"
+    },
+    "Charlotte": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Charlotte"
+    },
+    "Chasca": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Chasca"
+    },
+    "Chevreuse": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Chevreuse"
+    },
+    "Chiori": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Chiori"
+    },
+    "Chongyun": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Chongyun"
+    },
+    "Citlali": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Citlali"
+    },
+    "Clorinde": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Clorinde"
+    },
+    "Collei": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Collei"
+    },
+    "Columbina": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Columbina"
+    },
+    "Cyno": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Cyno"
+    },
+    "Dahlia": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Dahlia"
+    },
+    "Dehya": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Dehya"
+    },
+    "Diluc": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Diluc"
+    },
+    "Diona": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Diona"
+    },
+    "Dori": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Dori"
+    },
+    "Durin": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Durin"
+    },
+    "Emilie": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Emilie"
+    },
+    "Escoffier": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Escoffier"
+    },
+    "Eula": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Eula"
+    },
+    "Faruzan": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Faruzan"
+    },
+    "Fischl": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Fischl"
+    },
+    "Flins": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Flins"
+    },
+    "Freminet": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Freminet"
+    },
+    "Furina": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Furina"
+    },
+    "Gaming": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Gaming"
+    },
+    "Ganyu": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Ganyu"
+    },
+    "Gorou": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Gorou"
+    },
+    "Hu Tao": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Hu_Tao"
+    },
+    "Iansan": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Iansan"
+    },
+    "Ifa": {
+      "roles": [
+        "On-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Ifa"
+    },
+    "Illuga": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Illuga"
+    },
+    "Ineffa": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Ineffa"
+    },
+    "Jahoda": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Jahoda"
+    },
+    "Jean": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Jean"
+    },
+    "Kachina": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kachina"
+    },
+    "Kaedehara Kazuha": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kaedehara_Kazuha"
+    },
+    "Kaeya": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kaeya"
+    },
+    "Kamisato Ayaka": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kamisato_Ayaka"
+    },
+    "Kamisato Ayato": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kamisato_Ayato"
+    },
+    "Kaveh": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kaveh"
+    },
+    "Keqing": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Keqing"
+    },
+    "Kinich": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kinich"
+    },
+    "Kirara": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kirara"
+    },
+    "Klee": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Klee"
+    },
+    "Kujou Sara": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kujou_Sara"
+    },
+    "Kuki Shinobu": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Kuki_Shinobu"
+    },
+    "Lan Yan": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Survivability",
+        "On-Field"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Lan_Yan"
+    },
+    "Lauma": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Lauma"
+    },
+    "Layla": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Layla"
+    },
+    "Linnea": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Linnea"
+    },
+    "Lisa": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Lisa"
+    },
+    "Lohen": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Lohen"
+    },
+    "Lynette": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Lynette"
+    },
+    "Lyney": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Lyney"
+    },
+    "Mavuika": {
+      "roles": [
+        "On-Field",
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Mavuika"
+    },
+    "Mika": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Mika"
+    },
+    "Mona": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Mona"
+    },
+    "Mualani": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Mualani"
+    },
+    "Nahida": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Nahida"
+    },
+    "Navia": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Navia"
+    },
+    "Nefer": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Nefer"
+    },
+    "Neuvillette": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Neuvillette"
+    },
+    "Nicole": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Nicole"
+    },
+    "Nilou": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Nilou"
+    },
+    "Ningguang": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Ningguang"
+    },
+    "Noelle": {
+      "roles": [
+        "On-Field",
+        "DPS",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Noelle"
+    },
+    "Odette": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Odette"
+    },
+    "Ororon": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Ororon"
+    },
+    "Prune": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Prune"
+    },
+    "Qiqi": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Qiqi"
+    },
+    "Raiden Shogun": {
+      "roles": [
+        "On-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Raiden_Shogun"
+    },
+    "Razor": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Razor"
+    },
+    "Rosaria": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Rosaria"
+    },
+    "Sandrone": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Sandrone"
+    },
+    "Sangonomiya Kokomi": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Sangonomiya_Kokomi"
+    },
+    "Sayu": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Sayu"
+    },
+    "Sethos": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Sethos"
+    },
+    "Shenhe": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Shenhe"
+    },
+    "Shikanoin Heizou": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Shikanoin_Heizou"
+    },
+    "Sigewinne": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Sigewinne"
+    },
+    "Skirk": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Skirk"
+    },
+    "Sucrose": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Sucrose"
+    },
+    "Tartaglia": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Tartaglia"
+    },
+    "Thoma": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Thoma"
+    },
+    "Tighnari": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Tighnari"
+    },
+    "Traveler (Anemo)": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Traveler_(Anemo)"
+    },
+    "Traveler (Dendro)": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Traveler_(Dendro)"
+    },
+    "Traveler (Electro)": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Traveler_(Electro)"
+    },
+    "Traveler (Geo)": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Traveler_(Geo)"
+    },
+    "Traveler (Hydro)": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Traveler_(Hydro)"
+    },
+    "Traveler (Pyro)": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Traveler_(Pyro)"
+    },
+    "Varesa": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Varesa"
+    },
+    "Varka": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Varka"
+    },
+    "Venti": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Venti"
+    },
+    "Vesna": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Vesna"
+    },
+    "Vodyanitsa": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Vodyanitsa"
+    },
+    "Wanderer": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Wanderer"
+    },
+    "Wriothesley": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Wriothesley"
+    },
+    "Xiangling": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Xiangling"
+    },
+    "Xianyun": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Xianyun"
+    },
+    "Xiao": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Xiao"
+    },
+    "Xilonen": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Xilonen"
+    },
+    "Xingqiu": {
+      "roles": [
+        "Off-Field",
+        "DPS",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Xingqiu"
+    },
+    "Xinyan": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Xinyan"
+    },
+    "Yae Miko": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Yae_Miko"
+    },
+    "Yanfei": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Yanfei"
+    },
+    "Yaoyao": {
+      "roles": [
+        "Off-Field",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Yaoyao"
+    },
+    "Yelan": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Yelan"
+    },
+    "Yoimiya": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Yoimiya"
+    },
+    "Yumemizuki Mizuki": {
+      "roles": [
+        "On-Field",
+        "DPS",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Yumemizuki_Mizuki"
+    },
+    "Yun Jin": {
+      "roles": [
+        "Off-Field",
+        "Support"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Yun_Jin"
+    },
+    "Zhongli": {
+      "roles": [
+        "Off-Field",
+        "Support",
+        "Survivability"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Zhongli"
+    },
+    "Zibai": {
+      "roles": [
+        "On-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Zibai"
+    }
+  }
+}

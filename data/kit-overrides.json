@@ -400,6 +400,12 @@
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dawnfrost_Darkstar, fetched 2026-10-10 (talent page): \"Frostfall Storm hits once every second.\" It runs while Opal Fire burns 8 Nightsoul points per second (genshin-db skill table). Per rotation she gains 24 (skill) + 24 (burst, \"Ice Storm Nightsoul Point Gain\") + 3 (one Spiritvessel Skull) = 51 points, so ~6.4s of storm: 6 hits. Worked out here, not a wiki number."
       }
     },
+    "Columbina": {
+      "skill: Gravity Ripple: Continuous DMG": {
+        "every": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-11 (talent page): \"Gravity Ripple attacks once every 2 seconds.\""
+      }
+    },
     "Collei": {
       "burst: Leap DMG": {
         "hits": 12,
@@ -494,6 +500,16 @@
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lisa, fetched 2026-10-10: \"Lightning Rose has a weak initial hit on cast to enemies within a certain radius, and then arcs another 29 times before disappearing.\""
       }
     },
+    "Lynette": {
+      "burst: Bogglecat Box DMG": {
+        "hits": 11,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Magic_Trick:_Astonishing_Shift, fetched 2026-10-11 (talent page): \"Bogglecat Box deals Anemo DMG to nearby opponents every 1 second and fires a Vivid Shot every 2.3 seconds for a total of 11 instances of Anemo DMG and 5 Vivid Shots.\""
+      },
+      "burst: Vivid Shot DMG": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Magic_Trick:_Astonishing_Shift, fetched 2026-10-11 (talent page): \"Bogglecat Box deals Anemo DMG to nearby opponents every 1 second and fires a Vivid Shot every 2.3 seconds for a total of 11 instances of Anemo DMG and 5 Vivid Shots.\" Vivid Shots need the Box to absorb Hydro, Pyro, Cryo or Electro."
+      }
+    },
     "Odette": {
       "skill: \"Plume\" Dance Move DMG": {
         "every": 4,
@@ -532,6 +548,13 @@
       "burst: Lea Lotus Lamp Attack DMG": {
         "hits": 8,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Traveler/Dendro, fetched 2026-10-10: \"The Lea Lotus Lamp in its original state or after Hydro transformation attacks every 1.5 seconds, resulting in a total of 8 hits.\" (10 with C2)"
+      }
+    },
+    "Traveler (Pyro)": {
+      "skill: Blazing Threshold": {
+        "every": 1,
+        "duration": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Flowfire_Blade, fetched 2026-10-11 (talent page): \"Blazing Threshold attacks once every 1s.\" It lasts while Nightsoul's Blessing does, which uses \"7.5 Nightsoul Points per second\": 42 from the skill plus 7 per second for 4s from the burst (genshin-db) = 70 points, ~9s. Worked out here, not a wiki number."
       }
     },
     "Traveler (Geo)": {
