@@ -41,8 +41,9 @@ const KIT = kitJson.characters as Record<string, KitCharacter>;
 // Mavuika's burst bonus is 0.2% per point of Fighting Spirit, max 200. Her burst needs at least 100, and
 // Fighting Spirit comes from Nightsoul points the party spends and from the party's Normal Attacks hitting
 // (genshin-db burst text). So: 100 by default, +50 per other Nightsoul member, 200 for a carry whose
-// rotation is Normal Attacks (KQM "N", e.g. Hu Tao's "N2C x8"; not Neuvillette's charged attack or Xiao's plunges).
-const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a) => /(^|\s)N(\d|\s|$)/.test(a));
+// rotation is Normal Attacks (KQM "N", e.g. Hu Tao's "N2C x8", Clorinde's "6[N3E]"; not Neuvillette's charged
+// attack, Mavuika's "C8F" or Xiao's plunges).
+const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a) => /(^|[\s[])N(\d|\s|$)/.test(a));
 
 function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
   if (normalAttacks(carry)) return 200;

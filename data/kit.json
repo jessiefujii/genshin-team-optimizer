@@ -3268,7 +3268,24 @@
           "scaling": {
             "atk": 0.71258
           },
-          "count": 10
+          "count": 18
+        },
+        {
+          "label": "Impale the Night DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.38408
+          },
+          "count": 6,
+          "instances": 3
+        },
+        {
+          "label": "Surging Blade DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.7344
+          },
+          "count": 1
         },
         {
           "label": "Skill DMG",
@@ -3276,7 +3293,8 @@
           "scaling": {
             "atk": 10.7848
           },
-          "count": 1
+          "count": 1,
+          "instances": 5
         }
       ],
       "buffs": [

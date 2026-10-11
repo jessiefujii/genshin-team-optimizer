@@ -595,7 +595,7 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N x10",
+        "6[N3E]",
         "Q"
       ]
     }

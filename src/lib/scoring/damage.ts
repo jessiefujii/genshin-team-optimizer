@@ -93,7 +93,7 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
     for (const b of kit.buffs) {
       if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (h.instances ?? 1) * atk;
       if (b.kind === "flatAtk" && b.types.includes(h.type) && b.reactions.some((r) => active.includes(r)))
-        perHit += Math.min(b.value * atk, b.cap);
+        perHit += Math.min(b.value * atk, b.cap) * (h.instances ?? 1); // per hit instance (Clorinde's Impale: 3)
       if (b.kind === "dmgBonus" && b.types.includes(h.type)) {
         const share = b.hitsCap ? Math.min(1, b.hitsCap / instancesOf(b.types)) : 1;
         bonus += b.value * share;

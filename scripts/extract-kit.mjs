@@ -971,11 +971,16 @@ const CARRIES = {
     buffs: [],
   },
   Clorinde: {
-    // E (Night Vigil), N x10 as Swift Hunt shots. Before her Burst her Bond of Life is under 100%, so the shots pierce
-    // and deal increased DMG: the second "Swift Hunt DMG" value.
+    // E (Night Vigil), 6[N3E], Q: KeqingMains' basic combo from 0% Bond of Life (pasted by Jessie 2026-10-12: "E to
+    // activate her special Skill state, then N3E until her special Skill state ends. The average player can execute
+    // E 6[N3E]"). Each shot adds 35% Bond of Life, so all 18 start under 100%: they pierce for the second "Swift Hunt
+    // DMG" value. The Impale the Night after them is at 100%+ (Pact: the third value, x3) and counts as Normal Attack
+    // DMG. One Surging Blade: its 10s interval is longer than Night Vigil's 7.5s. The Burst is 5 hits.
     hits: [
-      { table: "skill", label: "Swift Hunt DMG", pick: 1, count: 10, type: N },
-      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "skill", label: "Swift Hunt DMG", pick: 1, count: 18, type: N },
+      { table: "skill", label: "Impale the Night DMG", pick: 2, count: 6, type: N, instances: 3 },
+      { table: "skill", label: "Surging Blade DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU, instances: 5 },
     ],
     // Passive 1: after an Electro-related reaction, +20% ATK per stack (3) on Normal Attacks and the Burst, up to 1,800.
     buffs: [
