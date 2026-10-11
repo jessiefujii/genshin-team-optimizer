@@ -3071,13 +3071,15 @@
           "kind": "addPerStack",
           "value": 0.0272,
           "stacks": 200,
-          "tag": "sunfell"
+          "tag": "sunfell",
+          "fightingSpirit": true
         },
         {
           "kind": "addPerStack",
           "value": 0.00948,
           "stacks": 200,
-          "tag": "ca"
+          "tag": "ca",
+          "fightingSpirit": true
         },
         {
           "kind": "dmgBonus",
@@ -3088,7 +3090,8 @@
             "normal",
             "charged",
             "plunge"
-          ]
+          ],
+          "fightingSpirit": true
         }
       ]
     },

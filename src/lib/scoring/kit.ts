@@ -45,7 +45,7 @@ const KIT = kitJson.characters as Record<string, KitCharacter>;
 // attack, Mavuika's "C8F" or Xiao's plunges).
 const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a) => /(^|[\s[])N(\d|\s|$)/.test(a));
 
-function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
+export function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
   if (normalAttacks(carry)) return 200;
   const nightsoul = team.filter((m) => m !== s && m.families?.includes("nightsoul")).length;
   return Math.min(200, 100 + 50 * nightsoul);

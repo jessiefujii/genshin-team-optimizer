@@ -942,7 +942,7 @@ const CARRIES = {
   },
   Mavuika: {
     // E (hold: Flamestrider), Q (Sunfell Slice), C8F on the Flamestrider (KQM's simplest combo; by team: #114).
-    // Fighting Spirit 200.
+    // Buffs marked fightingSpirit are read at the limit here; the scorer scales them by the team's Fighting Spirit.
     hits: [
       { table: "skill", label: "Skill DMG", count: 1, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU, fightingSpirit: "sunfell" },
@@ -950,10 +950,10 @@ const CARRIES = {
       { table: "skill", label: "Flamestrider Charged Attack Final DMG", count: "rate", type: CH, fightingSpirit: "ca" },
     ],
     buffs: [
-      { kind: "addPerStack", table: "burst", label: "Sunfell Slice DMG Bonus", stacks: "Fighting Spirit Limit", hits: "sunfell" },
-      { kind: "addPerStack", table: "burst", label: "Flamestrider Charged Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "ca" },
+      { kind: "addPerStack", table: "burst", label: "Sunfell Slice DMG Bonus", stacks: "Fighting Spirit Limit", hits: "sunfell", fightingSpirit: true },
+      { kind: "addPerStack", table: "burst", label: "Flamestrider Charged Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "ca", fightingSpirit: true },
       // Passive 2: the active character (her too) deals up to 40% more DMG at 200 Fighting Spirit after her Burst.
-      { kind: "dmgBonus", from: "passive2", re: /maximum increase obtainable this way is (\d+)%/, types: [SK, BU, N, CH, PL] },
+      { kind: "dmgBonus", from: "passive2", re: /maximum increase obtainable this way is (\d+)%/, types: [SK, BU, N, CH, PL], fightingSpirit: true },
     ],
   },
   Zibai: {
@@ -1122,12 +1122,12 @@ function readCarry(id, spec) {
         return { kind: b.kind, value: raw(b.table, b.label), capOfBase: num(COMBAT[b.table], b.cap) / 100 };
       case "addPerStack": {
         const stacks = typeof b.stacks === "string" ? tableValue(tableAttrs(b.table), b.stacks, id) : num(COMBAT[b.table], b.stacks);
-        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits };
+        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits, ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
       }
       case "dmgBonus": {
         const value = b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick));
         const cap = typeof b.hitsCap === "number" ? b.hitsCap : b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
-        return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}) };
+        return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}), ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
       }
       case "factor":
         return { kind: b.kind, value: raw(b.table, b.label), types: b.types };
