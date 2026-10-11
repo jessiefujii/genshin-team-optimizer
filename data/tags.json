@@ -315,7 +315,8 @@
   {
     "id": "Beidou",
     "roles": [
-      "sub-dps"
+      "sub-dps",
+      "shielder"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -1101,7 +1102,8 @@
     "id": "Furina",
     "roles": [
       "sub-dps",
-      "buffer"
+      "buffer",
+      "healer"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -3554,7 +3556,8 @@
     "id": "Xingqiu",
     "roles": [
       "sub-dps",
-      "enabler"
+      "enabler",
+      "healer"
     ],
     "fieldTime": "off",
     "reactions": [
