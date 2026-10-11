@@ -2946,6 +2946,7 @@
     },
     "Wriothesley": {
       "rotationSeconds": 15,
+      "combo": "E 5[N3C] (Q)",
       "hits": [
         {
           "label": "1-Hit DMG",
@@ -3015,6 +3016,80 @@
         {
           "kind": "atkPct",
           "value": 0.3
+        }
+      ],
+      "combos": [
+        {
+          "combo": "E 3[N5CD] N2",
+          "when": [
+            {
+              "reaction": "stellar-conduct"
+            }
+          ],
+          "hits": [
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.980327
+              },
+              "count": 4
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95165
+              },
+              "count": 4
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.235023
+              },
+              "count": 3
+            },
+            {
+              "label": "4-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.392754
+              },
+              "count": 3,
+              "instances": 2
+            },
+            {
+              "label": "5-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.667121
+              },
+              "count": 3
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.60032
+              },
+              "count": 3
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "factor",
+              "value": 1.669515,
+              "types": [
+                "normal"
+              ]
+            },
+            {
+              "kind": "atkPct",
+              "value": 0.3
+            }
+          ]
         }
       ]
     },
@@ -3098,6 +3173,7 @@
     },
     "Mavuika": {
       "rotationSeconds": 18,
+      "combo": "E Q C8F",
       "hits": [
         {
           "label": "Skill DMG",
@@ -3161,6 +3237,202 @@
             "plunge"
           ],
           "fightingSpirit": true
+        }
+      ],
+      "combos": [
+        {
+          "combo": "E Q 4[C2D] C",
+          "when": [
+            {
+              "reaction": "vaporize",
+              "members": [
+                [
+                  "Yelan"
+                ],
+                [
+                  "Traveler (Pyro)",
+                  "Kachina"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.2648
+              },
+              "count": 1
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 7.5616
+              },
+              "count": 1,
+              "tag": "sunfell"
+            },
+            {
+              "label": "Flamestrider Charged Attack Cyclic DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.817
+              },
+              "count": 9,
+              "tag": "ca"
+            }
+          ]
+        },
+        {
+          "combo": "E Q C3F D C3F",
+          "when": [
+            {
+              "reaction": "melt",
+              "members": [
+                [
+                  "Citlali",
+                  "Rosaria"
+                ]
+              ],
+              "elements": {
+                "Cryo": 1
+              }
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.2648
+              },
+              "count": 1
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 7.5616
+              },
+              "count": 1,
+              "tag": "sunfell"
+            },
+            {
+              "label": "Flamestrider Charged Attack Cyclic DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.817
+              },
+              "count": 6,
+              "reacting": 2,
+              "tag": "ca"
+            },
+            {
+              "label": "Flamestrider Charged Attack Final DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.528
+              },
+              "count": 2,
+              "reacting": 2,
+              "tag": "ca"
+            }
+          ]
+        },
+        {
+          "combo": "E Q C2D C3D C4",
+          "when": [
+            {
+              "reaction": "vaporize",
+              "members": [
+                [
+                  "Furina",
+                  "Xingqiu",
+                  "Yelan"
+                ]
+              ]
+            },
+            {
+              "reaction": "melt",
+              "members": [
+                [
+                  "Citlali",
+                  "Rosaria"
+                ],
+                [
+                  "Diona",
+                  "Layla"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.2648
+              },
+              "count": 1
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 7.5616
+              },
+              "count": 1,
+              "tag": "sunfell"
+            },
+            {
+              "label": "Flamestrider Charged Attack Cyclic DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.817
+              },
+              "count": 9,
+              "reacting": 4.5,
+              "tag": "ca"
+            }
+          ]
+        },
+        {
+          "combo": "E Q J C8",
+          "when": [
+            {
+              "reaction": "melt"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.2648
+              },
+              "count": 1
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 7.5616
+              },
+              "count": 1,
+              "tag": "sunfell"
+            },
+            {
+              "label": "Flamestrider Charged Attack Cyclic DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.817
+              },
+              "count": 8,
+              "tag": "ca"
+            }
+          ]
         }
       ]
     },

@@ -1002,7 +1002,16 @@ function readSubDps(id, specs) {
 //   hits: the rotation's hits, matched to the rotation tags in data/tags.json:
 //     table: normal | skill | burst (which talent table), label (+ pick for "a/b" rows), count per rotation,
 //     type: normal | charged | plunge | skill | burst (the DMG type, for buffs), instances (separate hits in one row,
-//     for buffs added per hit; default 1), count "rate" (kit-overrides.json hitRates, keyed "carry: <label>")
+//     for buffs added per hit; default 1), count "rate" (kit-overrides.json hitRates, keyed "carry: <label>"),
+//     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
+//     its flat estimate for hits without it)
+//   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
+//   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
+//   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
+//   when they differ from the default's) and when: a list of alternatives, each { reaction (one of the team's active
+//   reactions; amplifying ones then multiply this combo's hits), members (a list of id lists: a teammate from each),
+//   elements (exact number of teammates of that element) }. Picking a combo by whether its Energy needs are met
+//   waits on particle energy (#37).
 //   buffs: the carry's own buffs during those hits:
 //     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types), addPerStack (+ATK multiplier per stack per hit
 //     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino),
@@ -1010,6 +1019,13 @@ function readSubDps(id, specs) {
 // The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
 // Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer.
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
+// Mavuika's combos (#114) differ only in their Flamestrider Charged Attacks: E, Q (Sunfell Slice), then Cyclic/Final.
+const mavuikaHits = ({ cyclic, cyclicReacting, final = 0, finalReacting }) => [
+  { table: "skill", label: "Skill DMG", count: 1, type: SK },
+  { table: "burst", label: "Skill DMG", count: 1, type: BU, fightingSpirit: "sunfell" },
+  { table: "skill", label: "Flamestrider Charged Attack Cyclic DMG", count: cyclic, reacting: cyclicReacting, type: CH, fightingSpirit: "ca" },
+  ...(final ? [{ table: "skill", label: "Flamestrider Charged Attack Final DMG", count: final, reacting: finalReacting, type: CH, fightingSpirit: "ca" }] : []),
+];
 const CARRIES = {
   "Hu Tao": {
     // E, N2C x8, Q. Blood Blossom ticks every 4s for 8s ("Blood Blossom Duration").
@@ -1055,7 +1071,8 @@ const CARRIES = {
   Wriothesley: {
     // KeqingMains' strongest C0 combo outside Stellar-Conduct teams (pasted by Jessie 2026-10-12): "E 5–6[N3C(J)]"
     // in Chilling Penalty, "Replace the final N3C with Q every other rotation". Took 5 chains (the low end), so
-    // 5 N3C plus half a Burst (and its Surging Blade) per rotation. His Stellar-Conduct combos (E 3[N5CD] N2): #114.
+    // 5 N3C plus half a Burst (and its Surging Blade) per rotation.
+    combo: "E 5[N3C] (Q)",
     hits: [
       ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG"].map((label) => ({ table: "normal", label, count: 5, type: N })),
       { table: "normal", label: "Charged Attack DMG", count: 5, type: CH },
@@ -1068,6 +1085,29 @@ const CARRIES = {
       { kind: "dmgBonus", from: "passive1", re: /will deal (\d+)% increased DMG/, types: [CH], hitsCap: 2 },
       { kind: "atkPct", from: "passive2", re: /increase Wriothesley's ATK by (\d+)%/, times: /Max (\d+) stacks/ }, // full stacks
     ],
+    combos: [
+      {
+        // KQM (pasted by Jessie 2026-10-12): in Stellar-Conduct teams the default combo is "E 3[N5CD] N2" from the
+        // second rotation on (the first is E N5 2[N5CD]); it lines up his HP use for 3 Luster: Vaulting Fists while
+        // keeping his HP above 50% (Chilling Penalty's condition). The 4-Hit row is 2 hits. No Burst: the combo has
+        // none (the non-Stellar one has Q every other rotation). His Radiance (kit-overrides.json passive4) replaces
+        // passive 1: Luster: Vaulting Fist has no 50% DMG bonus, so that buff is left out. The Stellar-Conduct DMG
+        // the Radiance adds (60%/80% of the 3rd/5th hits, 100% of Luster) is the scorer's Stellar line, not here.
+        combo: "E 3[N5CD] N2",
+        when: [{ reaction: "stellar-conduct" }],
+        hits: [
+          ...["1-Hit DMG", "2-Hit DMG"].map((label) => ({ table: "normal", label, count: 4, type: N })),
+          { table: "normal", label: "3-Hit DMG", count: 3, type: N },
+          { table: "normal", label: "4-Hit DMG", count: 3, type: N, instances: 2 },
+          { table: "normal", label: "5-Hit DMG", count: 3, type: N },
+          { table: "normal", label: "Charged Attack DMG", count: 3, type: CH },
+        ],
+        buffs: [
+          { kind: "factor", table: "skill", label: "Enhanced Repelling Fist DMG", types: [N] },
+          { kind: "atkPct", from: "passive2", re: /increase Wriothesley's ATK by (\d+)%/, times: /Max (\d+) stacks/ },
+        ],
+      },
+    ],
   },
   Varesa: {
     // KeqingMains' "most basic and consistent full combo at C0" (pasted by Jessie 2026-10-12):
@@ -1075,7 +1115,9 @@ const CARRIES = {
     // sQ = the short Burst Volcano Kablam (30 Energy, Plunging Attack DMG, only right after a Fiery Passion plunge).
     // Each ECP outside Fiery Passion fills her Nightsoul points and enters it (an extra Skill charge), so 3 ECPs are
     // in Fiery Passion and 2 are not; the closing CP CP have no Skill (no passive 1) and enter it for the next
-    // rotation. KQM: ideally 2 sQ per rotation (Jessie), not all 3 (Energy, #37). No full Burst. Combos by team: #114.
+    // rotation. KQM: ideally 2 sQ per rotation (Jessie), not all 3 (Energy, #37). No full Burst. KQM's other C0
+    // combos (ECP ECP (sQ) ECP ECP (sQ) (CP CP); CP CP ECP while her Skill is on cooldown) depend on her Energy and
+    // cooldowns, not on the team, so there's nothing to pick by team yet (#114; by Energy: #37).
     hits: [
       { table: "skill", label: "Fiery Passion Rush DMG", count: 3, type: SK },
       { table: "normal", label: "Fiery Passion Charged Attack DMG", count: 3, type: CH },
@@ -1090,8 +1132,10 @@ const CARRIES = {
     buffs: [],
   },
   Mavuika: {
-    // E (hold: Flamestrider), Q (Sunfell Slice), C8F on the Flamestrider (KQM's simplest combo; by team: #114).
+    // E (hold: Flamestrider), Q (Sunfell Slice), C8F on the Flamestrider: KQM's simplest combo, for teams with no
+    // Vaporize or Melt (kit-overrides.json hitRates). Combos for Melt and Vaporize teams below (#114).
     // Buffs marked fightingSpirit are read at the limit here; the scorer scales them by the team's Fighting Spirit.
+    combo: "E Q C8F",
     hits: [
       { table: "skill", label: "Skill DMG", count: 1, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU, fightingSpirit: "sunfell" },
@@ -1103,6 +1147,42 @@ const CARRIES = {
       { kind: "addPerStack", table: "burst", label: "Flamestrider Charged Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "ca", fightingSpirit: true },
       // Passive 2: the active character (her too) deals up to 40% more DMG at 200 Fighting Spirit after her Burst.
       { kind: "dmgBonus", from: "passive2", re: /maximum increase obtainable this way is (\d+)%/, types: [SK, BU, N, CH, PL], fightingSpirit: true },
+    ],
+    // KQM's on-field combos after E (pasted by Jessie 2026-10-12). C = Flamestrider Cyclic Charged Attack, F = Final
+    // Charged Attack, D = dash cancel, J = jump cancel. Each keeps E and Q (Sunfell Slice) and the buffs above. Where
+    // KQM says how many Charged Attacks react, `reacting` says so; other hits use damage.ts's flat estimate.
+    combos: [
+      {
+        // "Q 4[C2D] C": "Vaporize teams with Yelan plus Pyro Traveler or Kachina". 9 Cyclic.
+        combo: "E Q 4[C2D] C",
+        when: [{ reaction: "vaporize", members: [["Yelan"], ["Traveler (Pyro)", "Kachina"]] }],
+        hits: mavuikaHits({ cyclic: 9 }),
+      },
+      {
+        // "Q C3F D C3F": "the highest-DPS Melt combo with Citlali or Rosaria as the solo Cryo unit, allowing 2 Cyclic
+        // Charged Attack Melts and 2 Final Charged Attack Melts". 6 Cyclic (2 melt), 2 Final (both melt).
+        combo: "E Q C3F D C3F",
+        when: [{ reaction: "melt", members: [["Citlali", "Rosaria"]], elements: { Cryo: 1 } }],
+        hits: mavuikaHits({ cyclic: 6, cyclicReacting: 2, final: 2, finalReacting: 2 }),
+      },
+      {
+        // "Q C2D C3D C4": "the most consistent, 5 non-reacting and 5 reacting Cyclic Charged Attacks"; needs good Hydro
+        // (Furina, Xingqiu, Yelan; or C6 Kaeya, past this C0 model) or double Cryo (Citlali/Rosaria plus Diona or
+        // Layla). The notation has 9 Cyclic, KQM's count 10: took their half-reacting share, 4.5 of 9.
+        combo: "E Q C2D C3D C4",
+        when: [
+          { reaction: "vaporize", members: [["Furina", "Xingqiu", "Yelan"]] },
+          { reaction: "melt", members: [["Citlali", "Rosaria"], ["Diona", "Layla"]] },
+        ],
+        hits: mavuikaHits({ cyclic: 9, cyclicReacting: 4.5 }),
+      },
+      {
+        // "Q J C8" and "Q C4J C4": "simpler Melt combos" (8 Cyclic either way), for Melt teams the ones above don't
+        // fit. KQM gives no count of the hits that melt.
+        combo: "E Q J C8",
+        when: [{ reaction: "melt" }],
+        hits: mavuikaHits({ cyclic: 8 }),
+      },
     ],
   },
   Zibai: {
@@ -1239,33 +1319,38 @@ function readCarry(id, spec) {
     return Number(m[1].replace(/,/g, "")); // "1,800"
   };
   const missing = [];
-  const hits = [];
-  for (const h of spec.hits) {
-    let count = h.count;
-    if (count === "rate") {
-      const r = rates[`carry: ${h.label}`];
-      if (!r) throw new Error(`${id}: "${h.label}" needs a kit-overrides.json hitRates "carry: ${h.label}" entry`);
-      if (r.missing) {
-        missing.push(`${h.label} (${r.missing})`);
-        continue;
-      }
-      count = r.hits;
-    } else if (typeof count === "object") count = tableValue(tableAttrs(count.table), count.label, id);
-    const scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
-    hits.push({
-      label: h.from ? `${h.from} bonus` : h.label,
-      type: h.type,
-      scaling,
-      count,
-      ...(h.instances ? { instances: h.instances } : {}),
-      ...(h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
-    });
-  }
+  const readHits = (list) => {
+    const hits = [];
+    for (const h of list) {
+      let count = h.count;
+      if (count === "rate") {
+        const r = rates[`carry: ${h.label}`];
+        if (!r) throw new Error(`${id}: "${h.label}" needs a kit-overrides.json hitRates "carry: ${h.label}" entry`);
+        if (r.missing) {
+          missing.push(`${h.label} (${r.missing})`);
+          continue;
+        }
+        count = r.hits;
+      } else if (typeof count === "object") count = tableValue(tableAttrs(count.table), count.label, id);
+      if (h.reacting !== undefined && !(h.reacting >= 0 && h.reacting <= count)) throw new Error(`${id}: "${h.label}" reacting ${h.reacting} of ${count}`);
+      const scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+      hits.push({
+        label: h.from ? `${h.from} bonus` : h.label,
+        type: h.type,
+        scaling,
+        count,
+        ...(h.instances ? { instances: h.instances } : {}),
+        ...(h.reacting !== undefined ? { reacting: h.reacting } : {}),
+        ...(h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
+      });
+    }
+    return hits;
+  };
   const raw = (t, label, pick = 0) => {
     const s = scalingOf(tableAttrs(t), label, id, pick);
     return Object.values(s)[0];
   };
-  const buffs = spec.buffs.map((b) => {
+  const readBuff = (b) => {
     switch (b.kind) {
       case "atkFromHp":
         return { kind: b.kind, value: raw(b.table, b.label), capOfBase: num(COMBAT[b.table], b.cap) / 100 };
@@ -1295,8 +1380,22 @@ function readCarry(id, spec) {
       default:
         throw new Error(`${id}: unknown carry buff ${b.kind}`);
     }
+  };
+  const hits = readHits(spec.hits);
+  const buffs = spec.buffs.map(readBuff);
+  if (spec.combos && !spec.combo) throw new Error(`${id}: a carry with combos needs its default combo's notation (combo)`);
+  const combos = (spec.combos ?? []).map((k) => {
+    if (!k.combo || !k.when?.length) throw new Error(`${id}: each combo needs combo and when`);
+    return { combo: k.combo, when: k.when, hits: readHits(k.hits), ...(k.buffs ? { buffs: k.buffs.map(readBuff) } : {}) };
   });
-  return { rotationSeconds: tableValue(tableAttrs("burst"), "CD", id), hits, buffs, ...(missing.length ? { missing } : {}) };
+  return {
+    rotationSeconds: tableValue(tableAttrs("burst"), "CD", id),
+    ...(spec.combo ? { combo: spec.combo } : {}),
+    hits,
+    buffs,
+    ...(combos.length ? { combos } : {}),
+    ...(missing.length ? { missing } : {}),
+  };
 }
 
 const tags = require("../data/tags.json");

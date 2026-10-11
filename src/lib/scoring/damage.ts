@@ -14,6 +14,7 @@ interface CarryHit {
   scaling: { atk?: number; hp?: number; def?: number; em?: number };
   count: number;
   instances?: number;
+  reacting?: number; // how many of `count` trigger the combo's amplifying reaction, where the source says (#114)
   tag?: string;
 }
 type CarryBuff =
@@ -26,10 +27,25 @@ type CarryBuff =
   | { kind: "dmgBonusPerEm"; perEm: number; max: number; types: HitType[]; labels: string[] }
   | { kind: "masque"; ratio: number; start: number; use: number }
   | { kind: "flatAtk"; value: number; cap: number; types: HitType[]; reactions: Reaction[] };
+// When a combo fits a team (#114): one of the team's active reactions, a teammate from each `members` list, and
+// exactly that many teammates of each element in `elements`.
+interface ComboWhen {
+  reaction?: Reaction;
+  members?: string[][];
+  elements?: Partial<Record<Element, number>>;
+}
+interface CarryCombo {
+  combo: string;
+  when: ComboWhen[]; // alternatives
+  hits: CarryHit[];
+  buffs?: CarryBuff[]; // default: the carry's
+}
 interface CarryKit {
   rotationSeconds: number;
+  combo?: string; // the default combo (KQM notation), when the carry has others
   hits: CarryHit[];
   buffs: CarryBuff[];
+  combos?: CarryCombo[];
   missing?: string[];
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
@@ -57,18 +73,37 @@ const AMPLIFY: Partial<Record<Reaction, Partial<Record<Element, number>>>> = {
   vaporize: { Hydro: 2, Pyro: 1.5 },
   melt: { Pyro: 2, Cryo: 1.5 },
 };
+// A combo picked for a reaction (#114) amplifies by that reaction, and its hits with a sourced `reacting` count use
+// that share instead of the flat one.
 const AMPLIFY_SHARE = 0.7; // reactions.ts: amplifying, main reaction
-function reactionFactor(c: ScoringCharacter, em: number, active: readonly Reaction[]): number {
-  const main = mainReactionOf(c);
-  if (!main || main === "none" || !active.includes(main)) return 1;
-  const amp = AMPLIFY[main]?.[c.element];
-  if (!amp) return 1; // other reactions: later (#101)
+// The extra damage a hit that reacts gains (2x Melt with EM: about 1.5 more), or 0 when the reaction doesn't amplify.
+function amplifyGain(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
+  if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
+  const amp = AMPLIFY[reaction]?.[c.element];
+  if (!amp) return 0; // other reactions: later (#101)
   const emBonus = (2.78 * em) / (em + 1400);
-  return 1 + AMPLIFY_SHARE * (amp * (1 + emBonus) - 1);
+  return amp * (1 + emBonus) - 1;
+}
+const reactingShare = (h: CarryHit) => (h.reacting === undefined ? AMPLIFY_SHARE : h.count ? h.reacting / h.count : 0);
+
+// The carry's combo for this team (#114): the first of kit.json's combos whose `when` fits, else the default.
+// `reaction` is the reaction the picked combo is built around (undefined for the default).
+function pickCombo(kit: CarryKit, c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+  const mates = team.filter((m) => m.id !== c.id);
+  const fits = (w: ComboWhen) =>
+    (!w.reaction || active.includes(w.reaction)) &&
+    (w.members ?? []).every((ids) => mates.some((m) => ids.includes(m.id))) &&
+    Object.entries(w.elements ?? {}).every(([e, n]) => mates.filter((m) => m.element === e).length === n);
+  for (const k of kit.combos ?? []) {
+    const w = k.when.find(fits);
+    if (w) return { kit: { ...kit, hits: k.hits, buffs: k.buffs ?? kit.buffs }, combo: k.combo, reaction: w.reaction };
+  }
+  return { kit, combo: kit.combo, reaction: undefined };
 }
 
 export interface CarryDamage {
   perSecond: number;
+  combo?: string; // the combo picked for this team, when the carry has several (#114)
   rotationSeconds: number;
   missing: string[]; // hits left out for lack of a source
 }
@@ -79,10 +114,11 @@ export interface CarryDamage {
 
 // The carry's damage per second, or null when kit.json has no entry for them yet (carriesTodo).
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
-// `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit); default: the carry alone.
+// `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit) and picks the combo (#114);
+// default: the carry alone.
 export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [], team: readonly ScoringCharacter[] = [c]): CarryDamage | null {
-  const kit = CARRIES[c.id];
-  if (!kit) return null;
+  if (!CARRIES[c.id]) return null;
+  const { kit, combo, reaction } = pickCombo(CARRIES[c.id], c, active, team);
   const s = carryStats(c);
   const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;
   let atk = s.atk;
@@ -92,6 +128,7 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
   }
   const instancesOf = (types: HitType[]) =>
     kit.hits.filter((h) => types.includes(h.type)).reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
+  const amp = amplifyGain(c, s.em, active, reaction ?? mainReactionOf(c));
   let total = 0;
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
@@ -110,15 +147,14 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * s.em);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
     }
-    total += perHit * h.count * (1 + bonus) * factor;
+    total += perHit * h.count * (1 + bonus) * factor * (1 + reactingShare(h) * amp);
   }
   // Masque of the Red Death: each Normal Attack hit adds ATK x ratio x Bond of Life %, and uses `use` of it.
   for (const b of kit.buffs) {
     if (b.kind !== "masque") continue;
     const n = instancesOf(["normal"]);
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
-    total += b.ratio * bondSum * atk * (1 + s.dmgBonus);
+    total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp);
   }
-  total *= reactionFactor(c, s.em, active);
-  return { perSecond: total / kit.rotationSeconds, rotationSeconds: kit.rotationSeconds, missing: kit.missing ?? [] };
+  return { perSecond: total / kit.rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds: kit.rotationSeconds, missing: kit.missing ?? [] };
 }
