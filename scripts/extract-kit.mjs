@@ -918,12 +918,22 @@ const CARRIES = {
     ],
   },
   Varesa: {
-    // E, plunge, E, plunge, Q, plunge, in Fiery Passion. Her passive 1 adds 180% ATK to the plunge after each Skill.
+    // KeqingMains' "most basic and consistent full combo at C0" (pasted by Jessie 2026-10-12):
+    // ECP (sQ) ECP ECP (sQ) ECP ECP (sQ) CP CP. E = Skill (Rush), C = the Charged Attack it unlocks, P = plunge,
+    // sQ = the short Burst Volcano Kablam (30 Energy, Plunging Attack DMG, only right after a Fiery Passion plunge).
+    // Each ECP outside Fiery Passion fills her Nightsoul points and enters it (an extra Skill charge), so 3 ECPs are
+    // in Fiery Passion and 2 are not; the closing CP CP have no Skill (no passive 1) and enter it for the next
+    // rotation. KQM: ideally 2 sQ per rotation (Jessie), not all 3 (Energy, #37). No full Burst. Combos by team: #114.
     hits: [
-      { table: "skill", label: "Fiery Passion Rush DMG", count: 2, type: SK },
+      { table: "skill", label: "Fiery Passion Rush DMG", count: 3, type: SK },
+      { table: "normal", label: "Fiery Passion Charged Attack DMG", count: 3, type: CH },
       { table: "normal", label: "Fiery Passion Low/High Plunge DMG", pick: 1, count: 3, type: PL },
-      { from: "passive1", re: /Fiery Passion state, this ground impact DMG is increased by (\d+)% of her ATK/, count: 2, type: PL },
-      { table: "burst", label: "Fiery Passion Flying Kick DMG", count: 1, type: BU },
+      { from: "passive1", re: /Fiery Passion state, this ground impact DMG is increased by (\d+)% of her ATK/, count: 3, type: PL },
+      { table: "skill", label: "Rush DMG", count: 2, type: SK },
+      { table: "normal", label: "Charged Attack DMG", count: 4, type: CH },
+      { table: "normal", label: "Low/High Plunge DMG", pick: 1, count: 4, type: PL },
+      { from: "passive1", re: /Plunging Attack, the shockwave DMG dealt when she hits the ground is increased by (\d+)% of her ATK/, count: 2, type: PL },
+      { table: "burst", label: "Volcano Kablam DMG", count: 2, type: PL },
     ],
     buffs: [],
   },

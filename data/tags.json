@@ -3205,12 +3205,10 @@
     "rotation": {
       "slot": "carry",
       "actions": [
-        "E",
-        "plunge",
-        "E",
-        "plunge",
-        "Q",
-        "plunge"
+        "ECP sQ",
+        "ECP ECP sQ",
+        "ECP ECP",
+        "CP CP"
       ]
     }
   },

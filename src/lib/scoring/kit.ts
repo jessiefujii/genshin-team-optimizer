@@ -51,8 +51,8 @@ function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: read
   return Math.min(200, 100 + 50 * nightsoul);
 }
 
-// Plunging carries say so in their rotation tags (Xiao "plunge x10", Gaming "E plunge x4").
-const plunges = (c: ScoringCharacter) => c.rotation.actions.some((a) => /plunge/i.test(a));
+// Plunging carries say so in their rotation tags (Xiao "plunge x10", Gaming "E plunge x4", KQM "P" as in Varesa's "ECP").
+const plunges = (c: ScoringCharacter) => c.rotation.actions.some((a) => /plunge/i.test(a) || /(^|\s)[A-Z]*P(\s|$)/.test(a));
 
 // Base ATK (character + weapon), which ATK % buffs are a percent of (#80): the build's when it has one, else
 // the character's level 90 base plus a benchmark weapon (or the benchmark carry's, for a carry not in kit.json).

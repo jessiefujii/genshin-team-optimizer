@@ -2973,7 +2973,15 @@
           "scaling": {
             "atk": 1.8088
           },
-          "count": 2
+          "count": 3
+        },
+        {
+          "label": "Fiery Passion Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 1.57488
+          },
+          "count": 3
         },
         {
           "label": "Fiery Passion Low/High Plunge DMG",
@@ -2989,15 +2997,47 @@
           "scaling": {
             "atk": 1.8
           },
+          "count": 3
+        },
+        {
+          "label": "Rush DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.26616
+          },
           "count": 2
         },
         {
-          "label": "Fiery Passion Flying Kick DMG",
-          "type": "burst",
+          "label": "Charged Attack DMG",
+          "type": "charged",
           "scaling": {
-            "atk": 9.7784
+            "atk": 1.51776
           },
-          "count": 1
+          "count": 4
+        },
+        {
+          "label": "Low/High Plunge DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 3.422517
+          },
+          "count": 4
+        },
+        {
+          "label": "passive1 bonus",
+          "type": "plunge",
+          "scaling": {
+            "atk": 0.5
+          },
+          "count": 2
+        },
+        {
+          "label": "Volcano Kablam DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 6.84488
+          },
+          "count": 2
         }
       ],
       "buffs": []
