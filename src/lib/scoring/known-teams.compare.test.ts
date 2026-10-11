@@ -15,7 +15,7 @@ const short = (ids: readonly string[], carry: string) => ids.filter((id) => id !
 test("guide teams vs the scorer's best teams", { timeout: 300_000 }, () => {
   const rows: string[] = [];
   let found = 0;
-  for (const { carry, teams } of KNOWN_TEAMS) {
+  for (const { carry, teams, ranked } of KNOWN_TEAMS) {
     for (const t of teams) for (const id of t) expect(byId.has(id), `${id} is not in tags.json`).toBe(true);
 
     // Only teams where this character carries: a flex DPS (Mavuika) can also be a support in someone else's team.
@@ -34,7 +34,7 @@ test("guide teams vs the scorer's best teams", { timeout: 300_000 }, () => {
         short(bestGuide.team, carry),
         `${ours.score}`,
         short(ours.members, carry),
-        `${overlap}/4`,
+        ranked ? `${overlap}/4` : "unranked",
       ].join(" | "),
     );
   }
