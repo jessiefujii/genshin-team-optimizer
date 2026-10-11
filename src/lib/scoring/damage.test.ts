@@ -76,6 +76,15 @@ describe("carry damage (#101)", () => {
     expect(dps(["melt"])).toBe(dps([]));
   });
 
+  test("Spread and Aggravate add flat damage to the hits that react (#129)", () => {
+    const alhaitham = byId.get("Alhaitham")!;
+    const clorinde = byId.get("Clorinde")!;
+    expect(carryDamage(alhaitham, ["spread"])!.perSecond).toBeGreaterThan(carryDamage(alhaitham, [])!.perSecond * 1.2);
+    expect(carryDamage(clorinde, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(clorinde, [])!.perSecond * 1.2);
+    // Aggravate only adds to Electro hits: Alhaitham (Dendro) gains nothing from it.
+    expect(carryDamage(alhaitham, ["aggravate"])!.perSecond).toBe(carryDamage(alhaitham, [])!.perSecond);
+  });
+
   test("a build's stats change the damage", () => {
     const raiden = byId.get("Raiden Shogun")!;
     const built: ScoringCharacter = {

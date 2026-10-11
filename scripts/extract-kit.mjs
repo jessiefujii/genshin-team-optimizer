@@ -1045,16 +1045,17 @@ const CARRIES = {
     ],
   },
   "Raiden Shogun": {
-    // E, Q, N3C x3 in Musou Isshin (its Normal/Charged Attacks count as Elemental Burst DMG). The Eye's coordinated
-    // attacks: one every 0.9s while she attacks during Musou Isshin's 7s. Resolve: 60, the max, assumed full.
+    // E, Q, 3[N3C] N1C in Musou Isshin (its Normal/Charged Attacks count as Elemental Burst DMG): one of KeqingMains'
+    // quick guide combos (fetched 2026-10-12). The Eye's coordinated attacks: one every 0.9s while she attacks during
+    // Musou Isshin's 7s. Resolve: 60, the max (KQM: "quite common to reach maximum Resolve stacks").
     hits: [
       { table: "skill", label: "Skill DMG", count: 1, type: SK },
       { table: "skill", label: "Coordinated ATK DMG", count: 7, type: SK },
       { table: "burst", label: "Musou no Hitotachi Base DMG", count: 1, type: BU, resolve: "initial" },
-      { table: "burst", label: "1-Hit DMG", count: 3, type: BU, resolve: "isshin" },
+      { table: "burst", label: "1-Hit DMG", count: 4, type: BU, resolve: "isshin" },
       { table: "burst", label: "2-Hit DMG", count: 3, type: BU, resolve: "isshin" },
       { table: "burst", label: "3-Hit DMG", count: 3, type: BU, resolve: "isshin" },
-      { table: "burst", label: "Charged Attack DMG", count: 3, type: BU, resolve: "isshin", instances: 2 },
+      { table: "burst", label: "Charged Attack DMG", count: 4, type: BU, resolve: "isshin", instances: 2 },
     ],
     buffs: [
       { kind: "addPerStack", table: "burst", label: "Resolve Bonus", pick: 0, stacks: /maximum number of Resolve stacks is (\d+)/, hits: "initial" },
@@ -1317,12 +1318,14 @@ const CARRIES = {
     ],
   },
   Alhaitham: {
-    // E, Q, N4 x3. Q with 3 Mirrors: "3-Mirror Attack Instances". Projections fire on his attacks with 3 Mirrors.
+    // KeqingMains' "Shorter Continuous" rotation (fetched 2026-10-12): "Q + E + N3D N3D N3CD + N3CD N3CD", 18-20s.
+    // Q with 3 Mirrors: "3-Mirror Attack Instances". Projections fire on his attacks with 3 Mirrors.
     hits: [
       { table: "skill", label: "Rush Attack DMG", count: 1, type: SK },
       { table: "burst", label: "Single-Instance DMG", count: { table: "burst", label: "3-Mirror Attack Instances" }, type: BU },
-      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG"].map((label) => ({ table: "normal", label, count: 3, type: N })),
-      { table: "skill", label: "3-Mirror Projection Attack DMG", count: "rate", type: SK },
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG"].map((label) => ({ table: "normal", label, count: 5, type: N, ...(label === "3-Hit DMG" ? { instances: 2 } : {}) })),
+      { table: "normal", label: "Charged Attack DMG", count: 3, type: CH, instances: 2 }, // "{a}+{b}": two hits
+      { table: "skill", label: "3-Mirror Projection Attack DMG", count: "rate", type: SK, instances: 3 }, // one hit per Mirror
     ],
     // Passive 2: +0.1% Projection and Burst DMG per EM, up to 100%.
     buffs: [{ kind: "dmgBonusPerEm", from: "passive2", re: /by ([\d.]+)%\. The DMG of both/, max: /maximum of (\d+)% this way/, types: [SK, BU], labels: ["3-Mirror Projection Attack DMG", "Single-Instance DMG"] }],

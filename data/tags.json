@@ -92,7 +92,7 @@
       "actions": [
         "E",
         "Q",
-        "N4 x3"
+        "2[N3] 3[N3C]"
       ]
     }
   },
@@ -2623,7 +2623,7 @@
       "actions": [
         "E",
         "Q",
-        "N3C x3"
+        "3[N3C] N1C"
       ]
     },
     "notes": "Burst carry or off-field battery via skill."

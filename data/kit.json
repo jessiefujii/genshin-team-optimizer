@@ -2853,7 +2853,7 @@
           "scaling": {
             "atk": 0.752402
           },
-          "count": 3,
+          "count": 4,
           "tag": "isshin"
         },
         {
@@ -2880,7 +2880,7 @@
           "scaling": {
             "atk": 2.2866
           },
-          "count": 3,
+          "count": 4,
           "instances": 2,
           "tag": "isshin"
         }
@@ -4022,7 +4022,7 @@
           "scaling": {
             "atk": 0.90989
           },
-          "count": 3
+          "count": 5
         },
         {
           "label": "2-Hit DMG",
@@ -4030,7 +4030,7 @@
           "scaling": {
             "atk": 0.932374
           },
-          "count": 3
+          "count": 5
         },
         {
           "label": "3-Hit DMG",
@@ -4038,15 +4038,17 @@
           "scaling": {
             "atk": 1.255862
           },
-          "count": 3
+          "count": 5,
+          "instances": 2
         },
         {
-          "label": "4-Hit DMG",
-          "type": "normal",
+          "label": "Charged Attack DMG",
+          "type": "charged",
           "scaling": {
-            "atk": 1.226665
+            "atk": 2.0303
           },
-          "count": 3
+          "count": 3,
+          "instances": 2
         },
         {
           "label": "3-Mirror Projection Attack DMG",
@@ -4055,7 +4057,8 @@
             "atk": 3.4272,
             "em": 6.8544
           },
-          "count": 6
+          "count": 6,
+          "instances": 3
         }
       ],
       "buffs": [
