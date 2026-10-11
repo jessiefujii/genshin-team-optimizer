@@ -481,6 +481,155 @@ function readNightsoulBurst(id, spec) {
   };
 }
 
+// Mavuika's Fighting Spirit (#116). Her Burst text: "Nightsoul points consumed by nearby party members are converted
+// to Fighting Spirit", and "When nearby party members' Normal Attacks hit opponents, Mavuika gains 1.5 Fighting Spirit.
+// This can trigger once every 0.1s"; she can only Burst with "at least 50%" of the limit. So one rotation gives her own
+// Skill's points, plus each Nightsoul teammate's points, plus 1.5 per Normal Attack hit of the carry (src/lib/scoring/
+// kit.ts adds them up). Points gained per rotation stand in for points spent: each pool below drains in its Blessing.
+// A part reads one number from the kit: a table label (talent, label) or a sentence (from, re: the product of its
+// numbers). times: how often per rotation, a number (a judgment, explained per entry) or a sentence in the same text.
+// cap: a table label the total can't pass. whole: the points are only spent a full pool at a time (Kinich's Cannon).
+const FIGHTING_SPIRIT = {
+  limit: { talent: "burst", label: "Fighting Spirit Limit" },
+  burstMin: /When Mavuika has at least (\d+)% Fighting Spirit/,
+  perNormalHit: /Normal Attacks hit opponents, Mavuika gains ([\d.]+) Fighting Spirit/,
+  normalHitEvery: /This can trigger once every ([\d.]+)s/,
+  // Her Skill: "Mavuika's Nightsoul points are restored to max value", the "Nightsoul Point Limit". KQM Mavuika quick
+  // guide (https://keqingmains.com/q/mavuika-quickguide/, fetched 2026-10-12): "At C1, Mavuika can use her Burst every
+  // rotation with just the Nightsoul point consumption from her Skill alone" (C1: +25% Fighting Spirit, so ~80 at C0).
+  // The 10 points her Burst gives aren't counted: in Crucible of Death and Life her actions don't consume them.
+  own: { parts: [{ talent: "skill", label: "Nightsoul Point Limit" }], note: "her Skill fills her Nightsoul points" },
+  teammates: {
+    // Her Skill, then 35 per Normal/Plunging hit once 2 Source Samples are converted (Mavuika is Pyro, so it takes one
+    // more Pyro/Hydro/Cryo/Electro member; assumed). Her rotation's "N x2" passes the 90 max, where she consumes all.
+    Xilonen: {
+      parts: [{ from: "combat2", re: /Xilonen will gain (\d+) Nightsoul points/ }, { from: "passive1", re: /she gains (\d+) Nightsoul points when her Normal or Plunging Attacks hit/, times: 2 }],
+      cap: { talent: "skill", label: "Nightsoul Point Limit" },
+      note: "Skill + 2 Normal Attack hits (her N x2), capped at her max; assumes 2 converted Source Samples",
+    },
+    // Skill + Burst + 1 Spiritvessel Skull (one opponent) = 51, enough for Opal Fire (50+), which burns them all. Her
+    // passive 1 adds 16 after a Melt or Frozen while Itzpapa is out, at most once every 8s: once, since Mavuika's Pyro
+    // melts with her Cryo. Her passive 2 (4 per Nightsoul Burst) is left out.
+    Citlali: {
+      parts: [
+        { from: "combat2", re: /Citlali gains (\d+) Nightsoul points/ },
+        { talent: "burst", label: "Ice Storm Nightsoul Point Gain" },
+        { talent: "burst", label: "Spiritvessel Skull Nightsoul Point Gain" },
+        { from: "passive1", re: /Citlali will regain (\d+) Nightsoul points/ },
+      ],
+      note: "Skill + Burst + 1 Skull + passive 1 once (Melt with Mavuika); passive 2 left out",
+    },
+    // Skill + Burst. What the Kinetic Energy Scale restores for the active character's movement is left out (no number).
+    Iansan: {
+      parts: [{ from: "combat2", re: /Iansan will regain (\d+) Nightsoul points/ }, { from: "combat3", re: /Iansan will gain (\d+) Nightsoul points/ }],
+      note: "Skill + Burst; the Scale's movement points left out",
+    },
+    Kachina: { parts: [{ from: "combat2", re: /Kachina will gain (\d+) Nightsoul points/ }], note: "Skill" },
+    Chasca: { parts: [{ from: "combat2", re: /Chasca gains (\d+) Nightsoul points/ }], note: "Skill" },
+    // Each Sharky's Surging Bite makes a Puffer, at most 2 per Blessing; her "shark bites x3" are assumed to pick up both.
+    Mualani: {
+      parts: [{ from: "combat2", re: /Mualani will gain (\d+) Nightsoul points/ }, { from: "passive1", re: /restore (\d+) Nightsoul points when she picks up a Puffer/, times: /Only (\d+) such Puffers/ }],
+      note: "Skill + both Puffers",
+    },
+    Ifa: { parts: [{ from: "combat2", re: /Ifa gains (\d+) Nightsoul points/ }], note: "Skill" },
+    // 2 per second for the 10s Blessing, 3 per Loop Shot (his "hold E swings x6"), 4 from one Blind Spot = 42; the
+    // Scalespiker Cannon spends them 20 (the max) at a time, so 2 Cannons spend 40. Same count as his CARRIES entry.
+    Kinich: {
+      parts: [
+        { from: "combat2", re: /Blessing lasts (\d+)s and generates (\d+) Nightsoul points every second/ },
+        { from: "combat2", re: /generating (\d+) Nightsoul points\. Loop Shot/, times: 6 },
+        { from: "combat2", re: /he will generate (\d+) Nightsoul points/ },
+      ],
+      whole: { talent: "skill", label: "Nightsoul Point Limit" },
+      note: "Blessing ticks + 6 Loop Shots + 1 Blind Spot, spent in full Cannons",
+    },
+    // One Nightsoul Burst per rotation (every 12-18s with 1-2 other Natlanese members). The 5 per other members'
+    // Hydro/Electro hit is left out (it depends on the team); each Hypersense uses 10 of them.
+    Ororon: {
+      parts: [{ from: "passive1", re: /After a nearby party member triggers Nightsoul Burst, Ororon will gain (\d+) Nightsoul points/ }],
+      note: "one Nightsoul Burst; the Hydro/Electro hit points left out",
+    },
+    // Her plunges consume all her points, and filling them to the max (40) enters Fiery Passion. KQM's C0 combo (her
+    // CARRIES entry) enters it 3 times per rotation: the 2 ECPs outside it and the closing CP CP.
+    Varesa: { parts: [{ talent: "skill", label: "Nightsoul Point Limit", times: 3 }], note: "her max, 3 Fiery Passion entries per rotation" },
+    // Skill (42) + Burst (7 per second for 4s); the Blessing lasts at most 12s and drains.
+    "Traveler (Pyro)": {
+      parts: [{ from: "combat2", re: /the Traveler gains (\d+) Nightsoul points/ }, { from: "combat3", re: /restores (\d+) Nightsoul points per second for the next (\d+)s/ }],
+      note: "Skill + Burst",
+    },
+  },
+};
+
+// Reads a FIGHTING_SPIRIT entry: its Nightsoul points per rotation, with the sentence or label behind each part.
+function readNightsoulPoints(id, spec) {
+  const talents = talentsOf(id);
+  if (!talents) throw new Error(`${id}: no talent data in genshin-db`);
+  const label = (p) => tableValue(talents[COMBAT[p.talent]].attributes, p.label, id);
+  let points = 0;
+  const sources = [];
+  for (const p of spec.parts) {
+    let value, source;
+    if (p.label) {
+      value = label(p);
+      source = `${p.talent} "${p.label}"`;
+    } else {
+      const text = talents[p.from].description.replace(/\s+/g, " ");
+      const m = text.match(p.re);
+      if (!m) throw new Error(`${id}: pattern ${p.re} not found in ${p.from}: ${text}`);
+      value = m.slice(1).reduce((a, n) => a * Number(n), 1);
+      source = `${p.from}: "${m[0]}"`;
+    }
+    let times = p.times ?? 1;
+    if (times instanceof RegExp) {
+      const t = talents[p.from].description.replace(/\s+/g, " ").match(times);
+      if (!t) throw new Error(`${id}: pattern ${times} not found in ${p.from}`);
+      source += ` x "${t[0]}"`;
+      times = Number(t[1]);
+    } else if (times !== 1) source += ` x${times}`;
+    points += value * times;
+    sources.push(source);
+  }
+  if (spec.cap) {
+    points = Math.min(points, label(spec.cap));
+    sources.push(`max: ${spec.cap.talent} "${spec.cap.label}"`);
+  }
+  if (spec.whole) {
+    const pool = label(spec.whole);
+    points = Math.floor(points / pool) * pool;
+    sources.push(`spent ${pool} at a time: ${spec.whole.talent} "${spec.whole.label}"`);
+  }
+  return { points: round(points), note: spec.note, source: sources.join("; ") };
+}
+
+function readFightingSpirit(nightsoulMembers) {
+  const talents = talentsOf("Mavuika");
+  const burst = talents.combat3.description.replace(/\s+/g, " ");
+  const num = (re) => {
+    const m = burst.match(re);
+    if (!m) throw new Error(`Mavuika: pattern ${re} not found in combat3`);
+    return { value: Number(m[1]), text: m[0] };
+  };
+  const limit = tableValue(talents.combat3.attributes, FIGHTING_SPIRIT.limit.label, "Mavuika");
+  const min = num(FIGHTING_SPIRIT.burstMin);
+  const perHit = num(FIGHTING_SPIRIT.perNormalHit);
+  const every = num(FIGHTING_SPIRIT.normalHitEvery);
+  // Every Nightsoul member needs an entry, so a new one can't silently give her none.
+  for (const id of nightsoulMembers) {
+    if (id !== "Mavuika" && !FIGHTING_SPIRIT.teammates[id]) throw new Error(`${id} is Nightsoul in tags.json but has no FIGHTING_SPIRIT entry`);
+  }
+  const teammates = {};
+  for (const [id, spec] of Object.entries(FIGHTING_SPIRIT.teammates)) teammates[id] = readNightsoulPoints(id, spec);
+  return {
+    limit,
+    burstMin: round((limit * min.value) / 100),
+    perNormalHit: perHit.value,
+    normalHitEvery: every.value,
+    source: `combat3: "${min.text}", "${perHit.text}", "${every.text}"; burst "${FIGHTING_SPIRIT.limit.label}"`,
+    own: readNightsoulPoints("Mavuika", FIGHTING_SPIRIT.own),
+    teammates,
+  };
+}
+
 // Stellar Glimmer: Radiance (#63). A Stellar member enters Radiance: Stellar-Conduct inside a Polestar Field
 // (made when Stellar-Conduct is triggered) and Radiance: Stellar Swirl for 8s after a Stellar Swirl, so a
 // Radiance is on when the team has that reaction. What it does is in each kit:
@@ -1193,6 +1342,9 @@ for (const c of tags) {
 }
 const nightsoulRule = OVERRIDES.rules.nightsoulBurst;
 
+// Mavuika's Fighting Spirit (#116): the Nightsoul points each Nightsoul member gives her per rotation.
+const fightingSpirit = readFightingSpirit(tags.filter((c) => (c.families ?? []).includes("nightsoul")).map((c) => c.id));
+
 // Carries (#101): the 16 compare carries first; other main DPS are listed until they get an entry.
 const carries = {};
 for (const [id, spec] of Object.entries(CARRIES)) carries[id] = readCarry(id, spec);
@@ -1225,6 +1377,7 @@ writeFileSync(
         source: nightsoulRule.source,
         characters: nightsoulBurst,
       },
+      fightingSpirit,
       stellar,
       subDps,
       carries,

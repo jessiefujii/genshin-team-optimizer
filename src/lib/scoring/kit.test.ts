@@ -20,6 +20,18 @@ test("every tagged buffer has a kit entry with readable values", () => {
   }
 });
 
+// Mavuika's Fighting Spirit (#116): every other Nightsoul member gives her a sourced number of points per rotation.
+test("every Nightsoul member has sourced Fighting Spirit points", () => {
+  const fs = (kit as unknown as { fightingSpirit: { limit: number; burstMin: number; own: { points: number }; teammates: Record<string, { points: number; source: string }> } }).fightingSpirit;
+  expect([fs.limit, fs.burstMin, fs.own.points]).toEqual([200, 100, 80]);
+  const nightsoul = tags.filter((c) => (c.families ?? []).includes("nightsoul") && c.id !== "Mavuika").map((c) => c.id);
+  expect(Object.keys(fs.teammates).sort()).toEqual(nightsoul.sort());
+  for (const [id, t] of Object.entries(fs.teammates)) {
+    expect(t.points, id).toBeGreaterThan(0);
+    expect(t.source, id).toMatch(/\S/);
+  }
+});
+
 // Each Moonsign Benediction raises the party's Moonsign by 1 level, which is how ascendantGleamLines counts
 // it: so every Moonsign family member must have one, and nobody else.
 test("the Moonsign family is exactly the characters with a Moonsign Benediction", { timeout: 60_000 }, async () => {
