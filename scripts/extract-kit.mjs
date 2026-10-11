@@ -856,7 +856,8 @@ function readSubDps(id, specs) {
 //     for buffs added per hit; default 1), count "rate" (kit-overrides.json hitRates, keyed "carry: <label>")
 //   buffs: the carry's own buffs during those hits:
 //     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types), addPerStack (+ATK multiplier per stack per hit
-//     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino)
+//     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino),
+//     flatAtk (+ATK multiplier x stacks per hit, capped, while one of `reactions` is active: Clorinde)
 // The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
 // Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer.
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
@@ -936,6 +937,8 @@ const CARRIES = {
     buffs: [
       { kind: "addPerStack", table: "burst", label: "Sunfell Slice DMG Bonus", stacks: "Fighting Spirit Limit", hits: "sunfell" },
       { kind: "addPerStack", table: "burst", label: "Flamestrider Normal Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "na" },
+      // Passive 2: the active character (her too) deals up to 40% more DMG at 200 Fighting Spirit after her Burst.
+      { kind: "dmgBonus", from: "passive2", re: /maximum increase obtainable this way is (\d+)%/, types: [SK, BU, N, CH, PL] },
     ],
   },
   Zibai: {
@@ -972,7 +975,18 @@ const CARRIES = {
       { table: "skill", label: "Swift Hunt DMG", pick: 1, count: 10, type: N },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
     ],
-    buffs: [],
+    // Passive 1: after an Electro-related reaction, +20% ATK per stack (3) on Normal Attacks and the Burst, up to 1,800.
+    buffs: [
+      {
+        kind: "flatAtk",
+        from: "passive1",
+        re: /increased by (\d+)% of Clorinde's ATK/,
+        stacks: /Max (\d+) stacks/,
+        cap: /achievable this way for the above attacks is ([\d,]+)/,
+        types: [N, BU],
+        reactions: ["overloaded", "superconduct", "electrocharged", "quicken", "aggravate", "hyperbloom", "lunar-charged", "stellar-conduct"],
+      },
+    ],
   },
   Flins: {
     // E (Manifest Flame), E (Northland Spearstorm), Q (Thunderous Symphony within 6s of it). His tags list no Normal
@@ -1053,7 +1067,7 @@ function readCarry(id, spec) {
   const num = (from, re) => {
     const m = text(from).match(re);
     if (!m) throw new Error(`${id}: pattern ${re} not found in ${from}`);
-    return Number(m[1]);
+    return Number(m[1].replace(/,/g, "")); // "1,800"
   };
   const missing = [];
   const hits = [];
@@ -1105,6 +1119,8 @@ function readCarry(id, spec) {
         return { kind: b.kind, perPercent: num(b.from, b.re) / 100 };
       case "dmgBonusPerEm":
         return { kind: b.kind, perEm: num(b.from, b.re) / 100, max: num(b.from, b.max) / 100, types: b.types, labels: b.labels };
+      case "flatAtk":
+        return { kind: b.kind, value: round((num(b.from, b.re) / 100) * num(b.from, b.stacks)), cap: num(b.from, b.cap), types: b.types, reactions: b.reactions };
       case "masque":
         return { kind: b.kind, ratio: raw(b.table, b.label), start: num(b.start.from, b.start.re) / 100, use: num(b.use.from, b.use.re) / 100 };
       default:

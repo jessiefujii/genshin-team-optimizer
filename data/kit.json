@@ -3080,6 +3080,17 @@
           "value": 0.00474,
           "stacks": 200,
           "tag": "na"
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.4,
+          "types": [
+            "skill",
+            "burst",
+            "normal",
+            "charged",
+            "plunge"
+          ]
         }
       ]
     },
@@ -3295,7 +3306,27 @@
           "count": 1
         }
       ],
-      "buffs": []
+      "buffs": [
+        {
+          "kind": "flatAtk",
+          "value": 0.6,
+          "cap": 1800,
+          "types": [
+            "normal",
+            "burst"
+          ],
+          "reactions": [
+            "overloaded",
+            "superconduct",
+            "electrocharged",
+            "quicken",
+            "aggravate",
+            "hyperbloom",
+            "lunar-charged",
+            "stellar-conduct"
+          ]
+        }
+      ]
     },
     "Flins": {
       "rotationSeconds": 20,
