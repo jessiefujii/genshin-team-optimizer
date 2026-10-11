@@ -2033,6 +2033,7 @@
           "every": 2.9,
           "duration": 30,
           "times": 1.4,
+          "timesNeedsHealer": true,
           "cd": 20,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Gentilhomme Usher Will attack if target is within 6m, with 2.9s CD.\""
         },
@@ -2045,6 +2046,7 @@
           "every": 1.19,
           "duration": 30,
           "times": 1.4,
+          "timesNeedsHealer": true,
           "cd": 20,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Surintendante Chevalmarin Will attack if target is within 9.5m, with 1.19s CD.\""
         },
@@ -2057,6 +2059,7 @@
           "every": 4.8,
           "duration": 30,
           "times": 1.4,
+          "timesNeedsHealer": true,
           "cd": 20,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Mademoiselle Crabaletta Will attack if target is within 20m, with 4.8s CD.\""
         },

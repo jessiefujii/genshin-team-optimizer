@@ -399,6 +399,15 @@ describe("scoreTeam", () => {
   });
 });
 
+describe("sub-DPS (#96)", () => {
+  test("Furina's Salon bonus needs another healer to keep members above 50% HP (#130)", () => {
+    const share = (...ids: string[]) =>
+      Number(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Furina"))?.reason.match(/~\+(\d+)%/)?.[1]);
+    // Same carry and supports' elements; Bennett heals, Xiangling doesn't.
+    expect(share("Neuvillette", "Furina", "Bennett", "Kaedehara Kazuha")).toBeGreaterThan(share("Neuvillette", "Furina", "Xiangling", "Kaedehara Kazuha"));
+  });
+});
+
 describe("talent levels (#25)", () => {
   const talents = (normal: number, skill: number, burst: number) => ({ normal, skill, burst });
   // The team from team(...ids), with talent levels set for the named members.

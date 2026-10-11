@@ -717,7 +717,8 @@ function readStellar(id, spec) {
 //   every: seconds between hits while it lasts: a pattern in the text, a table label, or "rate"; with duration
 //   onCarryNormal: it hits when the active character's Normal Attacks hit (Xingqiu, Yelan, Beidou), at most once per
 //       `every`; with `hits` too, that many hits each time (Xingqiu's swords per wave)
-//   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP)
+//   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP); timesNeedsHealer: only
+//       when another healer keeps them there
 //   needsReaction: it only fires after the party triggers a reaction (Nahida's Tri-Karma Purification)
 const SUBDPS = {
   Aino: [
@@ -809,6 +810,9 @@ const SUBDPS = {
       duration: "Duration",
       cd: "CD",
       times: /(\d+)% of their original DMG/, // the 4-character value of "110%/120%/130%/140%"
+      // Only members above 50% HP count, and the Salon drains them to 50%: without another healer they stay there
+      // after the first rotation, so the bonus needs a healer (#130), like her Fanfare ceiling.
+      timesNeedsHealer: true,
     })),
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
   ],
@@ -995,6 +999,7 @@ function readSubDps(id, specs) {
       ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
       ...(s.needsReaction && fromTextRaw(s.needsReaction) ? { needsReaction: true } : {}),
       ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
+      ...(s.timesNeedsHealer ? { timesNeedsHealer: true } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
     });

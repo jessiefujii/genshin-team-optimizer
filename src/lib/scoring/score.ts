@@ -608,16 +608,20 @@ interface SubDpsSource {
   onCarryNormal?: boolean;
   needsReaction?: boolean;
   times?: number;
+  timesNeedsHealer?: boolean;
   cd: number;
 }
 const SUB_DPS = kitJson.subDps as Record<string, { sources: SubDpsSource[]; missing?: string[] }>;
 
 // Hits per second of one source, averaged over its cooldown; 0 when it can't fire in this team.
-function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext): number {
+function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
   if (s.onCarryNormal && !normalAttacks(carry)) return 0; // Xingqiu's rain swords need the carry's Normal Attacks
   if (s.needsReaction && ctx.active.length === 0) return 0; // Nahida's Tri-Karma needs a reaction
   const perUse = s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1;
-  return ((s.hits ?? 1) * perUse * (s.times ?? 1)) / s.cd;
+  // Furina's Salon bonus needs members above 50% HP, which takes another healer (#130).
+  const healed = ctx.members.some((m) => m !== sub && m.roles.includes("healer"));
+  const times = s.timesNeedsHealer && !healed ? 1 : (s.times ?? 1);
+  return ((s.hits ?? 1) * perUse * times) / s.cd;
 }
 
 // The carry's own damage per second (damage.ts, #101), or null when it isn't modeled yet: no kit data, or hits still
@@ -646,7 +650,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     let dps = 0;
     for (const s of entry.sources) {
       const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
-      dps += perHit * hitsPerSecond(s, carry, ctx);
+      dps += perHit * hitsPerSecond(s, carry, ctx, m);
     }
     dps *= 1 + dmgBonus;
     const gain = dps / carryDps;
