@@ -2884,7 +2884,7 @@
           "scaling": {
             "atk": 0.980327
           },
-          "count": 2
+          "count": 5
         },
         {
           "label": "2-Hit DMG",
@@ -2892,7 +2892,7 @@
           "scaling": {
             "atk": 0.95165
           },
-          "count": 2
+          "count": 5
         },
         {
           "label": "3-Hit DMG",
@@ -2900,23 +2900,7 @@
           "scaling": {
             "atk": 1.235023
           },
-          "count": 2
-        },
-        {
-          "label": "4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.392754
-          },
-          "count": 1
-        },
-        {
-          "label": "5-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.667121
-          },
-          "count": 1
+          "count": 5
         },
         {
           "label": "Charged Attack DMG",
@@ -2924,7 +2908,7 @@
           "scaling": {
             "atk": 2.60032
           },
-          "count": 1
+          "count": 5
         },
         {
           "label": "Skill DMG",
@@ -2932,7 +2916,7 @@
           "scaling": {
             "atk": 10.812
           },
-          "count": 1
+          "count": 0.5
         },
         {
           "label": "Surging Blade DMG",
@@ -2940,7 +2924,7 @@
           "scaling": {
             "atk": 0.7208
           },
-          "count": 1
+          "count": 0.5
         }
       ],
       "buffs": [
@@ -2956,7 +2940,8 @@
           "value": 0.5,
           "types": [
             "charged"
-          ]
+          ],
+          "hitsCap": 2
         },
         {
           "kind": "atkPct",
@@ -2973,7 +2958,15 @@
           "scaling": {
             "atk": 1.8088
           },
-          "count": 2
+          "count": 3
+        },
+        {
+          "label": "Fiery Passion Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 1.57488
+          },
+          "count": 3
         },
         {
           "label": "Fiery Passion Low/High Plunge DMG",
@@ -2989,15 +2982,47 @@
           "scaling": {
             "atk": 1.8
           },
+          "count": 3
+        },
+        {
+          "label": "Rush DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.26616
+          },
           "count": 2
         },
         {
-          "label": "Fiery Passion Flying Kick DMG",
-          "type": "burst",
+          "label": "Charged Attack DMG",
+          "type": "charged",
           "scaling": {
-            "atk": 9.7784
+            "atk": 1.51776
           },
-          "count": 1
+          "count": 4
+        },
+        {
+          "label": "Low/High Plunge DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 3.422517
+          },
+          "count": 4
+        },
+        {
+          "label": "passive1 bonus",
+          "type": "plunge",
+          "scaling": {
+            "atk": 0.5
+          },
+          "count": 2
+        },
+        {
+          "label": "Volcano Kablam DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 6.84488
+          },
+          "count": 2
         }
       ],
       "buffs": []
@@ -3023,49 +3048,22 @@
           "tag": "sunfell"
         },
         {
-          "label": "Flamestrider Normal Attack 1-Hit DMG",
-          "type": "normal",
+          "label": "Flamestrider Charged Attack Cyclic DMG",
+          "type": "charged",
           "scaling": {
-            "atk": 1.052075
+            "atk": 1.817
           },
-          "count": 2,
-          "tag": "na"
+          "count": 8,
+          "tag": "ca"
         },
         {
-          "label": "Flamestrider Normal Attack 2-Hit DMG",
-          "type": "normal",
+          "label": "Flamestrider Charged Attack Final DMG",
+          "type": "charged",
           "scaling": {
-            "atk": 1.086392
+            "atk": 2.528
           },
-          "count": 2,
-          "tag": "na"
-        },
-        {
-          "label": "Flamestrider Normal Attack 3-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.285804
-          },
-          "count": 2,
-          "tag": "na"
-        },
-        {
-          "label": "Flamestrider Normal Attack 4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.280622
-          },
-          "count": 2,
-          "tag": "na"
-        },
-        {
-          "label": "Flamestrider Normal Attack 5-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.671924
-          },
-          "count": 2,
-          "tag": "na"
+          "count": 1,
+          "tag": "ca"
         }
       ],
       "buffs": [
@@ -3073,13 +3071,15 @@
           "kind": "addPerStack",
           "value": 0.0272,
           "stacks": 200,
-          "tag": "sunfell"
+          "tag": "sunfell",
+          "fightingSpirit": true
         },
         {
           "kind": "addPerStack",
-          "value": 0.00474,
+          "value": 0.00948,
           "stacks": 200,
-          "tag": "na"
+          "tag": "ca",
+          "fightingSpirit": true
         },
         {
           "kind": "dmgBonus",
@@ -3090,7 +3090,8 @@
             "normal",
             "charged",
             "plunge"
-          ]
+          ],
+          "fightingSpirit": true
         }
       ]
     },
@@ -3295,7 +3296,24 @@
           "scaling": {
             "atk": 0.71258
           },
-          "count": 10
+          "count": 18
+        },
+        {
+          "label": "Impale the Night DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.38408
+          },
+          "count": 6,
+          "instances": 3
+        },
+        {
+          "label": "Surging Blade DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.7344
+          },
+          "count": 1
         },
         {
           "label": "Skill DMG",
@@ -3303,7 +3321,8 @@
           "scaling": {
             "atk": 10.7848
           },
-          "count": 1
+          "count": 1,
+          "instances": 5
         }
       ],
       "buffs": [

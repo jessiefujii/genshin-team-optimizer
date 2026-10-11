@@ -595,7 +595,7 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N x10",
+        "6[N3E]",
         "Q"
       ]
     }
@@ -2137,7 +2137,7 @@
       "actions": [
         "E",
         "Q",
-        "N x10"
+        "C8F"
       ]
     },
     "notes": "Burst uses Fighting Spirit, not Energy."
@@ -3205,12 +3205,10 @@
     "rotation": {
       "slot": "carry",
       "actions": [
-        "E",
-        "plunge",
-        "E",
-        "plunge",
-        "Q",
-        "plunge"
+        "ECP sQ",
+        "ECP ECP sQ",
+        "ECP ECP",
+        "CP CP"
       ]
     }
   },
@@ -3432,8 +3430,7 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N x8",
-        "CA",
+        "5[N3C]",
         "Q"
       ]
     }

@@ -904,41 +904,56 @@ const CARRIES = {
     ],
   },
   Wriothesley: {
-    // E, N x8 (enhanced by Chilling Penalty), CA (Rebuke: Vaulting Fist, +50% DMG), Q.
+    // KeqingMains' strongest C0 combo outside Stellar-Conduct teams (pasted by Jessie 2026-10-12): "E 5–6[N3C(J)]"
+    // in Chilling Penalty, "Replace the final N3C with Q every other rotation". Took 5 chains (the low end), so
+    // 5 N3C plus half a Burst (and its Surging Blade) per rotation. His Stellar-Conduct combos (E 3[N5CD] N2): #114.
     hits: [
-      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG", "5-Hit DMG"].map((label, i) => ({ table: "normal", label, count: i < 3 ? 2 : 1, type: N })),
-      { table: "normal", label: "Charged Attack DMG", count: 1, type: CH },
-      { table: "burst", label: "Skill DMG", count: 1, type: BU },
-      { table: "burst", label: "Surging Blade DMG", count: 1, type: BU },
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG"].map((label) => ({ table: "normal", label, count: 5, type: N })),
+      { table: "normal", label: "Charged Attack DMG", count: 5, type: CH },
+      { table: "burst", label: "Skill DMG", count: 0.5, type: BU },
+      { table: "burst", label: "Surging Blade DMG", count: 0.5, type: BU },
     ],
     buffs: [
       { kind: "factor", table: "skill", label: "Enhanced Repelling Fist DMG", types: [N] },
-      { kind: "dmgBonus", from: "passive1", re: /will deal (\d+)% increased DMG/, types: [CH] },
+      // Rebuke: Vaulting Fist, at most once every 5s: 2 of the 5 Charged Attacks in Chilling Penalty's 10s.
+      { kind: "dmgBonus", from: "passive1", re: /will deal (\d+)% increased DMG/, types: [CH], hitsCap: 2 },
       { kind: "atkPct", from: "passive2", re: /increase Wriothesley's ATK by (\d+)%/, times: /Max (\d+) stacks/ }, // full stacks
     ],
   },
   Varesa: {
-    // E, plunge, E, plunge, Q, plunge, in Fiery Passion. Her passive 1 adds 180% ATK to the plunge after each Skill.
+    // KeqingMains' "most basic and consistent full combo at C0" (pasted by Jessie 2026-10-12):
+    // ECP (sQ) ECP ECP (sQ) ECP ECP (sQ) CP CP. E = Skill (Rush), C = the Charged Attack it unlocks, P = plunge,
+    // sQ = the short Burst Volcano Kablam (30 Energy, Plunging Attack DMG, only right after a Fiery Passion plunge).
+    // Each ECP outside Fiery Passion fills her Nightsoul points and enters it (an extra Skill charge), so 3 ECPs are
+    // in Fiery Passion and 2 are not; the closing CP CP have no Skill (no passive 1) and enter it for the next
+    // rotation. KQM: ideally 2 sQ per rotation (Jessie), not all 3 (Energy, #37). No full Burst. Combos by team: #114.
     hits: [
-      { table: "skill", label: "Fiery Passion Rush DMG", count: 2, type: SK },
+      { table: "skill", label: "Fiery Passion Rush DMG", count: 3, type: SK },
+      { table: "normal", label: "Fiery Passion Charged Attack DMG", count: 3, type: CH },
       { table: "normal", label: "Fiery Passion Low/High Plunge DMG", pick: 1, count: 3, type: PL },
-      { from: "passive1", re: /Fiery Passion state, this ground impact DMG is increased by (\d+)% of her ATK/, count: 2, type: PL },
-      { table: "burst", label: "Fiery Passion Flying Kick DMG", count: 1, type: BU },
+      { from: "passive1", re: /Fiery Passion state, this ground impact DMG is increased by (\d+)% of her ATK/, count: 3, type: PL },
+      { table: "skill", label: "Rush DMG", count: 2, type: SK },
+      { table: "normal", label: "Charged Attack DMG", count: 4, type: CH },
+      { table: "normal", label: "Low/High Plunge DMG", pick: 1, count: 4, type: PL },
+      { from: "passive1", re: /Plunging Attack, the shockwave DMG dealt when she hits the ground is increased by (\d+)% of her ATK/, count: 2, type: PL },
+      { table: "burst", label: "Volcano Kablam DMG", count: 2, type: PL },
     ],
     buffs: [],
   },
   Mavuika: {
-    // E (hold: Flamestrider), Q (Sunfell Slice), N x10 on the Flamestrider. Fighting Spirit 200 (she Normal Attacks).
+    // E (hold: Flamestrider), Q (Sunfell Slice), C8F on the Flamestrider (KQM's simplest combo; by team: #114).
+    // Buffs marked fightingSpirit are read at the limit here; the scorer scales them by the team's Fighting Spirit.
     hits: [
       { table: "skill", label: "Skill DMG", count: 1, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU, fightingSpirit: "sunfell" },
-      ...[1, 2, 3, 4, 5].map((n) => ({ table: "skill", label: `Flamestrider Normal Attack ${n}-Hit DMG`, count: 2, type: N, fightingSpirit: "na" })),
+      { table: "skill", label: "Flamestrider Charged Attack Cyclic DMG", count: "rate", type: CH, fightingSpirit: "ca" },
+      { table: "skill", label: "Flamestrider Charged Attack Final DMG", count: "rate", type: CH, fightingSpirit: "ca" },
     ],
     buffs: [
-      { kind: "addPerStack", table: "burst", label: "Sunfell Slice DMG Bonus", stacks: "Fighting Spirit Limit", hits: "sunfell" },
-      { kind: "addPerStack", table: "burst", label: "Flamestrider Normal Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "na" },
+      { kind: "addPerStack", table: "burst", label: "Sunfell Slice DMG Bonus", stacks: "Fighting Spirit Limit", hits: "sunfell", fightingSpirit: true },
+      { kind: "addPerStack", table: "burst", label: "Flamestrider Charged Attack DMG Bonus", stacks: "Fighting Spirit Limit", hits: "ca", fightingSpirit: true },
       // Passive 2: the active character (her too) deals up to 40% more DMG at 200 Fighting Spirit after her Burst.
-      { kind: "dmgBonus", from: "passive2", re: /maximum increase obtainable this way is (\d+)%/, types: [SK, BU, N, CH, PL] },
+      { kind: "dmgBonus", from: "passive2", re: /maximum increase obtainable this way is (\d+)%/, types: [SK, BU, N, CH, PL], fightingSpirit: true },
     ],
   },
   Zibai: {
@@ -969,11 +984,16 @@ const CARRIES = {
     buffs: [],
   },
   Clorinde: {
-    // E (Night Vigil), N x10 as Swift Hunt shots. Before her Burst her Bond of Life is under 100%, so the shots pierce
-    // and deal increased DMG: the second "Swift Hunt DMG" value.
+    // E (Night Vigil), 6[N3E], Q: KeqingMains' basic combo from 0% Bond of Life (pasted by Jessie 2026-10-12: "E to
+    // activate her special Skill state, then N3E until her special Skill state ends. The average player can execute
+    // E 6[N3E]"). Each shot adds 35% Bond of Life, so all 18 start under 100%: they pierce for the second "Swift Hunt
+    // DMG" value. The Impale the Night after them is at 100%+ (Pact: the third value, x3) and counts as Normal Attack
+    // DMG. One Surging Blade: its 10s interval is longer than Night Vigil's 7.5s. The Burst is 5 hits.
     hits: [
-      { table: "skill", label: "Swift Hunt DMG", pick: 1, count: 10, type: N },
-      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "skill", label: "Swift Hunt DMG", pick: 1, count: 18, type: N },
+      { table: "skill", label: "Impale the Night DMG", pick: 2, count: 6, type: N, instances: 3 },
+      { table: "skill", label: "Surging Blade DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU, instances: 5 },
     ],
     // Passive 1: after an Electro-related reaction, +20% ATK per stack (3) on Normal Attacks and the Burst, up to 1,800.
     buffs: [
@@ -1102,12 +1122,12 @@ function readCarry(id, spec) {
         return { kind: b.kind, value: raw(b.table, b.label), capOfBase: num(COMBAT[b.table], b.cap) / 100 };
       case "addPerStack": {
         const stacks = typeof b.stacks === "string" ? tableValue(tableAttrs(b.table), b.stacks, id) : num(COMBAT[b.table], b.stacks);
-        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits };
+        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits, ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
       }
       case "dmgBonus": {
         const value = b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick));
-        const cap = b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
-        return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}) };
+        const cap = typeof b.hitsCap === "number" ? b.hitsCap : b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
+        return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}), ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
       }
       case "factor":
         return { kind: b.kind, value: raw(b.table, b.label), types: b.types };

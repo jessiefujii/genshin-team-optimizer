@@ -24,6 +24,14 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(huTao, ["vaporize"])!.perSecond).toBeGreaterThan(carryDamage(huTao, [])!.perSecond * 1.3);
   });
 
+  test("Mavuika's own damage grows with the Fighting Spirit her team builds", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const mavuika = byId.get("Mavuika")!;
+    const none = carryDamage(mavuika, [], team("Mavuika", "Bennett", "Furina", "Xingqiu"))!.perSecond;
+    const two = carryDamage(mavuika, [], team("Mavuika", "Citlali", "Xilonen", "Bennett"))!.perSecond;
+    expect(two).toBeGreaterThan(none * 1.2);
+  });
+
   test("a build's stats change the damage", () => {
     const raiden = byId.get("Raiden Shogun")!;
     const built: ScoringCharacter = {

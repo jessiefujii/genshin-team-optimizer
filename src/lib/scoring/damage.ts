@@ -3,6 +3,7 @@
 // enemy RES/DEF (left out on both sides of the comparison), talent level 9, C0.
 import kitJson from "../../../data/kit.json";
 import { BENCHMARK } from "./benchmark";
+import { fightingSpirit } from "./kit";
 import { mainReactionOf } from "./reactions";
 import type { Element, Reaction, ScoringCharacter } from "./types";
 
@@ -17,8 +18,8 @@ interface CarryHit {
 }
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
-  | { kind: "addPerStack"; value: number; stacks: number; tag: string }
-  | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number }
+  | { kind: "addPerStack"; value: number; stacks: number; tag: string; fightingSpirit?: boolean }
+  | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number; fightingSpirit?: boolean }
   | { kind: "factor"; value: number; types: HitType[] }
   | { kind: "atkPct"; value: number }
   | { kind: "dmgBonusFromEr"; perPercent: number }
@@ -72,12 +73,18 @@ export interface CarryDamage {
   missing: string[]; // hits left out for lack of a source
 }
 
+// Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,
+// the same estimate as her buff to other carries (kit.ts).
+const FIGHTING_SPIRIT_MAX = 200;
+
 // The carry's damage per second, or null when kit.json has no entry for them yet (carriesTodo).
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
-export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = []): CarryDamage | null {
+// `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit); default: the carry alone.
+export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [], team: readonly ScoringCharacter[] = [c]): CarryDamage | null {
   const kit = CARRIES[c.id];
   if (!kit) return null;
   const s = carryStats(c);
+  const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_MAX : 1;
   let atk = s.atk;
   for (const b of kit.buffs) {
     if (b.kind === "atkFromHp") atk += Math.min(b.value * s.hp, b.capOfBase * s.baseAtk);
@@ -91,12 +98,12 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
     let bonus = s.dmgBonus;
     let factor = 1;
     for (const b of kit.buffs) {
-      if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (h.instances ?? 1) * atk;
+      if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * atk;
       if (b.kind === "flatAtk" && b.types.includes(h.type) && b.reactions.some((r) => active.includes(r)))
-        perHit += Math.min(b.value * atk, b.cap);
+        perHit += Math.min(b.value * atk, b.cap) * (h.instances ?? 1); // per hit instance (Clorinde's Impale: 3)
       if (b.kind === "dmgBonus" && b.types.includes(h.type)) {
         const share = b.hitsCap ? Math.min(1, b.hitsCap / instancesOf(b.types)) : 1;
-        bonus += b.value * share;
+        bonus += b.value * share * (b.fightingSpirit ? fsShare : 1);
       }
       if (b.kind === "dmgBonusFromEr") bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * s.em);
