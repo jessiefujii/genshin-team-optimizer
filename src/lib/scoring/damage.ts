@@ -3,7 +3,7 @@
 // enemy RES/DEF (left out on both sides of the comparison), talent level 9, C0.
 import kitJson from "../../../data/kit.json";
 import { BENCHMARK } from "./benchmark";
-import { fightingSpirit } from "./kit";
+import { FIGHTING_SPIRIT_LIMIT, fightingSpirit } from "./kit";
 import { mainReactionOf } from "./reactions";
 import type { Element, Reaction, ScoringCharacter } from "./types";
 
@@ -109,8 +109,8 @@ export interface CarryDamage {
 }
 
 // Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,
-// the same estimate as her buff to other carries (kit.ts).
-const FIGHTING_SPIRIT_MAX = 200;
+// the same value as her buff to other carries (kit.ts). Under the 100 her Burst needs it is 0: no Burst that
+// rotation (KQM's "E only"), so her Burst hits drop out too and only her Skill's Flamestrider damage counts (#116).
 
 // The carry's damage per second, or null when kit.json has no entry for them yet (carriesTodo).
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
@@ -120,7 +120,7 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
   if (!CARRIES[c.id]) return null;
   const { kit, combo, reaction } = pickCombo(CARRIES[c.id], c, active, team);
   const s = carryStats(c);
-  const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_MAX : 1;
+  const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;
   let atk = s.atk;
   for (const b of kit.buffs) {
     if (b.kind === "atkFromHp") atk += Math.min(b.value * s.hp, b.capOfBase * s.baseAtk);
@@ -131,6 +131,7 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
   const amp = amplifyGain(c, s.em, active, reaction ?? mainReactionOf(c));
   let total = 0;
   for (const h of kit.hits) {
+    if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * s.em;
     let bonus = s.dmgBonus;
     let factor = 1;

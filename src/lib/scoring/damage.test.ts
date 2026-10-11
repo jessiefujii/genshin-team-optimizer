@@ -27,9 +27,12 @@ describe("carry damage (#101)", () => {
   test("Mavuika's own damage grows with the Fighting Spirit her team builds", () => {
     const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
     const mavuika = byId.get("Mavuika")!;
+    // No other Nightsoul member: her Skill's 80 is under the 100 her Burst needs, so E only: no Burst hits (#116).
     const none = carryDamage(mavuika, [], team("Mavuika", "Bennett", "Furina", "Xingqiu"))!.perSecond;
-    const two = carryDamage(mavuika, [], team("Mavuika", "Citlali", "Xilonen", "Bennett"))!.perSecond;
-    expect(two).toBeGreaterThan(none * 1.2);
+    const one = carryDamage(mavuika, [], team("Mavuika", "Furina", "Xilonen", "Bennett"))!.perSecond; // 80 + 90 = 170
+    const two = carryDamage(mavuika, [], team("Mavuika", "Citlali", "Xilonen", "Bennett"))!.perSecond; // 200, the limit
+    expect(one).toBeGreaterThan(none * 2);
+    expect(two).toBeGreaterThan(one * 1.05);
   });
 
   describe("the carry's combo is picked by team (#114)", () => {
