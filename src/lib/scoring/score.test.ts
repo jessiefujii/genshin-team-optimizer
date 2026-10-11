@@ -455,7 +455,7 @@ describe("talent levels (#25)", () => {
       Number(score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Furina"))?.reason.match(/~\+(\d+)%/)?.[1] ?? 0);
     // Without a healer her Salon Members drain each member to 50% HP at most: 200 of 300 Fanfare.
     const healer = pct("Hu Tao", "Furina", "Bennett", "Zhongli");
-    const noHealer = pct("Hu Tao", "Furina", "Yelan", "Zhongli"); // not Xingqiu: his Rain Swords heal (#111)
+    const noHealer = pct("Hu Tao", "Furina", "Xingqiu", "Zhongli"); // his Rain Sword heals are too small for Fanfare
     expect(healer).toBeGreaterThan(noHealer);
     expect(healer).toBeLessThan(43); // what max Fanfare all Burst gave before #90
   });
