@@ -3430,8 +3430,7 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N x8",
-        "CA",
+        "5[N3C]",
         "Q"
       ]
     }

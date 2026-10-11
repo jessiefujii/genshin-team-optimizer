@@ -2884,7 +2884,7 @@
           "scaling": {
             "atk": 0.980327
           },
-          "count": 2
+          "count": 5
         },
         {
           "label": "2-Hit DMG",
@@ -2892,7 +2892,7 @@
           "scaling": {
             "atk": 0.95165
           },
-          "count": 2
+          "count": 5
         },
         {
           "label": "3-Hit DMG",
@@ -2900,23 +2900,7 @@
           "scaling": {
             "atk": 1.235023
           },
-          "count": 2
-        },
-        {
-          "label": "4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.392754
-          },
-          "count": 1
-        },
-        {
-          "label": "5-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.667121
-          },
-          "count": 1
+          "count": 5
         },
         {
           "label": "Charged Attack DMG",
@@ -2924,7 +2908,7 @@
           "scaling": {
             "atk": 2.60032
           },
-          "count": 1
+          "count": 5
         },
         {
           "label": "Skill DMG",
@@ -2932,7 +2916,7 @@
           "scaling": {
             "atk": 10.812
           },
-          "count": 1
+          "count": 0.5
         },
         {
           "label": "Surging Blade DMG",
@@ -2940,7 +2924,7 @@
           "scaling": {
             "atk": 0.7208
           },
-          "count": 1
+          "count": 0.5
         }
       ],
       "buffs": [
@@ -2956,7 +2940,8 @@
           "value": 0.5,
           "types": [
             "charged"
-          ]
+          ],
+          "hitsCap": 2
         },
         {
           "kind": "atkPct",

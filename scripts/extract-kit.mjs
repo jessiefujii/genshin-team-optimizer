@@ -904,16 +904,19 @@ const CARRIES = {
     ],
   },
   Wriothesley: {
-    // E, N x8 (enhanced by Chilling Penalty), CA (Rebuke: Vaulting Fist, +50% DMG), Q.
+    // KeqingMains' strongest C0 combo outside Stellar-Conduct teams (pasted by Jessie 2026-10-12): "E 5–6[N3C(J)]"
+    // in Chilling Penalty, "Replace the final N3C with Q every other rotation". Took 5 chains (the low end), so
+    // 5 N3C plus half a Burst (and its Surging Blade) per rotation. His Stellar-Conduct combos (E 3[N5CD] N2): #114.
     hits: [
-      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG", "5-Hit DMG"].map((label, i) => ({ table: "normal", label, count: i < 3 ? 2 : 1, type: N })),
-      { table: "normal", label: "Charged Attack DMG", count: 1, type: CH },
-      { table: "burst", label: "Skill DMG", count: 1, type: BU },
-      { table: "burst", label: "Surging Blade DMG", count: 1, type: BU },
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG"].map((label) => ({ table: "normal", label, count: 5, type: N })),
+      { table: "normal", label: "Charged Attack DMG", count: 5, type: CH },
+      { table: "burst", label: "Skill DMG", count: 0.5, type: BU },
+      { table: "burst", label: "Surging Blade DMG", count: 0.5, type: BU },
     ],
     buffs: [
       { kind: "factor", table: "skill", label: "Enhanced Repelling Fist DMG", types: [N] },
-      { kind: "dmgBonus", from: "passive1", re: /will deal (\d+)% increased DMG/, types: [CH] },
+      // Rebuke: Vaulting Fist, at most once every 5s: 2 of the 5 Charged Attacks in Chilling Penalty's 10s.
+      { kind: "dmgBonus", from: "passive1", re: /will deal (\d+)% increased DMG/, types: [CH], hitsCap: 2 },
       { kind: "atkPct", from: "passive2", re: /increase Wriothesley's ATK by (\d+)%/, times: /Max (\d+) stacks/ }, // full stacks
     ],
   },
@@ -1123,7 +1126,7 @@ function readCarry(id, spec) {
       }
       case "dmgBonus": {
         const value = b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick));
-        const cap = b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
+        const cap = typeof b.hitsCap === "number" ? b.hitsCap : b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
         return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}) };
       }
       case "factor":
