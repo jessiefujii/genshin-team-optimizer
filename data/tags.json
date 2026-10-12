@@ -3184,9 +3184,10 @@
   {
     "id": "Traveler (Cryo)",
     "roles": [
+      "main-dps",
       "sub-dps"
     ],
-    "fieldTime": "off",
+    "fieldTime": "flex",
     "reactions": [
       "stellar-conduct",
       "stellar-swirl"
@@ -3200,6 +3201,7 @@
     "scalesOn": [
       "ATK"
     ],
+    "keyTalent": "normal",
     "families": [
       "stellar"
     ],
@@ -3210,7 +3212,7 @@
         "Q"
       ]
     },
-    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine. Wiki Character Roles: Off-Field DPS. Passive 3 converts the party's Superconduct and Cryo Swirl into Stellar-Conduct and Stellar Swirl; guides also play them on-field for Stellar-Conduct (bittopup 2026-08-14: 'On-field Conduct DPS / off-field Swirl sub-DPS', ER 120-140%)."
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine. Wiki Character Roles: Off-Field DPS; also main DPS (Jessie, data/role-overrides.json). Passive 3 converts the party's Superconduct and Cryo Swirl into Stellar-Conduct and Stellar Swirl; guides also play them on-field for Stellar-Conduct (bittopup 2026-08-14: 'On-field Conduct DPS / off-field Swirl sub-DPS', ER 120-140%). Key talent normal (bittopup 2026-08-14: 'Normal Attack = Burst >>> Skill'; on-field damage is the Burst and Freezing Ice, a Charged Attack): a tie, normal listed first."
   },
   {
     "id": "Varesa",
