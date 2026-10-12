@@ -383,8 +383,45 @@
     "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Chongyun": {
-    "constellation": 0,
-    "built": true
+    "constellation": 6,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 6,
+      "talents": {
+        "normal": 6,
+        "skill": 9,
+        "burst": 11
+      },
+      "weapon": {
+        "id": "Sacrificial Greatsword",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Blizzard Strayer",
+          "pieces": 2
+        },
+        {
+          "set": "Noblesse Oblige",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 17748,
+        "atk": 2017,
+        "def": 671,
+        "critRate": 11.6,
+        "critDmg": 71.7,
+        "energyRecharge": 152,
+        "elementalMastery": 91,
+        "elementalDmgBonus": 61.6,
+        "baseAtk": 772
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Collei": {
     "constellation": 6,
@@ -461,8 +498,41 @@
     "updatedAt": "2026-10-12T00:00:00.000Z"
   },
   "Cyno": {
-    "constellation": 0,
-    "built": true
+    "constellation": 1,
+    "built": true,
+    "build": {
+      "level": 71,
+      "ascension": 5,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 5
+      },
+      "weapon": {
+        "id": "White Tassel",
+        "level": 50,
+        "refinement": 2,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Gilded Dreams",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 14865,
+        "atk": 761,
+        "def": 908,
+        "critRate": 24.1,
+        "critDmg": 86.6,
+        "energyRecharge": 112.3,
+        "elementalMastery": 251,
+        "elementalDmgBonus": 40.7,
+        "baseAtk": 477
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Dahlia": {
     "constellation": 4,
@@ -729,8 +799,41 @@
     "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Fischl": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 71,
+      "ascension": 5,
+      "talents": {
+        "normal": 1,
+        "skill": 8,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Song of Stillness",
+        "level": 60,
+        "refinement": 1,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Golden Troupe",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 12730,
+        "atk": 1350,
+        "def": 667,
+        "critRate": 29.1,
+        "critDmg": 71,
+        "energyRecharge": 125.9,
+        "elementalMastery": 40,
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 554
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Flins": {
     "constellation": 0,
@@ -1070,8 +1173,41 @@
     "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Kaeya": {
-    "constellation": 0,
-    "built": true
+    "constellation": 2,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 4,
+        "skill": 5,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Skyward Blade",
+        "level": 46,
+        "refinement": 1,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Gladiator's Finale",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 22766,
+        "atk": 1282,
+        "def": 906,
+        "critRate": 15.2,
+        "critDmg": 62.4,
+        "energyRecharge": 188.3,
+        "elementalMastery": 96,
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 489
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Kamisato Ayaka": {
     "constellation": 1,
@@ -1869,16 +2005,115 @@
     "updatedAt": "2026-10-07T10:22:21.216Z"
   },
   "Razor": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 71,
+      "ascension": 5,
+      "talents": {
+        "normal": 4,
+        "skill": 6,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Favonius Greatsword",
+        "level": 60,
+        "refinement": 5,
+        "ascension": 3
+      },
+      "artifactSets": [
+        {
+          "set": "Gladiator's Finale",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 12373,
+        "atk": 907,
+        "def": 760,
+        "critRate": 8.9,
+        "critDmg": 77.2,
+        "energyRecharge": 165.2,
+        "elementalMastery": 0,
+        "elementalDmgBonus": 7,
+        "baseAtk": 485
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Rosaria": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 4,
+        "skill": 8,
+        "burst": 10
+      },
+      "weapon": {
+        "id": "Dragonspine Spear",
+        "level": 70,
+        "refinement": 1,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Noblesse Oblige",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 14617,
+        "atk": 1310,
+        "def": 781,
+        "critRate": 15.5,
+        "critDmg": 85.7,
+        "energyRecharge": 125.9,
+        "elementalMastery": 54,
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 559
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Sayu": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 71,
+      "ascension": 5,
+      "talents": {
+        "normal": 4,
+        "skill": 7,
+        "burst": 8
+      },
+      "weapon": {
+        "id": "Katsuragikiri Nagamasa",
+        "level": 50,
+        "refinement": 1,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 12174,
+        "atk": 625,
+        "def": 614,
+        "critRate": 11.6,
+        "critDmg": 70.2,
+        "energyRecharge": 151.2,
+        "elementalMastery": 116,
+        "elementalDmgBonus": 15,
+        "baseAtk": 467
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Sethos": {
     "constellation": 4,
@@ -1919,7 +2154,40 @@
   },
   "Shenhe": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 70,
+      "ascension": 4,
+      "talents": {
+        "normal": 1,
+        "skill": 6,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Tamayuratei no Ohanashi",
+        "level": 60,
+        "refinement": 5,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Noblesse Oblige",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 16881,
+        "atk": 1792,
+        "def": 936,
+        "critRate": 15.5,
+        "critDmg": 90.4,
+        "energyRecharge": 142.6,
+        "elementalMastery": 0,
+        "elementalDmgBonus": 0,
+        "baseAtk": 619
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Shikanoin Heizou": {
     "constellation": 1,
@@ -1993,7 +2261,7 @@
         "baseAtk": 545
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Tartaglia": {
     "constellation": 0,
@@ -2227,11 +2495,48 @@
         "baseAtk": 633
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Xinyan": {
-    "constellation": 0,
-    "built": true
+    "constellation": 4,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 5,
+        "skill": 8,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Luxurious Sea-Lord",
+        "level": 70,
+        "refinement": 5,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Pale Flame",
+          "pieces": 2
+        },
+        {
+          "set": "Bloodstained Chivalry",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 15932,
+        "atk": 1401,
+        "def": 1086,
+        "critRate": 43.1,
+        "critDmg": 99.7,
+        "energyRecharge": 116.2,
+        "elementalMastery": 61,
+        "elementalDmgBonus": 0,
+        "baseAtk": 567
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Yae Miko": {
     "constellation": 0,
@@ -2271,8 +2576,41 @@
     "updatedAt": "2026-10-12T16:00:00.000Z"
   },
   "Yanfei": {
-    "constellation": 0,
-    "built": false
+    "constellation": 5,
+    "built": false,
+    "build": {
+      "level": 71,
+      "ascension": 5,
+      "talents": {
+        "normal": 5,
+        "skill": 7,
+        "burst": 8
+      },
+      "weapon": {
+        "id": "Oathsworn Eye",
+        "level": 80,
+        "refinement": 5,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Wanderer's Troupe",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 8782,
+        "atk": 1099,
+        "def": 536,
+        "critRate": 19.4,
+        "critDmg": 57,
+        "energyRecharge": 110.4,
+        "elementalMastery": 103,
+        "elementalDmgBonus": 25,
+        "baseAtk": 694
+      }
+    },
+    "updatedAt": "2026-10-12T17:00:00.000Z"
   },
   "Yaoyao": {
     "constellation": 4,
