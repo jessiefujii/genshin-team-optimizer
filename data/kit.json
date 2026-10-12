@@ -3577,7 +3577,8 @@
             "def": 0.6
           },
           "count": 1,
-          "lunar": "lunar-crystallize"
+          "lunar": "lunar-crystallize",
+          "additive": true
         },
         {
           "label": "Skill 1-Hit DMG",
@@ -3758,6 +3759,29 @@
           "stat": "em",
           "perPoint": 0.000175,
           "max": 0.14
+        },
+        {
+          "kind": "baseDmgMultiplier",
+          "value": 0.24,
+          "labels": [
+            "Phantasm Performance 1-Hit DMG (Nefer)",
+            "Phantasm Performance 2-Hit DMG (Nefer)",
+            "Phantasm Performance 1-Hit DMG (Shades)",
+            "Phantasm Performance 2-Hit DMG (Shades)",
+            "Phantasm Performance 3-Hit DMG (Shades)"
+          ],
+          "when": {
+            "reaction": "lunar-bloom",
+            "ascendantGleam": true
+          }
+        },
+        {
+          "kind": "emBonus",
+          "value": 100,
+          "when": {
+            "reaction": "lunar-bloom",
+            "ascendantGleam": true
+          }
         }
       ]
     },
@@ -3899,6 +3923,14 @@
           "stat": "atk",
           "perPoint": 0.00007,
           "max": 0.14
+        },
+        {
+          "kind": "lunarReactionBonus",
+          "value": 0.2,
+          "reaction": "lunar-charged",
+          "when": {
+            "ascendantGleam": true
+          }
         }
       ]
     },

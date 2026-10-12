@@ -1064,7 +1064,10 @@ function readSubDps(id, specs) {
 //     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino),
 //     flatAtk (+ATK multiplier x stacks per hit, capped, while one of `reactions` is active: Clorinde),
 //     emFromAtk (EM from a share of ATK, capped: Flins), lunarBaseBonus (their Moonsign Benediction's Base DMG bonus
-//     to their Lunar reaction per point of a stat, capped: it also applies to their own direct Lunar hits, #135)
+//     to their Lunar reaction per point of a stat, capped: it also applies to their own direct Lunar hits, #135),
+//     lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar reaction: Flins), baseDmgMultiplier
+//     (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction, ascendantGleam }) gates it like a hit's.
+//   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
 //   missing: parts of the rotation not modeled yet, so the damage is too low (none left since #135)
 // The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
 // Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer, except
@@ -1247,14 +1250,18 @@ const CARRIES = {
     // KeqingMains quick guide (fetched 2026-10-12), C0: "E 4[N4E]; if Q is available, replace any N4 with N1 Q". The
     // rotation is her Burst's CD, so Q once: E 3[N4E] N1 Q E. Lunar-Crystallize DMG (#135): the 2nd hit of Spirit
     // Steed's Stride and of her Burst, and at Ascendant Gleam an extra hit on each N4 (Skill text: "considered
-    // Lunar-Crystallize Reaction DMG"). Passive 1 adds to the first Stride's 2nd hit, so it is Lunar too.
+    // Lunar-Crystallize Reaction DMG"). Passive 1 ("The DMG dealt by the 2nd hit of Spirit Steed's Stride is increased
+    // by 60% of Zibai's DEF") on the first Stride is a Reaction Additive Base DMG Bonus to that Lunar hit (Jessie, #146;
+    // KeqingMains' Zibai quick guide: "considered Additive Base DMG Bonus as part of the Lunar-Crystallize damage
+    // formula"; the wiki's Lunar-Crystallize page doesn't list it): the wiki's direct Lunar formula adds it after the
+    // coefficient, Base DMG bonus and EM bonus (Damage § Direct).
     hits: [
       { table: "skill", label: "Lunar Phase Shift 1-Hit DMG", count: 4, type: N },
       ...[2, 3, 4].map((n) => ({ table: "skill", label: `Lunar Phase Shift ${n}-Hit DMG`, count: 3, type: N })),
       { table: "skill", label: "Lunar Phase Shift 4-Hit Additional DMG", count: 3, type: N, lunar: "lunar-crystallize", when: { ascendantGleam: true } },
       { table: "skill", label: "Spirit Steed's Stride 1-Hit DMG", count: 4, type: SK },
       { table: "skill", label: "Spirit Steed's Stride 2-Hit DMG", count: 4, type: SK, lunar: "lunar-crystallize" },
-      { from: "passive1", re: /increased by (\d+)% of Zibai's DEF/, stat: "def", count: 1, type: SK, lunar: "lunar-crystallize" }, // the first Stride, within 4s of the Skill
+      { from: "passive1", re: /increased by (\d+)% of Zibai's DEF/, stat: "def", count: 1, type: SK, lunar: "lunar-crystallize", additive: true }, // the first Stride, within 4s of the Skill
       { table: "burst", label: "Skill 1-Hit DMG", count: 1, type: BU },
       { table: "burst", label: "Skill 2-Hit DMG", count: 1, type: BU, lunar: "lunar-crystallize" },
     ],
@@ -1283,6 +1290,19 @@ const CARRIES = {
     ],
     buffs: [
       { kind: "lunarBaseBonus", from: "passive3", re: /every point of Elemental Mastery that Nefer has increasing Lunar-Bloom's Base DMG by ([\d.]+)%/, per: 1, stat: "em", max: /maximum of (\d+)%/ },
+      // Veil of Falsehood (#148), estimate: 3 stacks for every Phantasm Performance. Passive 1 at Ascendant Gleam: her
+      // Charged Attacks absorb the Seeds of Deceit that Lunar-Bloom makes, 1 stack per seed; at 3 stacks EM +100 for
+      // 8s. Wiki tooltip: "Each stack of Veil of Falsehood increases the DMG dealt by Nefer's Phantasm Performance by
+      // 8%. The initial maximum number of stacks is 3". KeqingMains quick guide (fetched 2026-10-12): an "8% Base DMG
+      // Multiplier to Nefer's special Charged Attacks"; ideally 3 stacks from her first one, so +24% and 100 EM
+      // "throughout her field time". Needs Lunar-Bloom (the seeds) and Ascendant Gleam.
+      {
+        kind: "baseDmgMultiplier",
+        value: 0.08 * 3,
+        labels: ["1-Hit DMG (Nefer)", "2-Hit DMG (Nefer)", "1-Hit DMG (Shades)", "2-Hit DMG (Shades)", "3-Hit DMG (Shades)"].map((p) => `Phantasm Performance ${p}`),
+        when: { reaction: "lunar-bloom", ascendantGleam: true },
+      },
+      { kind: "emBonus", from: "passive1", re: /Elemental Mastery will be increased by (\d+)/, when: { reaction: "lunar-bloom", ascendantGleam: true } },
     ],
   },
   Clorinde: {
@@ -1328,6 +1348,11 @@ const CARRIES = {
     buffs: [
       { kind: "emFromAtk", from: "passive2", re: /increased by (\d+)% of his ATK/, max: /maximum increase obtainable this way is (\d+)/ },
       { kind: "lunarBaseBonus", from: "passive3", re: /every 100 ATK that Flins has increasing Lunar-Charged's Base DMG by ([\d.]+)%/, per: 100, stat: "atk", max: /maximum of (\d+)%/ },
+      // Passive 1 (#147): "Ascendant Gleam: Lunar-Charged reactions triggered by Flins will deal an additional 20% DMG".
+      // KeqingMains quick guide (fetched 2026-10-12): "It benefits both Lunar-Charged reaction damage and direct
+      // Lunar-Charged damage (from his Burst)". The wiki lists it as Reaction DMG Bonus (Damage § Reaction DMG Bonus
+      // Multiplier), added to the EM bonus.
+      { kind: "lunarReactionBonus", from: "passive1", re: /deal an additional (\d+)% DMG/, reaction: "lunar-charged", when: { ascendantGleam: true } },
     ],
   },
   Arlecchino: {
@@ -1444,6 +1469,7 @@ function readCarry(id, spec) {
         ...(h.instances ? { instances: h.instances } : {}),
         ...(h.reacting !== undefined ? { reacting: h.reacting } : {}),
         ...(h.lunar ? { lunar: h.lunar } : {}),
+        ...(h.additive ? { additive: true } : {}),
         ...(h.when ? { when: h.when } : {}),
         ...(h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
@@ -1494,6 +1520,12 @@ function readCarry(id, spec) {
         return { kind: b.kind, value: num(b.from, b.re) / 100, max: num(b.from, b.max) };
       case "lunarBaseBonus":
         return { kind: b.kind, stat: b.stat, perPoint: round(num(b.from, b.re) / 100 / b.per), max: num(b.from, b.max) / 100 };
+      case "lunarReactionBonus":
+        return { kind: b.kind, value: num(b.from, b.re) / 100, reaction: b.reaction, ...(b.when ? { when: b.when } : {}) };
+      case "baseDmgMultiplier":
+        return { kind: b.kind, value: round(b.value), labels: b.labels, ...(b.when ? { when: b.when } : {}) };
+      case "emBonus":
+        return { kind: b.kind, value: num(b.from, b.re), ...(b.when ? { when: b.when } : {}) };
       default:
         throw new Error(`${id}: unknown carry buff ${b.kind}`);
     }
