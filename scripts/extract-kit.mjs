@@ -1004,7 +1004,8 @@ function readSubDps(id, specs) {
 //     type: normal | charged | plunge | skill | burst (the DMG type, for buffs), instances (separate hits in one row,
 //     for buffs added per hit; default 1), count "rate" (kit-overrides.json hitRates, keyed "carry: <label>"),
 //     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
-//     its flat estimate for hits without it)
+//     its flat estimate for hits without it), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
+//     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true })
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
 //   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
 //   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
@@ -1015,9 +1016,12 @@ function readSubDps(id, specs) {
 //   buffs: the carry's own buffs during those hits:
 //     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types), addPerStack (+ATK multiplier per stack per hit
 //     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino),
-//     flatAtk (+ATK multiplier x stacks per hit, capped, while one of `reactions` is active: Clorinde)
+//     flatAtk (+ATK multiplier x stacks per hit, capped, while one of `reactions` is active: Clorinde),
+//     emFromAtk (EM from a share of ATK, capped: Flins), lunarBaseBonus (their Moonsign Benediction's Base DMG bonus
+//     to their Lunar reaction per point of a stat, capped: it also applies to their own direct Lunar hits, #135)
 // The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
-// Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer.
+// Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer, except
+// hits that only exist with them (`when`).
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
 // Mavuika's combos (#114) differ only in their Flamestrider Charged Attacks: E, Q (Sunfell Slice), then Cyclic/Final.
 const mavuikaHits = ({ cyclic, cyclicReacting, final = 0, finalReacting }) => [
@@ -1193,14 +1197,23 @@ const CARRIES = {
     ],
   },
   Zibai: {
-    // E, N4E x4 in Lunar Phase Shift: each a Normal Attack string and a Spirit Steed's Stride (4 per mode).
+    // KeqingMains quick guide (fetched 2026-10-12), C0: "E 4[N4E]; if Q is available, replace any N4 with N1 Q". The
+    // rotation is her Burst's CD, so Q once: E 3[N4E] N1 Q E. Lunar-Crystallize DMG (#135): the 2nd hit of Spirit
+    // Steed's Stride and of her Burst, and at Ascendant Gleam an extra hit on each N4 (Skill text: "considered
+    // Lunar-Crystallize Reaction DMG"). Passive 1 adds to the first Stride's 2nd hit, so it is Lunar too.
     hits: [
-      ...[1, 2, 3, 4].map((n) => ({ table: "skill", label: `Lunar Phase Shift ${n}-Hit DMG`, count: 4, type: N })),
+      { table: "skill", label: "Lunar Phase Shift 1-Hit DMG", count: 4, type: N },
+      ...[2, 3, 4].map((n) => ({ table: "skill", label: `Lunar Phase Shift ${n}-Hit DMG`, count: 3, type: N })),
+      { table: "skill", label: "Lunar Phase Shift 4-Hit Additional DMG", count: 3, type: N, lunar: "lunar-crystallize", when: { ascendantGleam: true } },
       { table: "skill", label: "Spirit Steed's Stride 1-Hit DMG", count: 4, type: SK },
-      { table: "skill", label: "Spirit Steed's Stride 2-Hit DMG", count: 4, type: SK },
-      { from: "passive1", re: /increased by (\d+)% of Zibai's DEF/, stat: "def", count: 1, type: SK }, // the first Stride, within 4s of the Skill
+      { table: "skill", label: "Spirit Steed's Stride 2-Hit DMG", count: 4, type: SK, lunar: "lunar-crystallize" },
+      { from: "passive1", re: /increased by (\d+)% of Zibai's DEF/, stat: "def", count: 1, type: SK, lunar: "lunar-crystallize" }, // the first Stride, within 4s of the Skill
+      { table: "burst", label: "Skill 1-Hit DMG", count: 1, type: BU },
+      { table: "burst", label: "Skill 2-Hit DMG", count: 1, type: BU, lunar: "lunar-crystallize" },
     ],
-    buffs: [],
+    buffs: [
+      { kind: "lunarBaseBonus", from: "passive3", re: /every 100 DEF that Zibai has increasing Lunar-Crystallize's Base DMG by ([\d.]+)%/, per: 100, stat: "def", max: /maximum of (\d+)%/ },
+    ],
   },
   Skirk: {
     // E (Seven-Phase Flash), N5 x3 with its Normal Attacks, Q (Havoc: Extinction: no Void Rifts assumed).
@@ -1210,14 +1223,20 @@ const CARRIES = {
     buffs: [{ kind: "dmgBonus", table: "burst", label: "0/1/2/3 Void Rift Absorption DMG Bonus", pick: 0, types: [N], hitsCap: /canceled when it has triggered (\d+) times/ }],
   },
   Nefer: {
-    // E, Phantasm Performance x3, E, Phantasm Performance x3, Q.
+    // E, Phantasm Performance x3, E, Phantasm Performance x3, Q: KeqingMains quick guide (fetched 2026-10-12), "E 3[CD]
+    // E CD CQ CD", "6 special Charged Attacks in a full rotation". Lunar-Bloom DMG (#135): the shades' 3 hits ("DMG
+    // dealt by the shades is considered Lunar-Bloom DMG"); her own 2 hits and her Burst are Dendro DMG. Phantasm
+    // Performance needs Verdant Dew, which only Lunar-Bloom reactions give, so without one it drops out.
     hits: [
       { table: "skill", label: "Skill DMG", count: 2, type: SK },
-      ...["1-Hit DMG (Nefer)", "2-Hit DMG (Nefer)", "1-Hit DMG (Shades)", "2-Hit DMG (Shades)", "3-Hit DMG (Shades)"].map((p) => ({ table: "skill", label: `Phantasm Performance ${p}`, count: 6, type: CH })),
+      ...["1-Hit DMG (Nefer)", "2-Hit DMG (Nefer)"].map((p) => ({ table: "skill", label: `Phantasm Performance ${p}`, count: 6, type: CH, when: { reaction: "lunar-bloom" } })),
+      ...["1-Hit DMG (Shades)", "2-Hit DMG (Shades)", "3-Hit DMG (Shades)"].map((p) => ({ table: "skill", label: `Phantasm Performance ${p}`, count: 6, type: CH, lunar: "lunar-bloom", when: { reaction: "lunar-bloom" } })),
       { table: "burst", label: "1-Hit DMG", count: 1, type: BU },
       { table: "burst", label: "2-Hit DMG", count: 1, type: BU },
     ],
-    buffs: [],
+    buffs: [
+      { kind: "lunarBaseBonus", from: "passive3", re: /every point of Elemental Mastery that Nefer has increasing Lunar-Bloom's Base DMG by ([\d.]+)%/, per: 1, stat: "em", max: /maximum of (\d+)%/ },
+    ],
   },
   Clorinde: {
     // E (Night Vigil), 6[N3E], Q: KeqingMains' basic combo from 0% Bond of Life (pasted by Jessie 2026-10-12: "E to
@@ -1245,13 +1264,24 @@ const CARRIES = {
     ],
   },
   Flins: {
-    // E (Manifest Flame), E (Northland Spearstorm), Q (Thunderous Symphony within 6s of it). His tags list no Normal
-    // Attacks, so this undercounts until the rotation is filled in (#103).
+    // KeqingMains quick guide (fetched 2026-10-12), C0: "E N1 E sQ 2[N4D] N2 E sQ N4D (N5)" (N5 left out). E enters
+    // Manifest Flame (its Normal Attacks are the Skill table's rows), each later E is Northland Spearstorm, sQ is
+    // Thunderous Symphony (30 Energy); "it is not recommended to use Flins's normal Burst". Thunderous Symphony is
+    // Lunar-Charged DMG (#135), with one more Lunar-Charged hit at Ascendant Gleam "if there are thunderclouds nearby"
+    // (only Lunar-Charged reactions make them). Normal Attacks and Northland Spearstorm are plain Electro DMG.
     hits: [
-      { table: "skill", label: "Northland Spearstorm DMG", count: 1, type: SK },
-      { table: "burst", label: "Thunderous Symphony DMG", count: 1, type: BU },
+      { table: "skill", label: "1-Hit DMG", count: 5, type: N },
+      { table: "skill", label: "2-Hit DMG", count: 4, type: N },
+      { table: "skill", label: "3-Hit DMG", count: 3, type: N },
+      { table: "skill", label: "4-Hit DMG", count: 3, type: N, instances: 2 },
+      { table: "skill", label: "Northland Spearstorm DMG", count: 2, type: SK },
+      { table: "burst", label: "Thunderous Symphony DMG", count: 2, type: BU, lunar: "lunar-charged" },
+      { table: "burst", label: "Thunderous Symphony Additional DMG", count: 2, type: BU, lunar: "lunar-charged", when: { ascendantGleam: true, reaction: "lunar-charged" } },
     ],
-    buffs: [],
+    buffs: [
+      { kind: "emFromAtk", from: "passive2", re: /increased by (\d+)% of his ATK/, max: /maximum increase obtainable this way is (\d+)/ },
+      { kind: "lunarBaseBonus", from: "passive3", re: /every 100 ATK that Flins has increasing Lunar-Charged's Base DMG by ([\d.]+)%/, per: 100, stat: "atk", max: /maximum of (\d+)%/ },
+    ],
   },
   Arlecchino: {
     // E, CA (absorbs the Blood-Debt Directive: Bond of Life up to 145% of Max HP), N5 x3, Q.
@@ -1366,6 +1396,8 @@ function readCarry(id, spec) {
         count,
         ...(h.instances ? { instances: h.instances } : {}),
         ...(h.reacting !== undefined ? { reacting: h.reacting } : {}),
+        ...(h.lunar ? { lunar: h.lunar } : {}),
+        ...(h.when ? { when: h.when } : {}),
         ...(h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
     }
@@ -1411,6 +1443,10 @@ function readCarry(id, spec) {
         return { kind: b.kind, value: round((num(b.from, b.re) / 100) * num(b.from, b.stacks)), cap: num(b.from, b.cap), types: b.types, reactions: b.reactions };
       case "masque":
         return { kind: b.kind, ratio: raw(b.table, b.label), start: num(b.start.from, b.start.re) / 100, use: num(b.use.from, b.use.re) / 100 };
+      case "emFromAtk":
+        return { kind: b.kind, value: num(b.from, b.re) / 100, max: num(b.from, b.max) };
+      case "lunarBaseBonus":
+        return { kind: b.kind, stat: b.stat, perPoint: round(num(b.from, b.re) / 100 / b.per), max: num(b.from, b.max) / 100 };
       default:
         throw new Error(`${id}: unknown carry buff ${b.kind}`);
     }

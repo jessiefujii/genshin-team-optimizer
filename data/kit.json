@@ -3464,7 +3464,7 @@
           "scaling": {
             "def": 0.885712
           },
-          "count": 4
+          "count": 3
         },
         {
           "label": "Lunar Phase Shift 3-Hit DMG",
@@ -3472,7 +3472,7 @@
           "scaling": {
             "def": 1.175358
           },
-          "count": 4
+          "count": 3
         },
         {
           "label": "Lunar Phase Shift 4-Hit DMG",
@@ -3480,7 +3480,19 @@
           "scaling": {
             "def": 1.48204
           },
-          "count": 4
+          "count": 3
+        },
+        {
+          "label": "Lunar Phase Shift 4-Hit Additional DMG",
+          "type": "normal",
+          "scaling": {
+            "def": 0.500752
+          },
+          "count": 3,
+          "lunar": "lunar-crystallize",
+          "when": {
+            "ascendantGleam": true
+          }
         },
         {
           "label": "Spirit Steed's Stride 1-Hit DMG",
@@ -3496,7 +3508,8 @@
           "scaling": {
             "def": 2.396456
           },
-          "count": 4
+          "count": 4,
+          "lunar": "lunar-crystallize"
         },
         {
           "label": "passive1 bonus",
@@ -3504,10 +3517,35 @@
           "scaling": {
             "def": 0.6
           },
+          "count": 1,
+          "lunar": "lunar-crystallize"
+        },
+        {
+          "label": "Skill 1-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "def": 2.15832
+          },
           "count": 1
+        },
+        {
+          "label": "Skill 2-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "def": 3.021648
+          },
+          "count": 1,
+          "lunar": "lunar-crystallize"
         }
       ],
-      "buffs": []
+      "buffs": [
+        {
+          "kind": "lunarBaseBonus",
+          "stat": "def",
+          "perPoint": 0.00007,
+          "max": 0.14
+        }
+      ]
     },
     "Skirk": {
       "rotationSeconds": 15,
@@ -3583,7 +3621,10 @@
             "atk": 0.41888,
             "em": 0.83776
           },
-          "count": 6
+          "count": 6,
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "Phantasm Performance 2-Hit DMG (Nefer)",
@@ -3592,7 +3633,10 @@
             "atk": 0.544544,
             "em": 1.089088
           },
-          "count": 6
+          "count": 6,
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "Phantasm Performance 1-Hit DMG (Shades)",
@@ -3600,7 +3644,11 @@
           "scaling": {
             "em": 1.632
           },
-          "count": 6
+          "count": 6,
+          "lunar": "lunar-bloom",
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "Phantasm Performance 2-Hit DMG (Shades)",
@@ -3608,7 +3656,11 @@
           "scaling": {
             "em": 1.632
           },
-          "count": 6
+          "count": 6,
+          "lunar": "lunar-bloom",
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "Phantasm Performance 3-Hit DMG (Shades)",
@@ -3616,7 +3668,11 @@
           "scaling": {
             "em": 2.176
           },
-          "count": 6
+          "count": 6,
+          "lunar": "lunar-bloom",
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "1-Hit DMG",
@@ -3637,7 +3693,14 @@
           "count": 1
         }
       ],
-      "buffs": []
+      "buffs": [
+        {
+          "kind": "lunarBaseBonus",
+          "stat": "em",
+          "perPoint": 0.000175,
+          "max": 0.14
+        }
+      ]
     },
     "Clorinde": {
       "rotationSeconds": 15,
@@ -3703,12 +3766,45 @@
       "rotationSeconds": 20,
       "hits": [
         {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.990216
+          },
+          "count": 5
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.999559
+          },
+          "count": 4
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.238035
+          },
+          "count": 3
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.418656
+          },
+          "count": 3,
+          "instances": 2
+        },
+        {
           "label": "Northland Spearstorm DMG",
           "type": "skill",
           "scaling": {
             "atk": 3.0328
           },
-          "count": 1
+          "count": 2
         },
         {
           "label": "Thunderous Symphony DMG",
@@ -3716,10 +3812,36 @@
           "scaling": {
             "atk": 1.214752
           },
-          "count": 1
+          "count": 2,
+          "lunar": "lunar-charged"
+        },
+        {
+          "label": "Thunderous Symphony Additional DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.766912
+          },
+          "count": 2,
+          "lunar": "lunar-charged",
+          "when": {
+            "ascendantGleam": true,
+            "reaction": "lunar-charged"
+          }
         }
       ],
-      "buffs": []
+      "buffs": [
+        {
+          "kind": "emFromAtk",
+          "value": 0.08,
+          "max": 160
+        },
+        {
+          "kind": "lunarBaseBonus",
+          "stat": "atk",
+          "perPoint": 0.00007,
+          "max": 0.14
+        }
+      ]
     },
     "Arlecchino": {
       "rotationSeconds": 15,
