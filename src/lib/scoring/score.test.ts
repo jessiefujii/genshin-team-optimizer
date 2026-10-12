@@ -56,15 +56,17 @@ describe("scoreTeam", () => {
     expect(bad.breakdown.some((l) => l.reason.includes("also wants field time"))).toBe(true);
   });
 
+  // The flat reaction points only apply to carries whose damage isn't modeled yet (Yoimiya, Tartaglia, Keqing):
+  // a modeled carry's reactions score by the damage they add (#134).
   test("double Hydro gets credit for the second Hydro support", () => {
-    const double = score("Hu Tao", "Xingqiu", "Yelan", "Zhongli");
+    const double = score("Yoimiya", "Xingqiu", "Yelan", "Zhongli");
     expect(double.breakdown.some((l) => l.reason === "2 supports enable Vaporize")).toBe(true);
   });
 
   test("same-element supports are not reaction partners (#1)", () => {
-    const hutao = score("Hu Tao", "Bennett", "Furina", "Xingqiu");
-    const vape = hutao.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
-    expect(vape?.reason).toBe("Vaporize: Hu Tao + Furina, Xingqiu");
+    const yoimiya = score("Yoimiya", "Bennett", "Furina", "Xingqiu");
+    const vape = yoimiya.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
+    expect(vape?.reason).toBe("Vaporize: Yoimiya + Furina, Xingqiu");
 
     const childe = score("Tartaglia", "Bennett", "Furina", "Xiangling");
     expect(childe.breakdown.find((l) => l.reason.startsWith("Vaporize:"))?.reason).toBe(
@@ -73,13 +75,34 @@ describe("scoreTeam", () => {
   });
 
   test("only the carry's main reaction gets full points (#49)", () => {
-    const s = score("Clorinde", "Bennett", "Chevreuse", "Furina");
+    const s = score("Keqing", "Xingqiu", "Furina", "Zhongli");
     const reasons = s.breakdown.map((l) => l.reason);
-    expect(reasons.some((r) => r.startsWith("Overloaded:"))).toBe(false);
-    expect(reasons).toContain("Overloaded as a secondary reaction");
-    expect(score("Clorinde", "Nahida", "Baizhu", "Furina").breakdown.map((l) => l.reason)).toContain(
-      "Aggravate: Clorinde + Nahida, Baizhu",
+    expect(reasons.some((r) => r.startsWith("Electrocharged:"))).toBe(false);
+    expect(reasons).toContain("Electrocharged as a secondary reaction");
+    expect(score("Keqing", "Nahida", "Baizhu", "Furina").breakdown.map((l) => l.reason)).toContain(
+      "Aggravate: Keqing + Nahida, Baizhu",
     );
+  });
+
+  test("a modeled carry's reactions score by the damage they add (#134)", () => {
+    const reactions = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions");
+    expect(reactions("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toEqual([
+      { rule: "Reactions", points: 27, reason: "Vaporize adds ~+54% to Hu Tao's damage" },
+    ]);
+    // Clorinde's Dark-Shattering Flame needs an Electro reaction, so Overloaded counts by damage too, not as a
+    // flat secondary reaction.
+    expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
+      { rule: "Reactions", points: 38, reason: "Overloaded, Electrocharged add ~+75% to Clorinde's damage" },
+    ]);
+    // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze.
+    expect(reactions("Wriothesley", "Sandrone", "Fischl", "Furina").map((l) => l.reason)).toEqual(["Freeze: Wriothesley + Furina"]);
+  });
+
+  test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
+    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share.
+    const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+58% damage");
+    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+58% damage");
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
@@ -97,7 +120,10 @@ describe("scoreTeam", () => {
 
   test("a hypercarry is not penalized for a team without reactions (#49)", () => {
     const s = score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli");
-    expect(s.breakdown.some((l) => l.rule === "Reactions")).toBe(false);
+    // Only his passive 1 counts, by the damage it adds (#134): Swirl and Crystallize stacks.
+    expect(s.breakdown.filter((l) => l.rule === "Reactions")).toEqual([
+      { rule: "Reactions", points: 9, reason: "Swirl, Crystallize add ~+19% to Neuvillette's damage" },
+    ]);
   });
 
   test("a main reaction is one of the main DPS's own reactions, or none", () => {
@@ -550,8 +576,9 @@ describe("talent levels (#25)", () => {
   });
 
   test("Electro enablers partner a Dendro carry's Spread (#61)", () => {
+    // Alhaitham is modeled, so his Spread counts by damage (#134).
     expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
-      "Spread: Alhaitham + Kuki Shinobu",
+      "Spread adds ~+99% to Alhaitham's damage",
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
       "Spread: Tighnari + Yae Miko, Fischl",

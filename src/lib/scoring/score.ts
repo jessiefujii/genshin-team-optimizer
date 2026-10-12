@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
-import { carryDamage } from "./damage";
+import { carryDamage, modelsReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
@@ -180,23 +180,28 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
 
   const main = mainReactionOf(carry);
   const partnersFor = (r: Reaction) => supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r));
+  // Reactions the carry's modeled damage covers score by the damage they add (#134); the flat points below are for
+  // the rest (a carry not modeled yet, or a reaction the damage model doesn't cover yet, like Freeze or Lunar).
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
-  if (main !== "none" && carry.reactions.length > 0 && carryActive.length === 0) {
+  const modeled = reactionDamageLine(ctx, carry, out);
+  const flat = carryActive.filter((r) => !modeled.includes(r));
+  const mainModeled = main !== undefined && main !== "none" && modelsReaction(carry, main);
+  if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
     out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
   }
   if (main === undefined) {
-    const ranked = carryActive
+    const ranked = flat
       .map((r) => ({ r, partners: partnersFor(r) }))
       .sort((a, b) => b.partners.length - a.partners.length)
       .slice(0, POINTS.maxCountedReactions);
     ranked.forEach(({ r, partners }, i) => {
-      if (i > 0) out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
+      if (i > 0 || modeled.length > 0) out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
       else mainReactionLines(carry, r, partners, out);
     });
   } else {
     // Only the reaction the carry's teams are built around gets full points (#49).
-    if (main !== "none" && ctx.active.includes(main)) mainReactionLines(carry, main, partnersFor(main), out);
-    for (const r of carryActive.filter((r) => r !== main).slice(0, POINTS.maxCountedReactions - 1)) {
+    if (main !== "none" && !mainModeled && ctx.active.includes(main)) mainReactionLines(carry, main, partnersFor(main), out);
+    for (const r of flat.filter((r) => r !== main).slice(0, POINTS.maxCountedReactions - 1)) {
       out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
     }
   }
@@ -626,20 +631,44 @@ function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContex
 
 // The carry's own damage per second (damage.ts, #101), or null when it isn't modeled yet: no kit data, or hits still
 // missing. An undercounted carry (Flins, 748/s) would make every sub-DPS look several times bigger.
-function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext): number | null {
-  const own = carryDamage(carry, ctx.active, ctx.members);
+// `reactions: false` reads it as if the team triggered no reactions (#134).
+function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = true): number | null {
+  const own = carryDamage(carry, reactions ? ctx.active : [], ctx.members);
   return own && own.missing.length === 0 ? own.perSecond : null;
+}
+
+// The team's reactions score by the damage they add to a modeled carry (#134): carry damage with them vs without
+// any, on the buffer scale (+20% = `buffer` points). This replaces the flat reaction points (main reaction, extra
+// partners, secondary reactions) for the reactions the damage model covers (damage.ts modelsReaction); returns
+// those, empty for a carry not modeled yet. Without reactions the carry plays their default combo (#114).
+function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink): Reaction[] {
+  const covered = ctx.active.filter((r) => modelsReaction(carry, r));
+  if (covered.length === 0) return covered;
+  const withReactions = modeledCarryDps(carry, ctx);
+  const without = modeledCarryDps(carry, ctx, false);
+  if (withReactions === null || without === null) return [];
+  const gain = withReactions / without - 1;
+  const points = gainPoints(gain, POINTS.buffer);
+  if (points > 0) {
+    const verb = covered.length === 1 ? "adds" : "add";
+    out.add("Reactions", points, () => `${covered.map(label).join(", ")} ${verb} ~+${Math.round(gain * 100)}% to ${carry.id}'s damage`);
+  }
+  return covered;
 }
 
 // Off-field sub-DPS (#96): the damage their own hits add, from data/kit.json `subDps` (talent level 9), as a share
 // of the carry's own damage (the generic BENCHMARK hit for a carry that isn't modeled yet), on the buffer scale:
 // +20% = `buffer` points. Their hits add to the carry's: the carry keeps attacking while they fire.
+// The share is of the carry's damage without the team's reactions (#134): a team that enables the carry's reaction
+// scores that in reactionDamageLine, and shouldn't shrink every sub-DPS share for it.
 // Their stats come from their build, else the benchmark buffer's. Crit, enemy RES and reactions on their hits are
 // left out, as on the carry's side.
 // Returns the sub-DPS who out-damages the carry, if one does: the team is really theirs (Jessie, #96).
 function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): ScoringCharacter | null {
   if (!carry) return null;
-  const carryDps = modeledCarryDps(carry, ctx) ?? BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
+  const generic = BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
+  const carryDps = modeledCarryDps(carry, ctx) ?? generic; // who out-damages whom: with reactions
+  const shareOf = modeledCarryDps(carry, ctx, false) ?? generic;
   let lead: { m: ScoringCharacter; dps: number } | null = null;
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
@@ -653,7 +682,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       dps += perHit * hitsPerSecond(s, carry, ctx, m);
     }
     dps *= 1 + dmgBonus;
-    const gain = dps / carryDps;
+    const gain = dps / shareOf;
     const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage`);
     if (dps > carryDps && (!lead || dps > lead.dps)) lead = { m, dps };

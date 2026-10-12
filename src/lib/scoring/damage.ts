@@ -99,6 +99,18 @@ function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reacti
   if (!r || r.element !== c.element) return 0;
   return r.coefficient * LEVEL_MULTIPLIER_90 * (1 + (5 * em) / (em + 1200));
 }
+// Whether the carry's modeled damage changes with reaction `r` (#134): their main reaction or a combo's when it
+// amplifies (Vaporize, Melt) or catalyzes (Spread, Aggravate) their element, or a kit buff that needs it (Clorinde's
+// Dark-Shattering Flame, Neuvillette's passive 1). Other reactions (Freeze, Overloaded, Lunar...) aren't modeled yet.
+export function modelsReaction(c: ScoringCharacter, r: Reaction): boolean {
+  const kit = CARRIES[c.id];
+  if (!kit) return false;
+  const own = r === mainReactionOf(c) || (kit.combos ?? []).some((k) => k.when.some((w) => w.reaction === r));
+  if (own && (AMPLIFY[r]?.[c.element] || CATALYZE[r]?.element === c.element)) return true;
+  const buffs = [...kit.buffs, ...(kit.combos ?? []).flatMap((k) => k.buffs ?? [])];
+  return buffs.some((b) => (b.kind === "flatAtk" || b.kind === "factorByReactions") && b.reactions.includes(r));
+}
+
 const reactingShare = (h: CarryHit) => (h.reacting === undefined ? AMPLIFY_SHARE : h.count ? h.reacting / h.count : 0);
 
 // The carry's combo for this team (#114): the first of kit.json's combos whose `when` fits, else the default.
