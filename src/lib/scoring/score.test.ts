@@ -109,9 +109,10 @@ describe("scoreTeam", () => {
 
   test("Ascendant Gleam scores what it unlocks for this team (#63)", () => {
     const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Moonsign");
-    // Two Moonsign members (Aino, Ineffa) reach Ascendant Gleam: Flins's own kit upgrade counts.
+    // Two Moonsign members (Aino, Ineffa) reach Ascendant Gleam: Flins's own kit upgrade counts, by the damage it adds
+    // (his thundercloud hit and passive 1's +20%), since his damage model has it (#150).
     expect(lines("Flins", "Aino", "Ineffa", "Xilonen")).toEqual([
-      { rule: "Moonsign", points: 10, reason: "Ascendant Gleam enhances Flins's kit" },
+      { rule: "Moonsign", points: 24, reason: "Ascendant Gleam adds ~+48% to Flins's damage" },
     ]);
     // One Moonsign member is only Nascent Gleam.
     expect(lines("Flins", "Bennett", "Xingqiu", "Xilonen")).toEqual([]);
@@ -119,7 +120,7 @@ describe("scoreTeam", () => {
     expect(lines("Raiden Shogun", "Aino", "Lauma", "Baizhu")).toEqual([]);
     // Lauma's Lunar-Bloom crit helps Nefer; Nefer's own upgrade counts too.
     const nefer = lines("Nefer", "Lauma", "Aino", "Yaoyao").map((l) => l.reason);
-    expect(nefer).toContain("Ascendant Gleam enhances Nefer's kit");
+    expect(nefer.some((r) => r.startsWith("Ascendant Gleam adds") && r.endsWith("to Nefer's damage"))).toBe(true);
     expect(nefer.some((r) => r.startsWith("Ascendant Gleam: Lauma gives Nefer"))).toBe(true);
     // Linnea's extra Geo shred only helps a Geo carry.
     expect(lines("Zibai", "Linnea", "Columbina", "Xilonen").some((l) => l.reason.startsWith("Ascendant Gleam: Linnea"))).toBe(true);

@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
-import { carryDamage, lunarHit, type LunarReaction } from "./damage";
+import { carryDamage, lunarHit, modelsAscendantGleam, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
@@ -396,10 +396,19 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   if (!carry) return;
   const moonsign = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("moonsign"));
   if (moonsign.length < 2) return;
-  // Kept for every Moonsign carry here: team scores don't read carry damage yet. Once they do (#96, #102), skip it
-  // for carries whose damage already has the upgrade (damage.ts modelsAscendantGleam), so it isn't counted twice (#150).
+  // The carry's own upgrade. When their damage model has it (damage.ts modelsAscendantGleam: Zibai, Flins, Nefer), it
+  // counts once, by the damage it adds (with vs without Ascendant Gleam, +20% = buffer points), and the flat line
+  // drops (#150). Upgrades not modeled yet keep the flat points.
   if (moonsign.includes(carry) && GLEAM[carry.id]?.target === "self") {
-    out.add("Moonsign", POINTS.ownAscendantGleam, () => `Ascendant Gleam enhances ${carry.id}'s kit`);
+    const withGleam = modelsAscendantGleam(carry.id) ? carryDamage(carry, ctx.active, ctx.members) : null;
+    const without = withGleam ? carryDamage(carry, ctx.active, ctx.members, true) : null;
+    if (withGleam && without && withGleam.missing.length === 0 && without.perSecond > 0) {
+      const gain = withGleam.perSecond / without.perSecond - 1;
+      const points = gainPoints(gain, POINTS.buffer);
+      if (points > 0) out.add("Moonsign", points, () => `Ascendant Gleam adds ~+${Math.round(gain * 100)}% to ${carry.id}'s damage`);
+    } else {
+      out.add("Moonsign", POINTS.ownAscendantGleam, () => `Ascendant Gleam enhances ${carry.id}'s kit`);
+    }
   }
   const dealt = carry.reactions.filter((r) => ctx.active.includes(r));
   const usesEm = carry.scalesOn?.includes("EM") || usesEmReaction(carry, ctx);
@@ -616,7 +625,10 @@ interface SubDpsSource {
   pickOne?: string; // one source of the group per use, picked by the team's reactions
   cd: number;
 }
-const SUB_DPS = kitJson.subDps as Record<string, { sources: SubDpsSource[]; missing?: string[] }>;
+// lunarBaseBonus: their own Moonsign Benediction's Base DMG bonus to their direct Lunar hits (PR #155; Ineffa,
+// Columbina). Teammates' bonuses to them stay with #88.
+type SubDpsLunarBase = { stat: "atk" | "hp" | "def" | "em"; perPoint: number; max: number; reactions: LunarReaction[] };
+const SUB_DPS = kitJson.subDps as Record<string, { sources: SubDpsSource[]; missing?: string[]; lunarBaseBonus?: SubDpsLunarBase }>;
 
 // Hits per second of one source, averaged over its cooldown; 0 when it can't fire in this team.
 function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
@@ -669,11 +681,14 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     let dps = 0;
     let lunarDps = 0;
     const picked = pickedSources(entry.sources, carry, ctx);
+    const own = entry.lunarBaseBonus;
+    const lunarBase = (r: LunarReaction) => (own && own.reactions.includes(r) ? Math.min(own.max, own.perPoint * stat[own.stat]) : 0);
     for (const s of entry.sources) {
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
       const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
-      // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151).
-      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em) * hitsPerSecond(s, carry, ctx, m);
+      // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151), with
+      // their own Moonsign Benediction Base DMG bonus (PR #155).
+      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * hitsPerSecond(s, carry, ctx, m);
       else dps += perHit * hitsPerSecond(s, carry, ctx, m);
     }
     dps = dps * (1 + dmgBonus) + lunarDps;

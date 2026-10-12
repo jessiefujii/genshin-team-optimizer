@@ -724,6 +724,8 @@ function readStellar(id, spec) {
 //   whenReaction: it only fires while the team triggers that reaction (Ineffa's Overclocking Circuit: thunderclouds)
 //   pickOne: only one source of this group fires per use; the scorer picks by the team's reactions (Columbina's
 //       Gravity Interference: the Lunar reaction that built the most Gravity)
+//   (per character, SUBDPS_LUNAR_BASE below) lunarBaseBonus: { stat, perPoint, max, reactions }: their own Moonsign
+//       Benediction's Base DMG bonus to their direct Lunar hits of those reactions
 //   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
 //       names the source; `label` still keys its hit rate and table values)
 const SUBDPS = {
@@ -771,7 +773,10 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Gravity Ripple: Continuous DMG", every: "rate", duration: "Gravity Ripple Duration", cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
-    // Gravity Interference (#151): one kind per trigger, the Lunar reaction that built the most Gravity.
+    // Gravity Interference (#151): one kind per trigger, the Lunar reaction that built the most Gravity. Rate: every
+    // 6s at C0 (kit-overrides.json); KeqingMains' Columbina quick guide (accessed 2026-10-12): C2 "decreases the
+    // interval between each Gravity Interference attack from 6s to around 4.5s", and the type is "based on the most
+    // frequent Lunar Reaction".
     ...["Lunar-Charged", "Lunar-Bloom", "Lunar-Crystallize"].map((r) => ({
       talent: "skill",
       label: `Gravity Interference: ${r} DMG`,
@@ -1603,8 +1608,40 @@ const carriesTodo = tags.filter((c) => c.roles.includes("main-dps") && !CARRIES[
 for (const c of tags.filter((c) => c.roles.includes("sub-dps") && c.fieldTime === "off")) {
   if (!SUBDPS[c.id]) throw new Error(`${c.id} is an off-field sub-DPS in tags.json but has no SUBDPS entry`);
 }
+// A sub-DPS's own Moonsign Benediction Base DMG bonus to their direct Lunar hits (Jessie, 2026-10-12, PR #155), read
+// like a carry's lunarBaseBonus: per `per` points of `stat`, capped. Teammates' bonuses to them stay with #88.
+// Columbina's is for every Lunar reaction "inflicted by party members", so her own hits too.
+const SUBDPS_LUNAR_BASE = {
+  Ineffa: {
+    from: "passive3",
+    re: /every 100 ATK that Ineffa has increasing Lunar-Charged's Base DMG by ([\d.]+)%/,
+    per: 100,
+    stat: "atk",
+    max: /maximum of (\d+)%/,
+    reactions: ["lunar-charged"],
+  },
+  Columbina: {
+    from: "passive3",
+    re: /For every 1,000 points of Max HP, the Base DMG of Lunar reactions is increased by ([\d.]+)%/,
+    per: 1000,
+    stat: "hp",
+    max: /maximum of (\d+)%/,
+    reactions: ["lunar-charged", "lunar-bloom", "lunar-crystallize"],
+  },
+};
 const subDps = {};
-for (const [id, spec] of Object.entries(SUBDPS)) subDps[id] = readSubDps(id, spec);
+for (const [id, spec] of Object.entries(SUBDPS)) {
+  subDps[id] = readSubDps(id, spec);
+  const b = SUBDPS_LUNAR_BASE[id];
+  if (!b) continue;
+  const text = genshindb.talents(id)[b.from].description.replace(/\s+/g, " ");
+  const read = (re) => {
+    const m = text.match(re);
+    if (!m) throw new Error(`${id}: pattern ${re} not found in ${b.from}`);
+    return Number(m[1]);
+  };
+  subDps[id].lunarBaseBonus = { stat: b.stat, perPoint: round(read(b.re) / 100 / b.per), max: read(b.max) / 100, reactions: b.reactions };
+}
 
 // Every Stellar member needs a STELLAR entry, so a new one (or new Radiance text) can't be missed.
 const stellar = {};

@@ -1823,7 +1823,17 @@
           "cd": 17,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-12 (talent page): \"Columbina will gain the New Moon's Omen effect for 2s, continuously accumulating Gravity. 20 Gravity can be accumulated every 2s. You can have up to 60 Gravity\" and \"Once Gravity is accumulated to its limit, a special Gravity Interference will be triggered.\" So one every 6s while the team keeps triggering Lunar reactions (worked out here, not a wiki number)."
         }
-      ]
+      ],
+      "lunarBaseBonus": {
+        "stat": "hp",
+        "perPoint": 0.000002,
+        "max": 0.07,
+        "reactions": [
+          "lunar-charged",
+          "lunar-bloom",
+          "lunar-crystallize"
+        ]
+      }
     },
     "Collei": {
       "sources": [
@@ -2160,7 +2170,15 @@
           "cd": 16,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\""
         }
-      ]
+      ],
+      "lunarBaseBonus": {
+        "stat": "atk",
+        "perPoint": 0.00007,
+        "max": 0.14,
+        "reactions": [
+          "lunar-charged"
+        ]
+      }
     },
     "Jahoda": {
       "sources": [

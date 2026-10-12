@@ -64,8 +64,8 @@ const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).ca
 export const hasCarryKit = (id: string) => id in CARRIES;
 
 // Whether the carry's damage model has their own Ascendant Gleam upgrade (a hit or buff that needs it: Zibai's N4
-// hit, Flins' passive 1, Nefer's Veil of Falsehood). The scorer's flat "Ascendant Gleam enhances X's kit" line is
-// for upgrades not modeled yet; once team scores read carry damage (#96, #102), it drops for these carries (#150).
+// hit, Flins' passive 1, Nefer's Veil of Falsehood). For these carries the scorer counts the upgrade by the damage it
+// adds (carryDamage with vs without Ascendant Gleam) instead of the flat "enhances X's kit" line (#150).
 export function modelsAscendantGleam(id: string): boolean {
   const kit = CARRIES[id];
   if (!kit) return false;
@@ -163,17 +163,28 @@ export interface CarryDamage {
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
 // `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit) and picks the combo (#114);
 // default: the carry alone. Cached per character, reactions and team: the team search scores each carry in thousands
-// of teams.
+// of teams. `noGleam` reads it as if the party weren't at Ascendant Gleam, so the scorer can measure what the carry's
+// own Ascendant Gleam upgrade adds (#150).
 const cache = new WeakMap<ScoringCharacter, Map<string, CarryDamage | null>>();
-export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [], team: readonly ScoringCharacter[] = [c]): CarryDamage | null {
+export function carryDamage(
+  c: ScoringCharacter,
+  active: readonly Reaction[] = [],
+  team: readonly ScoringCharacter[] = [c],
+  noGleam = false,
+): CarryDamage | null {
   let byKey = cache.get(c);
   if (!byKey) cache.set(c, (byKey = new Map()));
-  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}`;
-  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team));
+  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}${noGleam ? "#noGleam" : ""}`;
+  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, noGleam));
   return byKey.get(key)!;
 }
 
-function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): CarryDamage | null {
+function computeCarryDamage(
+  c: ScoringCharacter,
+  active: readonly Reaction[],
+  team: readonly ScoringCharacter[],
+  noGleam: boolean,
+): CarryDamage | null {
   if (!CARRIES[c.id]) return null;
   const { kit, combo, reaction } = pickCombo(CARRIES[c.id], c, active, team);
   const s = carryStats(c);
@@ -186,7 +197,7 @@ function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], te
   const instancesOf = (types: HitType[]) =>
     kit.hits.filter((h) => types.includes(h.type)).reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
   // Ascendant Gleam: two Moonsign members (each Moonsign Benediction raises the party's Moonsign by a level).
-  const gleam = team.filter((m) => m.families?.includes("moonsign")).length >= 2;
+  const gleam = !noGleam && team.filter((m) => m.families?.includes("moonsign")).length >= 2;
   const fits = (w?: When) => !w || ((!w.reaction || active.includes(w.reaction)) && (!w.ascendantGleam || gleam));
   const lands = (h: CarryHit) => fits(h.when);
   const buffs = kit.buffs.filter((b) => !("when" in b) || fits(b.when));
