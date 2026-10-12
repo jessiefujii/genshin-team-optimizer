@@ -60,9 +60,9 @@ test("meta teams vs the scorer's best teams", { timeout: 300_000 }, () => {
   );
 });
 
-// data/test-rosters/jessie.json: Jessie's roster as the planner stores it (gto.roster.v1), built 2026-10-12 from her
-// Enka showcase (12 characters, UID left out) plus her saved builds for the 6 not showcased then (Zhongli, Raiden,
-// Escoffier, Bennett, Neuvillette, Flins). Her Traveler is Cryo, which the import can't map yet (#136), so left out.
+// data/test-rosters/jessie.json: Jessie's roster as the planner stores it (gto.roster.v1), built 2026-10-12 from eight
+// Enka showcases (UID left out), her saved builds for Zhongli and Escoffier, and her list of what she owns and has
+// built (Jessie: level 60 and below isn't built). Her Traveler is Cryo (#136).
 // Builds feed the scorer as in the planner (roster-planner.tsx `owned`).
 const roster = jessieRoster as Record<string, { constellation: number; built: boolean; build?: CharacterBuild }>;
 const owned = all

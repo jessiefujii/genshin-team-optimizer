@@ -38,7 +38,40 @@
   },
   "Albedo": {
     "constellation": 0,
-    "built": true
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 4,
+        "skill": 6,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Cinnabar Spindle",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Husk of Opulent Dreams",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 20184,
+        "atk": 1053,
+        "def": 2564,
+        "critRate": 49.7,
+        "critDmg": 70.2,
+        "energyRecharge": 120.1,
+        "elementalMastery": 63,
+        "elementalDmgBonus": 68.2,
+        "baseAtk": 676
+      }
+    },
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Aloy": {
     "constellation": 0,
@@ -234,6 +267,7 @@
     "built": true,
     "build": {
       "level": 90,
+      "ascension": 6,
       "talents": {
         "normal": 6,
         "skill": 9,
@@ -242,26 +276,28 @@
       "weapon": {
         "id": "Sapwood Blade",
         "level": 90,
-        "refinement": 2
+        "refinement": 2,
+        "ascension": 6
       },
       "artifactSets": [
         {
           "set": "Noblesse Oblige",
-          "pieces": 2
+          "pieces": 4
         }
       ],
       "stats": {
-        "hp": 22945,
-        "atk": 1127,
-        "def": 916,
-        "critRate": 17.4,
-        "critDmg": 101.3,
-        "energyRecharge": 231.1,
-        "elementalMastery": 65,
-        "elementalDmgBonus": 0
+        "hp": 24113,
+        "atk": 1213,
+        "def": 944,
+        "critRate": 28.3,
+        "critDmg": 100.5,
+        "energyRecharge": 251.8,
+        "elementalMastery": 110,
+        "elementalDmgBonus": 0,
+        "baseAtk": 756
       }
     },
-    "updatedAt": "2026-10-07T10:22:21.216Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Candace": {
     "constellation": 2,
@@ -495,7 +531,7 @@
         "baseAtk": 605
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Cyno": {
     "constellation": 1,
@@ -684,7 +720,7 @@
         "baseAtk": 667
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Dori": {
     "constellation": 0,
@@ -903,7 +939,7 @@
         "baseAtk": 861
       }
     },
-    "updatedAt": "2026-10-12T16:00:00.000Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Freminet": {
     "constellation": 1,
@@ -1647,7 +1683,7 @@
         "baseAtk": 573
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Lisa": {
     "constellation": 3,
@@ -1880,6 +1916,7 @@
     "built": true,
     "build": {
       "level": 90,
+      "ascension": 6,
       "talents": {
         "normal": 9,
         "skill": 6,
@@ -1888,7 +1925,8 @@
       "weapon": {
         "id": "Tome of the Eternal Flow",
         "level": 90,
-        "refinement": 1
+        "refinement": 1,
+        "ascension": 6
       },
       "artifactSets": [
         {
@@ -1904,10 +1942,11 @@
         "critDmg": 221.7,
         "energyRecharge": 122,
         "elementalMastery": 82,
-        "elementalDmgBonus": 46.6
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 750
       }
     },
-    "updatedAt": "2026-10-07T10:22:21.216Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Nicole": {
     "constellation": 0,
@@ -2166,13 +2205,14 @@
         "baseAtk": 741
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Raiden Shogun": {
     "constellation": 0,
     "built": true,
     "build": {
       "level": 90,
+      "ascension": 6,
       "talents": {
         "normal": 6,
         "skill": 7,
@@ -2181,7 +2221,8 @@
       "weapon": {
         "id": "\"The Catch\"",
         "level": 90,
-        "refinement": 5
+        "refinement": 5,
+        "ascension": 6
       },
       "artifactSets": [
         {
@@ -2197,10 +2238,11 @@
         "critDmg": 112.2,
         "energyRecharge": 255.6,
         "elementalMastery": 23,
-        "elementalDmgBonus": 108.8
+        "elementalDmgBonus": 108.8,
+        "baseAtk": 847
       }
     },
-    "updatedAt": "2026-10-07T10:22:21.216Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Razor": {
     "constellation": 6,
@@ -2572,6 +2614,43 @@
     },
     "updatedAt": "2026-10-12T18:00:00.000Z"
   },
+  "Traveler (Cryo)": {
+    "constellation": 4,
+    "built": true,
+    "build": {
+      "level": 90,
+      "ascension": 6,
+      "talents": {
+        "normal": 3,
+        "skill": 1,
+        "burst": 9
+      },
+      "weapon": {
+        "id": "Exaiphanes Blade",
+        "level": 90,
+        "refinement": 3,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Disenchantment in Deep Shadow",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 15598,
+        "atk": 1352,
+        "def": 790,
+        "critRate": 48.2,
+        "critDmg": 86.5,
+        "energyRecharge": 111.7,
+        "elementalMastery": 69,
+        "elementalDmgBonus": 7,
+        "baseAtk": 830
+      }
+    },
+    "updatedAt": "2026-10-12T19:00:00.000Z"
+  },
   "Varesa": {
     "constellation": 0,
     "built": false,
@@ -2647,8 +2726,41 @@
     "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Xiangling": {
-    "constellation": 0,
-    "built": true
+    "constellation": 6,
+    "built": true,
+    "build": {
+      "level": 90,
+      "ascension": 6,
+      "talents": {
+        "normal": 5,
+        "skill": 9,
+        "burst": 11
+      },
+      "weapon": {
+        "id": "Favonius Lance",
+        "level": 80,
+        "refinement": 1,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Emblem of Severed Fate",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 17383,
+        "atk": 1217,
+        "def": 1018,
+        "critRate": 39.2,
+        "critDmg": 105.9,
+        "energyRecharge": 215.9,
+        "elementalMastery": 159,
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 722
+      }
+    },
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Xiao": {
     "constellation": 0,
@@ -2985,7 +3097,7 @@
         "baseAtk": 668
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T19:00:00.000Z"
   },
   "Yun Jin": {
     "constellation": 4,
