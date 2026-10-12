@@ -6,7 +6,8 @@ import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
 import { carryDamage, lunarHit, modelsAscendantGleam, type LunarReaction } from "./damage";
-import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
+import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
+import type { ScaleStat, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
@@ -628,7 +629,33 @@ interface SubDpsSource {
 // lunarBaseBonus: their own Moonsign Benediction's Base DMG bonus to their direct Lunar hits (PR #155; Ineffa,
 // Columbina). Teammates' bonuses to them stay with #88.
 type SubDpsLunarBase = { stat: "atk" | "hp" | "def" | "em"; perPoint: number; max: number; reactions: LunarReaction[] };
-const SUB_DPS = kitJson.subDps as Record<string, { sources: SubDpsSource[]; missing?: string[]; lunarBaseBonus?: SubDpsLunarBase }>;
+// base: level 90 character base stats from genshin-db, for the benchmark build (#158).
+type SubDpsEntry = { base: { hp: number; atk: number; def: number } | null; sources: SubDpsSource[]; missing?: string[]; lunarBaseBonus?: SubDpsLunarBase };
+const SUB_DPS = kitJson.subDps as Record<string, SubDpsEntry>;
+
+// The stat a sub-DPS's hits scale on (#158): EM if any hit uses it (Nahida's Tri-Karma), else the one with the
+// largest summed coefficient.
+function scaleStatOf(entry: SubDpsEntry): ScaleStat {
+  const sum = { atk: 0, hp: 0, def: 0, em: 0 };
+  for (const s of entry.sources) for (const k of ["atk", "hp", "def", "em"] as const) sum[k] += s.scaling[k] ?? 0;
+  if (sum.em > 0) return "em";
+  return (["atk", "hp", "def"] as const).reduce((a, b) => (sum[b] > sum[a] ? b : a));
+}
+
+// A sub-DPS's stats: their build's, else a KQM Standards benchmark build for the stat they scale on (benchmark.ts,
+// #158). Crit is read here for #152's expected crit; hits on this branch don't crit yet, on either side.
+export function subDpsStats(m: ScoringCharacter): SubDpsStats | null {
+  const entry = SUB_DPS[m.id];
+  if (!entry) return null;
+  if (m.stats) {
+    const s = m.stats;
+    return { atk: s.atk, hp: s.hp, def: s.def, em: s.elementalMastery, critRate: s.critRate / 100, critDmg: s.critDmg / 100, dmgBonus: s.elementalDmgBonus / 100 };
+  }
+  if (entry.base) return subDpsBenchmark(entry.base, scaleStatOf(entry));
+  const b = BENCHMARK.buffer;
+  const { carryCritRate: critRate, carryCritDmg: critDmg, subDpsDmgBonus: dmgBonus } = BENCHMARK;
+  return { atk: b.atk, hp: b.hp, def: b.def, em: b.em, critRate, critDmg, dmgBonus };
+}
 
 // Hits per second of one source, averaged over its cooldown; 0 when it can't fire in this team.
 function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
@@ -665,8 +692,8 @@ function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext): number | nu
 // Off-field sub-DPS (#96): the damage their own hits add, from data/kit.json `subDps` (talent level 9), as a share
 // of the carry's own damage (the generic BENCHMARK hit for a carry that isn't modeled yet), on the buffer scale:
 // +20% = `buffer` points. Their hits add to the carry's: the carry keeps attacking while they fire.
-// Their stats come from their build, else the benchmark buffer's. Crit, enemy RES and reactions on their hits are
-// left out, as on the carry's side.
+// Their stats come from their build, else a KQM Standards benchmark build (subDpsStats, #158). Crit, enemy RES and
+// reactions on their hits are left out, as on the carry's side.
 // Returns the sub-DPS who out-damages the carry, if one does: the team is really theirs (Jessie, #96).
 function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): ScoringCharacter | null {
   if (!carry) return null;
@@ -675,9 +702,8 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
     if (m === carry || !entry) continue;
-    const b = BENCHMARK.buffer;
-    const stat = { atk: m.stats?.atk ?? b.atk, hp: m.stats?.hp ?? b.hp, def: m.stats?.def ?? b.def, em: m.stats?.elementalMastery ?? b.em };
-    const dmgBonus = m.stats ? m.stats.elementalDmgBonus / 100 : BENCHMARK.subDpsDmgBonus;
+    const stat = subDpsStats(m)!;
+    const dmgBonus = stat.dmgBonus;
     let dps = 0;
     let lunarDps = 0;
     const picked = pickedSources(entry.sources, carry, ctx);

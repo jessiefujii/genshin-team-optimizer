@@ -1492,6 +1492,11 @@
   },
   "subDps": {
     "Aino": {
+      "base": {
+        "hp": 11201,
+        "atk": 242,
+        "def": 607
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1524,6 +1529,11 @@
       ]
     },
     "Albedo": {
+      "base": {
+        "hp": 13226,
+        "atk": 251,
+        "def": 876
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1565,6 +1575,11 @@
       ]
     },
     "Alyosha": {
+      "base": {
+        "hp": 11962,
+        "atk": 265,
+        "def": 703
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1598,6 +1613,11 @@
       ]
     },
     "Amber": {
+      "base": {
+        "hp": 9461,
+        "atk": 223,
+        "def": 601
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1620,6 +1640,11 @@
       ]
     },
     "Beidou": {
+      "base": {
+        "hp": 13050,
+        "atk": 225,
+        "def": 648
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1653,6 +1678,11 @@
       ]
     },
     "Chiori": {
+      "base": {
+        "hp": 11438,
+        "atk": 323,
+        "def": 953
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1688,6 +1718,11 @@
       ]
     },
     "Chongyun": {
+      "base": {
+        "hp": 10984,
+        "atk": 223,
+        "def": 648
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1710,6 +1745,11 @@
       ]
     },
     "Citlali": {
+      "base": {
+        "hp": 11634,
+        "atk": 127,
+        "def": 763
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1751,6 +1791,11 @@
       ]
     },
     "Columbina": {
+      "base": {
+        "hp": 14695,
+        "atk": 96,
+        "def": 515
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1836,6 +1881,11 @@
       }
     },
     "Collei": {
+      "base": {
+        "hp": 9787,
+        "atk": 200,
+        "def": 601
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1868,6 +1918,11 @@
       ]
     },
     "Dehya": {
+      "base": {
+        "hp": 15675,
+        "atk": 265,
+        "def": 628
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1913,6 +1968,11 @@
       ]
     },
     "Durin": {
+      "base": {
+        "hp": 12430,
+        "atk": 347,
+        "def": 822
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1946,6 +2006,11 @@
       ]
     },
     "Emilie": {
+      "base": {
+        "hp": 13568,
+        "atk": 335,
+        "def": 730
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1990,6 +2055,11 @@
       ]
     },
     "Escoffier": {
+      "base": {
+        "hp": 13348,
+        "atk": 347,
+        "def": 732
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2033,6 +2103,11 @@
       ]
     },
     "Fischl": {
+      "base": {
+        "hp": 9189,
+        "atk": 244,
+        "def": 594
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2066,6 +2141,11 @@
       ]
     },
     "Furina": {
+      "base": {
+        "hp": 15307,
+        "atk": 244,
+        "def": 696
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2127,6 +2207,11 @@
       ]
     },
     "Ineffa": {
+      "base": {
+        "hp": 12613,
+        "atk": 330,
+        "def": 828
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2181,6 +2266,11 @@
       }
     },
     "Jahoda": {
+      "base": {
+        "hp": 9646,
+        "atk": 223,
+        "def": 580
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2206,6 +2296,11 @@
       ]
     },
     "Kachina": {
+      "base": {
+        "hp": 11799,
+        "atk": 217,
+        "def": 792
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2230,6 +2325,11 @@
       ]
     },
     "Kaeya": {
+      "base": {
+        "hp": 11636,
+        "atk": 223,
+        "def": 792
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2253,6 +2353,11 @@
       ]
     },
     "Lauma": {
+      "base": {
+        "hp": 10654,
+        "atk": 255,
+        "def": 669
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2278,6 +2383,11 @@
       ]
     },
     "Linnea": {
+      "base": {
+        "hp": 9895,
+        "atk": 144,
+        "def": 907
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2293,6 +2403,11 @@
       ]
     },
     "Lisa": {
+      "base": {
+        "hp": 9570,
+        "atk": 232,
+        "def": 573
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2316,6 +2431,11 @@
       ]
     },
     "Lynette": {
+      "base": {
+        "hp": 12397,
+        "atk": 232,
+        "def": 712
+      },
       "sources": [
         {
           "talent": "burst",
@@ -2349,6 +2469,11 @@
       ]
     },
     "Nahida": {
+      "base": {
+        "hp": 10360,
+        "atk": 299,
+        "def": 630
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2374,6 +2499,11 @@
       ]
     },
     "Nilou": {
+      "base": {
+        "hp": 15185,
+        "atk": 230,
+        "def": 729
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2414,6 +2544,11 @@
       ]
     },
     "Odette": {
+      "base": {
+        "hp": 12981,
+        "atk": 335,
+        "def": 787
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2476,6 +2611,11 @@
       ]
     },
     "Ororon": {
+      "base": {
+        "hp": 9244,
+        "atk": 244,
+        "def": 587
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2508,6 +2648,11 @@
       ]
     },
     "Prune": {
+      "base": {
+        "hp": 9679,
+        "atk": 221,
+        "def": 580
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2540,6 +2685,11 @@
       ]
     },
     "Rosaria": {
+      "base": {
+        "hp": 12289,
+        "atk": 240,
+        "def": 710
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2572,6 +2722,11 @@
       ]
     },
     "Sigewinne": {
+      "base": {
+        "hp": 13348,
+        "atk": 193,
+        "def": 500
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2596,6 +2751,11 @@
       ]
     },
     "Traveler (Dendro)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2619,6 +2779,11 @@
       ]
     },
     "Traveler (Pyro)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2643,6 +2808,11 @@
       ]
     },
     "Traveler (Geo)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2666,6 +2836,11 @@
       ]
     },
     "Venti": {
+      "base": {
+        "hp": 10531,
+        "atk": 263,
+        "def": 669
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2689,6 +2864,11 @@
       ]
     },
     "Xiangling": {
+      "base": {
+        "hp": 10875,
+        "atk": 225,
+        "def": 669
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2740,6 +2920,11 @@
       ]
     },
     "Xingqiu": {
+      "base": {
+        "hp": 10222,
+        "atk": 202,
+        "def": 758
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2766,6 +2951,11 @@
       ]
     },
     "Yae Miko": {
+      "base": {
+        "hp": 10372,
+        "atk": 340,
+        "def": 569
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2799,6 +2989,11 @@
       ]
     },
     "Yelan": {
+      "base": {
+        "hp": 14450,
+        "atk": 244,
+        "def": 548
+      },
       "sources": [
         {
           "talent": "skill",

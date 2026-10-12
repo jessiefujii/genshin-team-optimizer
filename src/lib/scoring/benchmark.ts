@@ -17,6 +17,53 @@ export const BENCHMARK = {
   subDpsDmgBonus: 0.466, // an elemental DMG goblet, for an off-field sub-DPS without a build (#96)
 };
 
+// A sub-DPS's stats without a build (#158): a KQM Standards build (KQMS rev 2.0.2, compendium.keqingmains.com,
+// accessed 2026-10-12: level 90 character and weapon, 5-star artifacts at max level, 40 substats: 20 fixed at 2 rolls
+// of each type, 20 distributed, at most 2 distributed rolls of a type per piece whose main stat differs). Roll values
+// are KQMS's; main stats are the wiki's 5-star max (Artifact/Stats); base CRIT 5% / 50% (wiki CRIT Rate, CRIT DMG).
+// Built for the stat their hits scale on, read from their kit (Jessie, #158):
+// - ATK / HP / DEF: sands of that stat %, an elemental DMG goblet, a CRIT Rate circlet; the 20 distributed rolls go
+//   to CRIT DMG (10, the cap), CRIT Rate (8, the cap without the circlet) and that stat % (2). Estimate: KQMS says
+//   "as optimally as possible", and this split favours crit.
+// - EM: EM sands, goblet and circlet; EM 800 (Jessie, #158: KQMS gives 678 from artifacts, 3 x 186.5 + 6 rolls, and an
+//   EM weapon substat adds the rest; estimate); distributed rolls: EM 4 (the cap: flower and plume), CRIT Rate 8,
+//   CRIT DMG 8; no DMG bonus goblet.
+// Base ATK adds the benchmark weapon's (BENCHMARK.buffer.weaponBaseAtk, an estimate); weapon substats are left out.
+const KQMS = {
+  roll: { hp: 253.94, hpPct: 0.0496, atk: 16.54, atkPct: 0.0496, def: 19.68, defPct: 0.062, em: 19.82, critRate: 0.0331, critDmg: 0.0662 },
+  main: { hp: 4780, atk: 311, hpPct: 0.466, atkPct: 0.466, defPct: 0.583, em: 186.5, elementalDmg: 0.466, critRate: 0.311 },
+  fixed: 2, // rolls of every substat type
+};
+export type ScaleStat = "atk" | "hp" | "def" | "em";
+export interface SubDpsStats {
+  atk: number;
+  hp: number;
+  def: number;
+  em: number;
+  critRate: number;
+  critDmg: number;
+  dmgBonus: number;
+}
+export function subDpsBenchmark(base: { hp: number; atk: number; def: number }, scale: ScaleStat): SubDpsStats {
+  const { roll, main, fixed } = KQMS;
+  const pct = (stat: "hp" | "atk" | "def", sandsMain: number) => {
+    const rolls = fixed + (scale === stat ? 2 : 0);
+    return 1 + (scale === stat ? sandsMain : 0) + rolls * roll[`${stat}Pct`];
+  };
+  const baseAtk = base.atk + BENCHMARK.buffer.weaponBaseAtk;
+  const em = scale === "em" ? 800 : fixed * roll.em;
+  const critRolls = scale === "em" ? { rate: fixed + 8, dmg: fixed + 8 } : { rate: fixed + 8, dmg: fixed + 10 };
+  return {
+    atk: baseAtk * pct("atk", main.atkPct) + main.atk + fixed * roll.atk,
+    hp: base.hp * pct("hp", main.hpPct) + main.hp + fixed * roll.hp,
+    def: base.def * pct("def", main.defPct) + fixed * roll.def,
+    em,
+    critRate: 0.05 + (scale === "em" ? 0 : main.critRate) + critRolls.rate * roll.critRate,
+    critDmg: 0.5 + critRolls.dmg * roll.critDmg,
+    dmgBonus: scale === "em" ? 0 : main.elementalDmg,
+  };
+}
+
 // A value worth this much extra damage scores `points` points.
 export const GAIN_FOR_POINTS = 0.2;
 

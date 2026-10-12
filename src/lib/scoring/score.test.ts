@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { canTrigger } from "./reactions";
 import { loadScoringCharacters } from "./load";
-import { scoreTeam, teamScore } from "./score";
+import { scoreTeam, subDpsStats, teamScore } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
@@ -417,6 +417,23 @@ describe("sub-DPS (#96)", () => {
     // Columbina's Gravity Interference needs a Lunar reaction: Ineffa's Electro-Charged turns Lunar-Charged; with
     // Kazuha instead there is none.
     expect(share("Columbina", "Yoimiya", "Columbina", "Ineffa", "Bennett")).toBeGreaterThan(share("Columbina", "Yoimiya", "Columbina", "Kaedehara Kazuha", "Bennett"));
+  });
+
+  test("a sub-DPS without a build gets a KQM Standards build for the stat their hits scale on (#158)", () => {
+    const stats = (id: string) => subDpsStats(byId.get(id)!)!;
+    // Ineffa scales on ATK: level 90 base 330 + the 500 benchmark weapon, ATK% sands + 4 ATK% rolls, plume, 2 ATK rolls.
+    const ineffa = stats("Ineffa");
+    expect(ineffa.atk).toBeCloseTo(830 * (1 + 0.466 + 4 * 0.0496) + 311 + 2 * 16.54, 0);
+    expect(ineffa.em).toBeCloseTo(2 * 19.82, 1); // only the 2 fixed EM rolls, not 800
+    expect(ineffa.critRate).toBeCloseTo(0.05 + 0.311 + 10 * 0.0331, 3); // CRIT Rate circlet, 2 fixed + 8 rolls
+    expect(ineffa.critDmg).toBeCloseTo(0.5 + 12 * 0.0662, 3); // 2 fixed + 10 rolls
+    // Columbina scales on HP: HP% sands, the flower and HP rolls on her own base.
+    expect(stats("Columbina").hp).toBeCloseTo(14695 * (1 + 0.466 + 4 * 0.0496) + 4780 + 2 * 253.94, 0);
+    // Nahida's Tri-Karma scales on EM too: EM sands, goblet and circlet, EM 800 (Jessie), no DMG bonus goblet.
+    expect(stats("Nahida")).toMatchObject({ em: 800, dmgBonus: 0 });
+    // A build always wins over the benchmark.
+    const built = { ...byId.get("Ineffa")!, stats: { ...ineffa, elementalMastery: 300, critRate: 50, critDmg: 100, energyRecharge: 120, elementalDmgBonus: 46.6 } };
+    expect(subDpsStats(built as ScoringCharacter)).toMatchObject({ em: 300, critRate: 0.5, critDmg: 1, dmgBonus: 0.466 });
   });
 });
 
