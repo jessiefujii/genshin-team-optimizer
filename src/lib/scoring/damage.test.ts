@@ -148,10 +148,20 @@ describe("carry damage (#101)", () => {
     const raiden = byId.get("Raiden Shogun")!;
     const built: ScoringCharacter = {
       ...raiden,
-      stats: { atk: 2600, baseAtk: 950, hp: 20000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 250, elementalMastery: 0, elementalDmgBonus: 46.6 },
+      // DMG bonus as the character screen shows it: 46.6% goblet + her passive 2 (0.4% per ER over 100%) at 250% ER.
+      stats: { atk: 2600, baseAtk: 950, hp: 20000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 250, elementalMastery: 0, elementalDmgBonus: 106.6 },
     };
-    // More ATK and ER (her passive 2: Electro DMG Bonus per ER over 100%) than the benchmark.
     expect(carryDamage(built)!.perSecond).toBeGreaterThan(carryDamage(raiden)!.perSecond);
+  });
+
+  test("an imported build's DMG bonus already holds Raiden's ER passive: it isn't added again (#161)", () => {
+    const raiden = byId.get("Raiden Shogun")!;
+    // Jessie's Raiden from Enka: 108.8% Electro DMG Bonus = 46.6% goblet + 0.4 x 155.6 ER.
+    const stats = { atk: 1952, baseAtk: 950, hp: 18886, def: 981, critRate: 42.3, critDmg: 112.2, energyRecharge: 255.6, elementalMastery: 23, elementalDmgBonus: 108.8 };
+    const jessie: ScoringCharacter = { ...raiden, stats };
+    const moreEr: ScoringCharacter = { ...raiden, stats: { ...stats, energyRecharge: 300 } };
+    // ER only reaches her damage through the panel's DMG bonus, so more ER alone changes nothing.
+    expect(carryDamage(moreEr)!.perSecond).toBeCloseTo(carryDamage(jessie)!.perSecond, 6);
   });
 });
 
