@@ -169,8 +169,45 @@
     "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Charlotte": {
-    "constellation": 0,
-    "built": false
+    "constellation": 3,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 2,
+        "skill": 4,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Favonius Codex",
+        "level": 50,
+        "refinement": 1,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Gladiator's Finale",
+          "pieces": 2
+        },
+        {
+          "set": "Emblem of Severed Fate",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 8472,
+        "atk": 603,
+        "def": 404,
+        "critRate": 7.7,
+        "critDmg": 78,
+        "energyRecharge": 173.8,
+        "elementalMastery": 16,
+        "elementalDmgBonus": 0,
+        "baseAtk": 380
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Chevreuse": {
     "constellation": 0,
@@ -346,7 +383,40 @@
   },
   "Dori": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Sacrificial Greatsword",
+        "level": 1,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Noblesse Oblige",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 11055,
+        "atk": 247,
+        "def": 561,
+        "critRate": 7.7,
+        "critDmg": 76.4,
+        "energyRecharge": 125.5,
+        "elementalMastery": 40,
+        "elementalDmgBonus": 7,
+        "baseAtk": 191
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Durin": {
     "constellation": 0,
@@ -420,8 +490,41 @@
     "updatedAt": "2026-10-07T10:22:21.216Z"
   },
   "Faruzan": {
-    "constellation": 0,
-    "built": false
+    "constellation": 4,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 5,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Favonius Warbow",
+        "level": 20,
+        "refinement": 1,
+        "ascension": 1
+      },
+      "artifactSets": [
+        {
+          "set": "Emblem of Severed Fate",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 7231,
+        "atk": 396,
+        "def": 474,
+        "critRate": 18.6,
+        "critDmg": 80.3,
+        "energyRecharge": 154.6,
+        "elementalMastery": 0,
+        "elementalDmgBonus": 7,
+        "baseAtk": 255
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Fischl": {
     "constellation": 0,
@@ -462,8 +565,41 @@
     "updatedAt": "2026-10-07T10:22:21.216Z"
   },
   "Freminet": {
-    "constellation": 0,
-    "built": false
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 1,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "Debate Club",
+        "level": 40,
+        "refinement": 5,
+        "ascension": 1
+      },
+      "artifactSets": [
+        {
+          "set": "Pale Flame",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 9458,
+        "atk": 575,
+        "def": 566,
+        "critRate": 20.2,
+        "critDmg": 61.7,
+        "energyRecharge": 100,
+        "elementalMastery": 56,
+        "elementalDmgBonus": 0,
+        "baseAtk": 337
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Gaming": {
     "constellation": 0,
@@ -474,12 +610,78 @@
     "built": false
   },
   "Iansan": {
-    "constellation": 0,
-    "built": false
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Favonius Lance",
+        "level": 20,
+        "refinement": 1,
+        "ascension": 1
+      },
+      "artifactSets": [
+        {
+          "set": "Scroll of the Hero of Cinder City",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 13275,
+        "atk": 481,
+        "def": 461,
+        "critRate": 17,
+        "critDmg": 84.2,
+        "energyRecharge": 135.8,
+        "elementalMastery": 0,
+        "elementalDmgBonus": 0,
+        "baseAtk": 314
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Ifa": {
-    "constellation": 0,
-    "built": false
+    "constellation": 2,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 3,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "Mappa Mare",
+        "level": 80,
+        "refinement": 3,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 8841,
+        "atk": 698,
+        "def": 467,
+        "critRate": 5,
+        "critDmg": 71,
+        "energyRecharge": 105.8,
+        "elementalMastery": 270,
+        "elementalDmgBonus": 22,
+        "baseAtk": 614
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Illuga": {
     "constellation": 4,
@@ -588,8 +790,41 @@
     "built": true
   },
   "Kujou Sara": {
-    "constellation": 0,
-    "built": false
+    "constellation": 4,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Amos' Bow",
+        "level": 20,
+        "refinement": 1,
+        "ascension": 1
+      },
+      "artifactSets": [
+        {
+          "set": "Emblem of Severed Fate",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 12629,
+        "atk": 734,
+        "def": 653,
+        "critRate": 17.4,
+        "critDmg": 151.8,
+        "energyRecharge": 140.8,
+        "elementalMastery": 121,
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 282
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Kuki Shinobu": {
     "constellation": 6,
@@ -629,12 +864,78 @@
     "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Lan Yan": {
-    "constellation": 0,
-    "built": false
+    "constellation": 3,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 2,
+        "skill": 7,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Thrilling Tales of Dragon Slayers",
+        "level": 50,
+        "refinement": 5,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 9048,
+        "atk": 581,
+        "def": 456,
+        "critRate": 15.5,
+        "critDmg": 62.4,
+        "energyRecharge": 111,
+        "elementalMastery": 49,
+        "elementalDmgBonus": 15,
+        "baseAtk": 381
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Layla": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 5,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Kagotsurube Isshin",
+        "level": 50,
+        "refinement": 1,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Tenacity of the Millelith",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 12282,
+        "atk": 615,
+        "def": 512,
+        "critRate": 8.5,
+        "critDmg": 68.7,
+        "energyRecharge": 100,
+        "elementalMastery": 56,
+        "elementalDmgBonus": 0,
+        "baseAtk": 409
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Linnea": {
     "constellation": 0,
@@ -716,7 +1017,40 @@
   },
   "Lynette": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Lion's Roar",
+        "level": 20,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 9094,
+        "atk": 409,
+        "def": 536,
+        "critRate": 19.4,
+        "critDmg": 70.2,
+        "energyRecharge": 120.8,
+        "elementalMastery": 44,
+        "elementalDmgBonus": 34,
+        "baseAtk": 261
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Mika": {
     "constellation": 2,
@@ -942,16 +1276,82 @@
     "built": false
   },
   "Sethos": {
-    "constellation": 0,
-    "built": false
+    "constellation": 4,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 7,
+        "skill": 1,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Slingshot",
+        "level": 50,
+        "refinement": 5,
+        "ascension": 3
+      },
+      "artifactSets": [
+        {
+          "set": "Wanderer's Troupe",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 7613,
+        "atk": 443,
+        "def": 447,
+        "critRate": 33,
+        "critDmg": 78.7,
+        "energyRecharge": 116.2,
+        "elementalMastery": 205,
+        "elementalDmgBonus": 7,
+        "baseAtk": 362
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Shenhe": {
     "constellation": 0,
     "built": false
   },
   "Shikanoin Heizou": {
-    "constellation": 0,
-    "built": false
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "The Widsith",
+        "level": 50,
+        "refinement": 1,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 8216,
+        "atk": 545,
+        "def": 539,
+        "critRate": 13.2,
+        "critDmg": 91.2,
+        "energyRecharge": 106.5,
+        "elementalMastery": 63,
+        "elementalDmgBonus": 34,
+        "baseAtk": 414
+      }
+    },
+    "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Sucrose": {
     "constellation": 6,
