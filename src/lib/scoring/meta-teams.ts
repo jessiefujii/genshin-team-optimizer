@@ -13,7 +13,7 @@
 // Teams: the carry's KeqingMains quick guide with the #108 rules (see known-teams.ts); genshin-builds where KQM has no
 // page (Vesna) or is outdated (Cyno: "Updated for Version 4.2"). topPick = genshin-builds' first SS team for the carry
 // (it lists teams with tier labels, not numbered ranks).
-// Traveler (Cryo) isn't in our data yet (#136): teams that need them are kept in `unscorable` and only counted.
+// Teams with Traveler (Cryo) became scorable with #136 (PR #154).
 import { KNOWN_TEAMS } from "./known-teams";
 
 type Team = [string, string, string, string];
@@ -21,9 +21,8 @@ type Team = [string, string, string, string];
 export interface MetaCarry {
   carry: string;
   metaIn: string; // where and when the carry was rated top tier
-  topPick: Team | null; // null when genshin-builds' first SS team can't be scored yet
+  topPick: Team;
   teams: Team[];
-  unscorable: string[];
   source: string;
 }
 
@@ -43,17 +42,16 @@ export const META_TEAMS: MetaCarry[] = [
       ["Sandrone", "Yae Miko", "Qiqi", "Nicole"],
       ["Sandrone", "Yae Miko", "Escoffier", "Nicole"],
       ["Sandrone", "Columbina", "Ineffa", "Yae Miko"],
+      ["Sandrone", "Odette", "Sucrose", "Traveler (Cryo)"], // On-Field Stellar Swirl DPS
     ],
-    unscorable: ["Sandrone, Odette, Sucrose, Traveler (Cryo)"],
     source: "https://keqingmains.com/q/sandrone-quickguide/",
   },
   {
     carry: "Vesna",
     metaIn: "Game8 SS 7.1; genshin-builds SS",
-    topPick: null,
-    // No KQM page. genshin-builds' two Vesna teams are the same four, both with Traveler (Cryo).
+    topPick: ["Vesna", "Odette", "Vodyanitsa", "Traveler (Cryo)"],
+    // No KQM page. genshin-builds' two Vesna teams are the same four (the top pick).
     teams: [],
-    unscorable: ["Vesna, Odette, Vodyanitsa, Traveler (Cryo)"],
     source: "https://genshin-builds.com/en/teams",
   },
   {
@@ -76,8 +74,8 @@ export const META_TEAMS: MetaCarry[] = [
       ["Varka", "Prune", "Odette", "Escoffier"],
       ["Varka", "Prune", "Escoffier", "Shenhe"],
       ["Varka", "Venti", "Iansan", "Fischl"],
+      ["Varka", "Prune", "Odette", "Traveler (Cryo)"],
     ],
-    unscorable: ["Varka, Prune, Odette, Traveler (Cryo)"],
     source: "https://keqingmains.com/q/varka-quickguide/",
   },
   {
@@ -85,7 +83,6 @@ export const META_TEAMS: MetaCarry[] = [
     metaIn: "Game8 SS 7.1; Phrasemaker 6.5 S; genshin-builds SS",
     topPick: ["Zibai", "Linnea", "Columbina", "Gorou"],
     teams: kqm("Zibai"),
-    unscorable: [],
     source: "KQM via known-teams.ts",
   },
   {
@@ -93,7 +90,6 @@ export const META_TEAMS: MetaCarry[] = [
     metaIn: "Game8 SS since 2025-11; Phrasemaker 6.5 S; genshin-builds SS",
     topPick: ["Nefer", "Lauma", "Yaoyao", "Columbina"],
     teams: kqm("Nefer"),
-    unscorable: [],
     source: "KQM via known-teams.ts",
   },
   {
@@ -101,7 +97,6 @@ export const META_TEAMS: MetaCarry[] = [
     metaIn: "Game8 SS since 2025-11; Phrasemaker 6.5 S; genshin-builds SS",
     topPick: ["Flins", "Aino", "Jahoda", "Ineffa"],
     teams: kqm("Flins"),
-    unscorable: [],
     source: "KQM via known-teams.ts",
   },
   {
@@ -109,7 +104,6 @@ export const META_TEAMS: MetaCarry[] = [
     metaIn: "Game8 SS from 2025-06, S in 7.1; gamemarket 6.7 SS; Phrasemaker 6.5 S; genshin-builds SS",
     topPick: ["Skirk", "Dahlia", "Furina", "Escoffier"],
     teams: kqm("Skirk"),
-    unscorable: [],
     source: "KQM via known-teams.ts",
   },
   {
@@ -117,7 +111,6 @@ export const META_TEAMS: MetaCarry[] = [
     metaIn: "Game8 SS 7.1; gamemarket 6.7 SS; Phrasemaker 6.5 S; genshin-builds SS",
     topPick: ["Mavuika", "Ororon", "Chevreuse", "Bennett"],
     teams: kqm("Mavuika"),
-    unscorable: [],
     source: "KQM via known-teams.ts",
   },
   {
@@ -126,7 +119,6 @@ export const META_TEAMS: MetaCarry[] = [
     topPick: ["Cyno", "Chevreuse", "Xiangling", "Bennett"],
     // genshin-builds' SS Cyno teams (the second is listed under Kuki Shinobu). KQM's guide is from 4.2.
     teams: [["Cyno", "Nahida", "Yelan", "Kuki Shinobu"]],
-    unscorable: [],
     source: "https://genshin-builds.com/en/teams",
   },
   {
@@ -139,12 +131,13 @@ export const META_TEAMS: MetaCarry[] = [
       ["Yumemizuki Mizuki", "Yae Miko", "Fischl", "Nahida"],
       ["Yumemizuki Mizuki", "Ineffa", "Columbina", "Xilonen"],
       ["Yumemizuki Mizuki", "Ineffa", "Columbina", "Durin"],
-    ],
-    unscorable: [
-      "Mizuki, Traveler (Cryo), Qiqi, Sucrose",
-      "Mizuki, Odette, Traveler (Cryo), Faruzan / Sucrose",
-      "Mizuki, Odette, Traveler (Cryo), Qiqi",
-      "Mizuki, Odette, Traveler (Cryo), Lan Yan / Zhongli",
+      // On-Field Stellar Swirl DPS. "Odette, Traveler (Cryo), C6 Diona / Qiqi": only the Qiqi option (no C6 stated).
+      ["Yumemizuki Mizuki", "Traveler (Cryo)", "Qiqi", "Sucrose"],
+      ["Yumemizuki Mizuki", "Odette", "Traveler (Cryo)", "Faruzan"],
+      ["Yumemizuki Mizuki", "Odette", "Traveler (Cryo)", "Sucrose"],
+      ["Yumemizuki Mizuki", "Odette", "Traveler (Cryo)", "Qiqi"],
+      ["Yumemizuki Mizuki", "Odette", "Traveler (Cryo)", "Lan Yan"],
+      ["Yumemizuki Mizuki", "Odette", "Traveler (Cryo)", "Zhongli"],
     ],
     source: "https://keqingmains.com/q/mizuki-quickguide/",
   },
@@ -154,7 +147,6 @@ export const META_TEAMS: MetaCarry[] = [
     metaIn: "Game8 S 2025-11 to 7.0 (A since); gamemarket 6.7 SS; genshin-builds SS",
     topPick: ["Neuvillette", "Furina", "Xilonen", "Ineffa"],
     teams: kqm("Neuvillette"),
-    unscorable: [],
     source: "KQM via known-teams.ts",
   },
   {
@@ -162,7 +154,6 @@ export const META_TEAMS: MetaCarry[] = [
     metaIn: "Game8 S 2025-11 to 7.0 (A since); gamemarket 6.7 S; genshin-builds SS",
     topPick: ["Arlecchino", "Citlali", "Xilonen", "Bennett"],
     teams: kqm("Arlecchino"),
-    unscorable: [],
     source: "KQM via known-teams.ts",
   },
   {
@@ -170,7 +161,6 @@ export const META_TEAMS: MetaCarry[] = [
     metaIn: "Game8 SS 2025-11 to 6.6, S to 7.0 (A+ since); gamemarket 6.7 S; genshin-builds SS",
     topPick: ["Varesa", "Mavuika", "Chevreuse", "Iansan"],
     teams: kqm("Varesa"),
-    unscorable: [],
     source: "KQM via known-teams.ts",
   },
 ];

@@ -19,9 +19,8 @@ const short = (ids: readonly string[], carry: string) => ids.filter((id) => id !
 test("meta teams vs the scorer's best teams", { timeout: 300_000 }, () => {
   const rows: string[] = [];
   let found = 0;
-  let scorable = 0;
-  for (const { carry, metaIn, topPick, teams, unscorable } of META_TEAMS) {
-    const listed = topPick ? [topPick, ...teams.filter((t) => key(t) !== key(topPick))] : teams;
+  for (const { carry, metaIn, topPick, teams } of META_TEAMS) {
+    const listed = [topPick, ...teams.filter((t) => key(t) !== key(topPick))];
     for (const t of listed) for (const id of t) expect(byId.has(id), `${id} is not in tags.json`).toBe(true);
 
     // Same filter as `npm run compare`: only teams this character carries.
@@ -32,30 +31,28 @@ test("meta teams vs the scorer's best teams", { timeout: 300_000 }, () => {
       const led = s.carry && s.carry !== carry ? `, carry ${s.carry}` : "";
       return `${rank(t) ? `#${rank(t)}` : ">100"} (${s.score}${led})`;
     };
-    const best = listed.reduce<readonly string[] | null>((a, b) => (a && (rank(a) ?? 999) <= (rank(b) ?? 999) ? a : b), null);
-    if (listed.length) scorable++;
-    if (best && rank(best)) found++;
+    const best = listed.reduce((a, b) => ((rank(a) ?? 999) <= (rank(b) ?? 999) ? a : b));
+    if (rank(best)) found++;
     const ours = top[0];
 
     rows.push(
       [
         carry,
         hasCarryKit(carry) ? "yes" : "no (#137)",
-        topPick ? `${at(topPick)}: ${short(topPick, carry)}` : "-",
-        best ? `${at(best)}: ${short(best, carry)}` : "-",
+        `${at(topPick)}: ${short(topPick, carry)}`,
+        `${at(best)}: ${short(best, carry)}`,
         ours ? `${ours.score}: ${short(ours.members, carry)}` : "(none where they carry)",
-        ours && topPick ? `${ours.members.filter((id) => topPick.includes(id)).length}/4` : "-",
-        unscorable.length ? `${unscorable.length} (#136)` : "",
+        ours ? `${ours.members.filter((id) => topPick.includes(id)).length}/4` : "-",
         metaIn,
       ].join(" | "),
     );
   }
   console.log(
     [
-      "Carry | Damage model | Top pick: rank (score) | Best meta team | Our #1 | #1 overlap with top pick | Unscorable | Meta in",
-      "--- | --- | --- | --- | --- | --- | --- | ---",
+      "Carry | Damage model | Top pick: rank (score) | Best meta team | Our #1 | #1 overlap with top pick | Meta in",
+      "--- | --- | --- | --- | --- | --- | ---",
       ...rows,
-      `\nMeta teams in our top 100: ${found}/${scorable} carries with a scorable team (${META_TEAMS.length} meta carries)`,
+      `\nMeta teams in our top 100: ${found}/${META_TEAMS.length} carries`,
     ].join("\n"),
   );
 });
