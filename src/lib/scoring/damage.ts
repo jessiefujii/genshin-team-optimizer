@@ -218,7 +218,9 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
         const share = b.hitsCap ? Math.min(1, b.hitsCap / instancesOf(b.types)) : 1;
         bonus += b.value * share * (b.fightingSpirit ? fsShare : 1);
       }
-      if (b.kind === "dmgBonusFromEr") bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
+      // Raiden's passive 2 is a stat conversion the character screen shows: an imported build's (Enka) DMG bonus
+      // already includes it (Jessie's Raiden: 108.8% = 46.6% goblet + 0.4 x 155.6 ER), so only the benchmark gets it (#161).
+      if (b.kind === "dmgBonusFromEr" && !c.stats) bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * em);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
       if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
