@@ -609,8 +609,41 @@
     "updatedAt": "2026-10-12T16:00:00.000Z"
   },
   "Diluc": {
-    "constellation": 0,
-    "built": false
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 3,
+        "skill": 6,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Wolf's Gravestone",
+        "level": 70,
+        "refinement": 1,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Crimson Witch of Flames",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 16711,
+        "atk": 1554,
+        "def": 826,
+        "critRate": 26.8,
+        "critDmg": 71.7,
+        "energyRecharge": 114.3,
+        "elementalMastery": 40,
+        "elementalDmgBonus": 22,
+        "baseAtk": 752
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Diona": {
     "constellation": 6,
@@ -725,7 +758,7 @@
         "baseAtk": 816
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Escoffier": {
     "constellation": 0,
@@ -1092,7 +1125,7 @@
         "baseAtk": 570
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Jahoda": {
     "constellation": 0,
@@ -1132,8 +1165,41 @@
     "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Jean": {
-    "constellation": 0,
-    "built": true
+    "constellation": 2,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 6,
+        "skill": 6,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Favonius Sword",
+        "level": 90,
+        "refinement": 3,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 20009,
+        "atk": 1810,
+        "def": 987,
+        "critRate": 42.3,
+        "critDmg": 87.3,
+        "energyRecharge": 205.3,
+        "elementalMastery": 42,
+        "elementalDmgBonus": 15,
+        "baseAtk": 665
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Kachina": {
     "constellation": 1,
@@ -1211,7 +1277,40 @@
   },
   "Kamisato Ayaka": {
     "constellation": 1,
-    "built": true
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 6,
+        "skill": 6,
+        "burst": 8
+      },
+      "weapon": {
+        "id": "Amenoma Kageuchi",
+        "level": 90,
+        "refinement": 1,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Blizzard Strayer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 18529,
+        "atk": 1940,
+        "def": 885,
+        "critRate": 56.3,
+        "critDmg": 137.9,
+        "energyRecharge": 116.2,
+        "elementalMastery": 56,
+        "elementalDmgBonus": 61.6,
+        "baseAtk": 756
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Kaveh": {
     "constellation": 5,
@@ -1329,8 +1428,41 @@
     "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Klee": {
-    "constellation": 0,
-    "built": true
+    "constellation": 1,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 8,
+        "skill": 2,
+        "burst": 2
+      },
+      "weapon": {
+        "id": "Skyward Atlas",
+        "level": 61,
+        "refinement": 1,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Crimson Witch of Flames",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 18066,
+        "atk": 1704,
+        "def": 694,
+        "critRate": 20.5,
+        "critDmg": 158.1,
+        "energyRecharge": 115.5,
+        "elementalMastery": 93,
+        "elementalDmgBonus": 95.2,
+        "baseAtk": 734
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Kujou Sara": {
     "constellation": 4,
@@ -1671,7 +1803,40 @@
   },
   "Nahida": {
     "constellation": 0,
-    "built": true
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 1,
+        "skill": 8,
+        "burst": 2
+      },
+      "weapon": {
+        "id": "Blackmarrow Lantern",
+        "level": 90,
+        "refinement": 1,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Deepwood Memories",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 15647,
+        "atk": 1102,
+        "def": 702,
+        "critRate": 16.7,
+        "critDmg": 104.4,
+        "energyRecharge": 150.5,
+        "elementalMastery": 773,
+        "elementalDmgBonus": 15,
+        "baseAtk": 718
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Navia": {
     "constellation": 0,
@@ -1782,8 +1947,41 @@
     "updatedAt": "2026-10-12T16:00:00.000Z"
   },
   "Ningguang": {
-    "constellation": 0,
-    "built": false
+    "constellation": 2,
+    "built": false,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 7,
+        "skill": 5,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Twin Nephrite",
+        "level": 70,
+        "refinement": 5,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Nighttime Whispers in the Echoing Woods",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 10901,
+        "atk": 958,
+        "def": 587,
+        "critRate": 27.2,
+        "critDmg": 75.6,
+        "energyRecharge": 109.7,
+        "elementalMastery": 28,
+        "elementalDmgBonus": 60.7,
+        "baseAtk": 532
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Noelle": {
     "constellation": 3,
@@ -1857,7 +2055,7 @@
         "baseAtk": 744
       }
     },
-    "updatedAt": "2026-10-12T00:00:00.000Z"
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Ororon": {
     "constellation": 5,
@@ -2339,7 +2537,40 @@
   },
   "Tighnari": {
     "constellation": 4,
-    "built": true
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 6,
+        "skill": 5,
+        "burst": 9
+      },
+      "weapon": {
+        "id": "Ibis Piercer",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Wanderer's Troupe",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 18122,
+        "atk": 1478,
+        "def": 685,
+        "critRate": 30.7,
+        "critDmg": 138.6,
+        "energyRecharge": 137.6,
+        "elementalMastery": 299,
+        "elementalDmgBonus": 68.2,
+        "baseAtk": 801
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Varesa": {
     "constellation": 0,
@@ -2421,7 +2652,40 @@
   },
   "Xiao": {
     "constellation": 0,
-    "built": true
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 6,
+        "skill": 6,
+        "burst": 8
+      },
+      "weapon": {
+        "id": "White Tassel",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Vermillion Hereafter",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 18504,
+        "atk": 1668,
+        "def": 816,
+        "critRate": 79.8,
+        "critDmg": 154.3,
+        "energyRecharge": 123.3,
+        "elementalMastery": 0,
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 709
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Xilonen": {
     "constellation": 0,
@@ -2651,7 +2915,40 @@
   },
   "Yoimiya": {
     "constellation": 0,
-    "built": true
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 8,
+        "skill": 7,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Rust",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Crimson Witch of Flames",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 16160,
+        "atk": 2188,
+        "def": 738,
+        "critRate": 36.5,
+        "critDmg": 127,
+        "energyRecharge": 118.1,
+        "elementalMastery": 89,
+        "elementalDmgBonus": 61.6,
+        "baseAtk": 794
+      }
+    },
+    "updatedAt": "2026-10-12T18:00:00.000Z"
   },
   "Yumemizuki Mizuki": {
     "constellation": 1,
