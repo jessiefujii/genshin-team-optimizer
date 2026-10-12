@@ -1,6 +1,6 @@
 // A carry's own damage per second over one rotation, from data/kit.json `carries` (#101). #96 measures sub-DPS
-// damage against it. Like the rest of the benchmark it only has to rank teams, not predict real numbers: no crit or
-// enemy RES/DEF (left out on both sides of the comparison), talent level 9, C0.
+// damage against it. Like the rest of the benchmark it only has to rank teams, not predict real numbers: no enemy
+// RES/DEF (left out on both sides of the comparison), talent level 9, C0. Hits count at expected crit (#152).
 import kitJson from "../../../data/kit.json";
 import { BENCHMARK } from "./benchmark";
 import { FIGHTING_SPIRIT_LIMIT, fightingSpirit } from "./kit";
@@ -66,6 +66,15 @@ function carryStats(c: ScoringCharacter) {
     er: (c.stats?.energyRecharge ?? c.erTarget ?? 100) / 100,
     dmgBonus: c.stats ? c.stats.elementalDmgBonus / 100 : BENCHMARK.carryDmgBonus,
   };
+}
+
+// Expected crit (#152): 1 + Crit Rate (at most 100%) x Crit DMG, from the build, else the benchmark carry's. Every
+// hit in carry and sub-DPS damage crits, flat additions included: Catalyze's bonus is added to the hit's base DMG
+// before crit and DMG bonuses (Genshin Impact Wiki, Damage § Catalyze Damage Bonus), and Vaporize/Melt multiply a hit
+// that has already crit. Pure EM characters too (Nefer: her own hits crit; usesCrit only skips their CV line).
+export function expectedCrit(c: ScoringCharacter): number {
+  if (c.stats) return 1 + (Math.min(c.stats.critRate, 100) / 100) * (c.stats.critDmg / 100);
+  return 1 + Math.min(BENCHMARK.carryCritRate, 1) * BENCHMARK.carryCritDmg;
 }
 
 // Vaporize and Melt multiply the hits that react: 2x for Hydro on Pyro / Pyro on Cryo, 1.5x the other way, plus EM.
@@ -199,5 +208,6 @@ function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], te
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp);
   }
+  total *= expectedCrit(c);
   return { perSecond: total / kit.rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds: kit.rotationSeconds, missing: kit.missing ?? [] };
 }

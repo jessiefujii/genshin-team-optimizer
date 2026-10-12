@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, hasCarryKit } from "./damage";
+import { carryDamage, expectedCrit, hasCarryKit } from "./damage";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
 import type { Reaction, ScoringCharacter } from "./types";
@@ -93,6 +93,18 @@ describe("carry damage (#101)", () => {
     };
     // More ATK and ER (her passive 2: Electro DMG Bonus per ER over 100%) than the benchmark.
     expect(carryDamage(built)!.perSecond).toBeGreaterThan(carryDamage(raiden)!.perSecond);
+  });
+
+  test("hits count at expected crit: the build's, else the benchmark's (#152)", () => {
+    const raiden = byId.get("Raiden Shogun")!;
+    const stats = { atk: 2200, baseAtk: 950, hp: 20000, def: 900, energyRecharge: 100, elementalMastery: 100, elementalDmgBonus: 60 };
+    expect(expectedCrit(raiden)).toBeCloseTo(1.72); // benchmark 60% / 120%
+    expect(expectedCrit({ ...raiden, stats: { ...stats, critRate: 80, critDmg: 200 } })).toBeCloseTo(2.6);
+    expect(expectedCrit({ ...raiden, stats: { ...stats, critRate: 130, critDmg: 100 } })).toBeCloseTo(2); // rate caps at 100%
+    // Same ATK and DMG bonus, better crit: damage grows by the crit ratio alone.
+    const crit = { ...raiden, stats: { ...stats, critRate: 80, critDmg: 200 } };
+    const plain = { ...raiden, stats: { ...stats, critRate: 60, critDmg: 120 } };
+    expect(carryDamage(crit)!.perSecond / carryDamage(plain)!.perSecond).toBeCloseTo(2.6 / 1.72);
   });
 });
 

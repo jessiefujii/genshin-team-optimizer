@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
-import { carryDamage, modelsReaction } from "./damage";
+import { carryDamage, expectedCrit, modelsReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
@@ -661,12 +661,13 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
 // +20% = `buffer` points. Their hits add to the carry's: the carry keeps attacking while they fire.
 // The share is of the carry's damage without the team's reactions (#134): a team that enables the carry's reaction
 // scores that in reactionDamageLine, and shouldn't shrink every sub-DPS share for it.
-// Their stats come from their build, else the benchmark buffer's. Crit, enemy RES and reactions on their hits are
-// left out, as on the carry's side.
+// Their stats come from their build, else the benchmark buffer's; crit from their build, else the benchmark carry's
+// (expectedCrit, #152). Enemy RES and reactions on their hits are left out, as on the carry's side (#153).
 // Returns the sub-DPS who out-damages the carry, if one does: the team is really theirs (Jessie, #96).
 function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): ScoringCharacter | null {
   if (!carry) return null;
-  const generic = BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
+  // A carry not modeled yet: the generic benchmark carry (a non-crit hit), at their expected crit like the sub-DPS.
+  const generic = BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond * expectedCrit(carry);
   const carryDps = modeledCarryDps(carry, ctx) ?? generic; // who out-damages whom: with reactions
   const shareOf = modeledCarryDps(carry, ctx, false) ?? generic;
   let lead: { m: ScoringCharacter; dps: number } | null = null;
@@ -681,7 +682,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
       dps += perHit * hitsPerSecond(s, carry, ctx, m);
     }
-    dps *= 1 + dmgBonus;
+    dps *= (1 + dmgBonus) * expectedCrit(m);
     const gain = dps / shareOf;
     const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage`);
