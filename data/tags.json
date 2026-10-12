@@ -3182,6 +3182,37 @@
     "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
   },
   {
+    "id": "Traveler (Cryo)",
+    "roles": [
+      "sub-dps"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
+    "converts": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
+    "energyNeed": "medium",
+    "erTarget": 130,
+    "scalesOn": [
+      "ATK"
+    ],
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine. Wiki Character Roles: Off-Field DPS. Passive 3 converts the party's Superconduct and Cryo Swirl into Stellar-Conduct and Stellar Swirl; guides also play them on-field for Stellar-Conduct (bittopup 2026-08-14: 'On-field Conduct DPS / off-field Swirl sub-DPS', ER 120-140%)."
+  },
+  {
     "id": "Varesa",
     "roles": [
       "main-dps"

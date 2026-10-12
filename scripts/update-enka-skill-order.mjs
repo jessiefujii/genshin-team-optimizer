@@ -9,7 +9,16 @@ import { writeFileSync } from "node:fs";
 const STORE_URL = "https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/characters.json";
 const ELEMENTS = { Fire: "Pyro", Water: "Hydro", Electric: "Electro", Ice: "Cryo", Wind: "Anemo", Rock: "Geo", Grass: "Dendro" };
 
-const store = await (await fetch(STORE_URL)).json();
+// Traveler depots Enka's store doesn't have yet (#136). Cryo: genshin-db's "Traveler (Cryo)" talents have id 705,
+// and the other elements' ids are Lumine's depots (702 Pyro ... 708 Dendro). Skill IDs from Jessie's Lumine on Enka
+// (skillLevelMap 10127, 10128, 100554; burst 10128 by proudSkillExtraLevelMap 839, as Anemo's 10068 is 739).
+// Aether's 505 and 100544 follow the 50x/70x pattern of the other elements: not seen on a real profile yet.
+const MISSING = {
+  "10000005-505": { Element: "Ice", SkillOrder: [100544, 10127, 10128] },
+  "10000007-705": { Element: "Ice", SkillOrder: [100554, 10127, 10128] },
+};
+
+const store = { ...MISSING, ...(await (await fetch(STORE_URL)).json()) };
 const skillOrder = {};
 const travelerElement = {};
 for (const [key, entry] of Object.entries(store)) {
