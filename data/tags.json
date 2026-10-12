@@ -1055,9 +1055,9 @@
     "rotation": {
       "slot": "carry",
       "actions": [
-        "E",
-        "E",
-        "Q"
+        "E N1 E sQ",
+        "2[N4D] N2",
+        "E sQ N4D"
       ]
     },
     "notes": "Lunar-Charged carry; needs off-field Hydro."
@@ -3861,7 +3861,8 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N4E x4"
+        "3[N4E]",
+        "N1 Q E"
       ]
     },
     "notes": "Lunar-Crystallize carry; does not need Hydro teammates. Pairs well with Columbina, who buffs Lunar reactions."
