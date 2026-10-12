@@ -329,39 +329,50 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
   }
 }
 
-const statsCache = new WeakMap<ScoringCharacter, Map<string, TeamBuffStats>>();
-export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
-  let byKey = statsCache.get(carry);
-  if (!byKey) statsCache.set(carry, (byKey = new Map()));
-  const key = `${carryReactions.join(",")}|${team.map((m) => m.id).sort().join(",")}`;
+// One buffer's part, cached like kitBuffValue (per buffer and carry object, then team shape), not per team: the search
+// reads thousands of teams per carry.
+const statsCache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string, TeamBuffStats>>>();
+function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
+  const shape: TeamShape = {
+    elements: team.map((m) => m.element),
+    fightingSpirit: fightingSpirit(s, carry, team),
+    nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
+    healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
+  };
+  let byCarry = statsCache.get(s);
+  if (!byCarry) statsCache.set(s, (byCarry = new WeakMap()));
+  let byKey = byCarry.get(carry);
+  if (!byKey) byCarry.set(carry, (byKey = new Map()));
+  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
   const cached = byKey.get(key);
   if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
-  for (const s of team) {
-    if (s === carry) continue;
-    const entry = KIT[s.id];
-    if (!entry || entry.missing || entry.buffs.length === 0) continue;
-    const stats = bufferStats(s, entry.base, entry.buildFor);
-    const shape: TeamShape = {
-      elements: team.map((m) => m.element),
-      fightingSpirit: fightingSpirit(s, carry, team),
-      nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
-      healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
-    };
-    // The buff kitBuffValue counts for each kind: the one worth most to this carry.
-    const best = new Map<string, { buff: KitBuff; weight: number; g: number }>();
-    for (const b of entry.buffs) {
-      // A buff for some reactions only (Lauma's flat Bloom-type DMG) adds to that reaction's damage, not the carry's
-      // hits: like Reaction Bonus, buffer points score it.
-      if (b.reactions) continue;
-      const buff = applicable(b, carry, carryReactions, shape);
-      if (!buff) continue;
-      const weight = b.uptime ?? 1;
-      const g = gain(b, stats, carry, carryReactions, shape) * weight;
-      if (g > (best.get(b.kind)?.g ?? 0)) best.set(b.kind, { buff, weight, g });
-    }
-    for (const { buff, weight } of best.values()) addBuffStats(buff, stats, shape, weight, out);
+  const entry = KIT[s.id];
+  const stats = bufferStats(s, entry.base, entry.buildFor);
+  // The buff kitBuffValue counts for each kind: the one worth most to this carry.
+  const best = new Map<string, { buff: KitBuff; weight: number; g: number }>();
+  for (const b of entry.buffs) {
+    // A buff for some reactions only (Lauma's flat Bloom-type DMG) adds to that reaction's damage, not the carry's
+    // hits: like Reaction Bonus, buffer points score it.
+    if (b.reactions) continue;
+    const buff = applicable(b, carry, carryReactions, shape);
+    if (!buff) continue;
+    const weight = b.uptime ?? 1;
+    const g = gain(b, stats, carry, carryReactions, shape) * weight;
+    if (g > (best.get(b.kind)?.g ?? 0)) best.set(b.kind, { buff, weight, g });
   }
+  for (const { buff, weight } of best.values()) addBuffStats(buff, stats, shape, weight, out);
   byKey.set(key, out);
+  return out;
+}
+
+export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
+  const out = { ...NO_TEAM_BUFFS };
+  for (const s of team) {
+    const entry = KIT[s.id];
+    if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
+    const part = bufferPart(s, carry, carryReactions, team);
+    for (const k of Object.keys(out) as (keyof TeamBuffStats)[]) out[k] += part[k];
+  }
   return out;
 }

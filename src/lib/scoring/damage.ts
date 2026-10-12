@@ -162,9 +162,11 @@ export function carryDamage(
   team: readonly ScoringCharacter[] = [c],
   buffs: TeamBuffStats = NO_TEAM_BUFFS,
 ): CarryDamage | null {
+  // Readings with team buffs aren't cached: they're cheap, and one more entry per team ran the compare out of memory.
+  if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs);
   let byKey = cache.get(c);
   if (!byKey) cache.set(c, (byKey = new Map()));
-  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}#${Object.values(buffs).join(",")}`;
+  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}`;
   if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs));
   return byKey.get(key)!;
 }
