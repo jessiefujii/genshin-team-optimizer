@@ -720,6 +720,12 @@ function readStellar(id, spec) {
 //   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP); timesNeedsHealer: only
 //       when another healer keeps them there
 //   needsReaction: it only fires after the party triggers a reaction (Nahida's Tri-Karma Purification)
+//   lunar: the hit is direct Lunar reaction DMG of that reaction (#151; damage.ts's Lunar formula, no DMG Bonus)
+//   whenReaction: it only fires while the team triggers that reaction (Ineffa's Overclocking Circuit: thunderclouds)
+//   pickOne: only one source of this group fires per use; the scorer picks by the team's reactions (Columbina's
+//       Gravity Interference: the Lunar reaction that built the most Gravity)
+//   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
+//       names the source; `label` still keys its hit rate and table values)
 const SUBDPS = {
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
@@ -762,10 +768,20 @@ const SUBDPS = {
     { talent: "burst", label: "Spiritvessel Skull DMG", hits: 1, cd: "CD" },
   ],
   Columbina: [
-    // Gravity Interference needs Lunar reactions and is left out for now.
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Gravity Ripple: Continuous DMG", every: "rate", duration: "Gravity Ripple Duration", cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    // Gravity Interference (#151): one kind per trigger, the Lunar reaction that built the most Gravity.
+    ...["Lunar-Charged", "Lunar-Bloom", "Lunar-Crystallize"].map((r) => ({
+      talent: "skill",
+      label: `Gravity Interference: ${r} DMG`,
+      every: "rate",
+      duration: "Gravity Ripple Duration",
+      cd: "CD",
+      lunar: r.toLowerCase(),
+      whenReaction: r.toLowerCase(),
+      pickOne: "Gravity Interference",
+    })),
   ],
   Collei: [
     { talent: "skill", label: "Skill DMG", hits: 2, cd: "CD" }, // out and back ("dealing Dendro DMG once again")
@@ -820,6 +836,19 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Birgitta Discharge DMG", every: "rate", duration: "Birgitta Duration", cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    // Overclocking Circuit (#151): with thunderclouds nearby, each Discharge adds an attack "considered Lunar-Charged
+    // DMG" (passive 1), so it shares the Discharge's rate.
+    {
+      talent: "skill",
+      label: "Birgitta Discharge DMG",
+      name: "Overclocking Circuit (passive 1)",
+      passive: { from: "passive1", re: /equal to (\d+)% of Ineffa's ATK/, stat: "atk" },
+      every: "rate",
+      duration: "Birgitta Duration",
+      cd: "CD",
+      lunar: "lunar-charged",
+      whenReaction: "lunar-charged",
+    },
   ],
   Jahoda: [
     { talent: "skill", label: "Filled Treasure Flask DMG", hits: 1, cd: "CD" },
@@ -990,16 +1019,22 @@ function readSubDps(id, specs) {
     const value = (v, rateKey) =>
       v === undefined ? undefined : v === "rate" ? rate[rateKey] : typeof v === "number" ? v : typeof v === "string" ? tableValue(attrs, v, id) : fromText(v);
     const every = s.perSecond ? 1 / fromText(s.perSecond) : value(s.every, "every");
+    const passiveText = s.passive && talents[s.passive.from].description.replace(/\s+/g, " ");
+    const passiveValue = s.passive && Number(passiveText.match(s.passive.re)?.[1]);
+    if (s.passive && !passiveValue) throw new Error(`${id}: pattern ${s.passive.re} not found in ${s.passive.from}`);
     sources.push({
       talent: s.talent,
-      label: s.label,
-      scaling: scalingOf(attrs, s.label, id),
+      label: s.name ?? s.label,
+      scaling: s.passive ? { [s.passive.stat]: passiveValue / 100 } : scalingOf(attrs, s.label, id),
       ...(s.hits !== undefined ? { hits: value(s.hits, "hits") } : {}),
       ...(every !== undefined ? { every, duration: value(s.duration, "duration") } : {}),
       ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
       ...(s.needsReaction && fromTextRaw(s.needsReaction) ? { needsReaction: true } : {}),
       ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
       ...(s.timesNeedsHealer ? { timesNeedsHealer: true } : {}),
+      ...(s.lunar ? { lunar: s.lunar } : {}),
+      ...(s.whenReaction ? { whenReaction: s.whenReaction } : {}),
+      ...(s.pickOne ? { pickOne: s.pickOne } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
     });

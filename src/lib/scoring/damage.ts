@@ -19,7 +19,7 @@ interface CarryHit {
   lunar?: LunarReaction; // direct Lunar reaction DMG (#135)
   when?: { reaction?: Reaction; ascendantGleam?: boolean }; // the hit only lands with these
 }
-type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize";
+export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
   | { kind: "addPerStack"; value: number; stacks: number; tag: string; fightingSpirit?: boolean }
@@ -111,6 +111,9 @@ function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reacti
 // team's reaction, not the carry's hits: left to the scorer.
 const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6 };
 const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
+// One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151).
+export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0) =>
+  LUNAR_COEFFICIENT[reaction] * talentValue * (1 + baseBonus) * (1 + lunarEmBonus(em));
 const reactingShare = (h: CarryHit) => (h.reacting === undefined ? AMPLIFY_SHARE : h.count ? h.reacting / h.count : 0);
 
 // The carry's combo for this team (#114): the first of kit.json's combos whose `when` fits, else the default.

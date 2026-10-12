@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
-import { carryDamage } from "./damage";
+import { carryDamage, lunarHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
@@ -609,6 +609,9 @@ interface SubDpsSource {
   needsReaction?: boolean;
   times?: number;
   timesNeedsHealer?: boolean;
+  lunar?: LunarReaction; // direct Lunar reaction DMG (#151)
+  whenReaction?: Reaction; // only while the team triggers it
+  pickOne?: string; // one source of the group per use, picked by the team's reactions
   cd: number;
 }
 const SUB_DPS = kitJson.subDps as Record<string, { sources: SubDpsSource[]; missing?: string[] }>;
@@ -617,11 +620,25 @@ const SUB_DPS = kitJson.subDps as Record<string, { sources: SubDpsSource[]; miss
 function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
   if (s.onCarryNormal && !normalAttacks(carry)) return 0; // Xingqiu's rain swords need the carry's Normal Attacks
   if (s.needsReaction && ctx.active.length === 0) return 0; // Nahida's Tri-Karma needs a reaction
+  if (s.whenReaction && !ctx.active.includes(s.whenReaction)) return 0; // Ineffa's Overclocking Circuit: thunderclouds
   const perUse = s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1;
   // Furina's Salon bonus needs members above 50% HP, which takes another healer (#130).
   const healed = ctx.members.some((m) => m !== sub && m.roles.includes("healer"));
   const times = s.timesNeedsHealer && !healed ? 1 : (s.times ?? 1);
   return ((s.hits ?? 1) * perUse * times) / s.cd;
+}
+
+// For each `pickOne` group, the source that fires (#151): Columbina's Gravity Interference takes the type of the Lunar
+// reaction that built the most Gravity. Read as the carry's main reaction when the team triggers it, else the first
+// active one in kit order.
+function pickedSources(sources: SubDpsSource[], carry: ScoringCharacter, ctx: TeamContext): Map<string, SubDpsSource> {
+  const out = new Map<string, SubDpsSource>();
+  const main = mainReactionOf(carry);
+  for (const s of sources) {
+    if (!s.pickOne || (s.whenReaction && !ctx.active.includes(s.whenReaction))) continue;
+    if (!out.has(s.pickOne) || s.whenReaction === main) out.set(s.pickOne, s);
+  }
+  return out;
 }
 
 // The carry's own damage per second (damage.ts, #101), or null when it isn't modeled yet: no kit data, or hits still
@@ -648,11 +665,16 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     const stat = { atk: m.stats?.atk ?? b.atk, hp: m.stats?.hp ?? b.hp, def: m.stats?.def ?? b.def, em: m.stats?.elementalMastery ?? b.em };
     const dmgBonus = m.stats ? m.stats.elementalDmgBonus / 100 : BENCHMARK.subDpsDmgBonus;
     let dps = 0;
+    let lunarDps = 0;
+    const picked = pickedSources(entry.sources, carry, ctx);
     for (const s of entry.sources) {
+      if (s.pickOne && picked.get(s.pickOne) !== s) continue;
       const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
-      dps += perHit * hitsPerSecond(s, carry, ctx, m);
+      // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151).
+      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em) * hitsPerSecond(s, carry, ctx, m);
+      else dps += perHit * hitsPerSecond(s, carry, ctx, m);
     }
-    dps *= 1 + dmgBonus;
+    dps = dps * (1 + dmgBonus) + lunarDps;
     const gain = dps / carryDps;
     const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage`);

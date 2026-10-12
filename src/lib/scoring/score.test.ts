@@ -406,6 +406,17 @@ describe("sub-DPS (#96)", () => {
     // Same carry and supports' elements; Bennett heals, Xiangling doesn't.
     expect(share("Neuvillette", "Furina", "Bennett", "Kaedehara Kazuha")).toBeGreaterThan(share("Neuvillette", "Furina", "Xiangling", "Kaedehara Kazuha"));
   });
+
+  test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
+    const share = (who: string, ...ids: string[]) =>
+      Number(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason.match(/~\+(\d+)%/)?.[1]);
+    // Yoimiya isn't modeled yet, so every share is of the same benchmark carry.
+    // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.
+    expect(share("Ineffa", "Yoimiya", "Ineffa", "Xingqiu", "Bennett")).toBeGreaterThan(share("Ineffa", "Yoimiya", "Ineffa", "Zhongli", "Bennett"));
+    // Columbina's Gravity Interference needs a Lunar reaction: Ineffa's Electro-Charged turns Lunar-Charged; with
+    // Kazuha instead there is none.
+    expect(share("Columbina", "Yoimiya", "Columbina", "Ineffa", "Bennett")).toBeGreaterThan(share("Columbina", "Yoimiya", "Columbina", "Kaedehara Kazuha", "Bennett"));
+  });
 });
 
 describe("talent levels (#25)", () => {
