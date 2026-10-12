@@ -1,15 +1,18 @@
 // tags.json's DPS roles and field time come from the in-game Character Roles on the wiki (#105, npm run roles).
 import { describe, expect, test } from "vitest";
 import tags from "../../../data/tags.json";
+import overrides from "../../../data/role-overrides.json";
 import wiki from "../../../data/wiki-roles.json";
 
 const WIKI = (wiki as { characters: Record<string, { roles: string[] }> }).characters;
+// Roles added on top of the wiki's by Jessie's decision (Traveler (Cryo) on-field, #136).
+const ADDED = (overrides as { characters: Record<string, { add: string[] }> }).characters;
 
 describe("character roles (#105)", () => {
   test("DPS roles and field time match the wiki", () => {
     for (const c of tags) {
-      const roles = WIKI[c.id]?.roles;
-      if (!roles) continue;
+      if (!WIKI[c.id]) continue;
+      const roles = [...WIKI[c.id].roles, ...(ADDED[c.id]?.add ?? [])];
       const on = roles.includes("On-Field");
       const off = roles.includes("Off-Field");
       const dps = roles.includes("DPS");

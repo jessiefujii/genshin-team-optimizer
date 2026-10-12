@@ -1,0 +1,9 @@
+{
+  "note": "Character Roles added on top of the wiki's (#105) by Jessie's decision; npm run roles and roles.test.ts apply them.",
+  "characters": {
+    "Traveler (Cryo)": {
+      "add": ["On-Field"],
+      "why": "Jessie, 2026-10-12 (#136): also a main DPS. Guides play them on-field for Stellar-Conduct (bittopup 2026-08-14: 'On-field Conduct DPS / off-field Swirl sub-DPS'); Game8 7.1 ranks them SS Main DPS. The wiki lists only Off-Field DPS."
+    }
+  }
+}

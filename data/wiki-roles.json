@@ -763,6 +763,13 @@
       ],
       "source": "https://genshin-impact.fandom.com/wiki/Traveler_(Pyro)"
     },
+    "Traveler (Cryo)": {
+      "roles": [
+        "Off-Field",
+        "DPS"
+      ],
+      "source": "https://genshin-impact.fandom.com/wiki/Traveler_(Cryo)"
+    },
     "Varesa": {
       "roles": [
         "On-Field",
