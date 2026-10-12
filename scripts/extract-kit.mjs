@@ -1204,8 +1204,10 @@ const CARRIES = {
     // rotation is her Burst's CD, so Q once: E 3[N4E] N1 Q E. Lunar-Crystallize DMG (#135): the 2nd hit of Spirit
     // Steed's Stride and of her Burst, and at Ascendant Gleam an extra hit on each N4 (Skill text: "considered
     // Lunar-Crystallize Reaction DMG"). Passive 1 ("The DMG dealt by the 2nd hit of Spirit Steed's Stride is increased
-    // by 60% of Zibai's DEF") on the first Stride is a Reaction Additive Base DMG Bonus to that Lunar hit (Jessie, #146):
-    // the wiki's direct Lunar formula adds it after the coefficient, Base DMG bonus and EM bonus (Damage § Direct).
+    // by 60% of Zibai's DEF") on the first Stride is a Reaction Additive Base DMG Bonus to that Lunar hit (Jessie, #146;
+    // KeqingMains' Zibai quick guide: "considered Additive Base DMG Bonus as part of the Lunar-Crystallize damage
+    // formula"; the wiki's Lunar-Crystallize page doesn't list it): the wiki's direct Lunar formula adds it after the
+    // coefficient, Base DMG bonus and EM bonus (Damage § Direct).
     hits: [
       { table: "skill", label: "Lunar Phase Shift 1-Hit DMG", count: 4, type: N },
       ...[2, 3, 4].map((n) => ({ table: "skill", label: `Lunar Phase Shift ${n}-Hit DMG`, count: 3, type: N })),
