@@ -119,6 +119,15 @@ describe("carry damage (#101)", () => {
       expect(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], ["lunar-charged"])).toBe(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
     });
 
+    test("Flins' passive 2 EM counts for an imported build too (#149)", () => {
+      // A build with the benchmark's own stats (ATK 2200, EM 100, 60% DMG bonus) deals what no build does: Enka's EM
+      // leaves the passive out, so it's added either way.
+      const ids = ["Flins", "Ineffa", "Xingqiu", "Bennett"];
+      for (const active of [[], ["lunar-charged"]] as Reaction[][]) {
+        expect(dps(ids, active, { elementalDmgBonus: 60 })).toBeCloseTo(dps(ids, active), 6);
+      }
+    });
+
     test("Flins' passive 1 adds 20% Reaction Bonus to his Lunar-Charged hits at Ascendant Gleam (#147)", () => {
       // With Ineffa (Moonsign) but no Lunar-Charged reaction the thundercloud hit can't land: only passive 1 differs.
       expect(dps(["Flins", "Ineffa", "Xingqiu", "Bennett"], [])).toBeGreaterThan(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
