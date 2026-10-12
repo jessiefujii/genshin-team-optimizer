@@ -395,6 +395,8 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   if (!carry) return;
   const moonsign = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("moonsign"));
   if (moonsign.length < 2) return;
+  // Kept for every Moonsign carry here: team scores don't read carry damage yet. Once they do (#96, #102), skip it
+  // for carries whose damage already has the upgrade (damage.ts modelsAscendantGleam), so it isn't counted twice (#150).
   if (moonsign.includes(carry) && GLEAM[carry.id]?.target === "self") {
     out.add("Moonsign", POINTS.ownAscendantGleam, () => `Ascendant Gleam enhances ${carry.id}'s kit`);
   }

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, hasCarryKit } from "./damage";
+import { carryDamage, hasCarryKit, modelsAscendantGleam } from "./damage";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
 import type { Reaction, ScoringCharacter } from "./types";
@@ -117,6 +117,30 @@ describe("carry damage (#101)", () => {
       // Flins' extra hit also needs thunderclouds: a Lunar-Charged reaction.
       expect(dps(flinsGleam, ["lunar-charged"])).toBeGreaterThan(dps(flinsGleam, []));
       expect(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], ["lunar-charged"])).toBe(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
+    });
+
+    test("Flins' passive 1 adds 20% Reaction Bonus to his Lunar-Charged hits at Ascendant Gleam (#147)", () => {
+      // With Ineffa (Moonsign) but no Lunar-Charged reaction the thundercloud hit can't land: only passive 1 differs.
+      expect(dps(["Flins", "Ineffa", "Xingqiu", "Bennett"], [])).toBeGreaterThan(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
+    });
+
+    test("Nefer's Veil of Falsehood needs Lunar-Bloom and Ascendant Gleam (#148)", () => {
+      // Lauma (Moonsign) gives Ascendant Gleam, Nahida doesn't: 3 stacks = +24% Phantasm Performance and +100 EM.
+      const gleam = dps(["Nefer", "Lauma", "Xingqiu", "Zhongli"], ["lunar-bloom"]);
+      const none = dps(["Nefer", "Nahida", "Xingqiu", "Zhongli"], ["lunar-bloom"]);
+      expect(gleam).toBeGreaterThan(none * 1.2);
+      expect(dps(["Nefer", "Lauma", "Xingqiu", "Zhongli"], [])).toBe(dps(["Nefer", "Nahida", "Xingqiu", "Zhongli"], []));
+    });
+
+    test("Zibai's passive 1 is a Reaction Additive Base DMG Bonus, added after the Lunar coefficient (#146)", () => {
+      const zibai = carries.Zibai as unknown as { hits: { label: string; lunar?: string; additive?: boolean }[] };
+      expect(zibai.hits.find((h) => h.label === "passive1 bonus")).toMatchObject({ lunar: "lunar-crystallize", additive: true });
+    });
+
+    test("modelsAscendantGleam: carries whose own Ascendant Gleam upgrade is in their damage (#150)", () => {
+      for (const id of ["Zibai", "Flins", "Nefer"]) expect(modelsAscendantGleam(id), id).toBe(true);
+      expect(modelsAscendantGleam("Neuvillette")).toBe(false);
+      expect(modelsAscendantGleam("Bennett")).toBe(false);
     });
   });
 
