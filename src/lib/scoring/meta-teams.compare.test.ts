@@ -1,7 +1,11 @@
-// Ranks the meta teams (#127, design doc Phase 4) in the scorer's best teams, as if the player owned everyone.
+// Ranks the meta teams (#127, design doc Phase 4) in the scorer's best teams, as if the player owned everyone, then
+// checks a real roster: Jessie's best owned team, Zibai Premium, should be #1 or close (#127).
 // Kept out of `npm test`: it is a report to read, not a pass/fail check. Run with `npm run meta`.
 import { expect, test } from "vitest";
+import jessieRoster from "../../../data/test-rosters/jessie.json";
+import type { CharacterBuild } from "../../types/build";
 import { hasCarryKit } from "./damage";
+import { characterEffects } from "./effects";
 import { loadScoringCharacters } from "./load";
 import { META_TEAMS } from "./meta-teams";
 import { scoreTeam } from "./score";
@@ -52,6 +56,31 @@ test("meta teams vs the scorer's best teams", { timeout: 300_000 }, () => {
       "--- | --- | --- | --- | --- | --- | --- | ---",
       ...rows,
       `\nMeta teams in our top 100: ${found}/${scorable} carries with a scorable team (${META_TEAMS.length} meta carries)`,
+    ].join("\n"),
+  );
+});
+
+// data/test-rosters/jessie.json: Jessie's roster as the planner stores it (gto.roster.v1), built 2026-10-12 from her
+// Enka showcase (12 characters, UID left out) plus her saved builds for the 6 not showcased then (Zhongli, Raiden,
+// Escoffier, Bennett, Neuvillette, Flins). Her Traveler is Cryo, which the import can't map yet (#136), so left out.
+// Builds feed the scorer as in the planner (roster-planner.tsx `owned`).
+const roster = jessieRoster as Record<string, { constellation: number; built: boolean; build?: CharacterBuild }>;
+const owned = all
+  .filter((c) => roster[c.id])
+  .map((c) => {
+    const { build, constellation, built } = roster[c.id];
+    return { ...c, stats: build?.stats, talents: build?.talents, built, effects: characterEffects(c.id, constellation, build) };
+  });
+
+test("Jessie's roster: Zibai Premium near the top", { timeout: 300_000 }, () => {
+  expect(owned.length, "every roster id is in tags.json").toBe(Object.keys(roster).length);
+  const premium = ["Zibai", "Columbina", "Illuga", "Linnea"];
+  const top = findBestTeams(owned, { limit: 20 });
+  const rank = top.findIndex((s) => key(s.members) === key(premium)) + 1;
+  console.log(
+    [
+      `Jessie's roster (${owned.length}): Zibai Premium (${short(premium, "Zibai")}) ${rank ? `#${rank}` : ">20"}`,
+      ...top.slice(0, 5).map((t, i) => `#${i + 1} ${t.score}: ${t.members.join(", ")} (carry ${t.carry})`),
     ].join("\n"),
   );
 });

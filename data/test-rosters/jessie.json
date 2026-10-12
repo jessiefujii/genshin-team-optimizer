@@ -1,0 +1,617 @@
+{
+  "Bennett": {
+    "constellation": 6,
+    "built": true,
+    "build": {
+      "level": 90,
+      "talents": {
+        "normal": 6,
+        "skill": 9,
+        "burst": 11
+      },
+      "weapon": {
+        "id": "Sapwood Blade",
+        "level": 90,
+        "refinement": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Noblesse Oblige",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 22945,
+        "atk": 1127,
+        "def": 916,
+        "critRate": 17.4,
+        "critDmg": 101.3,
+        "energyRecharge": 231.1,
+        "elementalMastery": 65,
+        "elementalDmgBonus": 0
+      }
+    },
+    "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Columbina": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 90,
+      "ascension": 6,
+      "talents": {
+        "normal": 6,
+        "skill": 10,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "The Widsith",
+        "level": 90,
+        "refinement": 4,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Aubade of Morningstar and Moon",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 37662,
+        "atk": 1099,
+        "def": 636,
+        "critRate": 44.8,
+        "critDmg": 182.1,
+        "energyRecharge": 151.2,
+        "elementalMastery": 141,
+        "elementalDmgBonus": 0,
+        "baseAtk": 605
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Diona": {
+    "constellation": 6,
+    "built": true,
+    "build": {
+      "level": 90,
+      "ascension": 6,
+      "talents": {
+        "normal": 6,
+        "skill": 10,
+        "burst": 9
+      },
+      "weapon": {
+        "id": "Favonius Warbow",
+        "level": 90,
+        "refinement": 4,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Tenacity of the Millelith",
+          "pieces": 2
+        },
+        {
+          "set": "Wanderer's Troupe",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 27902,
+        "atk": 1110,
+        "def": 772,
+        "critRate": 5,
+        "critDmg": 98.2,
+        "energyRecharge": 187.2,
+        "elementalMastery": 241,
+        "elementalDmgBonus": 24,
+        "baseAtk": 667
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Durin": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 1,
+        "skill": 4,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Sword of Narzissenkreuz",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "A Day Carved From Rising Winds",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 18849,
+        "atk": 2191,
+        "def": 781,
+        "critRate": 35.3,
+        "critDmg": 199.3,
+        "energyRecharge": 116.2,
+        "elementalMastery": 42,
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 816
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Escoffier": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 90,
+      "talents": {
+        "normal": 2,
+        "skill": 9,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Favonius Lance",
+        "level": 90,
+        "refinement": 3
+      },
+      "artifactSets": [
+        {
+          "set": "Golden Troupe",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 22873,
+        "atk": 1842,
+        "def": 876,
+        "critRate": 61.1,
+        "critDmg": 141,
+        "energyRecharge": 170.1,
+        "elementalMastery": 0,
+        "elementalDmgBonus": 46.6
+      }
+    },
+    "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Flins": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 90,
+      "talents": {
+        "normal": 5,
+        "skill": 6,
+        "burst": 10
+      },
+      "weapon": {
+        "id": "Prospector's Shovel",
+        "level": 90,
+        "refinement": 3
+      },
+      "artifactSets": [
+        {
+          "set": "Night of the Sky's Unveiling",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 18615,
+        "atk": 2421,
+        "def": 1054,
+        "critRate": 46.6,
+        "critDmg": 178.6,
+        "energyRecharge": 133,
+        "elementalMastery": 176,
+        "elementalDmgBonus": 0
+      }
+    },
+    "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Illuga": {
+    "constellation": 4,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 1,
+        "skill": 4,
+        "burst": 11
+      },
+      "weapon": {
+        "id": "Dragon's Bane",
+        "level": 80,
+        "refinement": 2,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Silken Moon's Serenade",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 16413,
+        "atk": 1184,
+        "def": 978,
+        "critRate": 18.6,
+        "critDmg": 65.5,
+        "energyRecharge": 153,
+        "elementalMastery": 907,
+        "elementalDmgBonus": 0,
+        "baseAtk": 570
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Linnea": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 1,
+        "skill": 8,
+        "burst": 5
+      },
+      "weapon": {
+        "id": "Snare Hook",
+        "level": 87,
+        "refinement": 1,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Aubade of Morningstar and Moon",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 17373,
+        "atk": 1003,
+        "def": 2145,
+        "critRate": 32.2,
+        "critDmg": 144.8,
+        "energyRecharge": 185.1,
+        "elementalMastery": 80,
+        "elementalDmgBonus": 0,
+        "baseAtk": 573
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Neuvillette": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 90,
+      "talents": {
+        "normal": 9,
+        "skill": 6,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Tome of the Eternal Flow",
+        "level": 90,
+        "refinement": 1
+      },
+      "artifactSets": [
+        {
+          "set": "Marechaussee Hunter",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 32106,
+        "atk": 1234,
+        "def": 789,
+        "critRate": 52,
+        "critDmg": 221.7,
+        "energyRecharge": 122,
+        "elementalMastery": 82,
+        "elementalDmgBonus": 46.6
+      }
+    },
+    "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Odette": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 1,
+        "skill": 6,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Emberwell",
+        "level": 80,
+        "refinement": 1,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Heart of the Furnace",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 17368,
+        "atk": 2213,
+        "def": 1023,
+        "critRate": 16.7,
+        "critDmg": 179.1,
+        "energyRecharge": 144.7,
+        "elementalMastery": 183,
+        "elementalDmgBonus": 0,
+        "baseAtk": 744
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Qiqi": {
+    "constellation": 1,
+    "built": true,
+    "build": {
+      "level": 90,
+      "ascension": 6,
+      "talents": {
+        "normal": 5,
+        "skill": 6,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Sacrificial Sword",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Tenacity of the Millelith",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 21518,
+        "atk": 1965,
+        "def": 1114,
+        "critRate": 15.5,
+        "critDmg": 75.7,
+        "energyRecharge": 194.3,
+        "elementalMastery": 54,
+        "elementalDmgBonus": 0,
+        "baseAtk": 741
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Raiden Shogun": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 90,
+      "talents": {
+        "normal": 6,
+        "skill": 7,
+        "burst": 10
+      },
+      "weapon": {
+        "id": "\"The Catch\"",
+        "level": 90,
+        "refinement": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Emblem of Severed Fate",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 18886,
+        "atk": 1952,
+        "def": 981,
+        "critRate": 42.3,
+        "critDmg": 112.2,
+        "energyRecharge": 255.6,
+        "elementalMastery": 23,
+        "elementalDmgBonus": 108.8
+      }
+    },
+    "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Sucrose": {
+    "constellation": 6,
+    "built": true,
+    "build": {
+      "level": 75,
+      "ascension": 5,
+      "talents": {
+        "normal": 4,
+        "skill": 7,
+        "burst": 8
+      },
+      "weapon": {
+        "id": "Sacrificial Fragments",
+        "level": 80,
+        "refinement": 5,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 13111,
+        "atk": 1058,
+        "def": 923,
+        "critRate": 11.6,
+        "critDmg": 159.6,
+        "energyRecharge": 133,
+        "elementalMastery": 532,
+        "elementalDmgBonus": 79.6,
+        "baseAtk": 545
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Xingqiu": {
+    "constellation": 6,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 6,
+        "skill": 9,
+        "burst": 11
+      },
+      "weapon": {
+        "id": "Sacrificial Sword",
+        "level": 90,
+        "refinement": 3,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Emblem of Severed Fate",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 15035,
+        "atk": 1549,
+        "def": 838,
+        "critRate": 61,
+        "critDmg": 114.5,
+        "energyRecharge": 211.7,
+        "elementalMastery": 98,
+        "elementalDmgBonus": 66.6,
+        "baseAtk": 633
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Yumemizuki Mizuki": {
+    "constellation": 1,
+    "built": true,
+    "build": {
+      "level": 80,
+      "ascension": 5,
+      "talents": {
+        "normal": 1,
+        "skill": 8,
+        "burst": 5
+      },
+      "weapon": {
+        "id": "Etherlight Spindlelute",
+        "level": 81,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 17777,
+        "atk": 1162,
+        "def": 911,
+        "critRate": 31.4,
+        "critDmg": 86.5,
+        "energyRecharge": 182.1,
+        "elementalMastery": 707,
+        "elementalDmgBonus": 15,
+        "baseAtk": 668
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Zhongli": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 90,
+      "talents": {
+        "normal": 4,
+        "skill": 8,
+        "burst": 5
+      },
+      "weapon": {
+        "id": "Black Tassel",
+        "level": 90,
+        "refinement": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Tenacity of the Millelith",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 40489,
+        "atk": 1207,
+        "def": 1044,
+        "critRate": 48.9,
+        "critDmg": 75.6,
+        "energyRecharge": 106.5,
+        "elementalMastery": 100,
+        "elementalDmgBonus": 75.4
+      }
+    },
+    "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Zibai": {
+    "constellation": 0,
+    "built": true,
+    "build": {
+      "level": 90,
+      "ascension": 6,
+      "talents": {
+        "normal": 1,
+        "skill": 8,
+        "burst": 6
+      },
+      "weapon": {
+        "id": "Harbinger of Dawn",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Night of the Sky's Unveiling",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 21009,
+        "atk": 1059,
+        "def": 2361,
+        "critRate": 47.4,
+        "critDmg": 242.5,
+        "energyRecharge": 106.5,
+        "elementalMastery": 141,
+        "elementalDmgBonus": 0,
+        "baseAtk": 626
+      }
+    },
+    "updatedAt": "2026-10-12T00:00:00.000Z"
+  }
+}
