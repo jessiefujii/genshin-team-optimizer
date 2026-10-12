@@ -1,7 +1,40 @@
 {
   "Aino": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 7,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Flame-Forged Insight",
+        "level": 80,
+        "refinement": 5,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Silken Moon's Serenade",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 13829,
+        "atk": 950,
+        "def": 542,
+        "critRate": 7.7,
+        "critDmg": 65.5,
+        "energyRecharge": 139.5,
+        "elementalMastery": 336,
+        "elementalDmgBonus": 7,
+        "baseAtk": 608
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Albedo": {
     "constellation": 0,
@@ -12,8 +45,41 @@
     "built": false
   },
   "Alyosha": {
-    "constellation": 0,
-    "built": false
+    "constellation": 2,
+    "built": false,
+    "build": {
+      "level": 55,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 2,
+        "burst": 2
+      },
+      "weapon": {
+        "id": "Favonius Lance",
+        "level": 6,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Heart of the Furnace",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 9568,
+        "atk": 393,
+        "def": 484,
+        "critRate": 17.1,
+        "critDmg": 64.8,
+        "energyRecharge": 137.9,
+        "elementalMastery": 16,
+        "elementalDmgBonus": 0,
+        "baseAtk": 229
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Amber": {
     "constellation": 0,
@@ -62,8 +128,45 @@
     "updatedAt": "2026-10-07T10:22:21.216Z"
   },
   "Candace": {
-    "constellation": 0,
-    "built": false
+    "constellation": 2,
+    "built": false,
+    "build": {
+      "level": 51,
+      "ascension": 3,
+      "talents": {
+        "normal": 2,
+        "skill": 2,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Skyward Spine",
+        "level": 1,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Tenacity of the Millelith",
+          "pieces": 2
+        },
+        {
+          "set": "Emblem of Severed Fate",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 10943,
+        "atk": 276,
+        "def": 495,
+        "critRate": 20,
+        "critDmg": 55.4,
+        "energyRecharge": 133.2,
+        "elementalMastery": 47,
+        "elementalDmgBonus": 0,
+        "baseAtk": 174
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Charlotte": {
     "constellation": 0,
@@ -78,8 +181,41 @@
     "built": true
   },
   "Collei": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 2,
+        "skill": 5,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Fading Twilight",
+        "level": 50,
+        "refinement": 5,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Deepwood Memories",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 8499,
+        "atk": 577,
+        "def": 574,
+        "critRate": 45.4,
+        "critDmg": 56.2,
+        "energyRecharge": 130.2,
+        "elementalMastery": 16,
+        "elementalDmgBonus": 22,
+        "baseAtk": 425
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Columbina": {
     "constellation": 0,
@@ -123,8 +259,41 @@
     "built": true
   },
   "Dahlia": {
-    "constellation": 0,
-    "built": false
+    "constellation": 4,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 2,
+        "burst": 5
+      },
+      "weapon": {
+        "id": "Sacrificial Sword",
+        "level": 20,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Noblesse Oblige",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 12183,
+        "atk": 313,
+        "def": 433,
+        "critRate": 11.6,
+        "critDmg": 71,
+        "energyRecharge": 139.7,
+        "elementalMastery": 0,
+        "elementalDmgBonus": 0,
+        "baseAtk": 224
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Dehya": {
     "constellation": 0,
@@ -374,8 +543,45 @@
     "built": false
   },
   "Kirara": {
-    "constellation": 0,
-    "built": false
+    "constellation": 2,
+    "built": false,
+    "build": {
+      "level": 51,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 2,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "Toukabou Shigure",
+        "level": 50,
+        "refinement": 4,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Tenacity of the Millelith",
+          "pieces": 2
+        },
+        {
+          "set": "Vourukasha's Glow",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 14071,
+        "atk": 491,
+        "def": 384,
+        "critRate": 12,
+        "critDmg": 71,
+        "energyRecharge": 100,
+        "elementalMastery": 152,
+        "elementalDmgBonus": 0,
+        "baseAtk": 399
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Klee": {
     "constellation": 0,
@@ -386,8 +592,41 @@
     "built": false
   },
   "Kuki Shinobu": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 51,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 6,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Xiphos' Moonlight",
+        "level": 1,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Tenacity of the Millelith",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 11118,
+        "atk": 274,
+        "def": 532,
+        "critRate": 11.2,
+        "critDmg": 74.9,
+        "energyRecharge": 103.3,
+        "elementalMastery": 92,
+        "elementalDmgBonus": 0,
+        "baseAtk": 169
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Lan Yan": {
     "constellation": 0,
@@ -435,16 +674,86 @@
     "updatedAt": "2026-10-12T00:00:00.000Z"
   },
   "Lisa": {
-    "constellation": 0,
-    "built": false
+    "constellation": 3,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Eye of Perception",
+        "level": 50,
+        "refinement": 2,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Thundering Fury",
+          "pieces": 2
+        },
+        {
+          "set": "Gladiator's Finale",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 8720,
+        "atk": 737,
+        "def": 483,
+        "critRate": 10.4,
+        "critDmg": 62.4,
+        "energyRecharge": 100,
+        "elementalMastery": 64,
+        "elementalDmgBonus": 22,
+        "baseAtk": 391
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Lynette": {
     "constellation": 0,
     "built": false
   },
   "Mika": {
-    "constellation": 0,
-    "built": false
+    "constellation": 2,
+    "built": false,
+    "build": {
+      "level": 51,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 1,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "Favonius Lance",
+        "level": 40,
+        "refinement": 1,
+        "ascension": 1
+      },
+      "artifactSets": [
+        {
+          "set": "Noblesse Oblige",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 11543,
+        "atk": 454,
+        "def": 447,
+        "critRate": 11.6,
+        "critDmg": 68.7,
+        "energyRecharge": 138.5,
+        "elementalMastery": 23,
+        "elementalDmgBonus": 0,
+        "baseAtk": 359
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Mona": {
     "constellation": 0,
@@ -686,8 +995,41 @@
     "built": true
   },
   "Thoma": {
-    "constellation": 0,
-    "built": false
+    "constellation": 6,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 7,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Favonius Lance",
+        "level": 20,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Noblesse Oblige",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 9738,
+        "atk": 385,
+        "def": 565,
+        "critRate": 15.5,
+        "critDmg": 50,
+        "energyRecharge": 130.6,
+        "elementalMastery": 19,
+        "elementalDmgBonus": 0,
+        "baseAtk": 251
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Tighnari": {
     "constellation": 4,
@@ -699,7 +1041,40 @@
   },
   "Vesna": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 51,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 1,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "Silver Light",
+        "level": 26,
+        "refinement": 5,
+        "ascension": 1
+      },
+      "artifactSets": [
+        {
+          "set": "Scarlet Proof",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 9151,
+        "atk": 596,
+        "def": 466,
+        "critRate": 29,
+        "critDmg": 77.2,
+        "energyRecharge": 100,
+        "elementalMastery": 21,
+        "elementalDmgBonus": 0,
+        "baseAtk": 364
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Xiangling": {
     "constellation": 0,
@@ -763,8 +1138,41 @@
     "built": false
   },
   "Yaoyao": {
-    "constellation": 0,
-    "built": false
+    "constellation": 4,
+    "built": false,
+    "build": {
+      "level": 51,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 5,
+        "burst": 2
+      },
+      "weapon": {
+        "id": "Prototype Starglitter",
+        "level": 70,
+        "refinement": 2,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Deepwood Memories",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 10977,
+        "atk": 591,
+        "def": 517,
+        "critRate": 10.8,
+        "critDmg": 71.7,
+        "energyRecharge": 137.9,
+        "elementalMastery": 89,
+        "elementalDmgBonus": 15,
+        "baseAtk": 514
+      }
+    },
+    "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Yoimiya": {
     "constellation": 0,
