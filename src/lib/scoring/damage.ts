@@ -22,6 +22,7 @@ type CarryBuff =
   | { kind: "addPerStack"; value: number; stacks: number; tag: string; fightingSpirit?: boolean }
   | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number; fightingSpirit?: boolean }
   | { kind: "factor"; value: number; types: HitType[] }
+  | { kind: "factorByReactions"; values: number[]; types: HitType[]; reactions: Reaction[] }
   | { kind: "atkPct"; value: number }
   | { kind: "dmgBonusFromEr"; perPercent: number }
   | { kind: "dmgBonusPerEm"; perEm: number; max: number; types: HitType[]; labels: string[] }
@@ -84,6 +85,20 @@ function amplifyGain(c: ScoringCharacter, em: number, active: readonly Reaction[
   const emBonus = (2.78 * em) / (em + 1400);
   return amp * (1 + emBonus) - 1;
 }
+// Spread and Aggravate add flat damage to each hit that reacts (Genshin Impact Wiki, Damage § Catalyze Damage Bonus,
+// fetched 2026-10-12): 1.25 (Spread) or 1.15 (Aggravate) x the level 90 Level Multiplier, 1446.85, x (1 + 5 x EM /
+// (EM + 1200)), then the hit's DMG bonuses. Which hits react: the same share as Vaporize and Melt (#129).
+const CATALYZE: Partial<Record<Reaction, { element: Element; coefficient: number }>> = {
+  spread: { element: "Dendro", coefficient: 1.25 },
+  aggravate: { element: "Electro", coefficient: 1.15 },
+};
+const LEVEL_MULTIPLIER_90 = 1446.85;
+function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
+  if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
+  const r = CATALYZE[reaction];
+  if (!r || r.element !== c.element) return 0;
+  return r.coefficient * LEVEL_MULTIPLIER_90 * (1 + (5 * em) / (em + 1200));
+}
 const reactingShare = (h: CarryHit) => (h.reacting === undefined ? AMPLIFY_SHARE : h.count ? h.reacting / h.count : 0);
 
 // The carry's combo for this team (#114): the first of kit.json's combos whose `when` fits, else the default.
@@ -129,10 +144,12 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
   const instancesOf = (types: HitType[]) =>
     kit.hits.filter((h) => types.includes(h.type)).reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
   const amp = amplifyGain(c, s.em, active, reaction ?? mainReactionOf(c));
+  const catalyze = catalyzeDamage(c, s.em, active, reaction ?? mainReactionOf(c));
   let total = 0;
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * s.em;
+    perHit += catalyze * (h.instances ?? 1) * reactingShare(h);
     let bonus = s.dmgBonus;
     let factor = 1;
     for (const b of kit.buffs) {
@@ -146,6 +163,10 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
       if (b.kind === "dmgBonusFromEr") bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * s.em);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
+      if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
+        const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
+        if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
+      }
     }
     total += perHit * h.count * (1 + bonus) * factor * (1 + reactingShare(h) * amp);
   }

@@ -2765,7 +2765,7 @@
           "scaling": {
             "atk": 0.788544
           },
-          "count": 8
+          "count": 7
         },
         {
           "label": "2-Hit DMG",
@@ -2773,7 +2773,7 @@
           "scaling": {
             "atk": 0.811543
           },
-          "count": 8
+          "count": 7
         },
         {
           "label": "Charged Attack",
@@ -2781,7 +2781,7 @@
           "scaling": {
             "atk": 2.2866
           },
-          "count": 8
+          "count": 7
         },
         {
           "label": "Blood Blossom DMG",
@@ -2797,7 +2797,7 @@
           "scaling": {
             "atk": 4.70344
           },
-          "count": 1
+          "count": 0.5
         }
       ],
       "buffs": [
@@ -2805,6 +2805,17 @@
           "kind": "atkFromHp",
           "value": 0.05957,
           "capOfBase": 4
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.33,
+          "types": [
+            "normal",
+            "charged",
+            "plunge",
+            "skill",
+            "burst"
+          ]
         }
       ]
     },
@@ -2842,7 +2853,7 @@
           "scaling": {
             "atk": 0.752402
           },
-          "count": 3,
+          "count": 4,
           "tag": "isshin"
         },
         {
@@ -2869,7 +2880,7 @@
           "scaling": {
             "atk": 2.2866
           },
-          "count": 3,
+          "count": 4,
           "instances": 2,
           "tag": "isshin"
         }
@@ -3863,7 +3874,7 @@
           "scaling": {
             "hp": 0.218688
           },
-          "count": 1
+          "count": 2
         },
         {
           "label": "Charged Attack: Equitable Judgment",
@@ -3871,10 +3882,45 @@
           "scaling": {
             "hp": 0.134458
           },
-          "count": 16
+          "count": 24
         }
       ],
-      "buffs": []
+      "buffs": [
+        {
+          "kind": "factorByReactions",
+          "values": [
+            1.1,
+            1.25,
+            1.6
+          ],
+          "types": [
+            "charged"
+          ],
+          "reactions": [
+            "vaporize",
+            "freeze",
+            "electrocharged",
+            "lunar-charged",
+            "bloom",
+            "lunar-bloom",
+            "swirl",
+            "crystallize",
+            "lunar-crystallize"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.12,
+          "types": [
+            "normal",
+            "charged",
+            "plunge",
+            "skill",
+            "burst"
+          ],
+          "note": "passive2 at 50% HP"
+        }
+      ]
     },
     "Kamisato Ayaka": {
       "rotationSeconds": 20,
@@ -3976,7 +4022,7 @@
           "scaling": {
             "atk": 0.90989
           },
-          "count": 3
+          "count": 5
         },
         {
           "label": "2-Hit DMG",
@@ -3984,7 +4030,7 @@
           "scaling": {
             "atk": 0.932374
           },
-          "count": 3
+          "count": 5
         },
         {
           "label": "3-Hit DMG",
@@ -3992,15 +4038,17 @@
           "scaling": {
             "atk": 1.255862
           },
-          "count": 3
+          "count": 5,
+          "instances": 2
         },
         {
-          "label": "4-Hit DMG",
-          "type": "normal",
+          "label": "Charged Attack DMG",
+          "type": "charged",
           "scaling": {
-            "atk": 1.226665
+            "atk": 2.0303
           },
-          "count": 3
+          "count": 3,
+          "instances": 2
         },
         {
           "label": "3-Mirror Projection Attack DMG",
@@ -4009,7 +4057,8 @@
             "atk": 3.4272,
             "em": 6.8544
           },
-          "count": 6
+          "count": 6,
+          "instances": 3
         }
       ],
       "buffs": [

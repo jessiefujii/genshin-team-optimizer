@@ -67,6 +67,24 @@ describe("carry damage (#101)", () => {
     });
   });
 
+  test("Neuvillette's passive 1 grows with the kinds of reaction his team triggers (#129)", () => {
+    const neuvillette = byId.get("Neuvillette")!;
+    const dps = (active: Reaction[]) => carryDamage(neuvillette, active)!.perSecond;
+    // 110%/125%/160% on Equitable Judgment for 1/2/3 kinds; reactions outside his list (Melt) add none.
+    expect(dps(["swirl"])).toBeGreaterThan(dps([]));
+    expect(dps(["swirl", "crystallize", "vaporize"])).toBeGreaterThan(dps(["swirl", "crystallize"]));
+    expect(dps(["melt"])).toBe(dps([]));
+  });
+
+  test("Spread and Aggravate add flat damage to the hits that react (#129)", () => {
+    const alhaitham = byId.get("Alhaitham")!;
+    const clorinde = byId.get("Clorinde")!;
+    expect(carryDamage(alhaitham, ["spread"])!.perSecond).toBeGreaterThan(carryDamage(alhaitham, [])!.perSecond * 1.2);
+    expect(carryDamage(clorinde, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(clorinde, [])!.perSecond * 1.2);
+    // Aggravate only adds to Electro hits: Alhaitham (Dendro) gains nothing from it.
+    expect(carryDamage(alhaitham, ["aggravate"])!.perSecond).toBe(carryDamage(alhaitham, [])!.perSecond);
+  });
+
   test("a build's stats change the damage", () => {
     const raiden = byId.get("Raiden Shogun")!;
     const built: ScoringCharacter = {
