@@ -1647,7 +1647,7 @@
   },
   "Ningguang": {
     "constellation": 0,
-    "built": true
+    "built": false
   },
   "Noelle": {
     "constellation": 3,
@@ -1874,7 +1874,7 @@
   },
   "Rosaria": {
     "constellation": 0,
-    "built": true
+    "built": false
   },
   "Sayu": {
     "constellation": 0,
