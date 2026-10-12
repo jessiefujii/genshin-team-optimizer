@@ -85,6 +85,41 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(alhaitham, ["aggravate"])!.perSecond).toBe(carryDamage(alhaitham, [])!.perSecond);
   });
 
+  describe("direct Lunar reaction DMG (#135)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const dps = (ids: string[], active: Reaction[], stats?: Partial<NonNullable<ScoringCharacter["stats"]>>) => {
+      const c = byId.get(ids[0])!;
+      const built = stats ? { ...c, stats: { atk: 2200, baseAtk: 950, hp: 16000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 120, elementalMastery: 100, elementalDmgBonus: 0, ...stats } } : c;
+      return carryDamage(built, active, team(...ids).map((m) => (m.id === c.id ? built : m)))!.perSecond;
+    };
+
+    test("Lunar hits ignore Elemental DMG Bonus but grow with EM", () => {
+      // Flins' Normal Attacks and Northland Spearstorm are plain Electro DMG: a 46.6% DMG bonus reaches only them.
+      const flins = ["Flins", "Bennett", "Xingqiu", "Zhongli"];
+      const base = dps(flins, [], {});
+      const goblet = dps(flins, [], { elementalDmgBonus: 46.6 });
+      expect(goblet).toBeGreaterThan(base);
+      expect(goblet).toBeLessThan(base * 1.466);
+      // Nefer's shades (Lunar-Bloom) scale on EM, inside the reaction's EM bonus too.
+      const nefer = ["Nefer", "Lauma", "Xingqiu", "Zhongli"];
+      expect(dps(nefer, ["lunar-bloom"], { elementalMastery: 900 })).toBeGreaterThan(dps(nefer, ["lunar-bloom"], { elementalMastery: 700 }) * 1.2);
+    });
+
+    test("Nefer's Phantasm Performance needs Lunar-Bloom (Verdant Dew)", () => {
+      const ids = ["Nefer", "Lauma", "Xingqiu", "Zhongli"];
+      expect(dps(ids, ["lunar-bloom"])).toBeGreaterThan(dps(ids, []) * 2);
+    });
+
+    test("Ascendant Gleam adds Zibai's N4 hit and Flins' thundercloud hit", () => {
+      // Two Moonsign members (Columbina) vs one.
+      expect(dps(["Zibai", "Columbina", "Furina", "Zhongli"], [])).toBeGreaterThan(dps(["Zibai", "Bennett", "Furina", "Zhongli"], []));
+      const flinsGleam = ["Flins", "Ineffa", "Xingqiu", "Bennett"];
+      // Flins' extra hit also needs thunderclouds: a Lunar-Charged reaction.
+      expect(dps(flinsGleam, ["lunar-charged"])).toBeGreaterThan(dps(flinsGleam, []));
+      expect(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], ["lunar-charged"])).toBe(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
+    });
+  });
+
   test("a build's stats change the damage", () => {
     const raiden = byId.get("Raiden Shogun")!;
     const built: ScoringCharacter = {
