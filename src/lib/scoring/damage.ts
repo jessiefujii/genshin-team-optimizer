@@ -177,10 +177,13 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
   const fits = (w?: When) => !w || ((!w.reaction || active.includes(w.reaction)) && (!w.ascendantGleam || gleam));
   const lands = (h: CarryHit) => fits(h.when);
   const buffs = kit.buffs.filter((b) => !("when" in b) || fits(b.when));
-  // EM from ATK (Flins' passive 2) only without a build: an imported build's EM is read as it is.
+  // EM from ATK (Flins' passive 2), with or without a build: Enka's panel EM doesn't include it (#149: Jessie's Flins
+  // shows 175.6 EM = 96 from substats + 80 from Night of the Sky's Unveiling 2pc). From his own ATK (build or
+  // benchmark), not kit- or team-buffed ATK: KeqingMains' Flins guide says it "does not consider ATK buffs that
+  // originate from a percentage of one character's stat".
   let em = s.em;
   for (const b of buffs) {
-    if (b.kind === "emFromAtk" && !c.stats) em += Math.min(b.max, b.value * atk);
+    if (b.kind === "emFromAtk") em += Math.min(b.max, b.value * s.atk);
     if (b.kind === "emBonus") em += b.value; // Nefer at 3 Veil of Falsehood stacks (#148)
   }
   const amp = amplifyGain(c, em, active, reaction ?? mainReactionOf(c));
