@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, hasCarryKit } from "./damage";
+import { carryDamage, hasCarryKit, modelsAscendantGleam } from "./damage";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
 import type { Reaction, ScoringCharacter } from "./types";
@@ -85,14 +85,92 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(alhaitham, ["aggravate"])!.perSecond).toBe(carryDamage(alhaitham, [])!.perSecond);
   });
 
+  describe("direct Lunar reaction DMG (#135)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const dps = (ids: string[], active: Reaction[], stats?: Partial<NonNullable<ScoringCharacter["stats"]>>) => {
+      const c = byId.get(ids[0])!;
+      const built = stats ? { ...c, stats: { atk: 2200, baseAtk: 950, hp: 16000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 120, elementalMastery: 100, elementalDmgBonus: 0, ...stats } } : c;
+      return carryDamage(built, active, team(...ids).map((m) => (m.id === c.id ? built : m)))!.perSecond;
+    };
+
+    test("Lunar hits ignore Elemental DMG Bonus but grow with EM", () => {
+      // Flins' Normal Attacks and Northland Spearstorm are plain Electro DMG: a 46.6% DMG bonus reaches only them.
+      const flins = ["Flins", "Bennett", "Xingqiu", "Zhongli"];
+      const base = dps(flins, [], {});
+      const goblet = dps(flins, [], { elementalDmgBonus: 46.6 });
+      expect(goblet).toBeGreaterThan(base);
+      expect(goblet).toBeLessThan(base * 1.466);
+      // Nefer's shades (Lunar-Bloom) scale on EM, inside the reaction's EM bonus too.
+      const nefer = ["Nefer", "Lauma", "Xingqiu", "Zhongli"];
+      expect(dps(nefer, ["lunar-bloom"], { elementalMastery: 900 })).toBeGreaterThan(dps(nefer, ["lunar-bloom"], { elementalMastery: 700 }) * 1.2);
+    });
+
+    test("Nefer's Phantasm Performance needs Lunar-Bloom (Verdant Dew)", () => {
+      const ids = ["Nefer", "Lauma", "Xingqiu", "Zhongli"];
+      expect(dps(ids, ["lunar-bloom"])).toBeGreaterThan(dps(ids, []) * 2);
+    });
+
+    test("Ascendant Gleam adds Zibai's N4 hit and Flins' thundercloud hit", () => {
+      // Two Moonsign members (Columbina) vs one.
+      expect(dps(["Zibai", "Columbina", "Furina", "Zhongli"], [])).toBeGreaterThan(dps(["Zibai", "Bennett", "Furina", "Zhongli"], []));
+      const flinsGleam = ["Flins", "Ineffa", "Xingqiu", "Bennett"];
+      // Flins' extra hit also needs thunderclouds: a Lunar-Charged reaction.
+      expect(dps(flinsGleam, ["lunar-charged"])).toBeGreaterThan(dps(flinsGleam, []));
+      expect(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], ["lunar-charged"])).toBe(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
+    });
+
+    test("Flins' passive 2 EM counts for an imported build too (#149)", () => {
+      // A build with the benchmark's own stats (ATK 2200, EM 100, 60% DMG bonus) deals what no build does: Enka's EM
+      // leaves the passive out, so it's added either way.
+      const ids = ["Flins", "Ineffa", "Xingqiu", "Bennett"];
+      for (const active of [[], ["lunar-charged"]] as Reaction[][]) {
+        expect(dps(ids, active, { elementalDmgBonus: 60 })).toBeCloseTo(dps(ids, active), 6);
+      }
+    });
+
+    test("Flins' passive 1 adds 20% Reaction Bonus to his Lunar-Charged hits at Ascendant Gleam (#147)", () => {
+      // With Ineffa (Moonsign) but no Lunar-Charged reaction the thundercloud hit can't land: only passive 1 differs.
+      expect(dps(["Flins", "Ineffa", "Xingqiu", "Bennett"], [])).toBeGreaterThan(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
+    });
+
+    test("Nefer's Veil of Falsehood needs Lunar-Bloom and Ascendant Gleam (#148)", () => {
+      // Lauma (Moonsign) gives Ascendant Gleam, Nahida doesn't: 3 stacks = +24% Phantasm Performance and +100 EM.
+      const gleam = dps(["Nefer", "Lauma", "Xingqiu", "Zhongli"], ["lunar-bloom"]);
+      const none = dps(["Nefer", "Nahida", "Xingqiu", "Zhongli"], ["lunar-bloom"]);
+      expect(gleam).toBeGreaterThan(none * 1.2);
+      expect(dps(["Nefer", "Lauma", "Xingqiu", "Zhongli"], [])).toBe(dps(["Nefer", "Nahida", "Xingqiu", "Zhongli"], []));
+    });
+
+    test("Zibai's passive 1 is a Reaction Additive Base DMG Bonus, added after the Lunar coefficient (#146)", () => {
+      const zibai = carries.Zibai as unknown as { hits: { label: string; lunar?: string; additive?: boolean }[] };
+      expect(zibai.hits.find((h) => h.label === "passive1 bonus")).toMatchObject({ lunar: "lunar-crystallize", additive: true });
+    });
+
+    test("modelsAscendantGleam: carries whose own Ascendant Gleam upgrade is in their damage (#150)", () => {
+      for (const id of ["Zibai", "Flins", "Nefer"]) expect(modelsAscendantGleam(id), id).toBe(true);
+      expect(modelsAscendantGleam("Neuvillette")).toBe(false);
+      expect(modelsAscendantGleam("Bennett")).toBe(false);
+    });
+  });
+
   test("a build's stats change the damage", () => {
     const raiden = byId.get("Raiden Shogun")!;
     const built: ScoringCharacter = {
       ...raiden,
-      stats: { atk: 2600, baseAtk: 950, hp: 20000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 250, elementalMastery: 0, elementalDmgBonus: 46.6 },
+      // DMG bonus as the character screen shows it: 46.6% goblet + her passive 2 (0.4% per ER over 100%) at 250% ER.
+      stats: { atk: 2600, baseAtk: 950, hp: 20000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 250, elementalMastery: 0, elementalDmgBonus: 106.6 },
     };
-    // More ATK and ER (her passive 2: Electro DMG Bonus per ER over 100%) than the benchmark.
     expect(carryDamage(built)!.perSecond).toBeGreaterThan(carryDamage(raiden)!.perSecond);
+  });
+
+  test("an imported build's DMG bonus already holds Raiden's ER passive: it isn't added again (#161)", () => {
+    const raiden = byId.get("Raiden Shogun")!;
+    // Jessie's Raiden from Enka: 108.8% Electro DMG Bonus = 46.6% goblet + 0.4 x 155.6 ER.
+    const stats = { atk: 1952, baseAtk: 950, hp: 18886, def: 981, critRate: 42.3, critDmg: 112.2, energyRecharge: 255.6, elementalMastery: 23, elementalDmgBonus: 108.8 };
+    const jessie: ScoringCharacter = { ...raiden, stats };
+    const moreEr: ScoringCharacter = { ...raiden, stats: { ...stats, energyRecharge: 300 } };
+    // ER only reaches her damage through the panel's DMG bonus, so more ER alone changes nothing.
+    expect(carryDamage(moreEr)!.perSecond).toBeCloseTo(carryDamage(jessie)!.perSecond, 6);
   });
 });
 

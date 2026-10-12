@@ -1055,9 +1055,9 @@
     "rotation": {
       "slot": "carry",
       "actions": [
-        "E",
-        "E",
-        "Q"
+        "E N1 E sQ",
+        "2[N4D] N2",
+        "E sQ N4D"
       ]
     },
     "notes": "Lunar-Charged carry; needs off-field Hydro."
@@ -3182,6 +3182,39 @@
     "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
   },
   {
+    "id": "Traveler (Cryo)",
+    "roles": [
+      "main-dps",
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
+    "converts": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
+    "energyNeed": "medium",
+    "erTarget": 130,
+    "scalesOn": [
+      "ATK"
+    ],
+    "keyTalent": "normal",
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine. Wiki Character Roles: Off-Field DPS; also main DPS (Jessie, data/role-overrides.json). Passive 3 converts the party's Superconduct and Cryo Swirl into Stellar-Conduct and Stellar Swirl; guides also play them on-field for Stellar-Conduct (bittopup 2026-08-14: 'On-field Conduct DPS / off-field Swirl sub-DPS', ER 120-140%). Key talent normal (bittopup 2026-08-14: 'Normal Attack = Burst >>> Skill'; on-field damage is the Burst and Freezing Ice, a Charged Attack): a tie, normal listed first."
+  },
+  {
     "id": "Varesa",
     "roles": [
       "main-dps"
@@ -3861,7 +3894,8 @@
       "slot": "carry",
       "actions": [
         "E",
-        "N4E x4"
+        "3[N4E]",
+        "N1 Q E"
       ]
     },
     "notes": "Lunar-Crystallize carry; does not need Hydro teammates. Pairs well with Columbina, who buffs Lunar reactions."

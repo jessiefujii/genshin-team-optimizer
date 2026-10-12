@@ -10,6 +10,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 const API = "https://genshin-impact.fandom.com/api.php";
 const tags = JSON.parse(readFileSync(new URL("../data/tags.json", import.meta.url), "utf8"));
+// Roles added on top of the wiki's by Jessie's decision (data/role-overrides.json, e.g. Traveler (Cryo) on-field).
+const overrides = JSON.parse(readFileSync(new URL("../data/role-overrides.json", import.meta.url), "utf8")).characters;
 
 // The wiki page for a tags.json id: the same name ("Traveler (Anemo)" too).
 const pageOf = (id) => id.replace(/ /g, "_");
@@ -44,8 +46,9 @@ console.log(`Wrote ${Object.keys(out).length} characters' roles`);
 // Apply them to tags.json.
 const changed = [];
 for (const c of tags) {
-  const roles = out[c.id]?.roles;
-  if (!roles) continue; // no roles on the wiki: keep the hand tags
+  const wikiRoles = out[c.id]?.roles;
+  if (!wikiRoles) continue; // no roles on the wiki: keep the hand tags
+  const roles = [...wikiRoles, ...(overrides[c.id]?.add ?? [])];
   const on = roles.includes("On-Field");
   const off = roles.includes("Off-Field");
   const dps = roles.includes("DPS");
