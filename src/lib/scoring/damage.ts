@@ -3,7 +3,7 @@
 // RES/DEF (left out on both sides of the comparison), talent level 9, C0. Hits count at expected crit (#152).
 import kitJson from "../../../data/kit.json";
 import { BENCHMARK } from "./benchmark";
-import { FIGHTING_SPIRIT_LIMIT, fightingSpirit } from "./kit";
+import { FIGHTING_SPIRIT_LIMIT, NO_TEAM_BUFFS, fightingSpirit, type TeamBuffStats } from "./kit";
 import { mainReactionOf } from "./reactions";
 import type { Element, Reaction, ScoringCharacter } from "./types";
 
@@ -72,9 +72,10 @@ function carryStats(c: ScoringCharacter) {
 // hit in carry and sub-DPS damage crits, flat additions included: Catalyze's bonus is added to the hit's base DMG
 // before crit and DMG bonuses (Genshin Impact Wiki, Damage § Catalyze Damage Bonus), and Vaporize/Melt multiply a hit
 // that has already crit. Pure EM characters too (Nefer: her own hits crit; usesCrit only skips their CV line).
-export function expectedCrit(c: ScoringCharacter): number {
-  if (c.stats) return 1 + (Math.min(c.stats.critRate, 100) / 100) * (c.stats.critDmg / 100);
-  return 1 + Math.min(BENCHMARK.carryCritRate, 1) * BENCHMARK.carryCritDmg;
+// `extraRate` is Crit Rate from teammates' buffs (#157), as a fraction.
+export function expectedCrit(c: ScoringCharacter, extraRate = 0): number {
+  if (c.stats) return 1 + Math.min(c.stats.critRate / 100 + extraRate, 1) * (c.stats.critDmg / 100);
+  return 1 + Math.min(BENCHMARK.carryCritRate + extraRate, 1) * BENCHMARK.carryCritDmg;
 }
 
 // Vaporize and Melt multiply the hits that react: 2x for Hydro on Pyro / Pyro on Cryo, 1.5x the other way, plus EM.
@@ -153,19 +154,27 @@ export interface CarryDamage {
 // `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit) and picks the combo (#114);
 // default: the carry alone. Cached per character, reactions and team: the team search scores each carry in thousands
 // of teams.
+// `buffs` adds the team's kit buffs to the carry's stats (#157, kit.ts teamBuffStats); default: none.
 const cache = new WeakMap<ScoringCharacter, Map<string, CarryDamage | null>>();
-export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [], team: readonly ScoringCharacter[] = [c]): CarryDamage | null {
+export function carryDamage(
+  c: ScoringCharacter,
+  active: readonly Reaction[] = [],
+  team: readonly ScoringCharacter[] = [c],
+  buffs: TeamBuffStats = NO_TEAM_BUFFS,
+): CarryDamage | null {
   let byKey = cache.get(c);
   if (!byKey) cache.set(c, (byKey = new Map()));
-  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}`;
-  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team));
+  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}#${Object.values(buffs).join(",")}`;
+  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs));
   return byKey.get(key)!;
 }
 
-function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): CarryDamage | null {
+function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], buffs: TeamBuffStats): CarryDamage | null {
   if (!CARRIES[c.id]) return null;
   const { kit, combo, reaction } = pickCombo(CARRIES[c.id], c, active, team);
-  const s = carryStats(c);
+  const own = carryStats(c);
+  // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
+  const s = { ...own, atk: own.atk + buffs.atk + buffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + buffs.dmgBonus };
   const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;
   let atk = s.atk;
   for (const b of kit.buffs) {
@@ -181,6 +190,9 @@ function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], te
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * s.em;
     perHit += catalyze * (h.instances ?? 1) * reactingShare(h);
+    // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
+    // (Genshin Impact Wiki, Damage § General Damage Formula).
+    perHit += buffs.flat * (h.instances ?? 1);
     let bonus = s.dmgBonus;
     let factor = 1;
     for (const b of kit.buffs) {
@@ -208,6 +220,6 @@ function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], te
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp);
   }
-  total *= expectedCrit(c);
+  total *= expectedCrit(c, buffs.critRate);
   return { perSecond: total / kit.rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds: kit.rotationSeconds, missing: kit.missing ?? [] };
 }

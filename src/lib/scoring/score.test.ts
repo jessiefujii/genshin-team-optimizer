@@ -585,6 +585,18 @@ describe("talent levels (#25)", () => {
     );
   });
 
+  test("flat reaction damage is weighed against hits with the team's buffs (#157)", () => {
+    const spread = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Spread adds"))?.reason;
+    // Bennett's ATK raises Alhaitham's hits but not Spread's flat damage, so Spread adds a smaller share.
+    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+99% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+84% to Alhaitham's damage");
+    // Lauma's flat DMG is for Bloom-type reactions, not his hits: no change.
+    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+99% to Alhaitham's damage");
+    // Vaporize multiplies the whole hit, so ATK buffs leave its share alone.
+    const vape = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Vaporize adds"))?.reason;
+    expect(vape("Hu Tao", "Xingqiu", "Bennett", "Zhongli")).toBe(vape("Hu Tao", "Xingqiu", "Yelan", "Zhongli"));
+  });
+
   test("Hydro and Dendro resonance only count when the carry uses the stat (#59)", () => {
     const res = (s: ReturnType<typeof scoreTeam>, name: string) => s.breakdown.find((l) => l.reason.startsWith(name));
     expect(res(score("Kamisato Ayaka", "Diona", "Furina", "Mona"), "Soothing Water")).toEqual({

@@ -142,14 +142,22 @@ function stepValue(buff: KitBuff, team: TeamShape): number {
   return n === 0 ? 0 : steps.values[Math.min(n, steps.values.length) - 1];
 }
 
-function gain(buff: KitBuff, stats: ReturnType<typeof bufferStats>, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): number {
-  if (buff.elements && !buff.elements.includes(carry.element)) return 0;
-  if (buff.teamOnly && !team.elements.every((e) => buff.teamOnly!.includes(e))) return 0;
+// The buff as it applies to this carry and team (a stepped value read at the team's count), or null when it can't
+// help them: wrong element, team makeup, attack type or reaction, or Physical.
+function applicable(buff: KitBuff, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): KitBuff | null {
+  if (buff.elements && !buff.elements.includes(carry.element)) return null;
+  if (buff.teamOnly && !team.elements.every((e) => buff.teamOnly!.includes(e))) return null;
   if (buff.steps) buff = { ...buff, value: stepValue(buff, team) };
+  if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return null;
+  if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return null;
+  if (buff.physical) return null; // the scorer has no Physical carries tagged as such
+  return buff;
+}
+
+function gain(raw: KitBuff, stats: ReturnType<typeof bufferStats>, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): number {
+  const buff = applicable(raw, carry, carryReactions, team);
+  if (!buff) return 0;
   const fs = team.fightingSpirit;
-  if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return 0;
-  if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return 0;
-  if (buff.physical) return 0; // the scorer has no Physical carries tagged as such
   const B = BENCHMARK;
   const cap = (n: number) => (buff.max === undefined ? n : Math.min(n, buff.max));
   const dmg = dmgBonusGain;
@@ -255,4 +263,105 @@ function computeKitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carry
   let total = 1;
   for (const g of best.values()) total *= 1 + g;
   return { gain: total - 1 };
+}
+
+// The team's kit buffs as stats added to the carry's own (#157), so carry damage can be read with them: flat
+// reaction damage (Aggravate, Spread, Clorinde's passive) is then weighed against buffed hits, not bare ones.
+// Same buffs, conditions, uptimes and reaction shares as kitBuffValue, and the same best-per-kind choice per buffer.
+// Left out, as they don't change how flat damage compares with a hit: RES and DEF shred (they scale every hit
+// alike), attack speed. Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
+// damage, which buffer points already score; inside this yardstick they'd raise Aggravate or Vaporize again (Nahida's
+// EM took Clorinde's Aggravate line from +170% to +212%). Weapon, set and constellation effects (effects.json)
+// aren't in kit.json.
+export interface TeamBuffStats {
+  atk: number; // flat ATK
+  atkPct: number; // of the carry's base ATK
+  dmgBonus: number;
+  critRate: number;
+  flat: number; // flat DMG per hit instance (Additive Base DMG Bonus: Shenhe, Yun Jin)
+}
+
+export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0 };
+
+function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
+  const cap = (n: number) => (buff.max === undefined ? n : Math.min(n, buff.max));
+  const v = buff.value;
+  switch (buff.kind) {
+    case "atkFromBase":
+      into.atk += stats.baseAtk * v * weight;
+      break;
+    case "atkFromAtk":
+      into.atk += cap(stats.atk * v) * weight;
+      break;
+    case "atkPct":
+      into.atkPct += v * weight;
+      break;
+    case "atkFlat":
+      into.atk += v * weight;
+      break;
+    case "dmgBonus": {
+      const fs = team.fightingSpirit / FIGHTING_SPIRIT_LIMIT;
+      const share = buff.condition === "fanfare" ? fanfareShare(buff, team) : buff.condition === "fightingSpirit" ? fs : 1;
+      into.dmgBonus += v * share * weight;
+      break;
+    }
+    case "dmgBonusPerEm":
+      into.dmgBonus += v * stats.em * weight;
+      break;
+    case "dmgBonusFromExcessAtk":
+      into.dmgBonus += cap(v * Math.max(0, stats.atk - buff.threshold!)) * weight;
+      break;
+    case "critRate":
+      into.critRate += v * weight;
+      break;
+    case "flatDmgFromAtk":
+      into.flat += cap(stats.atk * v) * weight;
+      break;
+    case "flatDmgFromDef":
+      into.flat += cap(stats.def * v) * weight;
+      break;
+    case "flatDmgFromEm":
+      into.flat += cap(stats.em * v) * weight;
+      break;
+    case "flatDmg":
+      into.flat += cap(Math.max(0, (stats.hp - 30000) / 1000) * v) * weight;
+      break;
+  }
+}
+
+const statsCache = new WeakMap<ScoringCharacter, Map<string, TeamBuffStats>>();
+export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
+  let byKey = statsCache.get(carry);
+  if (!byKey) statsCache.set(carry, (byKey = new Map()));
+  const key = `${carryReactions.join(",")}|${team.map((m) => m.id).sort().join(",")}`;
+  const cached = byKey.get(key);
+  if (cached) return cached;
+  const out = { ...NO_TEAM_BUFFS };
+  for (const s of team) {
+    if (s === carry) continue;
+    const entry = KIT[s.id];
+    if (!entry || entry.missing || entry.buffs.length === 0) continue;
+    const stats = bufferStats(s, entry.base, entry.buildFor);
+    const shape: TeamShape = {
+      elements: team.map((m) => m.element),
+      fightingSpirit: fightingSpirit(s, carry, team),
+      nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
+      healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
+    };
+    // The buff kitBuffValue counts for each kind: the one worth most to this carry.
+    const best = new Map<string, { buff: KitBuff; weight: number; g: number }>();
+    for (const b of entry.buffs) {
+      // A buff for some reactions only (Lauma's flat Bloom-type DMG) adds to that reaction's damage, not the carry's
+      // hits: like Reaction Bonus, buffer points score it.
+      if (b.reactions) continue;
+      const buff = applicable(b, carry, carryReactions, shape);
+      if (!buff) continue;
+      const weight = b.uptime ?? 1;
+      const g = gain(b, stats, carry, carryReactions, shape) * weight;
+      if (g > (best.get(b.kind)?.g ?? 0)) best.set(b.kind, { buff, weight, g });
+    }
+    for (const { buff, weight } of best.values()) addBuffStats(buff, stats, shape, weight, out);
+  }
+  byKey.set(key, out);
+  return out;
 }

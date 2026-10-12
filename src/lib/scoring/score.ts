@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
+import { NO_TEAM_BUFFS, atkPctGain, baseAtkOf, kitBuffValue, normalAttacks, teamBuffStats } from "./kit";
 import { carryDamage, expectedCrit, modelsReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -631,9 +631,9 @@ function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContex
 
 // The carry's own damage per second (damage.ts, #101), or null when it isn't modeled yet: no kit data, or hits still
 // missing. An undercounted carry (Flins, 748/s) would make every sub-DPS look several times bigger.
-// `reactions: false` reads it as if the team triggered no reactions (#134).
-function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = true): number | null {
-  const own = carryDamage(carry, reactions ? ctx.active : [], ctx.members);
+// `reactions: false` reads it as if the team triggered no reactions (#134); `buffs` adds the team's kit buffs (#157).
+function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = true, buffs = NO_TEAM_BUFFS): number | null {
+  const own = carryDamage(carry, reactions ? ctx.active : [], ctx.members, buffs);
   return own && own.missing.length === 0 ? own.perSecond : null;
 }
 
@@ -641,11 +641,15 @@ function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = 
 // any, on the buffer scale (+20% = `buffer` points). This replaces the flat reaction points (main reaction, extra
 // partners, secondary reactions) for the reactions the damage model covers (damage.ts modelsReaction); returns
 // those, empty for a carry not modeled yet. Without reactions the carry plays their default combo (#114).
+// Both readings include the team's kit buffs (#157), the same ones either way (read for the team's reactions), so
+// flat reaction damage (Aggravate, Spread, Clorinde's passive) is weighed against buffed hits. The buffs themselves
+// still score as buffer points; here they only set the yardstick, so nothing counts twice.
 function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink): Reaction[] {
   const covered = ctx.active.filter((r) => modelsReaction(carry, r));
   if (covered.length === 0) return covered;
-  const withReactions = modeledCarryDps(carry, ctx);
-  const without = modeledCarryDps(carry, ctx, false);
+  const buffs = teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members);
+  const withReactions = modeledCarryDps(carry, ctx, true, buffs);
+  const without = modeledCarryDps(carry, ctx, false, buffs);
   if (withReactions === null || without === null) return [];
   const gain = withReactions / without - 1;
   const points = gainPoints(gain, POINTS.buffer);
