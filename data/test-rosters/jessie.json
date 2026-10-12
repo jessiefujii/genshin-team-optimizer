@@ -42,7 +42,40 @@
   },
   "Aloy": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 3,
+        "skill": 3,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Raven Bow",
+        "level": 80,
+        "refinement": 5,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Wanderer's Troupe",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 9282,
+        "atk": 718,
+        "def": 562,
+        "critRate": 8.5,
+        "critDmg": 74.8,
+        "energyRecharge": 105.2,
+        "elementalMastery": 210,
+        "elementalDmgBonus": 61,
+        "baseAtk": 548
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Alyosha": {
     "constellation": 2,
@@ -82,8 +115,41 @@
     "updatedAt": "2026-10-12T13:00:00.000Z"
   },
   "Amber": {
-    "constellation": 0,
-    "built": false
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 70,
+      "ascension": 4,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "The Stringless",
+        "level": 70,
+        "refinement": 5,
+        "ascension": 4
+      },
+      "artifactSets": [
+        {
+          "set": "Wanderer's Troupe",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 8533,
+        "atk": 840,
+        "def": 464,
+        "critRate": 8.9,
+        "critDmg": 77.2,
+        "energyRecharge": 116.2,
+        "elementalMastery": 258,
+        "elementalDmgBonus": 7,
+        "baseAtk": 560
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Barbara": {
     "constellation": 0,
@@ -210,8 +276,41 @@
     "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Chevreuse": {
-    "constellation": 0,
-    "built": false
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 67,
+      "ascension": 4,
+      "talents": {
+        "normal": 2,
+        "skill": 6,
+        "burst": 5
+      },
+      "weapon": {
+        "id": "Favonius Lance",
+        "level": 20,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Song of Days Past",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 13860,
+        "atk": 360,
+        "def": 508,
+        "critRate": 7.7,
+        "critDmg": 67.9,
+        "energyRecharge": 122.1,
+        "elementalMastery": 44,
+        "elementalDmgBonus": 0,
+        "baseAtk": 264
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Chongyun": {
     "constellation": 0,
@@ -602,8 +701,41 @@
     "updatedAt": "2026-10-12T14:00:00.000Z"
   },
   "Gaming": {
-    "constellation": 0,
-    "built": false
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 61,
+      "ascension": 4,
+      "talents": {
+        "normal": 2,
+        "skill": 2,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "\"Ultimate Overlord's Mega Magic Sword\"",
+        "level": 60,
+        "refinement": 5,
+        "ascension": 3
+      },
+      "artifactSets": [
+        {
+          "set": "Marechaussee Hunter",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 9852,
+        "atk": 940,
+        "def": 582,
+        "critRate": 12.4,
+        "critDmg": 71.7,
+        "energyRecharge": 127.1,
+        "elementalMastery": 61,
+        "elementalDmgBonus": 7,
+        "baseAtk": 575
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Gorou": {
     "constellation": 0,
@@ -722,15 +854,81 @@
   },
   "Jahoda": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 1,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "Rainbow Serpent's Rain Bow",
+        "level": 80,
+        "refinement": 5,
+        "ascension": 5
+      },
+      "artifactSets": [
+        {
+          "set": "Viridescent Venerer",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 7600,
+        "atk": 827,
+        "def": 445,
+        "critRate": 8.1,
+        "critDmg": 57.8,
+        "energyRecharge": 162.6,
+        "elementalMastery": 16,
+        "elementalDmgBonus": 15,
+        "baseAtk": 596
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Jean": {
     "constellation": 0,
     "built": true
   },
   "Kachina": {
-    "constellation": 0,
-    "built": false
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "White Tassel",
+        "level": 60,
+        "refinement": 5,
+        "ascension": 3
+      },
+      "artifactSets": [
+        {
+          "set": "Scroll of the Hero of Cinder City",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 9197,
+        "atk": 520,
+        "def": 648,
+        "critRate": 35.5,
+        "critDmg": 71.8,
+        "energyRecharge": 118.8,
+        "elementalMastery": 21,
+        "elementalDmgBonus": 12,
+        "baseAtk": 405
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Kaeya": {
     "constellation": 0,
@@ -743,6 +941,43 @@
   "Kaveh": {
     "constellation": 0,
     "built": false
+  },
+  "Keqing": {
+    "constellation": 1,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 1,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Fillet Blade",
+        "level": 90,
+        "refinement": 5,
+        "ascension": 6
+      },
+      "artifactSets": [
+        {
+          "set": "Gladiator's Finale",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 14342,
+        "atk": 1050,
+        "def": 726,
+        "critRate": 15.1,
+        "critDmg": 122.8,
+        "energyRecharge": 105.8,
+        "elementalMastery": 16,
+        "elementalDmgBonus": 14.9,
+        "baseAtk": 611
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Kirara": {
     "constellation": 2,
@@ -1099,7 +1334,40 @@
   },
   "Navia": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 1,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "Tidal Shadow",
+        "level": 7,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Nighttime Whispers in the Echoing Woods",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 10088,
+        "atk": 496,
+        "def": 672,
+        "critRate": 9.7,
+        "critDmg": 81.6,
+        "energyRecharge": 111.7,
+        "elementalMastery": 58,
+        "elementalDmgBonus": 40.7,
+        "baseAtk": 291
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Neuvillette": {
     "constellation": 0,
@@ -1144,8 +1412,41 @@
     "built": true
   },
   "Noelle": {
-    "constellation": 0,
-    "built": false
+    "constellation": 3,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 7,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "Whiteblind",
+        "level": 60,
+        "refinement": 1,
+        "ascension": 3
+      },
+      "artifactSets": [
+        {
+          "set": "Retracing Bolide",
+          "pieces": 2
+        }
+      ],
+      "stats": {
+        "hp": 15013,
+        "atk": 800,
+        "def": 1479,
+        "critRate": 39.6,
+        "critDmg": 79.5,
+        "energyRecharge": 170.6,
+        "elementalMastery": 89,
+        "elementalDmgBonus": 0,
+        "baseAtk": 453
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Odette": {
     "constellation": 0,
@@ -1437,7 +1738,40 @@
   },
   "Varesa": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 1,
+        "burst": 4
+      },
+      "weapon": {
+        "id": "The Widsith",
+        "level": 1,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Obsidian Codex",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 16773,
+        "atk": 644,
+        "def": 648,
+        "critRate": 17.3,
+        "critDmg": 116.4,
+        "energyRecharge": 100,
+        "elementalMastery": 84,
+        "elementalDmgBonus": 46.6,
+        "baseAtk": 274
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Vesna": {
     "constellation": 0,
@@ -1486,7 +1820,40 @@
   },
   "Xilonen": {
     "constellation": 0,
-    "built": false
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 1,
+        "skill": 4,
+        "burst": 1
+      },
+      "weapon": {
+        "id": "Favonius Sword",
+        "level": 40,
+        "refinement": 5,
+        "ascension": 2
+      },
+      "artifactSets": [
+        {
+          "set": "Scroll of the Hero of Cinder City",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 15451,
+        "atk": 806,
+        "def": 1877,
+        "critRate": 21.7,
+        "critDmg": 70.2,
+        "energyRecharge": 144.7,
+        "elementalMastery": 252,
+        "elementalDmgBonus": 0,
+        "baseAtk": 388
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Xingqiu": {
     "constellation": 6,
@@ -1616,8 +1983,41 @@
     "updatedAt": "2026-10-12T00:00:00.000Z"
   },
   "Yun Jin": {
-    "constellation": 0,
-    "built": false
+    "constellation": 4,
+    "built": false,
+    "build": {
+      "level": 60,
+      "ascension": 3,
+      "talents": {
+        "normal": 4,
+        "skill": 4,
+        "burst": 7
+      },
+      "weapon": {
+        "id": "Favonius Lance",
+        "level": 20,
+        "refinement": 1,
+        "ascension": 0
+      },
+      "artifactSets": [
+        {
+          "set": "Gladiator's Finale",
+          "pieces": 4
+        }
+      ],
+      "stats": {
+        "hp": 8525,
+        "atk": 371,
+        "def": 580,
+        "critRate": 7.7,
+        "critDmg": 57.8,
+        "energyRecharge": 148.5,
+        "elementalMastery": 63,
+        "elementalDmgBonus": 7,
+        "baseAtk": 245
+      }
+    },
+    "updatedAt": "2026-10-12T15:00:00.000Z"
   },
   "Zhongli": {
     "constellation": 0,
