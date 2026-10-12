@@ -1,4 +1,32 @@
 {
+  "Aino": {
+    "constellation": 0,
+    "built": false
+  },
+  "Albedo": {
+    "constellation": 0,
+    "built": true
+  },
+  "Aloy": {
+    "constellation": 0,
+    "built": false
+  },
+  "Alyosha": {
+    "constellation": 0,
+    "built": false
+  },
+  "Amber": {
+    "constellation": 0,
+    "built": false
+  },
+  "Barbara": {
+    "constellation": 0,
+    "built": true
+  },
+  "Beidou": {
+    "constellation": 0,
+    "built": false
+  },
   "Bennett": {
     "constellation": 6,
     "built": true,
@@ -32,6 +60,26 @@
       }
     },
     "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Candace": {
+    "constellation": 0,
+    "built": false
+  },
+  "Charlotte": {
+    "constellation": 0,
+    "built": false
+  },
+  "Chevreuse": {
+    "constellation": 0,
+    "built": false
+  },
+  "Chongyun": {
+    "constellation": 0,
+    "built": true
+  },
+  "Collei": {
+    "constellation": 0,
+    "built": false
   },
   "Columbina": {
     "constellation": 0,
@@ -69,6 +117,22 @@
       }
     },
     "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Cyno": {
+    "constellation": 0,
+    "built": true
+  },
+  "Dahlia": {
+    "constellation": 0,
+    "built": false
+  },
+  "Dehya": {
+    "constellation": 0,
+    "built": false
+  },
+  "Diluc": {
+    "constellation": 0,
+    "built": false
   },
   "Diona": {
     "constellation": 6,
@@ -110,6 +174,10 @@
       }
     },
     "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Dori": {
+    "constellation": 0,
+    "built": false
   },
   "Durin": {
     "constellation": 0,
@@ -182,6 +250,14 @@
     },
     "updatedAt": "2026-10-07T10:22:21.216Z"
   },
+  "Faruzan": {
+    "constellation": 0,
+    "built": false
+  },
+  "Fischl": {
+    "constellation": 0,
+    "built": false
+  },
   "Flins": {
     "constellation": 0,
     "built": true,
@@ -215,6 +291,26 @@
       }
     },
     "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Freminet": {
+    "constellation": 0,
+    "built": false
+  },
+  "Gaming": {
+    "constellation": 0,
+    "built": false
+  },
+  "Gorou": {
+    "constellation": 0,
+    "built": false
+  },
+  "Iansan": {
+    "constellation": 0,
+    "built": false
+  },
+  "Ifa": {
+    "constellation": 0,
+    "built": false
   },
   "Illuga": {
     "constellation": 4,
@@ -253,6 +349,54 @@
     },
     "updatedAt": "2026-10-12T00:00:00.000Z"
   },
+  "Jahoda": {
+    "constellation": 0,
+    "built": false
+  },
+  "Jean": {
+    "constellation": 0,
+    "built": true
+  },
+  "Kachina": {
+    "constellation": 0,
+    "built": false
+  },
+  "Kaeya": {
+    "constellation": 0,
+    "built": true
+  },
+  "Kamisato Ayaka": {
+    "constellation": 1,
+    "built": true
+  },
+  "Kaveh": {
+    "constellation": 0,
+    "built": false
+  },
+  "Kirara": {
+    "constellation": 0,
+    "built": false
+  },
+  "Klee": {
+    "constellation": 0,
+    "built": true
+  },
+  "Kujou Sara": {
+    "constellation": 0,
+    "built": false
+  },
+  "Kuki Shinobu": {
+    "constellation": 0,
+    "built": false
+  },
+  "Lan Yan": {
+    "constellation": 0,
+    "built": false
+  },
+  "Layla": {
+    "constellation": 0,
+    "built": false
+  },
   "Linnea": {
     "constellation": 0,
     "built": true,
@@ -290,6 +434,30 @@
     },
     "updatedAt": "2026-10-12T00:00:00.000Z"
   },
+  "Lisa": {
+    "constellation": 0,
+    "built": false
+  },
+  "Lynette": {
+    "constellation": 0,
+    "built": false
+  },
+  "Mika": {
+    "constellation": 0,
+    "built": false
+  },
+  "Mona": {
+    "constellation": 0,
+    "built": false
+  },
+  "Nahida": {
+    "constellation": 0,
+    "built": true
+  },
+  "Navia": {
+    "constellation": 0,
+    "built": false
+  },
   "Neuvillette": {
     "constellation": 0,
     "built": true,
@@ -323,6 +491,18 @@
       }
     },
     "updatedAt": "2026-10-07T10:22:21.216Z"
+  },
+  "Nicole": {
+    "constellation": 0,
+    "built": true
+  },
+  "Ningguang": {
+    "constellation": 0,
+    "built": true
+  },
+  "Noelle": {
+    "constellation": 0,
+    "built": false
   },
   "Odette": {
     "constellation": 0,
@@ -360,6 +540,14 @@
       }
     },
     "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Ororon": {
+    "constellation": 0,
+    "built": false
+  },
+  "Prune": {
+    "constellation": 0,
+    "built": false
   },
   "Qiqi": {
     "constellation": 1,
@@ -432,6 +620,30 @@
     },
     "updatedAt": "2026-10-07T10:22:21.216Z"
   },
+  "Razor": {
+    "constellation": 0,
+    "built": false
+  },
+  "Rosaria": {
+    "constellation": 0,
+    "built": true
+  },
+  "Sayu": {
+    "constellation": 0,
+    "built": false
+  },
+  "Sethos": {
+    "constellation": 0,
+    "built": false
+  },
+  "Shenhe": {
+    "constellation": 0,
+    "built": false
+  },
+  "Shikanoin Heizou": {
+    "constellation": 0,
+    "built": false
+  },
   "Sucrose": {
     "constellation": 6,
     "built": true,
@@ -468,6 +680,38 @@
       }
     },
     "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Tartaglia": {
+    "constellation": 0,
+    "built": true
+  },
+  "Thoma": {
+    "constellation": 0,
+    "built": false
+  },
+  "Tighnari": {
+    "constellation": 4,
+    "built": true
+  },
+  "Varesa": {
+    "constellation": 0,
+    "built": false
+  },
+  "Vesna": {
+    "constellation": 0,
+    "built": false
+  },
+  "Xiangling": {
+    "constellation": 0,
+    "built": true
+  },
+  "Xiao": {
+    "constellation": 0,
+    "built": true
+  },
+  "Xilonen": {
+    "constellation": 0,
+    "built": false
   },
   "Xingqiu": {
     "constellation": 6,
@@ -506,6 +750,26 @@
     },
     "updatedAt": "2026-10-12T00:00:00.000Z"
   },
+  "Xinyan": {
+    "constellation": 0,
+    "built": true
+  },
+  "Yae Miko": {
+    "constellation": 0,
+    "built": true
+  },
+  "Yanfei": {
+    "constellation": 0,
+    "built": false
+  },
+  "Yaoyao": {
+    "constellation": 0,
+    "built": false
+  },
+  "Yoimiya": {
+    "constellation": 0,
+    "built": true
+  },
   "Yumemizuki Mizuki": {
     "constellation": 1,
     "built": true,
@@ -542,6 +806,10 @@
       }
     },
     "updatedAt": "2026-10-12T00:00:00.000Z"
+  },
+  "Yun Jin": {
+    "constellation": 0,
+    "built": false
   },
   "Zhongli": {
     "constellation": 0,
