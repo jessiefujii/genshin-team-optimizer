@@ -505,12 +505,12 @@ describe("talent levels (#25)", () => {
       score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Mavuika"))?.reason;
     // Her own Skill gives 80 and Neuvillette's Charged Attacks none: under the 100 her Burst needs, so no buff (#116).
     expect(mavuika("Neuvillette", "Mavuika", "Furina", "Escoffier")).toBe("Mavuika: their kit's buff doesn't apply to Neuvillette's damage");
-    // Kachina's Skill adds 60 and Hu Tao's 16 Normal Attack hits 24: 164 of 200. (Hu Tao, not Neuvillette: with
+    // Kachina's Skill adds 60 and Hu Tao's 14 Normal Attack hits 21: 161 of 200. (Hu Tao, not Neuvillette: with
     // Kachina or Citlali + Xilonen, Mavuika out-damages Neuvillette and takes the on-field slot, #96.)
-    expect(mavuika("Hu Tao", "Mavuika", "Kachina", "Xingqiu")).toBe("Mavuika buffs Hu Tao (~+21% damage)");
+    expect(mavuika("Hu Tao", "Mavuika", "Kachina", "Xingqiu")).toBe("Mavuika buffs Hu Tao (~+20% damage)");
     // Kachina (60) and Xilonen (90): past the 200 limit, the full 40%.
     expect(mavuika("Hu Tao", "Mavuika", "Kachina", "Xilonen")).toBe("Mavuika buffs Hu Tao (~+25% damage)");
-    // Normal Attack hits add 1.5 each: Clorinde's 36 make 134, Hu Tao's 16 make 104 (not the old flat 200).
+    // Normal Attack hits add 1.5 each: Clorinde's 36 make 134, Hu Tao's 14 make 101 (not the old flat 200).
     expect(mavuika("Clorinde", "Mavuika", "Bennett", "Fischl")).toBe("Mavuika buffs Clorinde (~+17% damage)");
     expect(mavuika("Hu Tao", "Mavuika", "Xingqiu", "Zhongli")).toBe("Mavuika buffs Hu Tao (~+13% damage)");
   });
