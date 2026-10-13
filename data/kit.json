@@ -2132,10 +2132,20 @@
           },
           "hits": 1,
           "cd": 18
+        },
+        {
+          "talent": "burst",
+          "label": "Purrsonal Coordinated Assistance Robot DMG",
+          "scaling": {
+            "atk": 0.293529
+          },
+          "hits": 10,
+          "when": {
+            "ascendantGleam": true
+          },
+          "cd": 18,
+          "rateSource": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority (passive 1, interval 10% shorter): ~11 by calculation, not measured, not applied."
         }
-      ],
-      "missing": [
-        "Purrsonal Coordinated Assistance Robot DMG: the robots' attack interval isn't in genshin-db, on the wiki or in KQM's guide. They only deal damage in Ascendant Gleam teams (2+ Moonsign members), after converting to an element; there are 2 robots, each converting on its own"
       ]
     },
     "Kachina": {
@@ -4297,6 +4307,7 @@
     "Tighnari",
     "Traveler (Anemo)",
     "Traveler (Hydro)",
+    "Traveler (Cryo)",
     "Varka",
     "Vesna",
     "Wanderer",
