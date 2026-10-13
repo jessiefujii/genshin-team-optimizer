@@ -1524,7 +1524,8 @@
           "talent": "burst",
           "label": "Water Ball DMG",
           "scaling": {
-            "atk": 0.341904
+            "atk": 0.341904,
+            "em": 0.5
           },
           "hits": 9,
           "cd": 13.5,
@@ -1733,7 +1734,8 @@
           "talent": "skill",
           "label": "Frostfall Storm DMG",
           "scaling": {
-            "atk": 0.289408
+            "atk": 0.289408,
+            "em": 0.9
           },
           "hits": 6,
           "cd": 16,
@@ -1743,7 +1745,8 @@
           "talent": "burst",
           "label": "Ice Storm DMG",
           "scaling": {
-            "atk": 9.1392
+            "atk": 9.1392,
+            "em": 12
           },
           "hits": 1,
           "cd": 15
@@ -2554,6 +2557,9 @@
           "scaling": {
             "atk": 3.9168
           },
+          "dmgBonusPerStat": {
+            "em": 0.0015
+          },
           "hits": 1,
           "cd": 8
         },
@@ -2562,6 +2568,9 @@
           "label": "Lea Lotus Lamp Attack DMG",
           "scaling": {
             "atk": 1.36272
+          },
+          "dmgBonusPerStat": {
+            "em": 0.001
           },
           "hits": 8,
           "cd": 20,
@@ -3657,7 +3666,21 @@
       ]
     },
     "Nefer": {
-      "rotationSeconds": 15,
+      "rotationSeconds": 18,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 20
+        }
+      ],
       "hits": [
         {
           "label": "Skill DMG",
@@ -3780,7 +3803,7 @@
       ]
     },
     "Clorinde": {
-      "rotationSeconds": 15,
+      "rotationSeconds": 16,
       "hits": [
         {
           "label": "Swift Hunt DMG",
@@ -3840,7 +3863,36 @@
       ]
     },
     "Flins": {
-      "rotationSeconds": 20,
+      "rotationSeconds": 17.5,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Aino"
+                ]
+              ]
+            }
+          ],
+          "seconds": 16
+        },
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ],
+                [
+                  "Xilonen"
+                ]
+              ]
+            }
+          ],
+          "seconds": 16
+        }
+      ],
       "hits": [
         {
           "label": "1-Hit DMG",
@@ -3930,6 +3982,20 @@
     },
     "Arlecchino": {
       "rotationSeconds": 15,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Kachina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 20
+        }
+      ],
       "hits": [
         {
           "label": "Spike DMG",
@@ -4203,7 +4269,39 @@
       ]
     },
     "Alhaitham": {
-      "rotationSeconds": 18,
+      "rotationSeconds": 23.5,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Nilou"
+                ]
+              ]
+            }
+          ],
+          "seconds": 27
+        },
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Kuki Shinobu"
+                ],
+                [
+                  "Furina"
+                ],
+                [
+                  "Nahida"
+                ]
+              ]
+            }
+          ],
+          "seconds": 30
+        }
+      ],
       "hits": [
         {
           "label": "Rush Attack DMG",
@@ -4264,7 +4362,7 @@
             "atk": 3.4272,
             "em": 6.8544
           },
-          "count": 6,
+          "count": 6.5,
           "instances": 3
         }
       ],
