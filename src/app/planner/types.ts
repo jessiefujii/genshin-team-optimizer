@@ -7,4 +7,5 @@ export type PlannerCharacter = ScoringCharacter & { rarity: number };
 export interface BuildCatalog {
   weapons: Record<string, string[]>; // best rarity first
   sets: string[];
+  weaponRarity: Record<string, number>; // every weapon, 1-2 stars too: the search's minimum checks it (#133)
 }

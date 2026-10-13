@@ -16,13 +16,16 @@ export function suggestBuilds(roster: ScoringCharacter[], top: ScoredTeam[], opt
   const limit = options.limit ?? 20;
   const gaps = new Map<string, string[]>();
   for (const c of roster) {
-    const g = buildGaps(c);
+    // A build below the search's minimum (#133) is a gap too: they sit out of the search but can still be suggested.
+    const g = [...(c.belowMinimum ?? []), ...buildGaps(c)];
     if (g.length > 0 && !options.exclude?.includes(c.id)) gaps.set(c.id, g);
   }
   if (gaps.size === 0) return [];
 
   // Gappy members at benchmark: no stats or talents, counted as built. Effects from their gear stay.
-  const potential = roster.map((c) => (gaps.has(c.id) ? { ...c, stats: undefined, talents: undefined, built: true } : c));
+  const potential = roster.map((c) =>
+    gaps.has(c.id) ? { ...c, stats: undefined, talents: undefined, built: true, belowMinimum: undefined } : c,
+  );
   const candidates = findBestTeams(potential, { ...options, requireAny: [...gaps.keys()], limit: limit + top.length });
 
   const floor = top.length < limit ? -Infinity : top[top.length - 1].score;

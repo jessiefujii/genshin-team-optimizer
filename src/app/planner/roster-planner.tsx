@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { belowMinimum } from "@/lib/build/minimum";
 import { characterEffects } from "@/lib/scoring/effects";
 import { control, quietChip } from "@/lib/ui/elements";
 import ResultsList from "./results-list";
@@ -70,11 +71,13 @@ export default function RosterPlanner({
       characters
         .filter((c) => roster[c.id])
         .map((c) => {
-          const { build, constellation, built } = roster[c.id];
+          const { build, constellation, built, includeAnyway } = roster[c.id];
           const effects = characterEffects(c.id, constellation, build);
-          return { ...c, stats: build?.stats, talents: build?.talents, built, effects };
+          // A build below the minimum sits out of the search unless the player ticked "Include anyway" (#133).
+          const below = includeAnyway ? [] : belowMinimum(build, catalog.weaponRarity);
+          return { ...c, stats: build?.stats, talents: build?.talents, built, effects, belowMinimum: below };
         }),
-    [characters, roster],
+    [characters, roster, catalog],
   );
   const ownedIds = owned.map((c) => c.id);
 
