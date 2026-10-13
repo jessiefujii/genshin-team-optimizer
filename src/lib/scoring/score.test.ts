@@ -167,16 +167,26 @@ describe("scoreTeam", () => {
     expect(s.breakdown.some((l) => l.reason === "No main DPS in the team")).toBe(true);
   });
 
-  test("Skirk prefers only Hydro and Cryo teammates", () => {
-    const pure = score("Skirk", "Escoffier", "Furina", "Shenhe");
-    const mixed = score("Skirk", "Escoffier", "Furina", "Bennett");
-    expect(pure.breakdown.some((l) => l.rule === "Team preference" && l.points > 0)).toBe(true);
-    expect(mixed.breakdown.some((l) => l.rule === "Team preference" && l.points < 0)).toBe(true);
-  });
-
-  test("Varka's mono-element Hexerei preference", () => {
-    const met = score("Varka", "Venti", "Klee", "Durin");
-    expect(met.breakdown.some((l) => l.reason.startsWith("Varka:"))).toBe(true);
+  // tags.json has no team preferences since #97 (the guide-derived #57 ones were dropped once sub-DPS scoring came
+  // from the kit); the mechanism stays for hand-written ones, tested with made-up preferences.
+  test("no team preferences in tags.json; the mechanism still scores made-up ones (#97, #43)", () => {
+    expect(all.filter((c) => c.teamPrefs?.length).map((c) => c.id)).toEqual([]);
+    const withPrefs = (prefs: Record<string, ScoringCharacter["teamPrefs"]>, ...ids: string[]) =>
+      scoreTeam(team(...ids).map((c) => (prefs[c.id] ? { ...c, teamPrefs: prefs[c.id] } : c))).breakdown.filter(
+        (l) => l.rule === "Team preference",
+      );
+    // A carry's partner preference counts fully; a support's composition preference counts less.
+    expect(withPrefs({ Zibai: [{ kind: "partner", ids: ["Columbina"] }] }, "Zibai", "Columbina", "Illuga", "Zhongli")).toEqual([
+      { rule: "Team preference", points: 15, reason: "Zibai with Columbina" },
+    ]);
+    const chevreuse = withPrefs(
+      { Chevreuse: [{ kind: "composition", onlyElements: ["Pyro", "Electro"], note: "only Pyro and Electro" }] },
+      "Raiden Shogun", "Chevreuse", "Bennett", "Xiangling",
+    );
+    expect(chevreuse.find((l) => l.reason.startsWith("Chevreuse"))?.points).toBe(5);
+    // A carry's onlyElements preference that the team breaks costs points.
+    const skirk = { Skirk: [{ kind: "composition" as const, onlyElements: ["Hydro" as const, "Cryo" as const] }] };
+    expect(withPrefs(skirk, "Skirk", "Escoffier", "Furina", "Bennett").some((l) => l.points < 0)).toBe(true);
   });
 
   test("Hexerei only counts for characters whose quest is done", () => {
@@ -266,14 +276,6 @@ describe("scoreTeam", () => {
     expect(lunar.breakdown.some((l) => l.rule === "Moonsign")).toBe(true);
   });
 
-  test("a support's own team preference counts less than the carry's (#43)", () => {
-    const prefs = (s: ReturnType<typeof score>) => s.breakdown.filter((l) => l.rule === "Team preference");
-    // Chevreuse wants an all Pyro/Electro team; she's a support here.
-    expect(prefs(score("Raiden Shogun", "Chevreuse", "Bennett", "Xiangling")).find((l) => l.reason.startsWith("Chevreuse"))?.points).toBe(5);
-    // Zibai carrying with her partner Columbina: full points.
-    expect(prefs(score("Zibai", "Columbina", "Illuga", "Zhongli")).find((l) => l.reason === "Zibai with Columbina")?.points).toBe(15);
-  });
-
   test("Witch's Revelation characters count as Stellar only once their quest is done (#45)", () => {
     const ids = ["Wriothesley", "Sandrone", "Fischl", "Furina"];
     // Wriothesley's Radiance: Stellar-Conduct upgrade counts only once his quest is done.
@@ -281,11 +283,6 @@ describe("scoreTeam", () => {
     expect(stellarFamily(scoreTeam(team(...ids)))).toBe(true); // no option: all quests assumed done
     expect(stellarFamily(scoreTeam(team(...ids), { revelationUnlocked: [] }))).toBe(false);
     expect(stellarFamily(scoreTeam(team(...ids), { revelationUnlocked: ["Wriothesley"] }))).toBe(true);
-  });
-
-  test("partner preference: Zibai with Columbina", () => {
-    const s = score("Zibai", "Columbina", "Illuga", "Zhongli");
-    expect(s.breakdown.some((l) => l.reason === "Zibai with Columbina")).toBe(true);
   });
 
   test("Kazuha's buff needs something to swirl", () => {
@@ -663,9 +660,8 @@ describe("talent levels (#25)", () => {
     expect(buffs).toEqual([["Furina", 16], ["Bennett", 12]]);
   });
 
-  test("Xiao wants Xianyun or Faruzan (#60)", () => {
+  test("Faruzan's buff reaches Xiao (#60)", () => {
     const s = score("Xiao", "Xianyun", "Faruzan", "Furina");
-    expect(s.breakdown.map((l) => l.reason)).toContain("Xiao with Xianyun");
     expect(s.breakdown.find((l) => l.reason.startsWith("Faruzan buffs"))?.points).toBe(13);
   });
 
@@ -701,14 +697,6 @@ describe("talent levels (#25)", () => {
     expect(res(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"), "Soothing Water")?.points).toBe(5);
     expect(res(score("Alhaitham", "Nahida", "Fischl", "Kuki Shinobu"), "Sprawling Greenery")?.points).toBe(5); // EM scaler
     expect(res(score("Kinich", "Emilie", "Xiangling", "Bennett"), "Sprawling Greenery")?.points).toBe(5); // Burning uses EM
-  });
-
-  test("a carry wants the off-field sub-DPS its guide teams use (#57)", () => {
-    const reasons = score("Kinich", "Emilie", "Xiangling", "Bennett").breakdown.map((l) => l.reason);
-    expect(reasons).toContain("Kinich with Emilie");
-    expect(score("Raiden Shogun", "Xingqiu", "Xiangling", "Bennett").breakdown.map((l) => l.reason)).toContain(
-      "Raiden Shogun with Xiangling",
-    );
   });
 
   test("a hypercarry counts a third buffer (#51)", () => {
