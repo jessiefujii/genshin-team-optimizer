@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { BuildSuggestion } from "@/lib/scoring/suggest";
 import { elementChip } from "@/lib/ui/elements";
+import CharacterIcon from "./character-icon";
 import type { PlannerCharacter } from "./types";
 
 const SHOWN = 5;
@@ -29,7 +30,10 @@ export default function WorthBuilding({
         {shown.map((s) => (
           <li key={s.id}>
             <div className="flex flex-wrap items-baseline gap-x-2">
-              <span className={`${elementChip(byId.get(s.id)?.element ?? "")} font-semibold`}>{s.id}</span>
+              <span className={`${elementChip(byId.get(s.id)?.element ?? "")} inline-flex items-center gap-1 font-semibold`}>
+                <CharacterIcon icon={byId.get(s.id)?.icon} size={20} />
+                {s.id}
+              </span>
               <span className="text-red-700 dark:text-red-400">{s.gaps.join(" · ")}</span>
             </div>
             <div className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">

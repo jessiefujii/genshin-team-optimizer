@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { RotationStep } from "@/lib/scoring/rotation";
 import type { ScoredTeam } from "@/lib/scoring/types";
 import { elementChip, quietChip } from "@/lib/ui/elements";
+import CharacterIcon from "./character-icon";
 import type { PlannerCharacter } from "./types";
 
 interface Props {
@@ -46,8 +47,9 @@ export default function ResultsList({ teams, byId }: Props) {
                   {team.members.map((id) => (
                     <span
                       key={id}
-                      className={`${elementChip(byId.get(id)?.element ?? "")} ${id === team.carry ? "font-semibold ring-1 ring-current" : ""}`}
+                      className={`${elementChip(byId.get(id)?.element ?? "")} inline-flex items-center gap-1 ${id === team.carry ? "font-semibold ring-1 ring-current" : ""}`}
                     >
+                      <CharacterIcon icon={byId.get(id)?.icon} size={20} />
                       {id}
                     </span>
                   ))}
@@ -82,7 +84,8 @@ export default function ResultsList({ teams, byId }: Props) {
                     {groupSteps(team.rotation).map((g, k) => (
                       <li key={k} className="flex items-center gap-1">
                         {k > 0 && <span className="text-zinc-400" aria-hidden="true">→</span>}
-                        <span className={elementChip(byId.get(g.character)?.element ?? "")}>
+                        <span className={`${elementChip(byId.get(g.character)?.element ?? "")} inline-flex items-center gap-1`}>
+                          <CharacterIcon icon={byId.get(g.character)?.icon} size={16} />
                           {g.character} <span className="font-mono">{g.actions.join(", ")}</span>
                         </span>
                       </li>

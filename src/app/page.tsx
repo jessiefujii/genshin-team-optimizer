@@ -7,7 +7,9 @@ function loadPlannerCharacters(): PlannerCharacter[] {
   return loadScoringCharacters()
     .map((c) => {
       const db = c.id.startsWith("Traveler (") ? null : genshindb.characters(c.id);
-      return { ...c, rarity: db?.rarity ?? 5 };
+      // genshin-db has no Traveler entry per element: every Traveler shows Lumine's icon (Enka's PlayerGirl).
+      const icon = db ? db.images?.filename_icon : "UI_AvatarIcon_PlayerGirl";
+      return { ...c, rarity: db?.rarity ?? 5, ...(icon ? { icon } : {}) };
     })
     .sort((a, b) => a.id.localeCompare(b.id));
 }
