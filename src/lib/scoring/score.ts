@@ -7,8 +7,9 @@ import { generateRotation } from "./rotation";
 import { atkPctGain, baseAtkOf, kitBuffValue, normalAttacks } from "./kit";
 import { carryDamage, lunarHit, modelsAscendantGleam, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
-import type { ScaleStat, SubDpsStats } from "./benchmark";
+import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
+import subDpsBuildsJson from "../../../data/subdps-builds.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
 // Point values are starting guesses from the design doc; tune them against known-strong teams.
@@ -630,12 +631,17 @@ interface SubDpsSource {
 // Columbina). Teammates' bonuses to them stay with #88.
 type SubDpsLunarBase = { stat: "atk" | "hp" | "def" | "em"; perPoint: number; max: number; reactions: LunarReaction[] };
 // base: level 90 character base stats from genshin-db, for the benchmark build (#158).
-type SubDpsEntry = { base: { hp: number; atk: number; def: number } | null; sources: SubDpsSource[]; missing?: string[]; lunarBaseBonus?: SubDpsLunarBase };
+type SubDpsEntry = { base: SubDpsBase | null; sources: SubDpsSource[]; missing?: string[]; lunarBaseBonus?: SubDpsLunarBase };
 const SUB_DPS = kitJson.subDps as Record<string, SubDpsEntry>;
 
-// The stat a sub-DPS's hits scale on (#158): EM if any hit uses it (Nahida's Tri-Karma), else the one with the
-// largest summed coefficient.
-function scaleStatOf(entry: SubDpsEntry): ScaleStat {
+// Each sub-DPS's KQM stat priority for the benchmark build's substats (#164/#165).
+const SUB_DPS_BUILDS = (subDpsBuildsJson as unknown as { characters: Record<string, SubDpsPriority> }).characters;
+
+// The stat a sub-DPS's benchmark build is for: the first of their hand-tagged scalesOn (Jessie, #167, from their KQM
+// quick guide), else (#158) EM if any hit uses it, else the stat with the largest summed coefficient.
+function scaleStatOf(m: ScoringCharacter, entry: SubDpsEntry): ScaleStat {
+  const tagged = m.scalesOn?.[0];
+  if (tagged) return tagged.toLowerCase() as ScaleStat;
   const sum = { atk: 0, hp: 0, def: 0, em: 0 };
   for (const s of entry.sources) for (const k of ["atk", "hp", "def", "em"] as const) sum[k] += s.scaling[k] ?? 0;
   if (sum.em > 0) return "em";
@@ -651,7 +657,7 @@ export function subDpsStats(m: ScoringCharacter): SubDpsStats | null {
     const s = m.stats;
     return { atk: s.atk, hp: s.hp, def: s.def, em: s.elementalMastery, critRate: s.critRate / 100, critDmg: s.critDmg / 100, dmgBonus: s.elementalDmgBonus / 100 };
   }
-  if (entry.base) return subDpsBenchmark(entry.base, scaleStatOf(entry));
+  if (entry.base) return subDpsBenchmark(entry.base, scaleStatOf(m, entry), SUB_DPS_BUILDS[m.id], m.element);
   const b = BENCHMARK.buffer;
   const { carryCritRate: critRate, carryCritDmg: critDmg, subDpsDmgBonus: dmgBonus } = BENCHMARK;
   return { atk: b.atk, hp: b.hp, def: b.def, em: b.em, critRate, critDmg, dmgBonus };

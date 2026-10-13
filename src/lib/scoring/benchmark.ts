@@ -21,20 +21,25 @@ export const BENCHMARK = {
 // accessed 2026-10-12: level 90 character and weapon, 5-star artifacts at max level, 40 substats: 20 fixed at 2 rolls
 // of each type, 20 distributed, at most 2 distributed rolls of a type per piece whose main stat differs). Roll values
 // are KQMS's; main stats are the wiki's 5-star max (Artifact/Stats); base CRIT 5% / 50% (wiki CRIT Rate, CRIT DMG).
-// Built for the stat their hits scale on, read from their kit (Jessie, #158):
-// - ATK / HP / DEF: sands of that stat %, an elemental DMG goblet, a CRIT Rate circlet; the 20 distributed rolls go
-//   to CRIT DMG (10, the cap), CRIT Rate (8, the cap without the circlet) and that stat % (2). Estimate: KQMS says
-//   "as optimally as possible", and this split favours crit.
+// Built for the stat they scale on: the first of their hand-tagged scalesOn in tags.json (Jessie, #167, from their
+// KQM quick guide), else the stat their hits scale on in kit.json:
+// - ATK / HP / DEF: sands of that stat %, an elemental DMG goblet, a CRIT Rate circlet.
 // - EM: EM sands, goblet and circlet; EM 800 (Jessie, #158: KQMS gives 678 from artifacts, 3 x 186.5 + 6 rolls, and an
-//   EM weapon substat adds the rest; estimate); distributed rolls: EM 4 (the cap: flower and plume), CRIT Rate 8,
-//   CRIT DMG 8; no DMG bonus goblet.
-// Base ATK adds the benchmark weapon's (BENCHMARK.buffer.weaponBaseAtk, an estimate); weapon substats are left out.
+//   EM weapon substat adds the rest; estimate); no DMG bonus goblet.
+// The 20 distributed rolls follow their KQM quick guide's stat priority (data/subdps-builds.json, Jessie, #164/#165),
+// each stat up to its KQMS cap (2 per piece whose main stat differs); rolls left over, and characters without a
+// priority, follow PR #163's split: CRIT DMG, CRIT Rate, then that stat % (10 / 8 / 2 for ATK, HP, DEF scalers).
+// Their level 90 ascension stat is added (Jessie, #166, genshin-db); an elemental DMG ascension stat counts only for
+// their own element. Base ATK adds the benchmark weapon's (BENCHMARK.buffer.weaponBaseAtk, an estimate); weapon
+// substats are left out.
 const KQMS = {
   roll: { hp: 253.94, hpPct: 0.0496, atk: 16.54, atkPct: 0.0496, def: 19.68, defPct: 0.062, em: 19.82, critRate: 0.0331, critDmg: 0.0662 },
   main: { hp: 4780, atk: 311, hpPct: 0.466, atkPct: 0.466, defPct: 0.583, em: 186.5, elementalDmg: 0.466, critRate: 0.311 },
   fixed: 2, // rolls of every substat type
+  distributed: 20,
 };
 export type ScaleStat = "atk" | "hp" | "def" | "em";
+export type Substat = keyof typeof KQMS.roll;
 export interface SubDpsStats {
   atk: number;
   hp: number;
@@ -44,23 +49,78 @@ export interface SubDpsStats {
   critDmg: number;
   dmgBonus: number;
 }
-export function subDpsBenchmark(base: { hp: number; atk: number; def: number }, scale: ScaleStat): SubDpsStats {
-  const { roll, main, fixed } = KQMS;
-  const pct = (stat: "hp" | "atk" | "def", sandsMain: number) => {
-    const rolls = fixed + (scale === stat ? 2 : 0);
-    return 1 + (scale === stat ? sandsMain : 0) + rolls * roll[`${stat}Pct`];
+export interface SubDpsBase {
+  hp: number;
+  atk: number;
+  def: number;
+  ascension?: { stat: string; value: number }; // genshin-db substatType at level 90 (#166)
+}
+export interface SubDpsPriority {
+  priority: Substat[][]; // groups in order; a group of several stats is a tie
+  hpPctUntil?: number; // Yelan: "HP% (until 30,000 HP)" fills HP% only up to this total HP
+}
+
+// genshin-db's % ascension stats (#166).
+const PCT_PROP = { hp: "FIGHT_PROP_HP_PERCENT", atk: "FIGHT_PROP_ATTACK_PERCENT", def: "FIGHT_PROP_DEFENSE_PERCENT" };
+// genshin-db's elemental DMG ascension stats, by element (#166).
+const ELEMENT_DMG_PROP: Record<string, string> = {
+  Pyro: "FIGHT_PROP_FIRE_ADD_HURT",
+  Hydro: "FIGHT_PROP_WATER_ADD_HURT",
+  Electro: "FIGHT_PROP_ELEC_ADD_HURT",
+  Cryo: "FIGHT_PROP_ICE_ADD_HURT",
+  Anemo: "FIGHT_PROP_WIND_ADD_HURT",
+  Geo: "FIGHT_PROP_ROCK_ADD_HURT",
+  Dendro: "FIGHT_PROP_GRASS_ADD_HURT",
+};
+
+// Places the 20 distributed rolls (#164/#165): each priority group in order, one roll at a time across a tie, a stat
+// at most 2 per piece whose main stat differs. `hpWith(n)` is the total HP with n distributed HP% rolls, for an
+// `hpPctUntil` stop on the first HP% group.
+export function distributeRolls(
+  scale: ScaleStat,
+  order: SubDpsPriority | undefined,
+  hpWith?: (hpPctRolls: number) => number,
+): Record<Substat, number> {
+  const rolls: Record<Substat, number> = { hp: 0, hpPct: 0, atk: 0, atkPct: 0, def: 0, defPct: 0, em: 0, critRate: 0, critDmg: 0 };
+  // Substat-type main stats: flower HP, plume ATK, then sands and circlet (EM build: sands, goblet and circlet EM).
+  const mains: Substat[] = scale === "em" ? ["hp", "atk", "em", "em", "em"] : ["hp", "atk", `${scale}Pct` as Substat, "critRate"];
+  const cap = (s: Substat) => 2 * (5 - mains.filter((m) => m === s).length);
+  let left = KQMS.distributed;
+  const fill = (group: Substat[], stopHpAt?: number) => {
+    const open = (s: Substat) => rolls[s] < cap(s) && !(s === "hpPct" && stopHpAt && hpWith && hpWith(rolls.hpPct) >= stopHpAt);
+    while (left > 0 && group.some(open)) {
+      for (const s of group) {
+        if (left > 0 && open(s)) {
+          rolls[s]++;
+          left--;
+        }
+      }
+    }
   };
+  const firstHp = order?.priority.findIndex((g) => g.includes("hpPct")) ?? -1;
+  order?.priority.forEach((group, i) => fill(group, i === firstHp ? order.hpPctUntil : undefined));
+  for (const s of ["critDmg", "critRate", ...(scale === "em" ? [] : [`${scale}Pct` as Substat])] as Substat[]) fill([s]);
+  return rolls;
+}
+
+export function subDpsBenchmark(base: SubDpsBase, scale: ScaleStat, order?: SubDpsPriority, element?: string): SubDpsStats {
+  const { roll, main, fixed } = KQMS;
+  const asc = base.ascension;
+  const ascOf = (prop: string) => (asc?.stat === prop ? asc.value : 0);
+  const pctOf = (stat: "hp" | "atk" | "def", rolls: number) =>
+    1 + (scale === stat ? main[`${stat}Pct`] : 0) + (fixed + rolls) * roll[`${stat}Pct`] + ascOf(PCT_PROP[stat]);
+  const hpWith = (hpPctRolls: number) => base.hp * pctOf("hp", hpPctRolls) + main.hp + fixed * roll.hp;
+  const r = distributeRolls(scale, order, hpWith);
   const baseAtk = base.atk + BENCHMARK.buffer.weaponBaseAtk;
-  const em = scale === "em" ? 800 : fixed * roll.em;
-  const critRolls = scale === "em" ? { rate: fixed + 8, dmg: fixed + 8 } : { rate: fixed + 8, dmg: fixed + 10 };
+  const em = (scale === "em" ? 800 : (fixed + r.em) * roll.em) + ascOf("FIGHT_PROP_ELEMENT_MASTERY");
   return {
-    atk: baseAtk * pct("atk", main.atkPct) + main.atk + fixed * roll.atk,
-    hp: base.hp * pct("hp", main.hpPct) + main.hp + fixed * roll.hp,
-    def: base.def * pct("def", main.defPct) + fixed * roll.def,
+    atk: baseAtk * pctOf("atk", r.atkPct) + main.atk + (fixed + r.atk) * roll.atk,
+    hp: base.hp * pctOf("hp", r.hpPct) + main.hp + (fixed + r.hp) * roll.hp,
+    def: base.def * pctOf("def", r.defPct) + (fixed + r.def) * roll.def,
     em,
-    critRate: 0.05 + (scale === "em" ? 0 : main.critRate) + critRolls.rate * roll.critRate,
-    critDmg: 0.5 + critRolls.dmg * roll.critDmg,
-    dmgBonus: scale === "em" ? 0 : main.elementalDmg,
+    critRate: 0.05 + (scale === "em" ? 0 : main.critRate) + (fixed + r.critRate) * roll.critRate + ascOf("FIGHT_PROP_CRITICAL"),
+    critDmg: 0.5 + (fixed + r.critDmg) * roll.critDmg + ascOf("FIGHT_PROP_CRITICAL_HURT"),
+    dmgBonus: (scale === "em" ? 0 : main.elementalDmg) + (element ? ascOf(ELEMENT_DMG_PROP[element]) : 0),
   };
 }
 
