@@ -607,6 +607,15 @@ describe("talent levels (#25)", () => {
     expect(mavuika("Hu Tao", "Mavuika", "Xingqiu", "Zhongli")).toBe("Mavuika buffs Hu Tao (~+13% damage)");
   });
 
+  test("a sub-DPS source's `when` gates it: Jahoda's robots only at Ascendant Gleam (#100)", () => {
+    const jahodaLine = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Jahoda's own hits"))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Jahoda and Columbina are both Moonsign: Ascendant Gleam, so the robots' 10 hits per Burst count.
+    const gleam = pct(jahodaLine("Hu Tao", "Jahoda", "Columbina", "Zhongli"));
+    const none = pct(jahodaLine("Hu Tao", "Jahoda", "Xingqiu", "Zhongli"));
+    expect(gleam).toBeGreaterThan(none);
+  });
+
   test("Fighting Spirit decisions (#126): Ororon's Hydro/Electro points, Raiden's Musou Isshin hits, Skill only", () => {
     const [mav, raiden, ororon, xingqiu, bennett, neuv] = ["Mavuika", "Raiden Shogun", "Ororon", "Xingqiu", "Bennett", "Neuvillette"].map(
       (id) => byId.get(id)!,

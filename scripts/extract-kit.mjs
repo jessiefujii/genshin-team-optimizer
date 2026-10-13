@@ -763,6 +763,7 @@ function readStellar(id, spec) {
 //       Benediction's Base DMG bonus to their direct Lunar hits of those reactions
 //   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
 //       names the source; `label` still keys its hit rate and table values)
+//   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
 const SUBDPS = {
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
@@ -893,7 +894,8 @@ const SUBDPS = {
   Jahoda: [
     { talent: "skill", label: "Filled Treasure Flask DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Purrsonal Coordinated Assistance Robot DMG", every: "rate", duration: "Purrsonal Coordinated Assistance Robot Duration", cd: "CD" },
+    // The robots only deal damage at Ascendant Gleam (KQM), so the source carries that condition (#100).
+    { talent: "burst", label: "Purrsonal Coordinated Assistance Robot DMG", hits: "rate", cd: "CD", when: { ascendantGleam: true } },
   ],
   Kachina: [
     { talent: "skill", label: "Turbo Twirly Independent DMG", every: "rate", duration: "rate", cd: "CD" },
@@ -1078,6 +1080,7 @@ function readSubDps(id, specs) {
       ...(every !== undefined ? { every, duration: value(s.duration, "duration") } : {}),
       ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
       ...(s.needsReaction && fromTextRaw(s.needsReaction) ? { needsReaction: true } : {}),
+      ...(s.when ? { when: s.when } : {}),
       ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
       ...(s.timesNeedsHealer ? { timesNeedsHealer: true } : {}),
       ...(s.lunar ? { lunar: s.lunar } : {}),

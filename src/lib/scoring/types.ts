@@ -15,6 +15,7 @@ export type ScoringCharacter = CharacterTags & {
   talents?: CharacterBuild["talents"]; // from the same build as stats
   effects?: EffectTag[];
   built?: boolean; // false = the player marked them not built: left out of the search, suggested for building
+  belowMinimum?: string[]; // why their build misses the search's minimum (#133): left out like built: false
 };
 
 export interface ScoreLine {

@@ -635,6 +635,7 @@ interface SubDpsSource {
   timesNeedsHealer?: boolean;
   lunar?: LunarReaction; // direct Lunar reaction DMG (#151)
   whenReaction?: Reaction; // only while the team triggers it
+  when?: { ascendantGleam?: boolean; reaction?: Reaction }; // like a carry hit's `when` (Jahoda's robots, #100)
   pickOne?: string; // one source of the group per use, picked by the team's reactions
   cd: number;
 }
@@ -679,6 +680,9 @@ function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContex
   if (s.onCarryNormal && !normalAttacks(carry)) return 0; // Xingqiu's rain swords need the carry's Normal Attacks
   if (s.needsReaction && ctx.active.length === 0) return 0; // Nahida's Tri-Karma needs a reaction
   if (s.whenReaction && !ctx.active.includes(s.whenReaction)) return 0; // Ineffa's Overclocking Circuit: thunderclouds
+  // A source's `when`, as for carry hits (damage.ts): Ascendant Gleam is two Moonsign members (Jahoda's robots, #100).
+  if (s.when?.reaction && !ctx.active.includes(s.when.reaction)) return 0;
+  if (s.when?.ascendantGleam && ctx.members.filter((m) => m.families?.includes("moonsign")).length < 2) return 0;
   const perUse = s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1;
   // Furina's Salon bonus needs members above 50% HP, which takes another healer (#130).
   const healed = ctx.members.some((m) => m !== sub && m.roles.includes("healer"));

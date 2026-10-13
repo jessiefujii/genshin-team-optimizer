@@ -51,6 +51,13 @@ describe("not built characters in the search", () => {
     const [best] = findBestTeams(unbuilt, { mustInclude: ["Xingqiu"], limit: 1 });
     expect(best.members).toContain("Xingqiu");
   });
+
+  // A build below the search's minimum sits out the same way, even when marked built (#133).
+  const below = roster.map((c) => (c.id === "Xingqiu" ? { ...c, belowMinimum: ["weapon level 1"] } : c));
+  test("so does a build below the minimum (#133)", () => {
+    for (const t of findBestTeams(below, { limit: 15 })) expect(t.members).not.toContain("Xingqiu");
+    expect(findBestTeams(below, { mustInclude: ["Xingqiu"], limit: 1 })[0].members).toContain("Xingqiu");
+  });
 });
 
 describe("suggestBuilds", () => {
@@ -74,6 +81,13 @@ describe("suggestBuilds", () => {
     expect(xq!.team.members).toContain("Xingqiu");
     expect(xq!.team.score).toBeGreaterThan(top[top.length - 1].score);
     expect(xq!.rank).toBe(top.filter((t) => t.score >= xq!.team.score).length + 1);
+  });
+
+  test("a build below the search's minimum is still suggested, with the reason (#133)", () => {
+    const r = roster.map((c) => (c.id === "Xingqiu" ? { ...c, belowMinimum: ["no artifact set"] } : c));
+    const xq = search(r).suggestions.find((s) => s.id === "Xingqiu");
+    expect(xq?.gaps).toEqual(["no artifact set"]);
+    expect(xq?.team.members).toContain("Xingqiu");
   });
 
   test("a weak build is suggested only when fixing it would make the list", () => {

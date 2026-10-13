@@ -477,8 +477,8 @@
     },
     "Jahoda": {
       "burst: Purrsonal Coordinated Assistance Robot DMG": {
-        "missing": "the robots' attack interval isn't in genshin-db, on the wiki or in KQM's guide. They only deal damage in Ascendant Gleam teams (2+ Moonsign members), after converting to an element; there are 2 robots, each converting on its own",
-        "source": "checked: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Hidden_Aces:_Seven_Tools_of_the_Hunter, fetched 2026-10-10 (only its internal cooldown is given); KQM (keqingmains.com) Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams; otherwise, it deals one instance of Anemo damage and provides healing.\""
+        "hits": 10,
+        "source": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority (passive 1, interval 10% shorter): ~11 by calculation, not measured, not applied."
       }
     },
     "Kachina": {
