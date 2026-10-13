@@ -2144,7 +2144,16 @@
             "ascendantGleam": true
           },
           "cd": 18,
-          "rateSource": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority (passive 1, interval 10% shorter): ~11 by calculation, not measured, not applied."
+          "rateSource": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority: see alternatives (#175).",
+          "alternatives": [
+            {
+              "when": {
+                "topElement": "Cryo"
+              },
+              "hits": 12,
+              "rateSource": "Jessie's in-game test, 2026-10-13 (#175): Ascendant Gleam team with 2 Cryo members and 1 other Moonsign member (plus Jahoda), Cryo applied by Escoffier's Burst, 3 runs: 12 robot hits per Burst (both robots together). Passive 1 (Plan to Get Paid, genshin-db): among Pyro, Hydro, Electro and Cryo party members, \"the element with the highest number of characters determines the enhancement effect\"; Cryo: \"The attack interval ... is reduced by 10%\"; ties go \"Pyro, Hydro, Electro, then Cryo\"."
+            }
+          ]
         }
       ]
     },

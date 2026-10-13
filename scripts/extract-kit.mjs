@@ -722,6 +722,10 @@ function readStellar(id, spec) {
 //       `every`; with `hits` too, that many hits each time (Xingqiu's swords per wave)
 //   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP)
 //   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
+//   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, source }]) are passed through as the source's
+//   `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that element
+//   has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
+//   (Jahoda's passive 1, #175).
 const SUBDPS = {
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
@@ -1005,6 +1009,7 @@ function readSubDps(id, specs) {
       ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
+      ...(needsRate && rate.alternatives ? { alternatives: rate.alternatives.map(({ source, ...alt }) => ({ ...alt, rateSource: source })) } : {}),
     });
   }
   return { sources, ...(missing.length ? { missing } : {}) };
