@@ -6,7 +6,7 @@ import { canTrigger } from "./reactions";
 import { carryDamage } from "./damage";
 import { fightingSpiritBuilt } from "./kit";
 import { loadScoringCharacters } from "./load";
-import { scoreTeam, subDpsStats, teamScore } from "./score";
+import { scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
@@ -615,6 +615,17 @@ describe("talent levels (#25)", () => {
     const gleam = pct(jahodaLine("Hu Tao", "Jahoda", "Columbina", "Zhongli"));
     const none = pct(jahodaLine("Hu Tao", "Jahoda", "Xingqiu", "Zhongli"));
     expect(gleam).toBeGreaterThan(none);
+  });
+
+  test("a sub-DPS source's `alternatives`: Jahoda's robots hit 12 times when Cryo leads her passive 1 (#175)", () => {
+    // Most party members among Pyro, Hydro, Electro, Cryo; ties go Pyro > Hydro > Electro > Cryo.
+    expect(topElement(team("Flins", "Jahoda", "Citlali", "Escoffier"))).toBe("Cryo");
+    expect(topElement(team("Flins", "Jahoda", "Citlali", "Xingqiu"))).toBe("Hydro"); // 1 each: Hydro first
+    expect(topElement(team("Skirk", "Jahoda", "Citlali", "Bennett"))).toBe("Cryo");
+    expect(topElement(team("Jahoda", "Sucrose", "Zhongli", "Lynette"))).toBeUndefined();
+    const jahodaLine = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Jahoda's own hits"))?.reason;
+    expect(jahodaLine("Flins", "Jahoda", "Citlali", "Escoffier")).toBe("Jahoda's own hits add ~+24% damage"); // 12 hits
+    expect(jahodaLine("Flins", "Jahoda", "Ineffa", "Escoffier")).toBe("Jahoda's own hits add ~+22% damage"); // 10
   });
 
   test("Fighting Spirit decisions (#126): Ororon's Hydro/Electro points, Raiden's Musou Isshin hits, Skill only", () => {

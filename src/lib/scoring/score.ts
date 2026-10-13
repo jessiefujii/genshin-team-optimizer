@@ -636,6 +636,9 @@ interface SubDpsSource {
   lunar?: LunarReaction; // direct Lunar reaction DMG (#151)
   whenReaction?: Reaction; // only while the team triggers it
   when?: { ascendantGleam?: boolean; reaction?: Reaction }; // like a carry hit's `when` (Jahoda's robots, #100)
+  // Other rates for teams that fit: the first whose `when` matches replaces hits/every/duration (Jahoda, #175).
+  alternatives?: { when: { topElement?: Element }; hits?: number; every?: number; duration?: number }[];
+  dmgBonusPerStat?: Partial<Record<ScaleStat, number>>; // DMG Bonus per point of a stat (Dendro Traveler, #172)
   pickOne?: string; // one source of the group per use, picked by the team's reactions
   cd: number;
 }
@@ -675,8 +678,23 @@ export function subDpsStats(m: ScoringCharacter): SubDpsStats | null {
   return { atk: b.atk, hp: b.hp, def: b.def, em: b.em, critRate, critDmg, dmgBonus };
 }
 
+// The element with the most party members among Pyro, Hydro, Electro and Cryo, ties going in that order (Jahoda's
+// passive 1, #175); undefined with none of them.
+const TOP_ELEMENT_ORDER = ["Pyro", "Hydro", "Electro", "Cryo"] as const;
+export function topElement(members: readonly ScoringCharacter[]): Element | undefined {
+  let top: Element | undefined;
+  let most = 0;
+  for (const e of TOP_ELEMENT_ORDER) {
+    const n = members.filter((m) => m.element === e).length;
+    if (n > most) [top, most] = [e, n];
+  }
+  return top;
+}
+
 // Hits per second of one source, averaged over its cooldown; 0 when it can't fire in this team.
-function hitsPerSecond(s: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
+function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
+  const alt = source.alternatives?.find((a) => !a.when.topElement || a.when.topElement === topElement(ctx.members));
+  const s = alt ? { ...source, ...alt, when: source.when } : source;
   if (s.onCarryNormal && !normalAttacks(carry)) return 0; // Xingqiu's rain swords need the carry's Normal Attacks
   if (s.needsReaction && ctx.active.length === 0) return 0; // Nahida's Tri-Karma needs a reaction
   if (s.whenReaction && !ctx.active.includes(s.whenReaction)) return 0; // Ineffa's Overclocking Circuit: thunderclouds
@@ -776,10 +794,14 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151), with
       // their own Moonsign Benediction Base DMG bonus (PR #155).
       if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * hitsPerSecond(s, carry, ctx, m);
-      else dps += perHit * hitsPerSecond(s, carry, ctx, m);
+      else {
+        // DMG Bonus per point of a stat on this hit (Dendro Traveler's 0.15% per EM, #172).
+        const perStat = Object.entries(s.dmgBonusPerStat ?? {}).reduce((a, [k, v]) => a + v * stat[k as ScaleStat], 0);
+        dps += perHit * hitsPerSecond(s, carry, ctx, m) * (1 + dmgBonus + perStat);
+      }
     }
     // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
-    dps = (dps * (1 + dmgBonus) + lunarDps) * (1 + Math.min(stat.critRate, 1) * stat.critDmg);
+    dps = (dps + lunarDps) * (1 + Math.min(stat.critRate, 1) * stat.critDmg);
     const gain = dps / shareOf;
     const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage`);

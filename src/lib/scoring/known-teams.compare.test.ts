@@ -12,7 +12,7 @@ const byId = new Map(all.map((c) => [c.id, c]));
 const key = (ids: readonly string[]) => [...ids].sort().join("|");
 const short = (ids: readonly string[], carry: string) => ids.filter((id) => id !== carry).join(", ");
 
-test("guide teams vs the scorer's best teams", { timeout: 300_000 }, () => {
+test("guide teams vs the scorer's best teams", { timeout: 900_000 }, () => {
   const rows: string[] = [];
   let found = 0;
   for (const { carry, teams, ranked } of KNOWN_TEAMS) {

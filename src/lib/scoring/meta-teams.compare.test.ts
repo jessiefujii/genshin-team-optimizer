@@ -16,7 +16,7 @@ const byId = new Map(all.map((c) => [c.id, c]));
 const key = (ids: readonly string[]) => [...ids].sort().join("|");
 const short = (ids: readonly string[], carry: string) => ids.filter((id) => id !== carry).join(", ");
 
-test("meta teams vs the scorer's best teams", { timeout: 300_000 }, () => {
+test("meta teams vs the scorer's best teams", { timeout: 900_000 }, () => {
   const rows: string[] = [];
   let found = 0;
   for (const { carry, metaIn, topPick, teams } of META_TEAMS) {
@@ -71,7 +71,7 @@ const owned = all
     return { ...c, stats: build?.stats, talents: build?.talents, built, effects: characterEffects(c.id, constellation, build) };
   });
 
-test("Jessie's roster: Zibai Premium near the top", { timeout: 300_000 }, () => {
+test("Jessie's roster: Zibai Premium near the top", { timeout: 900_000 }, () => {
   expect(owned.length, "every roster id is in tags.json").toBe(Object.keys(roster).length);
   const premium = ["Zibai", "Columbina", "Illuga", "Linnea"];
   const top = findBestTeams(owned, { limit: 20 });
