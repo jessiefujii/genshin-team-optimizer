@@ -5,7 +5,7 @@ import { belowMinimum } from "@/lib/build/minimum";
 import { ELEMENTS } from "@/types/tags";
 import { control, elementChip } from "@/lib/ui/elements";
 import BuildEditor from "./build-editor";
-import CharacterIcon, { WeaponIcon } from "./character-icon";
+import CharacterIcon, { ArtifactIcon, WeaponIcon } from "./character-icon";
 import type { BuildCatalog, PlannerCharacter } from "./types";
 import type { OwnedEntry, Roster } from "./use-roster";
 
@@ -142,6 +142,9 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
                       className="ml-auto"
                     />
                   )}
+                  {owned.build?.artifactSets.map((s) => (
+                    <ArtifactIcon key={s.set} icon={catalog.setIcons[s.set]} size={20} title={`${s.set} ${s.pieces}pc`} />
+                  ))}
                   <button
                     type="button"
                     onClick={() => setEditing(c.id)}

@@ -5,7 +5,7 @@ import { ascensionOf, isAscensionLevel, levelCap } from "@/lib/build/ascension";
 import { control } from "@/lib/ui/elements";
 import type { CharacterBuild } from "@/types/build";
 import { parseForm, STAT_FIELDS, toForm, type BuildForm } from "./build-form";
-import { WeaponIcon } from "./character-icon";
+import { ArtifactIcon, WeaponIcon } from "./character-icon";
 import type { BuildCatalog, PlannerCharacter } from "./types";
 import type { OwnedEntry } from "./use-roster";
 
@@ -184,12 +184,15 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
           <legend className="mb-1 text-sm font-medium">Artifact sets</legend>
           <label className={label}>
             Set
-            <select value={form.set1} onChange={(e) => set("set1", e.target.value)} className={field}>
-              <option value="">No set bonus</option>
-              {catalog.sets.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
+            <span className="flex items-center gap-2">
+              <ArtifactIcon icon={catalog.setIcons[form.set1]} size={32} />
+              <select value={form.set1} onChange={(e) => set("set1", e.target.value)} className={`${field} min-w-0 flex-1`}>
+                <option value="">No set bonus</option>
+                {catalog.sets.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
+              </select>
+            </span>
           </label>
           <label className={label}>
             Pieces
@@ -205,12 +208,15 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
           {form.set1 && form.set1Pieces === "2" && (
             <label className={`${label} col-span-2`}>
               Second 2pc set
-              <select value={form.set2} onChange={(e) => set("set2", e.target.value)} className={field}>
-                <option value="">None</option>
-                {catalog.sets.map((s) => (
-                  <option key={s}>{s}</option>
-                ))}
-              </select>
+              <span className="flex items-center gap-2">
+                <ArtifactIcon icon={catalog.setIcons[form.set2]} size={32} />
+                <select value={form.set2} onChange={(e) => set("set2", e.target.value)} className={`${field} min-w-0 flex-1`}>
+                  <option value="">None</option>
+                  {catalog.sets.map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </span>
             </label>
           )}
         </fieldset>

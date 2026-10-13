@@ -31,7 +31,15 @@ function loadBuildCatalog(): BuildCatalog {
     const list = (weapons[w.weaponText] ??= []);
     if (!list.includes(w.name)) list.push(w.name); // some weapons (Prized Isshin Blade) are listed per variant
   }
-  return { weapons, sets: [...new Set(names(genshindb.artifacts))].sort((a, b) => a.localeCompare(b)), weaponRarity, weaponIcons };
+  const sets = [...new Set(names(genshindb.artifacts))].sort((a, b) => a.localeCompare(b));
+  // A set's icon in game is its flower; one-piece sets (Prayers) only have a circlet.
+  const setIcons: BuildCatalog["setIcons"] = {};
+  for (const s of sets) {
+    const img = genshindb.artifacts(s)?.images;
+    const icon = img?.filename_flower ?? img?.filename_circlet;
+    if (icon) setIcons[s] = icon;
+  }
+  return { weapons, sets, weaponRarity, weaponIcons, setIcons };
 }
 
 export default function Home() {
