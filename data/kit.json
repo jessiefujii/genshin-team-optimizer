@@ -1299,13 +1299,13 @@
         "source": "combat2: \"Xilonen will gain 45 Nightsoul points\"; passive1: \"she gains 35 Nightsoul points when her Normal or Plunging Attacks hit\" x2; max: skill \"Nightsoul Point Limit\""
       },
       "Citlali": {
-        "points": 67,
-        "note": "Skill + Burst + 1 Skull + passive 1 once (Melt with Mavuika); passive 2 left out",
-        "source": "combat2: \"Citlali gains 24 Nightsoul points\"; burst \"Ice Storm Nightsoul Point Gain\"; burst \"Spiritvessel Skull Nightsoul Point Gain\"; passive1: \"Citlali will regain 16 Nightsoul points\""
+        "points": 71,
+        "note": "Skill + Burst + 1 Skull + passive 1 once (Melt with Mavuika) + passive 2 once (one Nightsoul Burst)",
+        "source": "combat2: \"Citlali gains 24 Nightsoul points\"; burst \"Ice Storm Nightsoul Point Gain\"; burst \"Spiritvessel Skull Nightsoul Point Gain\"; passive1: \"Citlali will regain 16 Nightsoul points\"; passive2: \"when nearby party members trigger Nightsoul Bursts, Citlali regains 4 Nightsoul points\""
       },
       "Iansan": {
         "points": 69,
-        "note": "Skill + Burst; the Scale's movement points left out",
+        "note": "Skill + Burst; the Scale's movement points left out (estimate, #126: no source for the Scale's amount)",
         "source": "combat2: \"Iansan will regain 54 Nightsoul points\"; combat3: \"Iansan will gain 15 Nightsoul points\""
       },
       "Kachina": {
@@ -1330,17 +1330,25 @@
       },
       "Kinich": {
         "points": 40,
-        "note": "Blessing ticks + 6 Loop Shots + 1 Blind Spot, spent in full Cannons",
+        "note": "Blessing ticks + 6 Loop Shots + 1 Blind Spot, spent in full Cannons (estimate, #126: per-rotation count unsourced)",
         "source": "combat2: \"Blessing lasts 10s and generates 2 Nightsoul points every second\"; combat2: \"generating 3 Nightsoul points. Loop Shot\" x6; combat2: \"he will generate 4 Nightsoul points\"; spent 20 at a time: skill \"Nightsoul Point Limit\""
       },
       "Ororon": {
         "points": 40,
-        "note": "one Nightsoul Burst; the Hydro/Electro hit points left out",
-        "source": "passive1: \"After a nearby party member triggers Nightsoul Burst, Ororon will gain 40 Nightsoul points\""
+        "fromTeammates": {
+          "elements": [
+            "Hydro",
+            "Electro"
+          ],
+          "points": 50
+        },
+        "cap": 80,
+        "note": "one Nightsoul Burst + 10 Hydro/Electro hits from another member (when there is one), capped at his max",
+        "source": "passive1: \"After a nearby party member triggers Nightsoul Burst, Ororon will gain 40 Nightsoul points\"; with another Hydro/Electro member: passive1: \"Ororon will gain 5 Nightsoul points, an effect that can occur every 0.3s\" x \"for a maximum of 10 times\"; max: passive1: \"Ororon can have a maximum of 80 Nightsoul points\""
       },
       "Varesa": {
         "points": 120,
-        "note": "her max, 3 Fiery Passion entries per rotation",
+        "note": "her max, 3 Fiery Passion entries per rotation (estimate, #126: entries per rotation unsourced)",
         "source": "skill \"Nightsoul Point Limit\" x3"
       },
       "Traveler (Pyro)": {

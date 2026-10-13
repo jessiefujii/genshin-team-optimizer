@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { NO_TEAM_BUFFS, atkPctGain, baseAtkOf, kitBuffValue, normalAttacks, teamBuffStats } from "./kit";
+import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, normalAttacks, teamBuffStats } from "./kit";
 import { carryDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
@@ -228,7 +228,13 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
     const kit = kitBuffValue(s, carry, carryActive, ctx.members);
     if (kit && kit.gain <= 0) {
-      out.add("Buffs", 0, () => `${s.id}: their kit's buff doesn't apply to ${carry.id}'s damage`);
+      // Mavuika under the 100 Fighting Spirit her Burst needs: say so, not "doesn't apply" (#126).
+      const fs = s.id === "Mavuika" && fightingSpirit(s, carry, ctx.members) === 0 ? fightingSpiritBuilt(s, carry, ctx.members) : null;
+      out.add("Buffs", 0, () =>
+        fs !== null
+          ? `Mavuika can't Burst: the team builds ~${Math.round(fs)} of ${FIGHTING_SPIRIT_MIN} Fighting Spirit`
+          : `${s.id}: their kit's buff doesn't apply to ${carry.id}'s damage`,
+      );
       continue;
     }
     const base = kit ? (POINTS.buffer * kit.gain) / GAIN_FOR_POINTS : POINTS.buffer;

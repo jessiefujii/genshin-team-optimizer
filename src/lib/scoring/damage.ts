@@ -179,7 +179,9 @@ export interface CarryDamage {
 
 // Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,
 // the same value as her buff to other carries (kit.ts). Under the 100 her Burst needs it is 0: no Burst that
-// rotation (KQM's "E only"), so her Burst hits drop out too and only her Skill's Flamestrider damage counts (#116).
+// rotation, so she plays Skill only (KQM: "viable" for teams that can't build enough; Jessie, #126): her default
+// combo (E Q C8F) without the Burst hit, not a Q combo picked for the team's reaction. KQM gives no Skill-only combo,
+// so the Flamestrider Charged Attacks are her default combo's (estimate).
 
 // The carry's damage per second, or null when kit.json has no entry for them yet (carriesTodo).
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
@@ -213,7 +215,11 @@ function computeCarryDamage(
   noGleam: boolean,
 ): CarryDamage | null {
   if (!CARRIES[c.id]) return null;
-  const { kit, combo, reaction } = pickCombo(CARRIES[c.id], c, active, team);
+  const base = CARRIES[c.id];
+  const usesFs = base.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit);
+  const skillOnly = usesFs && fightingSpirit(c, c, team) === 0; // Mavuika can't Burst: Skill only (#126)
+  const picked = pickCombo(base, c, active, team);
+  const { kit, combo, reaction } = skillOnly ? { ...picked, kit: base, combo: `${(base.combo ?? "").replace(" Q", "")} (Skill only: can't Burst)` } : picked;
   const own = carryStats(c);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };

@@ -45,10 +45,13 @@ export const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a
 // Mavuika's Fighting Spirit per rotation (#116), from data/kit.json `fightingSpirit` (her Burst text and each Nightsoul
 // member's points, sources there): her own Skill's points, plus each teammate's Nightsoul points, plus 1.5 per Normal
 // Attack hit (at most one per 0.1s) of the carry, up to the 200 limit.
-// The Normal Attack hits are the carry's `type: "normal"` hits x instances in kit.json `carries`, so Raiden's Musou
-// Isshin (Burst DMG) and Kinich's Loop Shots (Skill DMG) don't count. A carry not in `carries` yet counts 0 (not the
-// old "200 for a Normal Attack rotation"): it only undercounts until that carry gets an entry. Teammates' own Normal
-// Attacks (Xilonen's N x2) are left out, and every rotation is taken as one of Mavuika's Bursts (no rescaling by length).
+// The Normal Attack hits are the on-field carry's Normal Attack hits x instances in kit.json `carries`: `type:
+// "normal"` hits, plus Raiden's Musou Isshin Normal Attacks (Burst DMG, labelled "1-Hit DMG" etc. in her Burst
+// table) (Jessie, #126). Kinich's Loop Shots (Skill DMG) don't count. A carry not in `carries` yet counts 0 (#126: it
+// gets its count with a damage model, #137). Teammates' own Normal Attacks (Xilonen's N x2) are left out: they're
+// off-field. Every rotation is taken as one of Mavuika's Bursts (no rescaling by length).
+// A teammate entry can add points when another member has one of `fromTeammates.elements` (Ororon: other members'
+// Hydro/Electro hits), up to its `cap` (#126).
 // Her Burst needs at least 100 (50% of the limit). Below that she can't Burst (KQM's "E only" teams): returns 0, so her
 // passive 2 buff and the Burst's own damage drop out, and only her Skill (Flamestrider) damage counts.
 interface FightingSpiritKit {
@@ -57,29 +60,42 @@ interface FightingSpiritKit {
   perNormalHit: number;
   normalHitEvery: number;
   own: { points: number };
-  teammates: Record<string, { points: number }>;
+  teammates: Record<string, { points: number; fromTeammates?: { elements: string[]; points: number }; cap?: number }>;
 }
 const FIGHTING_SPIRIT = (kitJson as unknown as { fightingSpirit: FightingSpiritKit }).fightingSpirit;
 export const FIGHTING_SPIRIT_LIMIT = FIGHTING_SPIRIT.limit;
 
-type CarryHits = { rotationSeconds: number; hits: { type: string; count: number; instances?: number }[] };
+type CarryHits = { rotationSeconds: number; hits: { type: string; label: string; count: number; instances?: number }[] };
 const CARRY_HITS = (kitJson as unknown as { carries: Record<string, CarryHits> }).carries;
 
 // Normal Attack hits in one rotation of the carry, at most one per normalHitEvery seconds.
 function normalAttackHits(carry: ScoringCharacter): number {
   const kit = CARRY_HITS[carry.id];
   if (!kit) return 0;
-  const hits = kit.hits.filter((h) => h.type === "normal").reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
+  const isNormal = (h: CarryHits["hits"][number]) => h.type === "normal" || (h.type === "burst" && /^\d-Hit DMG$/.test(h.label));
+  const hits = kit.hits.filter(isNormal).reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
   return Math.min(hits, kit.rotationSeconds / FIGHTING_SPIRIT.normalHitEvery);
 }
 
 // The Fighting Spirit Mavuika (s) bursts with in this team, or 0 when the team can't build the minimum.
 export function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
-  const fs = FIGHTING_SPIRIT;
-  const points = team.filter((m) => m !== s).reduce((a, m) => a + (fs.teammates[m.id]?.points ?? 0), fs.own.points);
-  const total = Math.min(fs.limit, points + fs.perNormalHit * normalAttackHits(carry));
-  return total >= fs.burstMin ? total : 0;
+  const total = fightingSpiritBuilt(s, carry, team);
+  return total >= FIGHTING_SPIRIT.burstMin ? total : 0;
 }
+
+// The Fighting Spirit the team builds for Mavuika (s) in one rotation, before the 100 her Burst needs.
+export function fightingSpiritBuilt(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
+  const fs = FIGHTING_SPIRIT;
+  const teammatePoints = (m: ScoringCharacter) => {
+    const t = fs.teammates[m.id];
+    if (!t) return 0;
+    const fed = t.fromTeammates && team.some((o) => o !== m && t.fromTeammates!.elements.includes(o.element));
+    return Math.min(t.cap ?? Infinity, t.points + (fed ? t.fromTeammates!.points : 0));
+  };
+  const points = team.filter((m) => m !== s).reduce((a, m) => a + teammatePoints(m), fs.own.points);
+  return Math.min(fs.limit, points + fs.perNormalHit * normalAttackHits(carry));
+}
+export const FIGHTING_SPIRIT_MIN = FIGHTING_SPIRIT.burstMin;
 
 // Plunging carries say so in their rotation tags (Xiao "plunge x10", Gaming "E plunge x4", KQM "P" as in Varesa's "ECP").
 const plunges = (c: ScoringCharacter) => c.rotation.actions.some((a) => /plunge/i.test(a) || /(^|\s)[A-Z]*P(\s|$)/.test(a));

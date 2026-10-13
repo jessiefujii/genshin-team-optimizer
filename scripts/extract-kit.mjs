@@ -509,20 +509,22 @@ const FIGHTING_SPIRIT = {
     },
     // Skill + Burst + 1 Spiritvessel Skull (one opponent) = 51, enough for Opal Fire (50+), which burns them all. Her
     // passive 1 adds 16 after a Melt or Frozen while Itzpapa is out, at most once every 8s: once, since Mavuika's Pyro
-    // melts with her Cryo. Her passive 2 (4 per Nightsoul Burst) is left out.
+    // melts with her Cryo. Passive 2: 4 per party Nightsoul Burst, once per rotation (one Nightsoul Burst, as for
+    // Ororon) (#126; the wiki research there put the 16 on her C4, but genshin-db's passive 1 text has it, so it stays).
     Citlali: {
       parts: [
         { from: "combat2", re: /Citlali gains (\d+) Nightsoul points/ },
         { talent: "burst", label: "Ice Storm Nightsoul Point Gain" },
         { talent: "burst", label: "Spiritvessel Skull Nightsoul Point Gain" },
         { from: "passive1", re: /Citlali will regain (\d+) Nightsoul points/ },
+        { from: "passive2", re: /when nearby party members trigger Nightsoul Bursts, Citlali regains (\d+) Nightsoul points/ },
       ],
-      note: "Skill + Burst + 1 Skull + passive 1 once (Melt with Mavuika); passive 2 left out",
+      note: "Skill + Burst + 1 Skull + passive 1 once (Melt with Mavuika) + passive 2 once (one Nightsoul Burst)",
     },
     // Skill + Burst. What the Kinetic Energy Scale restores for the active character's movement is left out (no number).
     Iansan: {
       parts: [{ from: "combat2", re: /Iansan will regain (\d+) Nightsoul points/ }, { from: "combat3", re: /Iansan will gain (\d+) Nightsoul points/ }],
-      note: "Skill + Burst; the Scale's movement points left out",
+      note: "Skill + Burst; the Scale's movement points left out (estimate, #126: no source for the Scale's amount)",
     },
     Kachina: { parts: [{ from: "combat2", re: /Kachina will gain (\d+) Nightsoul points/ }], note: "Skill" },
     Chasca: { parts: [{ from: "combat2", re: /Chasca gains (\d+) Nightsoul points/ }], note: "Skill" },
@@ -541,17 +543,23 @@ const FIGHTING_SPIRIT = {
         { from: "combat2", re: /he will generate (\d+) Nightsoul points/ },
       ],
       whole: { talent: "skill", label: "Nightsoul Point Limit" },
-      note: "Blessing ticks + 6 Loop Shots + 1 Blind Spot, spent in full Cannons",
+      note: "Blessing ticks + 6 Loop Shots + 1 Blind Spot, spent in full Cannons (estimate, #126: per-rotation count unsourced)",
     },
-    // One Nightsoul Burst per rotation (every 12-18s with 1-2 other Natlanese members). The 5 per other members'
-    // Hydro/Electro hit is left out (it depends on the team); each Hypersense uses 10 of them.
+    // One Nightsoul Burst per rotation (every 12-18s with 1-2 other Natlanese members). With another Hydro or Electro
+    // member, their hits give 5 more each, every 0.3s, up to 10 times per Skill (#126: Jessie, sourced formula), so
+    // the full 50 is taken; his total is capped at his 80 max. Each Hypersense uses 10 of them.
     Ororon: {
       parts: [{ from: "passive1", re: /After a nearby party member triggers Nightsoul Burst, Ororon will gain (\d+) Nightsoul points/ }],
-      note: "one Nightsoul Burst; the Hydro/Electro hit points left out",
+      withTeammateElements: {
+        elements: ["Hydro", "Electro"],
+        parts: [{ from: "passive1", re: /Ororon will gain (\d+) Nightsoul points, an effect that can occur every [\d.]+s/, times: /for a maximum of (\d+) times/ }],
+      },
+      capText: { from: "passive1", re: /Ororon can have a maximum of (\d+) Nightsoul points/ },
+      note: "one Nightsoul Burst + 10 Hydro/Electro hits from another member (when there is one), capped at his max",
     },
     // Her plunges consume all her points, and filling them to the max (40) enters Fiery Passion. KQM's C0 combo (her
     // CARRIES entry) enters it 3 times per rotation: the 2 ECPs outside it and the closing CP CP.
-    Varesa: { parts: [{ talent: "skill", label: "Nightsoul Point Limit", times: 3 }], note: "her max, 3 Fiery Passion entries per rotation" },
+    Varesa: { parts: [{ talent: "skill", label: "Nightsoul Point Limit", times: 3 }], note: "her max, 3 Fiery Passion entries per rotation (estimate, #126: entries per rotation unsourced)" },
     // Skill (42) + Burst (7 per second for 4s); the Blessing lasts at most 12s and drains.
     "Traveler (Pyro)": {
       parts: [{ from: "combat2", re: /the Traveler gains (\d+) Nightsoul points/ }, { from: "combat3", re: /restores (\d+) Nightsoul points per second for the next (\d+)s/ }],
@@ -565,9 +573,42 @@ function readNightsoulPoints(id, spec) {
   const talents = talentsOf(id);
   if (!talents) throw new Error(`${id}: no talent data in genshin-db`);
   const label = (p) => tableValue(talents[COMBAT[p.talent]].attributes, p.label, id);
+  const textNumber = (p) => {
+    const m = talents[p.from].description.replace(/\s+/g, " ").match(p.re);
+    if (!m) throw new Error(`${id}: pattern ${p.re} not found in ${p.from}`);
+    return { value: Number(m[1]), source: `${p.from}: "${m[0]}"` };
+  };
+  const { points: base, sources } = readParts(talents, id, spec.parts, label);
+  let points = base;
+  let fromTeammates;
+  if (spec.withTeammateElements) {
+    const extra = readParts(talents, id, spec.withTeammateElements.parts, label);
+    fromTeammates = { elements: spec.withTeammateElements.elements, points: round(extra.points) };
+    sources.push(`with another ${fromTeammates.elements.join("/")} member: ${extra.sources.join("; ")}`);
+  }
+  let cap;
+  if (spec.capText) {
+    const c = textNumber(spec.capText);
+    cap = c.value;
+    sources.push(`max: ${c.source}`);
+  }
+  if (spec.cap) {
+    points = Math.min(points, label(spec.cap));
+    sources.push(`max: ${spec.cap.talent} "${spec.cap.label}"`);
+  }
+  if (spec.whole) {
+    const pool = label(spec.whole);
+    points = Math.floor(points / pool) * pool;
+    sources.push(`spent ${pool} at a time: ${spec.whole.talent} "${spec.whole.label}"`);
+  }
+  return { points: round(points), ...(fromTeammates ? { fromTeammates } : {}), ...(cap ? { cap } : {}), note: spec.note, source: sources.join("; ") };
+}
+
+// The Nightsoul points a list of parts adds up to, with the sentence or label behind each.
+function readParts(talents, id, parts, label) {
   let points = 0;
   const sources = [];
-  for (const p of spec.parts) {
+  for (const p of parts) {
     let value, source;
     if (p.label) {
       value = label(p);
@@ -589,16 +630,7 @@ function readNightsoulPoints(id, spec) {
     points += value * times;
     sources.push(source);
   }
-  if (spec.cap) {
-    points = Math.min(points, label(spec.cap));
-    sources.push(`max: ${spec.cap.talent} "${spec.cap.label}"`);
-  }
-  if (spec.whole) {
-    const pool = label(spec.whole);
-    points = Math.floor(points / pool) * pool;
-    sources.push(`spent ${pool} at a time: ${spec.whole.talent} "${spec.whole.label}"`);
-  }
-  return { points: round(points), note: spec.note, source: sources.join("; ") };
+  return { points, sources };
 }
 
 function readFightingSpirit(nightsoulMembers) {

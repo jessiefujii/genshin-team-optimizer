@@ -3,6 +3,8 @@ import kitJson from "../../../data/kit.json";
 import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
+import { carryDamage } from "./damage";
+import { fightingSpiritBuilt } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { scoreTeam, subDpsStats, teamScore } from "./score";
 import { findBestTeams } from "./search";
@@ -594,7 +596,7 @@ describe("talent levels (#25)", () => {
     const mavuika = (...ids: string[]) =>
       score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Mavuika"))?.reason;
     // Her own Skill gives 80 and Neuvillette's Charged Attacks none: under the 100 her Burst needs, so no buff (#116).
-    expect(mavuika("Neuvillette", "Mavuika", "Furina", "Escoffier")).toBe("Mavuika: their kit's buff doesn't apply to Neuvillette's damage");
+    expect(mavuika("Neuvillette", "Mavuika", "Furina", "Escoffier")).toBe("Mavuika can't Burst: the team builds ~80 of 100 Fighting Spirit");
     // Kachina's Skill adds 60 and Hu Tao's 14 Normal Attack hits 21: 161 of 200. (Hu Tao, not Neuvillette: with
     // Kachina or Citlali + Xilonen, Mavuika out-damages Neuvillette and takes the on-field slot, #96.)
     expect(mavuika("Hu Tao", "Mavuika", "Kachina", "Xingqiu")).toBe("Mavuika buffs Hu Tao (~+20% damage)");
@@ -603,6 +605,21 @@ describe("talent levels (#25)", () => {
     // Normal Attack hits add 1.5 each: Clorinde's 36 make 134, Hu Tao's 14 make 101 (not the old flat 200).
     expect(mavuika("Clorinde", "Mavuika", "Bennett", "Fischl")).toBe("Mavuika buffs Clorinde (~+17% damage)");
     expect(mavuika("Hu Tao", "Mavuika", "Xingqiu", "Zhongli")).toBe("Mavuika buffs Hu Tao (~+13% damage)");
+  });
+
+  test("Fighting Spirit decisions (#126): Ororon's Hydro/Electro points, Raiden's Musou Isshin hits, Skill only", () => {
+    const [mav, raiden, ororon, xingqiu, bennett, neuv] = ["Mavuika", "Raiden Shogun", "Ororon", "Xingqiu", "Bennett", "Neuvillette"].map(
+      (id) => byId.get(id)!,
+    );
+    // Ororon: 40 per Nightsoul Burst, + 50 from another Hydro/Electro member's hits, capped at his 80.
+    const hutao = byId.get("Hu Tao")!; // Pyro, so only the fourth member decides
+    const withOroron = (mate: ScoringCharacter) => fightingSpiritBuilt(mav, hutao, [hutao, mav, ororon, mate]);
+    expect(withOroron(xingqiu) - withOroron(bennett)).toBe(40); // 40 + 50 capped at 80
+    // Raiden's Musou Isshin Normal Attacks (4 + 3 + 3 in her 3[N3C] N1C) count: 80 (Mavuika's Skill) + 1.5 x 10.
+    expect(fightingSpiritBuilt(mav, raiden, [raiden, mav, bennett])).toBe(95);
+    // Under 100 she plays Skill only: her default combo without the Burst hit, whatever the team's reaction.
+    expect(carryDamage(mav, ["melt"], [mav, byId.get("Citlali")!, bennett, xingqiu])?.combo).toBeDefined();
+    expect(carryDamage(mav, [], [mav, bennett, xingqiu, neuv])?.combo).toBe("E C8F (Skill only: can't Burst)");
   });
 
   test("a kit buff limited to an attack type only helps carries who use it (#68)", () => {
