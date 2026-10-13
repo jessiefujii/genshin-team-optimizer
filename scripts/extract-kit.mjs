@@ -721,6 +721,7 @@ function readStellar(id, spec) {
 //   onCarryNormal: it hits when the active character's Normal Attacks hit (Xingqiu, Yelan, Beidou), at most once per
 //       `every`; with `hits` too, that many hits each time (Xingqiu's swords per wave)
 //   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP)
+//   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
 const SUBDPS = {
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
@@ -822,7 +823,8 @@ const SUBDPS = {
   Jahoda: [
     { talent: "skill", label: "Filled Treasure Flask DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Purrsonal Coordinated Assistance Robot DMG", every: "rate", duration: "Purrsonal Coordinated Assistance Robot Duration", cd: "CD" },
+    // The robots only deal damage at Ascendant Gleam (KQM), so the source carries that condition (#100).
+    { talent: "burst", label: "Purrsonal Coordinated Assistance Robot DMG", hits: "rate", cd: "CD", when: { ascendantGleam: true } },
   ],
   Kachina: [
     { talent: "skill", label: "Turbo Twirly Independent DMG", every: "rate", duration: "rate", cd: "CD" },
@@ -999,6 +1001,7 @@ function readSubDps(id, specs) {
       ...(s.hits !== undefined ? { hits: value(s.hits, "hits") } : {}),
       ...(every !== undefined ? { every, duration: value(s.duration, "duration") } : {}),
       ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
+      ...(s.when ? { when: s.when } : {}),
       ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
