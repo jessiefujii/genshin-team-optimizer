@@ -1,7 +1,10 @@
 import { describe, expect, test } from "vitest";
+import kitJson from "../../../data/kit.json";
+import subDpsBuilds from "../../../data/subdps-builds.json";
+import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { loadScoringCharacters } from "./load";
-import { scoreTeam, teamScore } from "./score";
+import { scoreTeam, subDpsStats, teamScore } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
@@ -101,8 +104,8 @@ describe("scoreTeam", () => {
   test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
     // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+58% damage");
-    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+58% damage");
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+57% damage");
+    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+57% damage");
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
@@ -443,6 +446,51 @@ describe("sub-DPS (#96)", () => {
     // Columbina's Gravity Interference needs a Lunar reaction: Ineffa's Electro-Charged turns Lunar-Charged; with
     // Kazuha instead there is none.
     expect(share("Columbina", "Yoimiya", "Columbina", "Ineffa", "Bennett")).toBeGreaterThan(share("Columbina", "Yoimiya", "Columbina", "Kaedehara Kazuha", "Bennett"));
+  });
+
+  test("a sub-DPS without a build gets a KQM Standards build for the stat they scale on (#158, #164-#167)", () => {
+    const stats = (id: string) => subDpsStats(byId.get(id)!)!;
+    // Ineffa scales on ATK: level 90 base 330 + the 500 benchmark weapon, ATK% sands + 4 ATK% rolls, plume, 2 ATK rolls.
+    const ineffa = stats("Ineffa");
+    expect(ineffa.atk).toBeCloseTo(830 * (1 + 0.466 + 4 * 0.0496) + 311 + 2 * 16.54, 0);
+    expect(ineffa.em).toBeCloseTo(2 * 19.82, 1); // KQM: "CRIT > ATK% > EM", so only the 2 fixed EM rolls
+    // CRIT Rate circlet, 2 fixed + 8 rolls, and her level 90 ascension stat, CRIT Rate 24.2% (#166).
+    expect(ineffa.critRate).toBeCloseTo(0.05 + 0.311 + 10 * 0.0331 + 0.242, 3);
+    expect(ineffa.critDmg).toBeCloseTo(0.5 + 12 * 0.0662, 3); // 2 fixed + 10 rolls
+    // Columbina scales on HP; KQM "CRIT = HP%" spreads the rolls: HP% 6, CRIT Rate 7, CRIT DMG 7.
+    expect(stats("Columbina").hp).toBeCloseTo(14695 * (1 + 0.466 + 8 * 0.0496) + 4780 + 2 * 253.94, 0);
+    // Nahida is hand-tagged EM first (#167): EM sands, goblet and circlet, EM 800 (Jessie) + her 115.2 EM ascension stat.
+    expect(stats("Nahida")).toMatchObject({ em: 915.2, dmgBonus: 0 });
+    // Albedo's Geo DMG ascension stat adds to the Geo goblet.
+    expect(stats("Albedo").dmgBonus).toBeCloseTo(0.466 + 0.288, 3);
+    // A build always wins over the benchmark.
+    const built = { ...byId.get("Ineffa")!, stats: { ...ineffa, elementalMastery: 300, critRate: 50, critDmg: 100, energyRecharge: 120, elementalDmgBonus: 46.6 } };
+    expect(subDpsStats(built as ScoringCharacter)).toMatchObject({ em: 300, critRate: 0.5, critDmg: 1, dmgBonus: 0.466 });
+  });
+
+  test("the 20 distributed rolls follow the KQM stat priority, each stat up to its cap (#164, #165)", () => {
+    const rolls = (scale: ScaleStat, priority?: SubDpsPriority) =>
+      Object.fromEntries(Object.entries(distributeRolls(scale, priority)).filter(([, n]) => n > 0));
+    // No priority: PR #163's split. CRIT Rate stops at 8 (the circlet is CRIT Rate), CRIT DMG at 10.
+    expect(rolls("atk")).toEqual({ critDmg: 10, critRate: 8, atkPct: 2 });
+    // A tie fills one roll at a time: Columbina's "CRIT = HP%".
+    expect(rolls("hp", { priority: [["critRate", "critDmg", "hpPct"], ["em"]] })).toEqual({ critRate: 7, critDmg: 7, hpPct: 6 });
+    // EM first in an EM build: only flower and plume can roll EM (4); then CRIT (no CRIT Rate circlet: up to 10 each).
+    expect(rolls("em", { priority: [["em"], ["critRate", "critDmg"]] })).toEqual({ em: 4, critRate: 8, critDmg: 8 });
+    // Yelan's "HP% (until 30,000 HP)" stops HP% once the total reaches it.
+    const yelan = (n: number) => 14450 * (1 + 0.466 + (2 + n) * 0.0496) + 4780 + 2 * 253.94; // 3 rolls: 30,055
+    expect(distributeRolls("hp", { priority: [["hpPct"], ["critRate", "critDmg"], ["hpPct"]], hpPctUntil: 30000 }, yelan)).toMatchObject({
+      hpPct: 3,
+      critRate: 8,
+      critDmg: 9,
+    });
+  });
+
+  test("every sub-DPS has a hand-tagged scalesOn and a sourced stat priority (#164-#167)", () => {
+    const subDps = Object.keys(kitJson.subDps);
+    expect(subDps.filter((id) => !byId.get(id)?.scalesOn?.length)).toEqual([]);
+    expect(subDps.filter((id) => !(id in subDpsBuilds.characters))).toEqual([]);
+    for (const [id, b] of Object.entries(subDpsBuilds.characters)) expect(b.source, id).toMatch(/^https:\/\/keqingmains\.com\//);
   });
 });
 

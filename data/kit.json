@@ -1492,6 +1492,15 @@
   },
   "subDps": {
     "Aino": {
+      "base": {
+        "hp": 11201,
+        "atk": 242,
+        "def": 607,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 96
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1524,6 +1533,15 @@
       ]
     },
     "Albedo": {
+      "base": {
+        "hp": 13226,
+        "atk": 251,
+        "def": 876,
+        "ascension": {
+          "stat": "FIGHT_PROP_ROCK_ADD_HURT",
+          "value": 0.288
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1565,6 +1583,15 @@
       ]
     },
     "Alyosha": {
+      "base": {
+        "hp": 11962,
+        "atk": 265,
+        "def": 703,
+        "ascension": {
+          "stat": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.2667
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1598,6 +1625,15 @@
       ]
     },
     "Amber": {
+      "base": {
+        "hp": 9461,
+        "atk": 223,
+        "def": 601,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1620,6 +1656,15 @@
       ]
     },
     "Beidou": {
+      "base": {
+        "hp": 13050,
+        "atk": 225,
+        "def": 648,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEC_ADD_HURT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1653,6 +1698,15 @@
       ]
     },
     "Chiori": {
+      "base": {
+        "hp": 11438,
+        "atk": 323,
+        "def": 953,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL",
+          "value": 0.242
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1688,6 +1742,15 @@
       ]
     },
     "Chongyun": {
+      "base": {
+        "hp": 10984,
+        "atk": 223,
+        "def": 648,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1710,6 +1773,15 @@
       ]
     },
     "Citlali": {
+      "base": {
+        "hp": 11634,
+        "atk": 127,
+        "def": 763,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 115.2
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1751,6 +1823,15 @@
       ]
     },
     "Columbina": {
+      "base": {
+        "hp": 14695,
+        "atk": 96,
+        "def": 515,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL",
+          "value": 0.242
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1836,6 +1917,15 @@
       }
     },
     "Collei": {
+      "base": {
+        "hp": 9787,
+        "atk": 200,
+        "def": 601,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1868,6 +1958,15 @@
       ]
     },
     "Dehya": {
+      "base": {
+        "hp": 15675,
+        "atk": 265,
+        "def": 628,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.288
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1913,6 +2012,15 @@
       ]
     },
     "Durin": {
+      "base": {
+        "hp": 12430,
+        "atk": 347,
+        "def": 822,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.884
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1946,6 +2054,15 @@
       ]
     },
     "Emilie": {
+      "base": {
+        "hp": 13568,
+        "atk": 335,
+        "def": 730,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.884
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -1990,6 +2107,15 @@
       ]
     },
     "Escoffier": {
+      "base": {
+        "hp": 13348,
+        "atk": 347,
+        "def": 732,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL",
+          "value": 0.242
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2033,6 +2159,15 @@
       ]
     },
     "Fischl": {
+      "base": {
+        "hp": 9189,
+        "atk": 244,
+        "def": 594,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2066,6 +2201,15 @@
       ]
     },
     "Furina": {
+      "base": {
+        "hp": 15307,
+        "atk": 244,
+        "def": 696,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL",
+          "value": 0.242
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2127,6 +2271,15 @@
       ]
     },
     "Ineffa": {
+      "base": {
+        "hp": 12613,
+        "atk": 330,
+        "def": 828,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL",
+          "value": 0.242
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2181,6 +2334,15 @@
       }
     },
     "Jahoda": {
+      "base": {
+        "hp": 9646,
+        "atk": 223,
+        "def": 580,
+        "ascension": {
+          "stat": "FIGHT_PROP_HEAL_ADD",
+          "value": 0.1846
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2206,6 +2368,15 @@
       ]
     },
     "Kachina": {
+      "base": {
+        "hp": 11799,
+        "atk": 217,
+        "def": 792,
+        "ascension": {
+          "stat": "FIGHT_PROP_ROCK_ADD_HURT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2230,6 +2401,15 @@
       ]
     },
     "Kaeya": {
+      "base": {
+        "hp": 11636,
+        "atk": 223,
+        "def": 792,
+        "ascension": {
+          "stat": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.2667
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2253,6 +2433,15 @@
       ]
     },
     "Lauma": {
+      "base": {
+        "hp": 10654,
+        "atk": 255,
+        "def": 669,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 115.2
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2278,6 +2467,15 @@
       ]
     },
     "Linnea": {
+      "base": {
+        "hp": 9895,
+        "atk": 144,
+        "def": 907,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL",
+          "value": 0.242
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2293,6 +2491,15 @@
       ]
     },
     "Lisa": {
+      "base": {
+        "hp": 9570,
+        "atk": 232,
+        "def": 573,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 96
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2316,6 +2523,15 @@
       ]
     },
     "Lynette": {
+      "base": {
+        "hp": 12397,
+        "atk": 232,
+        "def": 712,
+        "ascension": {
+          "stat": "FIGHT_PROP_WIND_ADD_HURT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "burst",
@@ -2349,6 +2565,15 @@
       ]
     },
     "Nahida": {
+      "base": {
+        "hp": 10360,
+        "atk": 299,
+        "def": 630,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 115.2
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2374,6 +2599,15 @@
       ]
     },
     "Nilou": {
+      "base": {
+        "hp": 15185,
+        "atk": 230,
+        "def": 729,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.288
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2414,6 +2648,15 @@
       ]
     },
     "Odette": {
+      "base": {
+        "hp": 12981,
+        "atk": 335,
+        "def": 787,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.884
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2476,6 +2719,15 @@
       ]
     },
     "Ororon": {
+      "base": {
+        "hp": 9244,
+        "atk": 244,
+        "def": 587,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2508,6 +2760,15 @@
       ]
     },
     "Prune": {
+      "base": {
+        "hp": 9679,
+        "atk": 221,
+        "def": 580,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2540,6 +2801,15 @@
       ]
     },
     "Rosaria": {
+      "base": {
+        "hp": 12289,
+        "atk": 240,
+        "def": 710,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2572,6 +2842,15 @@
       ]
     },
     "Sigewinne": {
+      "base": {
+        "hp": 13348,
+        "atk": 193,
+        "def": 500,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.288
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2596,6 +2875,15 @@
       ]
     },
     "Traveler (Dendro)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2619,6 +2907,15 @@
       ]
     },
     "Traveler (Pyro)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2643,6 +2940,15 @@
       ]
     },
     "Traveler (Geo)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2666,6 +2972,15 @@
       ]
     },
     "Venti": {
+      "base": {
+        "hp": 10531,
+        "atk": 263,
+        "def": 669,
+        "ascension": {
+          "stat": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.32
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2689,6 +3004,15 @@
       ]
     },
     "Xiangling": {
+      "base": {
+        "hp": 10875,
+        "atk": 225,
+        "def": 669,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 96
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2740,6 +3064,15 @@
       ]
     },
     "Xingqiu": {
+      "base": {
+        "hp": 10222,
+        "atk": 202,
+        "def": 758,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2766,6 +3099,15 @@
       ]
     },
     "Yae Miko": {
+      "base": {
+        "hp": 10372,
+        "atk": 340,
+        "def": 569,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL",
+          "value": 0.242
+        }
+      },
       "sources": [
         {
           "talent": "skill",
@@ -2799,6 +3141,15 @@
       ]
     },
     "Yelan": {
+      "base": {
+        "hp": 14450,
+        "atk": 244,
+        "def": 548,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL",
+          "value": 0.242
+        }
+      },
       "sources": [
         {
           "talent": "skill",

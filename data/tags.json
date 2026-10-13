@@ -13,6 +13,10 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "families": [
       "moonsign"
     ],
@@ -37,6 +41,9 @@
     ],
     "energyNeed": "low",
     "erTarget": 100,
+    "scalesOn": [
+      "DEF"
+    ],
     "buffs": [
       {
         "stat": "EM +125 after burst",
@@ -145,6 +152,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 180,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "ATK",
@@ -179,6 +189,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -327,6 +340,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 170,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "stellar"
     ],
@@ -505,6 +521,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 140,
+    "scalesOn": [
+      "DEF"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -528,6 +547,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 130,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -550,6 +572,10 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "Pyro and Hydro RES shred",
@@ -616,6 +642,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 170,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -755,6 +784,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "HP"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -864,6 +896,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "Pyro RES shred (White Flame form)",
@@ -899,6 +934,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 170,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -920,6 +958,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "Hydro and Cryo RES shred, up to 55% with 4 Hydro/Cryo",
@@ -1011,6 +1052,9 @@
     ],
     "energyNeed": "low",
     "erTarget": 120,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "hexerei"
     ],
@@ -1114,6 +1158,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 180,
+    "scalesOn": [
+      "HP"
+    ],
     "buffs": [
       {
         "stat": "DMG bonus from party HP changes",
@@ -1369,6 +1416,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "EM (ATK-based)",
@@ -1401,6 +1451,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "EM +100 while HP > 70%",
@@ -1453,6 +1506,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 110,
+    "scalesOn": [
+      "DEF"
+    ],
     "families": [
       "nightsoul"
     ],
@@ -1512,6 +1568,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1839,6 +1898,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "EM"
+    ],
     "buffs": [
       {
         "stat": "Bloom-type reaction DMG (EM-based), Bloom CRIT",
@@ -1902,6 +1964,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 120,
+    "scalesOn": [
+      "DEF"
+    ],
     "buffs": [
       {
         "stat": "Geo RES shred",
@@ -1942,6 +2007,10 @@
     ],
     "energyNeed": "high",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK",
+      "EM"
+    ],
     "buffs": [
       {
         "stat": "DEF shred",
@@ -1998,6 +2067,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "ATK by number of elements in the team",
@@ -2246,6 +2318,10 @@
     ],
     "energyNeed": "low",
     "erTarget": 120,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "EM share to the active character",
@@ -2420,6 +2496,9 @@
         "note": "Bountiful Cores only in all-Hydro/Dendro teams"
       }
     ],
+    "scalesOn": [
+      "HP"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -2496,6 +2575,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 130,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "stellar"
     ],
@@ -2521,6 +2603,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "nightsoul"
     ],
@@ -2545,6 +2630,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 180,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "DMG bonus from ATK over 2,000",
@@ -2668,6 +2756,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "CRIT Rate (her CRIT-based)",
@@ -2865,6 +2956,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "HP"
+    ],
     "buffs": [
       {
         "stat": "Elemental Skill DMG (HP-based)",
@@ -3081,6 +3175,10 @@
     ],
     "energyNeed": "medium",
     "erTarget": 170,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3122,6 +3220,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3169,6 +3270,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "nightsoul"
     ],
@@ -3276,6 +3380,10 @@
     ],
     "energyNeed": "high",
     "erTarget": 180,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "families": [
       "hexerei"
     ],
@@ -3449,6 +3557,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3564,6 +3675,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3611,6 +3725,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 140,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "stellar"
     ],
@@ -3701,6 +3818,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 190,
+    "scalesOn": [
+      "HP"
+    ],
     "buffs": [
       {
         "stat": "DMG bonus that ramps over 15s",

@@ -1629,9 +1629,20 @@ const SUBDPS_LUNAR_BASE = {
     reactions: ["lunar-charged", "lunar-bloom", "lunar-crystallize"],
   },
 };
+// Level 90 base HP/ATK/DEF (character only), for a sub-DPS's benchmark build when the player has none (#158), and the
+// level 90 ascension stat (#166: genshin-db substatType and its value; EM is flat, the rest are fractions).
+// genshin-db matches names loosely, so the name is checked; the Traveler's base stats are Lumine's.
+function baseStatsOf(id) {
+  const db = genshindb.characters(id.startsWith("Traveler (") ? "Lumine" : id);
+  if (!db || (db.name !== id && !id.startsWith("Traveler ("))) return null;
+  const s = db.stats(90);
+  const ascension = { stat: db.substatType, value: Math.round(s.specialized * 10000) / 10000 };
+  return { hp: Math.round(s.hp), atk: Math.round(s.attack), def: Math.round(s.defense), ascension };
+}
+
 const subDps = {};
 for (const [id, spec] of Object.entries(SUBDPS)) {
-  subDps[id] = readSubDps(id, spec);
+  subDps[id] = { base: baseStatsOf(id), ...readSubDps(id, spec) };
   const b = SUBDPS_LUNAR_BASE[id];
   if (!b) continue;
   const text = genshindb.talents(id)[b.from].description.replace(/\s+/g, " ");
