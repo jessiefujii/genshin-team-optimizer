@@ -19,6 +19,19 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(byId.get("Bennett")!)).toBeNull();
   });
 
+  test("rotation length: a sourced team length, else the carry's sourced default, else the Burst cooldown (#103)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const seconds = (...ids: string[]) => carryDamage(byId.get(ids[0])!, [], team(...ids))!.rotationSeconds;
+    expect(seconds("Alhaitham", "Nahida", "Yae Miko", "Zhongli")).toBe(23.5); // KQM's 21-26s, midpoint
+    expect(seconds("Alhaitham", "Nilou", "Xingqiu", "Yaoyao")).toBe(27);
+    expect(seconds("Alhaitham", "Kuki Shinobu", "Furina", "Nahida")).toBe(30);
+    expect(seconds("Flins", "Aino", "Ineffa", "Sucrose")).toBe(16);
+    expect(seconds("Flins", "Fischl", "Columbina", "Sucrose")).toBe(17.5);
+    expect(seconds("Arlecchino", "Kachina", "Bennett", "Chiori")).toBe(20);
+    expect(seconds("Arlecchino", "Bennett", "Furina", "Xilonen")).toBe(15); // no default stated: Burst cooldown
+    expect(seconds("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toBe(15); // unsourced: Burst cooldown
+  });
+
   test("the main reaction only counts when the team can trigger it (Vaporize for Hu Tao)", () => {
     const huTao = byId.get("Hu Tao")!;
     expect(carryDamage(huTao, ["vaporize"])!.perSecond).toBeGreaterThan(carryDamage(huTao, [])!.perSecond * 1.3);

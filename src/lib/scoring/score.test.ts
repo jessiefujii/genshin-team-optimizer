@@ -110,8 +110,8 @@ describe("scoreTeam", () => {
   test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
     // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+57% damage");
-    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+57% damage");
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+60% damage");
+    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+60% damage");
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
@@ -668,7 +668,7 @@ describe("talent levels (#25)", () => {
   test("Electro enablers partner a Dendro carry's Spread (#61)", () => {
     // Alhaitham is modeled, so his Spread counts by damage (#134).
     expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
-      "Spread adds ~+99% to Alhaitham's damage",
+      "Spread adds ~+98% to Alhaitham's damage",
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
       "Spread: Tighnari + Yae Miko, Fischl",
@@ -678,10 +678,10 @@ describe("talent levels (#25)", () => {
   test("flat reaction damage is weighed against hits with the team's buffs (#157)", () => {
     const spread = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Spread adds"))?.reason;
     // Bennett's ATK raises Alhaitham's hits but not Spread's flat damage, so Spread adds a smaller share.
-    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+99% to Alhaitham's damage");
-    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+84% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+98% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+83% to Alhaitham's damage");
     // Lauma's flat DMG is for Bloom-type reactions, not his hits: no change.
-    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+99% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+98% to Alhaitham's damage");
     // Vaporize multiplies the whole hit, so ATK buffs leave its share alone.
     const vape = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Vaporize adds"))?.reason;
     expect(vape("Hu Tao", "Xingqiu", "Bennett", "Zhongli")).toBe(vape("Hu Tao", "Xingqiu", "Yelan", "Zhongli"));

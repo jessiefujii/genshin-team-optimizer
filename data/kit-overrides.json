@@ -478,7 +478,14 @@
     "Jahoda": {
       "burst: Purrsonal Coordinated Assistance Robot DMG": {
         "hits": 10,
-        "source": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority (passive 1, interval 10% shorter): ~11 by calculation, not measured, not applied."
+        "source": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority: see alternatives (#175).",
+        "alternatives": [
+          {
+            "when": { "topElement": "Cryo" },
+            "hits": 12,
+            "source": "Jessie's in-game test, 2026-10-13 (#175): Ascendant Gleam team with 2 Cryo members and 1 other Moonsign member (plus Jahoda), Cryo applied by Escoffier's Burst, 3 runs: 12 robot hits per Burst (both robots together). Passive 1 (Plan to Get Paid, genshin-db): among Pyro, Hydro, Electro and Cryo party members, \"the element with the highest number of characters determines the enhancement effect\"; Cryo: \"The attack interval ... is reduced by 10%\"; ties go \"Pyro, Hydro, Electro, then Cryo\"."
+          }
+        ]
       }
     },
     "Kachina": {
@@ -640,9 +647,126 @@
     },
     "Alhaitham": {
       "carry: 3-Mirror Projection Attack DMG": {
-        "hits": 6,
-        "source": "KeqingMains Alhaitham quick guide, https://keqingmains.com/q/alhaitham-quickguide/ (pasted by Jessie 2026-10-11), ER assumptions: \"Rotations vary from 21–26s\", \"Alhaitham triggers 6–7 Projection Attacks per rotation\". Took the low end, since this rotation is his 18s Burst cooldown (#103), and counted them all as 3-Mirror."
+        "hits": 6.5,
+        "source": "KeqingMains Alhaitham quick guide, https://keqingmains.com/q/alhaitham-quickguide/ (pasted by Jessie 2026-10-11), ER assumptions: \"Rotations vary from 21–26s\", \"Alhaitham triggers 6–7 Projection Attacks per rotation\". The midpoint, to match his rotation length (rotations: 23.5s, the midpoint of the same range, #103); counted them all as 3-Mirror."
       }
+    }
+  },
+  "rotations": {
+    "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Flins": {
+      "seconds": 17.5,
+      "source": "KeqingMains Flins quick guide, https://keqingmains.com/q/flins-quickguide/, fetched 2026-10-13: \"Flins–Fischl teams usually run a 17-18s rotation\" (midpoint). Left out: 12s with 4pc Thundering Fury (an artifact set, not a team).",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Aino"
+                ]
+              ]
+            }
+          ],
+          "seconds": 16,
+          "source": "same guide: \"Aino's short Burst cooldown (13.5s) allows Flins to run rotations as short as 16s\""
+        },
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ],
+                [
+                  "Xilonen"
+                ]
+              ]
+            }
+          ],
+          "seconds": 16,
+          "source": "same guide: Furina uses her Skill every other rotation \"to allow a 16s rotation with Xilonen\""
+        }
+      ]
+    },
+    "Clorinde": {
+      "seconds": 16,
+      "source": "KeqingMains Clorinde quick guide, https://keqingmains.com/q/clorinde-quickguide/, fetched 2026-10-13: \"her strongest teams tend to favor 16s rotations\". Left out (artifact sets): ~25s with 4pc Thundering Fury in Quicken teams; 18s when Mavuika wears 4pc Obsidian Codex."
+    },
+    "Arlecchino": {
+      "source": "KeqingMains Arlecchino quick guide, https://keqingmains.com/q/arlecchino-quickguide/, fetched 2026-10-13. No default stated: Burst cooldown.",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Kachina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 20,
+          "source": "same guide (Kachina C0-C1): \"Arlecchino should perform another N3D string to fit a 20s rotation\""
+        }
+      ]
+    },
+    "Nefer": {
+      "seconds": 18,
+      "source": "KeqingMains Nefer quick guide, https://keqingmains.com/q/nefer-quickguide/, fetched 2026-10-13: \"If the team's rotation is 18s or longer, Nefer can consistently use her Skill twice\"; her modeled combo uses her Skill twice.",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 20,
+          "source": "same guide: \"Furina forces a 20s rotation due to her Skill cooldown\""
+        }
+      ]
+    },
+    "Alhaitham": {
+      "seconds": 23.5,
+      "source": "KeqingMains Alhaitham quick guide, https://keqingmains.com/q/alhaitham-quickguide/, fetched 2026-10-13 (ER assumptions): \"Rotations vary from 21–26s\" (midpoint).",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Nilou"
+                ]
+              ]
+            }
+          ],
+          "seconds": 27,
+          "source": "same guide (Nilou, Xingqiu, Yaoyao): Burst at the end \"can increase the rotation length to 26–28s\" (midpoint)"
+        },
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Kuki Shinobu"
+                ],
+                [
+                  "Furina"
+                ],
+                [
+                  "Nahida"
+                ]
+              ]
+            }
+          ],
+          "seconds": 30,
+          "source": "same guide (Kuki Shinobu, Furina, Nahida): \"This team runs a 30s split field time rotation\""
+        }
+      ]
     }
   }
 }

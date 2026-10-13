@@ -764,11 +764,27 @@ function readStellar(id, spec) {
 //   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
 //       names the source; `label` still keys its hit rate and table values)
 //   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
+//   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, source }]) are passed through as the source's
+//   `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that element
+//   has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
+//   (Jahoda's passive 1, #175).
+//   addScaling: a passive that adds a share of a stat to this hit's damage, read from its text, e.g.
+//       { from: "passive2", re: /increased by (\d+)% of Citlali's Elemental Mastery/, stat: "em" } (#172)
+//   dmgBonusPer: a passive that raises this hit's DMG per point of a stat, read from its text, e.g. Dendro
+//       Traveler's 0.15% per EM: { from: "passive2", re: /Razorgrass Blade by ([\d.]+)%/, stat: "em" }; written as
+//       `dmgBonusPerStat: { em: 0.0015 }` (DMG Bonus added per point) (#172)
 const SUBDPS = {
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Stage 2 DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Water Ball DMG", hits: "rate", cd: "CD" },
+    // Passive 2 (#172): "Aino's Elemental Burst DMG is increased by 50% of her Elemental Mastery" (every water ball).
+    {
+      talent: "burst",
+      label: "Water Ball DMG",
+      hits: "rate",
+      cd: "CD",
+      addScaling: [{ from: "passive2", re: /Elemental Burst DMG is increased by (\d+)% of her Elemental Mastery/, stat: "em" }],
+    },
   ],
   Albedo: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "Duration" },
@@ -801,8 +817,22 @@ const SUBDPS = {
   ],
   Citlali: [
     { talent: "skill", label: "Obsidian Tzitzimitl DMG", hits: 1, cd: "CD" },
-    { talent: "skill", label: "Frostfall Storm DMG", hits: "rate", cd: "CD" }, // limited by her Nightsoul points (kit-overrides.json)
-    { talent: "burst", label: "Ice Storm DMG", hits: 1, cd: "CD" },
+    // Passive 2 (#172): "Frostfall Storm DMG is increased by 90% of Citlali's Elemental Mastery" during her Skill,
+    // "Ice Storm DMG is increased by 1200%" during her Burst: both hits only exist then.
+    {
+      talent: "skill",
+      label: "Frostfall Storm DMG",
+      hits: "rate", // limited by her Nightsoul points (kit-overrides.json)
+      cd: "CD",
+      addScaling: [{ from: "passive2", re: /Frostfall Storm DMG is increased by (\d+)% of Citlali's Elemental Mastery/, stat: "em" }],
+    },
+    {
+      talent: "burst",
+      label: "Ice Storm DMG",
+      hits: 1,
+      cd: "CD",
+      addScaling: [{ from: "passive2", re: /Ice Storm DMG is increased by (\d+)% of Citlali's Elemental Mastery/, stat: "em" }],
+    },
     { talent: "burst", label: "Spiritvessel Skull DMG", hits: 1, cd: "CD" },
   ],
   Columbina: [
@@ -956,9 +986,23 @@ const SUBDPS = {
     { talent: "skill", label: "Bolstering Bubblebalm DMG", hits: /After bouncing (\d+) times/, cd: "CD" },
     { talent: "burst", label: "Skill DMG", every: "rate", duration: "Duration", cd: "CD" },
   ],
+  // Passive 2 Verdant Luxury (#172): "Every point of Elemental Mastery ... increases the DMG dealt by Razorgrass Blade
+  // by 0.15% and the DMG dealt by Surgent Manifestation by 0.1%" (Skill and Burst).
   "Traveler (Dendro)": [
-    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Lea Lotus Lamp Attack DMG", hits: "rate", cd: "CD" },
+    {
+      talent: "skill",
+      label: "Skill DMG",
+      hits: 1,
+      cd: "CD",
+      dmgBonusPer: [{ from: "passive2", re: /DMG dealt by Razorgrass Blade by ([\d.]+)%/, stat: "em" }],
+    },
+    {
+      talent: "burst",
+      label: "Lea Lotus Lamp Attack DMG",
+      hits: "rate",
+      cd: "CD",
+      dmgBonusPer: [{ from: "passive2", re: /DMG dealt by Surgent Manifestation by ([\d.]+)%/, stat: "em" }],
+    },
   ],
   "Traveler (Pyro)": [
     { talent: "skill", label: "Blazing Threshold", every: "rate", duration: "rate", cd: "CD" },
@@ -1069,13 +1113,22 @@ function readSubDps(id, specs) {
     const value = (v, rateKey) =>
       v === undefined ? undefined : v === "rate" ? rate[rateKey] : typeof v === "number" ? v : typeof v === "string" ? tableValue(attrs, v, id) : fromText(v);
     const every = s.perSecond ? 1 / fromText(s.perSecond) : value(s.every, "every");
-    const passiveText = s.passive && talents[s.passive.from].description.replace(/\s+/g, " ");
-    const passiveValue = s.passive && Number(passiveText.match(s.passive.re)?.[1]);
-    if (s.passive && !passiveValue) throw new Error(`${id}: pattern ${s.passive.re} not found in ${s.passive.from}`);
+    // A passive's number (#172): "...by 90% of Citlali's Elemental Mastery" -> 0.9.
+    const passiveValue = (p) => {
+      const ptext = talents[p.from]?.description.replace(/\s+/g, " ") ?? "";
+      const m = ptext.match(p.re);
+      if (!m) throw new Error(`${id}: pattern ${p.re} not found in ${p.from}: ${ptext}`);
+      return Number(m[1]) / 100;
+    };
+    // `passive`: the whole hit is a passive's (Ineffa's Overclocking Circuit); `addScaling` adds to a talent hit's.
+    const scaling = s.passive ? { [s.passive.stat]: passiveValue(s.passive) } : scalingOf(attrs, s.label, id);
+    for (const p of s.addScaling ?? []) scaling[p.stat] = round((scaling[p.stat] ?? 0) + passiveValue(p));
+    const dmgBonusPerStat = s.dmgBonusPer ? Object.fromEntries(s.dmgBonusPer.map((p) => [p.stat, round(passiveValue(p))])) : undefined;
     sources.push({
       talent: s.talent,
       label: s.name ?? s.label,
-      scaling: s.passive ? { [s.passive.stat]: passiveValue / 100 } : scalingOf(attrs, s.label, id),
+      scaling,
+      ...(dmgBonusPerStat ? { dmgBonusPerStat } : {}),
       ...(s.hits !== undefined ? { hits: value(s.hits, "hits") } : {}),
       ...(every !== undefined ? { every, duration: value(s.duration, "duration") } : {}),
       ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
@@ -1088,6 +1141,7 @@ function readSubDps(id, specs) {
       ...(s.pickOne ? { pickOne: s.pickOne } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
+      ...(needsRate && rate.alternatives ? { alternatives: rate.alternatives.map(({ source, ...alt }) => ({ ...alt, rateSource: source })) } : {}),
     });
   }
   return { sources, ...(missing.length ? { missing } : {}) };
@@ -1120,7 +1174,8 @@ function readSubDps(id, specs) {
 //     (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction, ascendantGleam }) gates it like a hit's.
 //   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
 //   missing: parts of the rotation not modeled yet, so the damage is too low (none left since #135)
-// The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
+// The rotation lasts as long as a sourced length (data/kit-overrides.json `rotations`, #103: a default, plus lengths
+// for teams that fit a combo-style `when`), else the carry's Elemental Burst cooldown (Jessie's earlier choice).
 // Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer, except
 // hits that only exist with them (`when`).
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
@@ -1590,8 +1645,13 @@ function readCarry(id, spec) {
     if (!k.combo || !k.when?.length) throw new Error(`${id}: each combo needs combo and when`);
     return { combo: k.combo, when: k.when, hits: readHits(k.hits), ...(k.buffs ? { buffs: k.buffs.map(readBuff) } : {}) };
   });
+  const rotation = OVERRIDES.rotations?.[id] ?? {};
+  for (const t of rotation.teams ?? [])
+    if (!t.when?.length || !(t.seconds > 0) || !t.source) throw new Error(`${id}: each rotations team needs when, seconds, source`);
+  if (Object.keys(rotation).length && !rotation.source) throw new Error(`${id}: rotations needs a source`);
   return {
-    rotationSeconds: tableValue(tableAttrs("burst"), "CD", id),
+    rotationSeconds: rotation.seconds ?? tableValue(tableAttrs("burst"), "CD", id),
+    ...(rotation.teams?.length ? { rotationTeams: rotation.teams.map((t) => ({ when: t.when, seconds: t.seconds })) } : {}),
     ...(spec.combo ? { combo: spec.combo } : {}),
     hits,
     buffs,
@@ -1649,6 +1709,8 @@ const fightingSpirit = readFightingSpirit(tags.filter((c) => (c.families ?? []).
 // Carries (#101): the 16 compare carries first; other main DPS are listed until they get an entry.
 const carries = {};
 for (const [id, spec] of Object.entries(CARRIES)) carries[id] = readCarry(id, spec);
+for (const id of Object.keys(OVERRIDES.rotations ?? {}))
+  if (!id.startsWith("_") && !CARRIES[id]) throw new Error(`kit-overrides.json rotations: ${id} has no carry damage model`);
 const carriesTodo = tags.filter((c) => c.roles.includes("main-dps") && !CARRIES[c.id]).map((c) => c.id);
 
 // Every off-field sub-DPS needs a SUBDPS entry, so none is silently left without damage. Entries for supports whose
