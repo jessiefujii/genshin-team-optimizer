@@ -1125,9 +1125,11 @@ function readSubDps(id, specs) {
 // hits that only exist with them (`when`).
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
 // Mavuika's combos (#114) differ only in their Flamestrider Charged Attacks: E, Q (Sunfell Slice), then Cyclic/Final.
+// These are her Melt and Vaporize combos, and Sunfell Slice reacts in them (#121, web research 2026-10-13: KQM's
+// Mavuika quick guide has the Burst hit melt/vaporize, about a third of her damage), so `reacting: 1`.
 const mavuikaHits = ({ cyclic, cyclicReacting, final = 0, finalReacting }) => [
   { table: "skill", label: "Skill DMG", count: 1, type: SK },
-  { table: "burst", label: "Skill DMG", count: 1, type: BU, fightingSpirit: "sunfell" },
+  { table: "burst", label: "Skill DMG", count: 1, reacting: 1, type: BU, fightingSpirit: "sunfell" },
   { table: "skill", label: "Flamestrider Charged Attack Cyclic DMG", count: cyclic, reacting: cyclicReacting, type: CH, fightingSpirit: "ca" },
   ...(final ? [{ table: "skill", label: "Flamestrider Charged Attack Final DMG", count: final, reacting: finalReacting, type: CH, fightingSpirit: "ca" }] : []),
 ];
