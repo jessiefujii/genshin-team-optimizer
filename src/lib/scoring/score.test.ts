@@ -94,10 +94,14 @@ describe("scoreTeam", () => {
     expect(reactions("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toEqual([
       { rule: "Reactions", points: 27, reason: "Vaporize adds ~+54% to Hu Tao's damage" },
     ]);
-    // Clorinde's Dark-Shattering Flame needs an Electro reaction, so Overloaded counts by damage too, not as a
-    // flat secondary reaction.
+    // Clorinde's Dark-Shattering Flame needs any Electro-related reaction (#141): its own line, at full value with
+    // Overloaded alone; Aggravate then scores only what it adds on top.
     expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
-      { rule: "Reactions", points: 38, reason: "Overloaded, Electrocharged add ~+75% to Clorinde's damage" },
+      { rule: "Reactions", points: 38, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
+    ]);
+    expect(reactions("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toEqual([
+      { rule: "Reactions", points: 38, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
+      { rule: "Reactions", points: 27, reason: "Aggravate, Quicken add ~+54% to Clorinde's damage, on top of the passive" },
     ]);
     // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze.
     expect(reactions("Wriothesley", "Sandrone", "Fischl", "Furina").map((l) => l.reason)).toEqual(["Freeze: Wriothesley + Furina"]);

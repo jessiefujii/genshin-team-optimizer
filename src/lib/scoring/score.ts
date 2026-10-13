@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, normalAttacks, teamBuffStats } from "./kit";
-import { carryDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, type LunarReaction } from "./damage";
+import { carryDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -723,13 +723,24 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
   if (covered.length === 0) return covered;
   const buffs = teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members);
   const withReactions = modeledCarryDps(carry, ctx, true, buffs);
-  const without = modeledCarryDps(carry, ctx, false, buffs);
+  let without = modeledCarryDps(carry, ctx, false, buffs);
   if (withReactions === null || without === null) return [];
+  // A passive that any of several reactions switches on (Clorinde's, #141) scores on its own line, at full value when
+  // the team has one of them; the reaction line then scores only what the reactions add on top.
+  const enabler = passiveEnabler(carry, ctx.active);
+  const passiveOn = enabler ? carryDamage(carry, [enabler], ctx.members, buffs) : null;
+  if (passiveOn && passiveOn.missing.length === 0) {
+    const passiveGain = passiveOn.perSecond / without - 1;
+    const p = gainPoints(passiveGain, POINTS.buffer);
+    if (p > 0) out.add("Reactions", p, () => `Any ${carry.element}-related reaction enables ${carry.id}'s passive: ~+${Math.round(passiveGain * 100)}% damage`);
+    without = passiveOn.perSecond;
+  }
   const gain = withReactions / without - 1;
   const points = gainPoints(gain, POINTS.buffer);
   if (points > 0) {
     const verb = covered.length === 1 ? "adds" : "add";
-    out.add("Reactions", points, () => `${covered.map(label).join(", ")} ${verb} ~+${Math.round(gain * 100)}% to ${carry.id}'s damage`);
+    const onTop = passiveOn ? ", on top of the passive" : "";
+    out.add("Reactions", points, () => `${covered.map(label).join(", ")} ${verb} ~+${Math.round(gain * 100)}% to ${carry.id}'s damage${onTop}`);
   }
   return covered;
 }

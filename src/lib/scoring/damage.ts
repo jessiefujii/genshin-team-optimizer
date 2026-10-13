@@ -143,6 +143,25 @@ export function modelsReaction(c: ScoringCharacter, r: Reaction): boolean {
   return buffs.some((b) => (b.kind === "flatAtk" || b.kind === "factorByReactions") && b.reactions.includes(r));
 }
 
+// A carry passive that any one of several reactions switches on (Clorinde's Dark-Shattering Flame: "an Electro-related
+// reaction"; KQM: "very easy to reach max stacks" with any of them, #141): when the team has one of them, a stand-in
+// reaction from that list which the damage model uses for nothing else (not amplifying, not catalyzing, not a combo
+// or hit condition), so carryDamage with it reads the passive alone. Null when no such passive is on.
+export function passiveEnabler(c: ScoringCharacter, active: readonly Reaction[]): Reaction | null {
+  const kit = CARRIES[c.id];
+  if (!kit) return null;
+  const used = new Set<Reaction>([
+    ...(kit.combos ?? []).flatMap((k) => k.when.map((w) => w.reaction).filter((r): r is Reaction => !!r)),
+    ...kit.hits.map((h) => h.when?.reaction).filter((r): r is Reaction => !!r),
+  ]);
+  for (const b of kit.buffs) {
+    if (b.kind !== "flatAtk" || !b.reactions.some((r) => active.includes(r))) continue;
+    const stand = b.reactions.find((r) => !AMPLIFY[r] && !CATALYZE[r] && !(r in LUNAR_COEFFICIENT) && !used.has(r));
+    if (stand) return stand;
+  }
+  return null;
+}
+
 // Direct Lunar reaction DMG (Genshin Impact Wiki, Damage § Lunar and Stellar Glimmer Reaction Damage, Direct, fetched
 // 2026-10-12): (coefficient x the talent's % x the stat x Base DMG Multiplier x (1 + Reaction Base DMG Bonus)
 // x (1 + 6 x EM / (EM + 2000) + Reaction Bonus) + Reaction Additive Base DMG Bonus). It has no DMG Bonus term: Elemental and other DMG % bonuses don't apply (KeqingMains' Flins
