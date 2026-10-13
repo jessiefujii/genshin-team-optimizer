@@ -86,7 +86,7 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
         {visible.map((c) => {
           const owned = roster[c.id];
           // Their build misses the search's minimum (#133): they sit out of teams unless "Include anyway" is ticked.
-          const below = owned ? belowMinimum(owned.build, catalog.weaponRarity) : [];
+          const below = owned ? belowMinimum(owned.build, catalog.weaponRarity, c.keyTalent) : [];
           return (
             <li
               key={c.id}
