@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { belowMinimum } from "@/lib/build/minimum";
 import { ELEMENTS } from "@/types/tags";
 import { control, elementChip } from "@/lib/ui/elements";
 import BuildEditor from "./build-editor";
@@ -84,6 +85,8 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
       <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {visible.map((c) => {
           const owned = roster[c.id];
+          // Their build misses the search's minimum (#133): they sit out of teams unless "Include anyway" is ticked.
+          const below = owned ? belowMinimum(owned.build, catalog.weaponRarity, c.keyTalent) : [];
           return (
             <li
               key={c.id}
@@ -136,6 +139,19 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
                     {owned.build ? `Lv${owned.build.level} · Edit` : "Add build"}
                   </button>
                 </div>
+              )}
+              {below.length > 0 && (
+                <label
+                  className="mt-1 flex items-center gap-1 text-xs text-amber-700 dark:text-amber-400"
+                  title={`Left out of teams (${below.join(", ")}) unless ticked; still listed under Worth building`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={!!owned.includeAnyway}
+                    onChange={(e) => onSetEntry(c.id, { includeAnyway: e.target.checked })}
+                  />
+                  Include anyway
+                </label>
               )}
               {owned && c.families?.includes("hexerei") && (
                 <label

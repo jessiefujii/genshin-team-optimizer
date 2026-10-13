@@ -20,8 +20,9 @@ export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions
   const limit = options.limit ?? 20;
   const excluded = new Set(options.exclude ?? []);
   const required = options.mustInclude ?? [];
-  // Characters marked not built sit out unless the player asked for them.
-  const pool = roster.filter((c) => !excluded.has(c.id) && (c.built !== false || required.includes(c.id)));
+  // Characters marked not built, or whose build misses the minimum (#133), sit out unless the player asked for them.
+  const usable = (c: ScoringCharacter) => c.built !== false && !c.belowMinimum?.length;
+  const pool = roster.filter((c) => !excluded.has(c.id) && (usable(c) || required.includes(c.id)));
   const anyOf = options.requireAny && new Set(options.requireAny);
   const fixed = required.map((id) => {
     const c = pool.find((p) => p.id === id);
