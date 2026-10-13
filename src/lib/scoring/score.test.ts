@@ -110,8 +110,8 @@ describe("scoreTeam", () => {
   test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
     // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+60% damage");
-    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+60% damage");
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+58% damage");
+    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+58% damage");
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
@@ -453,15 +453,21 @@ describe("sub-DPS (#96)", () => {
 
   test("a sub-DPS without a build gets a KQM Standards build for the stat they scale on (#158, #164-#167)", () => {
     const stats = (id: string) => subDpsStats(byId.get(id)!)!;
-    // Ineffa scales on ATK: level 90 base 330 + the 500 benchmark weapon, ATK% sands + 4 ATK% rolls, plume, 2 ATK rolls.
+    // Ineffa scales on ATK: level 90 base 330 + the 500 benchmark weapon, ATK% sands + the 2 fixed ATK% rolls, plume,
+    // 2 ATK rolls. KQM: "ER (until requirement)* > CRIT > ATK% > EM": 8 ER rolls reach her 150% (#173), CRIT takes the rest.
     const ineffa = stats("Ineffa");
-    expect(ineffa.atk).toBeCloseTo(830 * (1 + 0.466 + 4 * 0.0496) + 311 + 2 * 16.54, 0);
-    expect(ineffa.em).toBeCloseTo(2 * 19.82, 1); // KQM: "CRIT > ATK% > EM", so only the 2 fixed EM rolls
-    // CRIT Rate circlet, 2 fixed + 8 rolls, and her level 90 ascension stat, CRIT Rate 24.2% (#166).
-    expect(ineffa.critRate).toBeCloseTo(0.05 + 0.311 + 10 * 0.0331 + 0.242, 3);
-    expect(ineffa.critDmg).toBeCloseTo(0.5 + 12 * 0.0662, 3); // 2 fixed + 10 rolls
-    // Columbina scales on HP; KQM "CRIT = HP%" spreads the rolls: HP% 6, CRIT Rate 7, CRIT DMG 7.
-    expect(stats("Columbina").hp).toBeCloseTo(14695 * (1 + 0.466 + 8 * 0.0496) + 4780 + 2 * 253.94, 0);
+    expect(ineffa.er).toBeCloseTo(1 + 10 * 0.0551, 3);
+    expect(ineffa.atk).toBeCloseTo(830 * (1 + 0.466 + 2 * 0.0496) + 311 + 2 * 16.54, 0);
+    expect(ineffa.em).toBeCloseTo(2 * 19.82, 1); // only the 2 fixed EM rolls
+    // CRIT Rate circlet, 2 fixed + 6 rolls, and her level 90 ascension stat, CRIT Rate 24.2% (#166).
+    expect(ineffa.critRate).toBeCloseTo(0.05 + 0.311 + 8 * 0.0331 + 0.242, 3);
+    expect(ineffa.critDmg).toBeCloseTo(0.5 + 8 * 0.0662, 3); // 2 fixed + 6 rolls
+    // Columbina scales on HP; after 8 ER rolls, KQM "CRIT = HP%" spreads the other 12: HP% 4, CRIT Rate 4, CRIT DMG 4.
+    expect(stats("Columbina").hp).toBeCloseTo(14695 * (1 + 0.466 + 6 * 0.0496) + 4780 + 2 * 253.94, 0);
+    // A 200% requirement is out of reach with 10 ER rolls: ER sands (51.8%) and 7 rolls (Xingqiu, #173).
+    expect(stats("Xingqiu").er).toBeCloseTo(1 + 0.518 + 9 * 0.0551, 3);
+    // No ER in the KQM priority: only the 2 fixed rolls (Chiori: "CRIT > DEF% > ATK%").
+    expect(stats("Chiori").er).toBeCloseTo(1 + 2 * 0.0551, 3);
     // Nahida is hand-tagged EM first (#167): EM sands, goblet and circlet, EM 800 (Jessie) + her 115.2 EM ascension stat.
     expect(stats("Nahida")).toMatchObject({ em: 915.2, dmgBonus: 0 });
     // Albedo's Geo DMG ascension stat adds to the Geo goblet.
@@ -624,8 +630,8 @@ describe("talent levels (#25)", () => {
     expect(topElement(team("Skirk", "Jahoda", "Citlali", "Bennett"))).toBe("Cryo");
     expect(topElement(team("Jahoda", "Sucrose", "Zhongli", "Lynette"))).toBeUndefined();
     const jahodaLine = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Jahoda's own hits"))?.reason;
-    expect(jahodaLine("Flins", "Jahoda", "Citlali", "Escoffier")).toBe("Jahoda's own hits add ~+24% damage"); // 12 hits
-    expect(jahodaLine("Flins", "Jahoda", "Ineffa", "Escoffier")).toBe("Jahoda's own hits add ~+22% damage"); // 10
+    expect(jahodaLine("Flins", "Jahoda", "Citlali", "Escoffier")).toBe("Jahoda's own hits add ~+19% damage"); // 12 hits
+    expect(jahodaLine("Flins", "Jahoda", "Ineffa", "Escoffier")).toBe("Jahoda's own hits add ~+18% damage"); // 10
   });
 
   test("Fighting Spirit decisions (#126): Ororon's Hydro/Electro points, Raiden's Musou Isshin hits, Skill only", () => {

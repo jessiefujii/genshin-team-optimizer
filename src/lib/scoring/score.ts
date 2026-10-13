@@ -650,7 +650,15 @@ type SubDpsEntry = { base: SubDpsBase | null; sources: SubDpsSource[]; missing?:
 const SUB_DPS = kitJson.subDps as Record<string, SubDpsEntry>;
 
 // Each sub-DPS's KQM stat priority for the benchmark build's substats (#164/#165).
-const SUB_DPS_BUILDS = (subDpsBuildsJson as unknown as { characters: Record<string, SubDpsPriority> }).characters;
+const SUB_DPS_BUILDS = (subDpsBuildsJson as unknown as { characters: Record<string, SubDpsPriority & { quote: string }> }).characters;
+
+// Their ER requirement for the benchmark build (#173): their erTarget (#21) when their KQM stat priority puts ER first
+// ("ER (until requirement) > ...", after any "Stat Priority:" label); else none.
+function erFirstTarget(m: ScoringCharacter): number | undefined {
+  const quote = SUB_DPS_BUILDS[m.id]?.quote.replace(/^[^:]*:\s*/, "").replace(/^\(/, "");
+  const target = erTargetOf(m);
+  return quote?.startsWith("ER") && target !== undefined ? target / 100 : undefined;
+}
 
 // The stat a sub-DPS's benchmark build is for: the first of their hand-tagged scalesOn (Jessie, #167, from their KQM
 // quick guide), else (#158) EM if any hit uses it, else the stat with the largest summed coefficient.
@@ -670,9 +678,9 @@ export function subDpsStats(m: ScoringCharacter): SubDpsStats | null {
   if (!entry) return null;
   if (m.stats) {
     const s = m.stats;
-    return { atk: s.atk, hp: s.hp, def: s.def, em: s.elementalMastery, critRate: s.critRate / 100, critDmg: s.critDmg / 100, dmgBonus: s.elementalDmgBonus / 100 };
+    return { atk: s.atk, hp: s.hp, def: s.def, em: s.elementalMastery, critRate: s.critRate / 100, critDmg: s.critDmg / 100, dmgBonus: s.elementalDmgBonus / 100, er: s.energyRecharge / 100 };
   }
-  if (entry.base) return subDpsBenchmark(entry.base, scaleStatOf(m, entry), SUB_DPS_BUILDS[m.id], m.element);
+  if (entry.base) return subDpsBenchmark(entry.base, scaleStatOf(m, entry), SUB_DPS_BUILDS[m.id], m.element, erFirstTarget(m));
   const b = BENCHMARK.buffer;
   const { carryCritRate: critRate, carryCritDmg: critDmg, subDpsDmgBonus: dmgBonus } = BENCHMARK;
   return { atk: b.atk, hp: b.hp, def: b.def, em: b.em, critRate, critDmg, dmgBonus };
