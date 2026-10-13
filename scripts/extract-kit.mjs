@@ -662,6 +662,9 @@ const STELLAR = {
     ],
   },
   Sandrone: { from: "passive1", target: "self", radiance: [SC, SS] },
+  // Passive 3 also converts the party's Superconduct and Cryo Swirl (tags.json `converts`) and raises their Base DMG
+  // by up to 7% (converters' Base DMG bonus: #88).
+  "Traveler (Cryo)": { from: "passive3", target: "own", radiance: [SC, SS], note: "enters Radiance; Base DMG bonus to the party's Stellar reactions is #88" },
   Vesna: { from: "combat2", target: "self", radiance: [SS] },
   // While Song of Ages Past (her Skill) lasts, Stellar Swirls make Wandering Vortexes, which shred Anemo RES.
   Vodyanitsa: {
@@ -930,6 +933,14 @@ const SUBDPS = {
   "Traveler (Geo)": [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "DMG Per Shockwave", hits: "rate", cd: "CD" },
+  ],
+  // Off-field: the Frostpierce Star's ice crystals and the Burst's javelin strikes (not the 2 extra strikes at 8
+  // Frostglow, which on-field Stellar-Conduct play builds). Under Radiance: Stellar-Conduct the crystals follow the
+  // Traveler's own attacks instead, which is on-field play (#136).
+  "Traveler (Cryo)": [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Ice Crystal DMG", every: "rate", duration: "Frostpierce Star Duration", cd: "CD" },
+    { talent: "burst", label: "Ice Javelin DMG", hits: "No. of Strikes in Attack", cd: "CD" },
   ],
   Venti: [
     { talent: "skill", label: "Press DMG", hits: 1, cd: "Press CD" },

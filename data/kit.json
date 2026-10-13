@@ -1441,6 +1441,15 @@
       ],
       "source": "passive1: \"**Radiance: Stellar Glimmer**: When using the Elemental Skill **Formule Phenomenale: Differential Analysis**, if Fagio's **Decoding Power** is greater than 50, the second Prism Shot fired by Fagio at nearby opponents will deal 400% of its original DMG as Fagio's Decoding Power is decreased.\""
     },
+    "Traveler (Cryo)": {
+      "target": "own",
+      "radiance": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "note": "enters Radiance; Base DMG bonus to the party's Stellar reactions is #88",
+      "source": "passive3: \"The Traveler will enter the **Radiance: Stellar-Conduct** state when inside a Polestar Field, or the Radiance: Stellar Swirl state for 8s after a nearby party member triggers a Stellar Swirl reaction.\""
+    },
     "Vesna": {
       "target": "self",
       "radiance": [
@@ -2969,6 +2978,40 @@
           "cd": 15,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Traveler/Geo, fetched 2026-10-10: \"There are 4 instances of Shockwave DMG.\""
         }
+      ]
+    },
+    "Traveler (Cryo)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.55856
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Ice Javelin DMG",
+          "scaling": {
+            "atk": 0.937227
+          },
+          "hits": 3,
+          "cd": 15
+        }
+      ],
+      "missing": [
+        "Ice Crystal DMG: the Frostpierce Star's ice crystal interval isn't in genshin-db, on the wiki or in KQM's library page (all: 'periodically'), and guides disagree: every 2s (bittopup) vs every 3s (Prydwen, search summary only)"
       ]
     },
     "Venti": {
@@ -4691,6 +4734,7 @@
     "Tighnari",
     "Traveler (Anemo)",
     "Traveler (Hydro)",
+    "Traveler (Cryo)",
     "Varka",
     "Vesna",
     "Wanderer",

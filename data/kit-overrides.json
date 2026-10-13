@@ -575,6 +575,12 @@
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Traveler/Geo, fetched 2026-10-10: \"There are 4 instances of Shockwave DMG.\""
       }
     },
+    "Traveler (Cryo)": {
+      "skill: Ice Crystal DMG": {
+        "missing": "the Frostpierce Star's ice crystal interval isn't in genshin-db, on the wiki or in KQM's library page (all: 'periodically'), and guides disagree: every 2s (bittopup) vs every 3s (Prydwen, search summary only)",
+        "source": "checked 2026-10-12: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Traveler_(Cryo) and https://genshin-impact.fandom.com/wiki/Ice_Fog_Piercer; KQM library, https://library.keqingmains.com/characters/cryo/traveler-cryo; bittopup, https://bittopup.com/article/cryo-traveler-best-build-and-teams-august-2026 (2026-08-14): 'fires ice crystals every 2s'; Prydwen, https://www.prydwen.gg/genshin-impact/characters/traveler-cryo (403 to fetch; a search summary quotes 'every 3 seconds')"
+      }
+    },
     "Venti": {
       "burst: DoT": {
         "hits": 20,

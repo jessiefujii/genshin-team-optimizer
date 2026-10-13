@@ -2138,10 +2138,13 @@
       "actions": [
         "E",
         "Q",
+        "infused attacks (4s)",
+        "E",
+        "infused attacks (4s)",
         "swap out"
       ]
     },
-    "notes": "Element always matches the Traveler's and can be swapped. Burst-focused (talent priority Burst > Skill > Normal; 150-200% ER per Game8). Burst places a Restricted Area that explodes for 200% ATK when they leave the field. Low priority. VERIFY: rotation, and whether they are better on- or off-field."
+    "notes": "Element always matches the Traveler's and can be swapped. Wiki (Manekin/Manekina, 2026-10-13): \"a DMG dealer\"; Skill infuses Normal/Charged/Plunging Attacks with their element for 4s (2 charges, CD 10s); Burst places a Restricted Area that follows them for 8s, deals DMG every 0.5s and disappears when they leave the field; passive 1: leaving the field with it active explodes it for 200% ATK. So: on-field for the 8s Burst with two Skill infusions, then swap out for the explosion (Jessie, #10). Talent priority Burst > Skill > Normal and 150-200% ER per Game8. No Character Roles on the wiki, so the DPS roles are hand tags."
   },
   {
     "id": "Manekina",
@@ -2162,10 +2165,13 @@
       "actions": [
         "E",
         "Q",
+        "infused attacks (4s)",
+        "E",
+        "infused attacks (4s)",
         "swap out"
       ]
     },
-    "notes": "Element always matches the Traveler's and can be swapped. Burst-focused (talent priority Burst > Skill > Normal; 150-200% ER per Game8). Burst places a Restricted Area that explodes for 200% ATK when they leave the field. Low priority. VERIFY: rotation, and whether they are better on- or off-field."
+    "notes": "Element always matches the Traveler's and can be swapped. Wiki (Manekin/Manekina, 2026-10-13): \"a DMG dealer\"; Skill infuses Normal/Charged/Plunging Attacks with their element for 4s (2 charges, CD 10s); Burst places a Restricted Area that follows them for 8s, deals DMG every 0.5s and disappears when they leave the field; passive 1: leaving the field with it active explodes it for 200% ATK. So: on-field for the 8s Burst with two Skill infusions, then swap out for the explosion (Jessie, #10). Talent priority Burst > Skill > Normal and 150-200% ER per Game8. No Character Roles on the wiki, so the DPS roles are hand tags."
   },
   {
     "id": "Mavuika",
@@ -3284,6 +3290,39 @@
       ]
     },
     "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+  },
+  {
+    "id": "Traveler (Cryo)",
+    "roles": [
+      "main-dps",
+      "sub-dps"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
+    "converts": [
+      "stellar-conduct",
+      "stellar-swirl"
+    ],
+    "energyNeed": "medium",
+    "erTarget": 130,
+    "scalesOn": [
+      "ATK"
+    ],
+    "keyTalent": "normal",
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "setup",
+      "actions": [
+        "E",
+        "Q"
+      ]
+    },
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine. Wiki Character Roles: Off-Field DPS; also main DPS (Jessie, data/role-overrides.json). Passive 3 converts the party's Superconduct and Cryo Swirl into Stellar-Conduct and Stellar Swirl; guides also play them on-field for Stellar-Conduct (bittopup 2026-08-14: 'On-field Conduct DPS / off-field Swirl sub-DPS', ER 120-140%). Key talent normal (bittopup 2026-08-14: 'Normal Attack = Burst >>> Skill'; on-field damage is the Burst and Freezing Ice, a Charged Attack): a tie, normal listed first."
   },
   {
     "id": "Varesa",

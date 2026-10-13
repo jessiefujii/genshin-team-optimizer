@@ -1,5 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { mergeImport } from "../../app/planner/use-roster";
+import skillOrderJson from "../../../data/enka-skill-order.json";
+import cryoFixture from "./__fixtures__/traveler-cryo.json";
+import fallbackFixture from "./__fixtures__/fallback-order.json";
 import fixture from "./__fixtures__/uid-838859790.json";
 import { toUidImport } from "./import";
 import type { EnkaResponse } from "./types";
@@ -37,6 +40,38 @@ describe("toUidImport", () => {
   test("uses Enka's skill order when IDs are out of order", () => {
     // Ayaka's IDs: normal 10024, skill 10018, burst 10019, plus her sprint (10013).
     expect(byId.get("Kamisato Ayaka")!.build.talents).toEqual({ normal: 6, skill: 6, burst: 8 });
+  });
+});
+
+describe("Traveler (Cryo) (#136)", () => {
+  // Jessie's Lumine from Enka, 2026-10-12: skill depot 705, which Enka's store doesn't list yet.
+  const cryo = toUidImport(cryoFixture as unknown as EnkaResponse, "2026-10-12T00:00:00.000Z");
+
+  test("depot 705 is Traveler (Cryo), with normal, skill and burst in order", () => {
+    expect(cryo.unmatched).toEqual([]);
+    expect(cryo.characters.map((c) => [c.id, c.constellation])).toEqual([["Traveler (Cryo)", 4]]);
+    // skillLevelMap: normal 100554 at 3, skill 10127 at 1, burst 10128 at 6 + 3 from C3.
+    expect(cryo.characters[0].build.talents).toEqual({ normal: 3, skill: 1, burst: 9 });
+  });
+
+  // Characters missing from Enka's store fall back to sorting their skill IDs (#18). Jessie's showcases (2026-10-12)
+  // have 9 of them, all with IDs ending in 1, 2, 5 (normal, skill, burst); Illuga's C3 adds 3 to his Burst.
+  const fallback = toUidImport(fallbackFixture as unknown as EnkaResponse, "2026-10-12T00:00:00.000Z");
+  test("characters missing from Enka's store get normal, skill, burst from sorted IDs (#18)", () => {
+    const { skillOrder } = skillOrderJson as { skillOrder: Record<string, number[]> };
+    expect(fallbackFixture.avatarInfoList.filter((a) => skillOrder[a.avatarId])).toEqual([]);
+    expect(fallback.unmatched).toEqual([]);
+    expect(Object.fromEntries(fallback.characters.map((c) => [c.id, c.build.talents]))).toEqual({
+      Columbina: { normal: 6, skill: 10, burst: 6 },
+      Zibai: { normal: 1, skill: 8, burst: 6 },
+      Illuga: { normal: 1, skill: 4, burst: 11 }, // burst 8 + 3 from C3
+      Linnea: { normal: 1, skill: 8, burst: 5 },
+      Nicole: { normal: 1, skill: 6, burst: 6 },
+      Prune: { normal: 1, skill: 1, burst: 3 },
+      Vesna: { normal: 1, skill: 1, burst: 1 },
+      Alyosha: { normal: 1, skill: 2, burst: 2 },
+      Odette: { normal: 1, skill: 6, burst: 6 },
+    });
   });
 });
 

@@ -119,6 +119,15 @@ describe("carry damage (#101)", () => {
       expect(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], ["lunar-charged"])).toBe(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
     });
 
+    test("Flins' passive 2 EM counts for an imported build too (#149)", () => {
+      // A build with the benchmark's own stats (ATK 2200, EM 100, 60% DMG bonus) deals what no build does: Enka's EM
+      // leaves the passive out, so it's added either way.
+      const ids = ["Flins", "Ineffa", "Xingqiu", "Bennett"];
+      for (const active of [[], ["lunar-charged"]] as Reaction[][]) {
+        expect(dps(ids, active, { elementalDmgBonus: 60 })).toBeCloseTo(dps(ids, active), 6);
+      }
+    });
+
     test("Flins' passive 1 adds 20% Reaction Bonus to his Lunar-Charged hits at Ascendant Gleam (#147)", () => {
       // With Ineffa (Moonsign) but no Lunar-Charged reaction the thundercloud hit can't land: only passive 1 differs.
       expect(dps(["Flins", "Ineffa", "Xingqiu", "Bennett"], [])).toBeGreaterThan(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
@@ -148,9 +157,9 @@ describe("carry damage (#101)", () => {
     const raiden = byId.get("Raiden Shogun")!;
     const built: ScoringCharacter = {
       ...raiden,
-      stats: { atk: 2600, baseAtk: 950, hp: 20000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 250, elementalMastery: 0, elementalDmgBonus: 46.6 },
+      // DMG bonus as the character screen shows it: 46.6% goblet + her passive 2 (0.4% per ER over 100%) at 250% ER.
+      stats: { atk: 2600, baseAtk: 950, hp: 20000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 250, elementalMastery: 0, elementalDmgBonus: 106.6 },
     };
-    // More ATK and ER (her passive 2: Electro DMG Bonus per ER over 100%) than the benchmark.
     expect(carryDamage(built)!.perSecond).toBeGreaterThan(carryDamage(raiden)!.perSecond);
   });
 
@@ -164,6 +173,16 @@ describe("carry damage (#101)", () => {
     const crit = { ...raiden, stats: { ...stats, critRate: 80, critDmg: 200 } };
     const plain = { ...raiden, stats: { ...stats, critRate: 60, critDmg: 120 } };
     expect(carryDamage(crit)!.perSecond / carryDamage(plain)!.perSecond).toBeCloseTo(2.6 / 1.72);
+  });
+
+  test("an imported build's DMG bonus already holds Raiden's ER passive: it isn't added again (#161)", () => {
+    const raiden = byId.get("Raiden Shogun")!;
+    // Jessie's Raiden from Enka: 108.8% Electro DMG Bonus = 46.6% goblet + 0.4 x 155.6 ER.
+    const stats = { atk: 1952, baseAtk: 950, hp: 18886, def: 981, critRate: 42.3, critDmg: 112.2, energyRecharge: 255.6, elementalMastery: 23, elementalDmgBonus: 108.8 };
+    const jessie: ScoringCharacter = { ...raiden, stats };
+    const moreEr: ScoringCharacter = { ...raiden, stats: { ...stats, energyRecharge: 300 } };
+    // ER only reaches her damage through the panel's DMG bonus, so more ER alone changes nothing.
+    expect(carryDamage(moreEr)!.perSecond).toBeCloseTo(carryDamage(jessie)!.perSecond, 6);
   });
 });
 
