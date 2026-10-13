@@ -112,7 +112,7 @@ describe("scoreTeam", () => {
     // Fischl's own hits Aggravate (#153), which adds to her share instead.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
     expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+60% damage");
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+68% damage, with Aggravate");
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+74% damage, with Aggravate");
   });
 
   test("a sub-DPS's own hits react when a teammate brings the other element (#153)", () => {
@@ -128,6 +128,17 @@ describe("scoreTeam", () => {
     expect(line("Chiori", "Clorinde", "Fischl", "Nahida", "Chiori")).not.toMatch(/with/);
     // The reaction adds to the share: Fischl with Nahida (Aggravate) beats Fischl with Chiori.
     expect(pct(line("Fischl", "Clorinde", "Fischl", "Nahida", "Zhongli"))).toBeGreaterThan(pct(line("Fischl", "Clorinde", "Fischl", "Zhongli", "Chiori")));
+  });
+
+  test("Vaporize and Melt on sub-DPS hits share one aura budget (#189, #191)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Furina and Yelan both vaporize on the Pyro aura only Hu Tao lays: each gets less than Furina alone with him.
+    const furinaWithYelan = pct(line("Furina", "Hu Tao", "Furina", "Yelan", "Escoffier"));
+    const furinaAlone = pct(line("Furina", "Hu Tao", "Furina", "Zhongli", "Escoffier"));
+    expect(furinaWithYelan).toBeLessThan(furinaAlone);
+    // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize.
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toBe("Xiangling's own hits add ~+54% damage, with Vaporize");
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {

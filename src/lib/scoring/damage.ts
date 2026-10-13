@@ -206,6 +206,23 @@ export interface CarryDamage {
   missing: string[]; // hits left out for lack of a source
 }
 
+// The carry's hits per second in this team's combo and rotation, and how many of them react (each hit's reacting
+// share, as in carryDamage), for the sub-DPS aura budget (score.ts, #189/#191); null when the carry isn't modeled.
+// Every hit is taken as elemental, and `when`-gated hits are counted as landing (estimate).
+export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+  if (!CARRIES[c.id]) return null;
+  const { kit } = pickCombo(CARRIES[c.id], c, active, team);
+  const seconds = rotationFor(kit, c, active, team);
+  let hits = 0;
+  let reacting = 0;
+  for (const h of kit.hits) {
+    const n = h.count * (h.instances ?? 1);
+    hits += n;
+    reacting += h.count * reactingShare(h) * (h.instances ?? 1);
+  }
+  return { hitsPerSecond: hits / seconds, reactingPerSecond: reacting / seconds };
+}
+
 // Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,
 // the same value as her buff to other carries (kit.ts). Under the 100 her Burst needs it is 0: no Burst that
 // rotation, so she plays Skill only (KQM: "viable" for teams that can't build enough; Jessie, #126): her default

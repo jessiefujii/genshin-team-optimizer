@@ -481,7 +481,9 @@
         "source": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority: see alternatives (#175).",
         "alternatives": [
           {
-            "when": { "topElement": "Cryo" },
+            "when": {
+              "topElement": "Cryo"
+            },
             "hits": 12,
             "source": "Jessie's in-game test, 2026-10-13 (#175): Ascendant Gleam team with 2 Cryo members and 1 other Moonsign member (plus Jahoda), Cryo applied by Escoffier's Burst, 3 runs: 12 robot hits per Burst (both robots together). Passive 1 (Plan to Get Paid, genshin-db): among Pyro, Hydro, Electro and Cryo party members, \"the element with the highest number of characters determines the enhancement effect\"; Cryo: \"The attack interval ... is reduced by 10%\"; ties go \"Pyro, Hydro, Electro, then Cryo\"."
           }
@@ -767,6 +769,194 @@
           "source": "same guide (Kuki Shinobu, Furina, Nahida): \"This team runs a 30s split field time rotation\""
         }
       ]
+    }
+  },
+  "icd": {
+    "_howTo": "Elemental application ICD per sub-DPS source (#190), keyed like hitRates (\"talent: label\"). \"none\": every hit applies its element. { reset, every }: the timer in seconds, and the hit counter (every: 3 applies on hits 1, 4, 7...; \"first\": only the first hit until the timer resets). Sources left out use the standard ICD (2.5s / every 3rd hit). source: Genshin Impact Wiki, Internal Cooldown/Data (https://genshin-impact.fandom.com/wiki/Internal_Cooldown/Data, fandom API, fetched 2026-10-14). Not in that table: Ineffa, Durin, Jahoda, Alyosha (standard). Odette left standard: which of her talents the table rows belong to is unclear.",
+    "Albedo": {
+      "skill: Skill DMG": "none",
+      "burst: Burst DMG": "none"
+    },
+    "Amber": {
+      "skill: Explosion DMG": "none",
+      "burst: Total Fiery Rain DMG": {
+        "reset": 1,
+        "every": 3
+      }
+    },
+    "Beidou": {
+      "skill: Base DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Chiori": {
+      "skill: Upward Sweep Attack DMG": {
+        "reset": 1.9,
+        "every": "first"
+      },
+      "skill: Tamoto DMG": {
+        "reset": 1.9,
+        "every": "first"
+      },
+      "burst: Skill DMG": "none"
+    },
+    "Chongyun": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Citlali": {
+      "skill: Obsidian Tzitzimitl DMG": "none",
+      "skill: Frostfall Storm DMG": {
+        "reset": 1.5,
+        "every": "first"
+      },
+      "burst: Ice Storm DMG": "none"
+    },
+    "Columbina": {
+      "skill: Skill DMG": "none",
+      "skill: Gravity Ripple: Continuous DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Collei": {
+      "skill: Skill DMG": "none",
+      "burst: Explosion DMG": {
+        "reset": 3,
+        "every": "first"
+      },
+      "burst: Leap DMG": {
+        "reset": 3,
+        "every": "first"
+      }
+    },
+    "Dehya": {
+      "skill: Indomitable Flame DMG": "none",
+      "skill: Field DMG": "none",
+      "burst: Incineration Drive DMG": "none"
+    },
+    "Emilie": {
+      "skill: Skill DMG": "none",
+      "skill: Level 1 Lumidouce Case Attack DMG": {
+        "reset": 2,
+        "every": "first"
+      },
+      "skill: Spiritbreath Thorn DMG": "none"
+    },
+    "Escoffier": {
+      "skill: Skill DMG": {
+        "reset": 1.5,
+        "every": "first"
+      },
+      "skill: Frosty Parfait DMG": {
+        "reset": 1.5,
+        "every": "first"
+      },
+      "skill: Surging Blade DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Fischl": {
+      "skill: Summoning DMG": "none",
+      "skill: Oz's ATK DMG": {
+        "reset": 5,
+        "every": 4
+      },
+      "burst: Falling Thunder DMG": {
+        "reset": 5,
+        "every": 4
+      }
+    },
+    "Furina": {
+      "skill: Ousia Bubble DMG": "none",
+      "skill: Gentilhomme Usher DMG": {
+        "reset": 30,
+        "every": 2
+      },
+      "skill: Surintendante Chevalmarin DMG": {
+        "reset": 30,
+        "every": 2
+      },
+      "skill: Mademoiselle Crabaletta DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Kachina": {
+      "burst: Skill DMG": "none"
+    },
+    "Kaeya": {
+      "skill: Skill DMG": "none"
+    },
+    "Lisa": {
+      "skill: Stack 3 Conductive Hold DMG": "none"
+    },
+    "Nahida": {
+      "skill: Hold DMG": "none",
+      "skill: Tri-Karma Purification DMG": {
+        "reset": 1,
+        "every": "first"
+      }
+    },
+    "Nilou": {
+      "burst: Skill DMG": "none",
+      "burst: Lingering Aeon DMG": "none"
+    },
+    "Ororon": {
+      "burst: Ritual DMG": {
+        "reset": 3,
+        "every": "first"
+      },
+      "burst: Soundwave Collision DMG": {
+        "reset": 3,
+        "every": "first"
+      }
+    },
+    "Prune": {
+      "skill: Ring-A-Ding-Ding! Hexhunter Chime DMG": "none",
+      "burst: Skill DMG": "none",
+      "burst: Witchlure Bell DMG": "none"
+    },
+    "Rosaria": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none",
+      "burst: Ice Lance DoT": "none"
+    },
+    "Sigewinne": {
+      "skill: Bolstering Bubblebalm DMG": {
+        "reset": 2,
+        "every": "first"
+      },
+      "burst: Skill DMG": {
+        "reset": 1.9,
+        "every": "first"
+      }
+    },
+    "Traveler (Dendro)": {
+      "skill: Skill DMG": "none"
+    },
+    "Traveler (Pyro)": {
+      "burst: Skill DMG": "none"
+    },
+    "Venti": {
+      "skill: Press DMG": "none",
+      "burst: DoT": {
+        "reset": 1,
+        "every": 3
+      }
+    },
+    "Xiangling": {
+      "skill: Flame DMG": "none",
+      "burst: Pyronado DMG": "none"
+    },
+    "Xingqiu": {
+      "skill: Skill DMG": "none"
+    },
+    "Yae Miko": {
+      "burst: Skill DMG": "none",
+      "burst: Tenko Thunderbolt DMG": "none"
+    },
+    "Yelan": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none",
+      "burst: Exquisite Throw DMG": {
+        "reset": 2,
+        "every": 3
+      }
     }
   }
 }

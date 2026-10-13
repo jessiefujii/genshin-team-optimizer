@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, normalAttacks, teamBuffStats } from "./kit";
-import { amplifyGain, carryDamage, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryHitRates, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -639,6 +639,7 @@ interface SubDpsSource {
   // Other rates for teams that fit: the first whose `when` matches replaces hits/every/duration (Jahoda, #175).
   alternatives?: { when: { topElement?: Element }; hits?: number; every?: number; duration?: number }[];
   dmgBonusPerStat?: Partial<Record<ScaleStat, number>>; // DMG Bonus per point of a stat (Dendro Traveler, #172)
+  icd?: "none" | { reset: number; every: number | "first" }; // elemental application ICD (#190); default standard
   pickOne?: string; // one source of the group per use, picked by the team's reactions
   cd: number;
 }
@@ -727,19 +728,69 @@ function pickedSources(sources: SubDpsSource[], carry: ScoringCharacter, ctx: Te
 // with Hu Tao, Xiangling with Xingqiu, Fischl's Oz with Nahida). Each hit takes the one that adds the most.
 // Transformative reactions (Overloaded, Electro-Charged, Swirl...) and Lunar ones (#145) aren't counted here yet.
 const SUB_DPS_REACTIONS: Reaction[] = ["vaporize", "melt", "aggravate", "spread"];
-// Which hits react: only those that apply their element. The standard ICD (Genshin Impact Wiki, Internal Cooldown,
-// fetched 2026-10-14: "the standard ICD is 2.5 seconds or 3 hits") applies it on every hit 2.5s or more apart, every
-// other hit 1.25-2.5s apart, and 1 in 3 when closer; several hits per use without an interval (Aino's Water Balls)
-// count as close together. Non-standard ICDs aren't read yet: every source is taken as standard.
+// Which hits react: only those that apply their element (#190). A source's ICD is kit.json's `icd` (Genshin Impact
+// Wiki, Internal Cooldown/Data, fetched 2026-10-14), else the standard "2.5 seconds or 3 hits": a hit applies when the
+// timer has run out or it is the counter's next one, so the share is the larger of 1/every and gap/reset (capped at
+// 1). "first": only the timer. "none": every hit. Hits of one use without an interval (Aino's Water Balls) are taken
+// as close together, at least one applying per use. ICDs shared between two sources (Escoffier's Skill and Parfaits)
+// are counted separately (slight overcount).
+const STANDARD_ICD = { reset: 2.5, every: 3 } as const;
 function appliedShare(s: SubDpsSource): number {
+  if (s.icd === "none") return 1;
+  const { reset, every } = s.icd ?? STANDARD_ICD;
   const n = s.hits ?? 1;
-  if (s.every === undefined) return n === 1 ? 1 : 1 / 3;
-  const gap = s.every / n;
-  return gap >= 2.5 ? 1 : gap >= 1.25 ? 1 / 2 : 1 / 3;
+  const counter = every === "first" ? 0 : 1 / every;
+  const timer = s.every === undefined ? 1 / n : Math.min(1, s.every / n / reset);
+  return Math.min(1, Math.max(counter, timer));
 }
-// And only while the enemy holds the other element: an estimate (Jessie to confirm), since the carry's own hits react
-// with the same auras and consume them (their reacting share, damage.ts AMPLIFY_SHARE, isn't lowered for it).
-const SUB_DPS_AURA_SHARE = 0.5;
+
+// The aura budget for Vaporize and Melt on sub-DPS hits (#189, #191). The two elements can't coexist as auras, so every
+// reaction takes its aura from the other element's applications (Elemental Gauge Theory, KQM Library, fetched
+// 2026-10-14). Supply: the other element's applications per second from the rest of the team (sub-DPS sources at
+// their ICD share, the carry's hits at the standard ICD), each taken as 1U (most off-field sources are 1U: KQM's
+// Elemental Gauges compendium), leaving 0.8U ("Aura Tax"). Each reaction uses 2U when the trigger is the strong side
+// (Hydro on Pyro, Pyro on Cryo: "2x unit modifier") and 0.5U when weak. The carry's own reacting hits on the same aura
+// are served first; the sub-DPS share what's left. Members without a sub-DPS entry (Bennett) add no supply
+// (estimate). Spread and Aggravate don't use this budget: the Quicken aura isn't consumed the same way.
+const AMPLIFYING: Partial<Record<Reaction, Element>> = { vaporize: "Hydro", melt: "Pyro" }; // the strong-side trigger
+function applicationsPerSecond(x: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext): number {
+  if (x === carry) {
+    const rates = carryHitRates(carry, ctx.active, ctx.members);
+    if (!rates) return 0;
+    const h = rates.hitsPerSecond;
+    return Math.max(h / STANDARD_ICD.every, Math.min(h, 1 / STANDARD_ICD.reset));
+  }
+  const entry = SUB_DPS[x.id];
+  if (!entry) return 0;
+  const picked = pickedSources(entry.sources, carry, ctx);
+  return entry.sources
+    .filter((s) => !s.lunar && (!s.pickOne || picked.get(s.pickOne) === s))
+    .reduce((a, s) => a + hitsPerSecond(s, carry, ctx, x) * appliedShare(s), 0);
+}
+// For each sub-DPS, the share of its applying hits that find an aura, per amplifying reaction.
+function auraShares(ctx: TeamContext, carry: ScoringCharacter): Map<ScoringCharacter, Map<Reaction, number>> {
+  const out = new Map<ScoringCharacter, Map<Reaction, number>>();
+  for (const [r, strong] of Object.entries(AMPLIFYING) as [Reaction, Element][]) {
+    if (!ctx.active.includes(r)) continue;
+    const [a, b] = reactionElements(r);
+    for (const trigger of [a, b]) {
+      const aura = trigger === a ? b : a;
+      const subs = ctx.members.filter((m) => m !== carry && m.element === trigger && SUB_DPS[m.id]);
+      if (!subs.length) continue;
+      const supply = ctx.members.filter((x) => x.element === aura).reduce((s, x) => s + applicationsPerSecond(x, carry, ctx), 0);
+      const capacity = (supply * 0.8) / (trigger === strong ? 2 : 0.5);
+      const rates = carry.element === trigger && mainReactionOf(carry) === r ? carryHitRates(carry, ctx.active, ctx.members) : null;
+      const carryDemand = rates ? Math.min(rates.reactingPerSecond, applicationsPerSecond(carry, carry, ctx)) : 0;
+      const demand = subs.reduce((s, m) => s + applicationsPerSecond(m, carry, ctx), 0);
+      const share = demand > 0 ? Math.min(1, Math.max(0, capacity - carryDemand) / demand) : 0;
+      for (const m of subs) {
+        if (!out.has(m)) out.set(m, new Map());
+        out.get(m)!.set(r, share);
+      }
+    }
+  }
+  return out;
+}
 function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
   return SUB_DPS_REACTIONS.filter((r) => {
     if (!ctx.active.includes(r)) return false;
@@ -806,6 +857,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
   const carryDps = modeledCarryDps(carry, ctx) ?? generic; // who out-damages whom: with reactions
   const shareOf = modeledCarryDps(carry, ctx, false) ?? generic;
   let lead: { m: ScoringCharacter; dps: number } | null = null;
+  const auras = auraShares(ctx, carry);
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
     if (m === carry || !entry) continue;
@@ -830,13 +882,15 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
         // A reacting hit (#153): the extra damage of the best reaction, on the hits that react.
         let extra = 0;
         let best: Reaction | null = null;
+        // Each reaction's extra damage on this hit's reacting share: its applying hits (ICD), times the aura budget's
+        // share for Vaporize and Melt (Spread and Aggravate: all applying hits).
         for (const r of reactions) {
-          const add = perHit * amplifyGain(m, stat.em, ctx.active, r) + catalyzeDamage(m, stat.em, ctx.active, r);
+          const share = appliedShare(s) * (AMPLIFYING[r] ? (auras.get(m)?.get(r) ?? 0) : 1);
+          const add = share * (perHit * amplifyGain(m, stat.em, ctx.active, r) + catalyzeDamage(m, stat.em, ctx.active, r));
           if (add > extra) [extra, best] = [add, r];
         }
         if (best) reacted.add(best);
-        const reacting = appliedShare(s) * SUB_DPS_AURA_SHARE;
-        dps += (perHit + reacting * extra) * hitsPerSecond(s, carry, ctx, m) * (1 + dmgBonus + perStat);
+        dps += (perHit + extra) * hitsPerSecond(s, carry, ctx, m) * (1 + dmgBonus + perStat);
       }
     }
     // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
