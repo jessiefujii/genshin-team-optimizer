@@ -1524,7 +1524,8 @@
           "talent": "burst",
           "label": "Water Ball DMG",
           "scaling": {
-            "atk": 0.341904
+            "atk": 0.341904,
+            "em": 0.5
           },
           "hits": 9,
           "cd": 13.5,
@@ -1733,7 +1734,8 @@
           "talent": "skill",
           "label": "Frostfall Storm DMG",
           "scaling": {
-            "atk": 0.289408
+            "atk": 0.289408,
+            "em": 0.9
           },
           "hits": 6,
           "cd": 16,
@@ -1743,7 +1745,8 @@
           "talent": "burst",
           "label": "Ice Storm DMG",
           "scaling": {
-            "atk": 9.1392
+            "atk": 9.1392,
+            "em": 12
           },
           "hits": 1,
           "cd": 15
@@ -2545,6 +2548,9 @@
           "scaling": {
             "atk": 3.9168
           },
+          "dmgBonusPerStat": {
+            "em": 0.0015
+          },
           "hits": 1,
           "cd": 8
         },
@@ -2553,6 +2559,9 @@
           "label": "Lea Lotus Lamp Attack DMG",
           "scaling": {
             "atk": 1.36272
+          },
+          "dmgBonusPerStat": {
+            "em": 0.001
           },
           "hits": 8,
           "cd": 20,
