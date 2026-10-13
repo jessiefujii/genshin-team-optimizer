@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, normalAttacks, teamBuffStats } from "./kit";
-import { carryDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -721,6 +721,34 @@ function pickedSources(sources: SubDpsSource[], carry: ScoringCharacter, ctx: Te
   return out;
 }
 
+// Reactions on a sub-DPS's own hits (#153): Vaporize and Melt multiply them, Spread and Aggravate add flat damage,
+// with the carry's formulas (damage.ts amplifyGain, catalyzeDamage) at the sub-DPS's EM. A reaction counts when the
+// team triggers it, the sub-DPS's element is one of its two, and another member brings the other (Xingqiu's swords
+// with Hu Tao, Xiangling with Xingqiu, Fischl's Oz with Nahida). Each hit takes the one that adds the most.
+// Transformative reactions (Overloaded, Electro-Charged, Swirl...) and Lunar ones (#145) aren't counted here yet.
+const SUB_DPS_REACTIONS: Reaction[] = ["vaporize", "melt", "aggravate", "spread"];
+// Which hits react: only those that apply their element. The standard ICD (Genshin Impact Wiki, Internal Cooldown,
+// fetched 2026-10-14: "the standard ICD is 2.5 seconds or 3 hits") applies it on every hit 2.5s or more apart, every
+// other hit 1.25-2.5s apart, and 1 in 3 when closer; several hits per use without an interval (Aino's Water Balls)
+// count as close together. Non-standard ICDs aren't read yet: every source is taken as standard.
+function appliedShare(s: SubDpsSource): number {
+  const n = s.hits ?? 1;
+  if (s.every === undefined) return n === 1 ? 1 : 1 / 3;
+  const gap = s.every / n;
+  return gap >= 2.5 ? 1 : gap >= 1.25 ? 1 / 2 : 1 / 3;
+}
+// And only while the enemy holds the other element: an estimate (Jessie to confirm), since the carry's own hits react
+// with the same auras and consume them (their reacting share, damage.ts AMPLIFY_SHARE, isn't lowered for it).
+const SUB_DPS_AURA_SHARE = 0.5;
+function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
+  return SUB_DPS_REACTIONS.filter((r) => {
+    if (!ctx.active.includes(r)) return false;
+    const els = reactionElements(r);
+    if (!els.includes(m.element)) return false;
+    return ctx.members.some((x) => x !== m && x.element !== m.element && els.includes(x.element));
+  });
+}
+
 // The carry's own damage per second (damage.ts, #101), or null when it isn't modeled yet: no kit data, or hits still
 // missing. An undercounted carry (Flins, 748/s) would make every sub-DPS look several times bigger.
 // `reactions: false` reads it as if the team triggered no reactions (#134); `buffs` adds the team's kit buffs (#157).
@@ -769,7 +797,7 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
 // The share is of the carry's damage without the team's reactions (#134): a team that enables the carry's reaction
 // scores that in reactionDamageLine, and shouldn't shrink every sub-DPS share for it.
 // Their stats, crit included, come from their build, else a KQM Standards benchmark build (subDpsStats, #158/#152).
-// Enemy RES and reactions on their hits are left out, as on the carry's side (#153).
+// Enemy RES is left out, as on the carry's side; reactions on their hits count from #153 (subDpsReactions).
 // Returns the sub-DPS who out-damages the carry, if one does: the team is really theirs (Jessie, #96).
 function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): ScoringCharacter | null {
   if (!carry) return null;
@@ -788,6 +816,8 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     const picked = pickedSources(entry.sources, carry, ctx);
     const own = entry.lunarBaseBonus;
     const lunarBase = (r: LunarReaction) => (own && own.reactions.includes(r) ? Math.min(own.max, own.perPoint * stat[own.stat]) : 0);
+    const reactions = subDpsReactions(m, ctx);
+    const reacted = new Set<Reaction>();
     for (const s of entry.sources) {
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
       const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
@@ -797,14 +827,24 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       else {
         // DMG Bonus per point of a stat on this hit (Dendro Traveler's 0.15% per EM, #172).
         const perStat = Object.entries(s.dmgBonusPerStat ?? {}).reduce((a, [k, v]) => a + v * stat[k as ScaleStat], 0);
-        dps += perHit * hitsPerSecond(s, carry, ctx, m) * (1 + dmgBonus + perStat);
+        // A reacting hit (#153): the extra damage of the best reaction, on the hits that react.
+        let extra = 0;
+        let best: Reaction | null = null;
+        for (const r of reactions) {
+          const add = perHit * amplifyGain(m, stat.em, ctx.active, r) + catalyzeDamage(m, stat.em, ctx.active, r);
+          if (add > extra) [extra, best] = [add, r];
+        }
+        if (best) reacted.add(best);
+        const reacting = appliedShare(s) * SUB_DPS_AURA_SHARE;
+        dps += (perHit + reacting * extra) * hitsPerSecond(s, carry, ctx, m) * (1 + dmgBonus + perStat);
       }
     }
     // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
     dps = (dps + lunarDps) * (1 + Math.min(stat.critRate, 1) * stat.critDmg);
     const gain = dps / shareOf;
     const points = gainPoints(gain, POINTS.buffer);
-    if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage`);
+    const withReactions = reacted.size ? `, with ${[...reacted].map(label).join(", ")}` : "";
+    if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage${withReactions}`);
     if (dps > carryDps && (!lead || dps > lead.dps)) lead = { m, dps };
   }
   if (lead) {

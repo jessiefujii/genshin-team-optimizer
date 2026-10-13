@@ -111,7 +111,7 @@ const AMPLIFY: Partial<Record<Reaction, Partial<Record<Element, number>>>> = {
 // that share instead of the flat one.
 const AMPLIFY_SHARE = 0.7; // reactions.ts: amplifying, main reaction
 // The extra damage a hit that reacts gains (2x Melt with EM: about 1.5 more), or 0 when the reaction doesn't amplify.
-function amplifyGain(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
+export function amplifyGain(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
   if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
   const amp = AMPLIFY[reaction]?.[c.element];
   if (!amp) return 0; // other reactions: later (#101)
@@ -126,7 +126,7 @@ const CATALYZE: Partial<Record<Reaction, { element: Element; coefficient: number
   aggravate: { element: "Electro", coefficient: 1.15 },
 };
 const LEVEL_MULTIPLIER_90 = 1446.85;
-function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
+export function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
   if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
   const r = CATALYZE[reaction];
   if (!r || r.element !== c.element) return 0;

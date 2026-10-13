@@ -108,10 +108,26 @@ describe("scoreTeam", () => {
   });
 
   test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
-    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share.
+    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share. Nahida's Dendro also lets
+    // Fischl's own hits Aggravate (#153), which adds to her share instead.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+60% damage");
     expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+60% damage");
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+68% damage, with Aggravate");
+  });
+
+  test("a sub-DPS's own hits react when a teammate brings the other element (#153)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Xingqiu's Hydro on Hu Tao's Pyro: Vaporize.
+    expect(line("Xingqiu", "Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toMatch(/, with Vaporize$/);
+    // Xiangling's Pyro vaporizes on Xingqiu's Hydro with Raiden, though neither is on field.
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
+    // Without a Pyro member, Xingqiu's hits don't amplify (Bloom is a transformative reaction: not counted here).
+    expect(line("Xingqiu", "Alhaitham", "Xingqiu", "Nahida", "Zhongli")).not.toMatch(/with/);
+    // Anemo and Geo hits never amplify or catalyze.
+    expect(line("Chiori", "Clorinde", "Fischl", "Nahida", "Chiori")).not.toMatch(/with/);
+    // The reaction adds to the share: Fischl with Nahida (Aggravate) beats Fischl with Chiori.
+    expect(pct(line("Fischl", "Clorinde", "Fischl", "Nahida", "Zhongli"))).toBeGreaterThan(pct(line("Fischl", "Clorinde", "Fischl", "Zhongli", "Chiori")));
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
