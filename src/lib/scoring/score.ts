@@ -654,7 +654,7 @@ function scaleStatOf(m: ScoringCharacter, entry: SubDpsEntry): ScaleStat {
 }
 
 // A sub-DPS's stats: their build's, else a KQM Standards benchmark build for the stat they scale on (benchmark.ts,
-// #158). Crit is read here for #152's expected crit; hits on this branch don't crit yet, on either side.
+// #158). Their crit feeds #152's expected crit in subDpsLines.
 export function subDpsStats(m: ScoringCharacter): SubDpsStats | null {
   const entry = SUB_DPS[m.id];
   if (!entry) return null;
