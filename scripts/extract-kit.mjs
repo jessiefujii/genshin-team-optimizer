@@ -722,6 +722,10 @@ function readStellar(id, spec) {
 //       `every`; with `hits` too, that many hits each time (Xingqiu's swords per wave)
 //   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP)
 //   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
+//   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, source }]) are passed through as the source's
+//   `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that element
+//   has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
+//   (Jahoda's passive 1, #175).
 //   addScaling: a passive that adds a share of a stat to this hit's damage, read from its text, e.g.
 //       { from: "passive2", re: /increased by (\d+)% of Citlali's Elemental Mastery/, stat: "em" } (#172)
 //   dmgBonusPer: a passive that raises this hit's DMG per point of a stat, read from its text, e.g. Dendro
@@ -1056,6 +1060,7 @@ function readSubDps(id, specs) {
       ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
+      ...(needsRate && rate.alternatives ? { alternatives: rate.alternatives.map(({ source, ...alt }) => ({ ...alt, rateSource: source })) } : {}),
     });
   }
   return { sources, ...(missing.length ? { missing } : {}) };
