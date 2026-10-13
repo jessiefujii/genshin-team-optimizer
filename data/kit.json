@@ -765,6 +765,18 @@
           "duration": 10,
           "cd": 10,
           "uptime": 1
+        },
+        {
+          "kind": "resShred",
+          "value": 0.14,
+          "elements": [
+            "Cryo"
+          ],
+          "unit": "Cryo RES",
+          "source": "burst talent \"RES Decrease\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
         }
       ]
     },
@@ -3260,6 +3272,603 @@
           "cd": 18
         }
       ]
+    }
+  },
+  "sustain": {
+    "Alyosha": {
+      "effects": [],
+      "coverage": null,
+      "missing": "Tugarin's healing (passive 1) has no duration or rate in genshin-db's text"
+    },
+    "Baizhu": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.0136,
+            "flat": 156.65404
+          },
+          "source": "burst talent \"Seamless Shield DMG Absorption\", \"Pulsing Clarity Duration\" / \"CD\", level 9",
+          "duration": 14,
+          "cd": 20,
+          "uptime": 0.7
+        }
+      ],
+      "coverage": 0.7
+    },
+    "Barbara": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.068,
+            "flat": 783.2704
+          },
+          "source": "skill talent \"Continuous Regeneration\", \"Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 32,
+          "uptime": 0.46875
+        }
+      ],
+      "coverage": 0.46875
+    },
+    "Beidou": {
+      "effects": [],
+      "coverage": null,
+      "missing": "her Hold shield lasts only while the Skill is held; no duration in the tables"
+    },
+    "Bennett": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.102,
+            "flat": 1174.0051
+          },
+          "source": "burst talent \"Continuous Regeneration Per Sec\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Charlotte": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 0.156672,
+            "flat": 116.81735
+          },
+          "source": "burst talent \"Kamera Continuous Regeneration\", \"Newsflash Field Duration\" / \"CD\", level 9",
+          "duration": 4,
+          "cd": 20,
+          "uptime": 0.2
+        }
+      ],
+      "coverage": 0.2
+    },
+    "Chevreuse": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.045333,
+            "flat": 522.1803
+          },
+          "source": "skill talent \"HP Regeneration Over Time\", \"Healing Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Citlali": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "em": 9.792,
+            "flat": 2819.7734
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 20,
+          "cd": 16,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Dahlia": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.05712,
+            "flat": 657.94714
+          },
+          "source": "burst talent \"Shield of Sacred Favor DMG Absorption\", \"Favonian Favor Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Diona": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.1224,
+            "flat": 1408.8062
+          },
+          "source": "skill talent \"Base Shield DMG Absorption\", \"Duration\" x 5 Icy Paws (Hold) / \"Hold CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        },
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.090712,
+            "flat": 1043.5602
+          },
+          "source": "burst talent \"HP Regeneration Over Time\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.92
+    },
+    "Dori": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.11339,
+            "flat": 1305.4507
+          },
+          "source": "burst talent \"Continuous Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.6
+    },
+    "Escoffier": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.3824
+          },
+          "source": "passive1: \"Rehab Diet effect for 9s: Restores HP for nearby active characters every 1s based on 138.24% of Escoffier's ATK\"",
+          "duration": 9,
+          "cd": 15,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.6
+    },
+    "Furina": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.0816,
+            "flat": 939.9245
+          },
+          "source": "skill talent \"Singer of Many Waters Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 30,
+          "cd": 20,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Iansan": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 0.6
+          },
+          "source": "passive2: \"she will heal your current active character for 60% of her ATK\"",
+          "duration": 12,
+          "cd": 18,
+          "uptime": 0.666667
+        }
+      ],
+      "coverage": 0.666667
+    },
+    "Ifa": {
+      "effects": [],
+      "coverage": null,
+      "missing": "his Tonicshots heal while he's on-field in Nightsoul's Blessing; no duration in the tables"
+    },
+    "Ineffa": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "atk": 3.760128,
+            "flat": 2819.7734
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 20,
+          "cd": 16,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Jahoda": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.357824,
+            "flat": 1018.23846
+          },
+          "source": "burst talent \"Purrsonal Coordinated Assistance Robot Healing\", \"Purrsonal Coordinated Assistance Robot Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 18,
+          "uptime": 0.666667
+        }
+      ],
+      "coverage": 0.666667
+    },
+    "Jean": {
+      "effects": [],
+      "coverage": null,
+      "missing": "the Dandelion Field's duration isn't in genshin-db or the wiki's talent table"
+    },
+    "Kirara": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.17,
+            "flat": 1956.6753
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 8,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Kuki Shinobu": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.051,
+            "flat": 587.4528
+          },
+          "source": "skill talent \"Grass Ring of Sanctification Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Lan Yan": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "atk": 4.70016,
+            "flat": 2349.8105
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 12.5,
+          "cd": 16,
+          "uptime": 0.78125
+        }
+      ],
+      "coverage": 0.78125
+    },
+    "Layla": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.1836,
+            "flat": 2114.83
+          },
+          "source": "skill talent \"Base Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 12,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Linnea": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "def": 0.544,
+            "flat": 313.30817
+          },
+          "source": "burst talent \"Continuous Healing\", \"Healing Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Mika": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.041344,
+            "flat": 475.74066
+          },
+          "source": "burst talent \"Eagleplume Healing\", \"Eagleplume Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 18,
+          "uptime": 0.833333
+        }
+      ],
+      "coverage": 0.833333
+    },
+    "Nicole": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "atk": 3.760128,
+            "flat": 2819.761
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 20,
+          "cd": 16,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Noelle": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "def": 2.72,
+            "flat": 1565.3402
+          },
+          "source": "skill talent \"DMG Absorption\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 24,
+          "uptime": 0.5
+        }
+      ],
+      "coverage": 0.5
+    },
+    "Qiqi": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.1832,
+            "flat": 916.18445
+          },
+          "source": "skill talent \"Continuous Regeneration\", \"Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 30,
+          "uptime": 0.5
+        },
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.53,
+            "flat": 1174.0051
+          },
+          "source": "burst talent \"Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 20,
+          "uptime": 0.75
+        }
+      ],
+      "coverage": 0.875
+    },
+    "Sangonomiya Kokomi": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.0748,
+            "flat": 861.59705
+          },
+          "source": "skill talent \"Regeneration\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        },
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.013736,
+            "flat": 156.65373
+          },
+          "source": "burst talent \"HP Regeneration Per Hit\", \"Duration\" / \"CD\", level 9",
+          "duration": 10,
+          "cd": 18,
+          "uptime": 0.555556
+        }
+      ],
+      "coverage": 0.822222
+    },
+    "Sayu": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.357824,
+            "flat": 1017.4711
+          },
+          "source": "burst talent \"Muji-Muji Daruma Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.6
+    },
+    "Sigewinne": {
+      "effects": [],
+      "coverage": null,
+      "missing": "Bolstering Bubblebalm heals per bounce; no duration in the tables"
+    },
+    "Thoma": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.1224,
+            "flat": 1409.8805
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 8,
+          "cd": 15,
+          "uptime": 0.533333
+        },
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.019448,
+            "flat": 223.75157
+          },
+          "source": "burst talent \"Shield DMG Absorption\", \"Scorching Ooyoroi Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 20,
+          "uptime": 0.75
+        }
+      ],
+      "coverage": 0.883333
+    },
+    "Vodyanitsa": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "flat": 548.28345,
+            "hp": 0.0476
+          },
+          "source": "skill talent \"Song of Ages Past Healing\", \"Duration\" / \"Skill CD\", level 9",
+          "duration": 16,
+          "cd": 16,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Xianyun": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 0.731136,
+            "flat": 548.2893
+          },
+          "source": "burst talent \"Continuous Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 16,
+          "cd": 18,
+          "uptime": 0.888889
+        }
+      ],
+      "coverage": 0.888889
+    },
+    "Xilonen": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "def": 1.768,
+            "flat": 1018.23846
+          },
+          "source": "burst talent \"Continuous Healing\", \"Ebullient Rhythm Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Xinyan": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "def": 2.448,
+            "flat": 1408.8062
+          },
+          "source": "skill talent \"Shield Level 3 DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 18,
+          "uptime": 0.666667
+        }
+      ],
+      "coverage": 0.666667
+    },
+    "Yaoyao": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.029143,
+            "flat": 335.6862
+          },
+          "source": "skill talent \"White Jade Radish Healing\", \"Yuegui: Throwing Mode Duration\" / \"CD\", level 9",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667
+        }
+      ],
+      "coverage": 0.666667
+    },
+    "Yumemizuki Mizuki": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "em": 2.21952,
+            "flat": 639.67084
+          },
+          "source": "burst talent \"Snack Pick-Up HP Regeneration\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Zhongli": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "flat": 2506.079,
+            "hp": 0.2176
+          },
+          "source": "skill talent \"Shield Base Absorption\" + \"Additional Shield Absorption\", \"Shield Duration\" / \"Hold CD\", level 9",
+          "duration": 20,
+          "cd": 12,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
     }
   },
   "carries": {

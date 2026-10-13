@@ -350,9 +350,16 @@ function teamLines(ctx: TeamContext, out: Sink) {
     if (n >= 2 && !(el in STAT_RESONANCE)) out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
   }
 
-  const sustain = members.find((m) => hasRole(m, "healer") || hasRole(m, "shielder"));
-  if (sustain) out.add("Survivability", POINTS.survivability, () => `${sustain.id} heals or shields`);
-  else out.add("Survivability", POINTS.noSurvivability, () => "No healer or shielder");
+  // Scored by coverage (#177): the share of the rotation a shield or healing over time is up (kit.json `sustain`,
+  // duration / cooldown from the talent tables), across members as 1 - product(1 - coverage). Full coverage is the
+  // flat `survivability` points the tag used to give. A member whose coverage can't be read (no duration in the kit:
+  // Jean, Beidou...) or whose role comes from an effect counts as full, as before.
+  const sustainers = members.filter((m) => hasRole(m, "healer") || hasRole(m, "shielder"));
+  if (sustainers.length) {
+    const coverage = 1 - sustainers.reduce((a, m) => a * (1 - (SUSTAIN[m.id]?.coverage ?? 1)), 1);
+    const names = sustainers.map((m) => m.id).join(", ");
+    out.add("Survivability", Math.round(POINTS.survivability * coverage), () => `${names} heal or shield ~${Math.round(coverage * 100)}% of the rotation`);
+  } else out.add("Survivability", POINTS.noSurvivability, () => "No healer or shielder");
 
   const hungry = members.filter((m) => m.energyNeed === "high");
   const batteries = members.filter((m) => hasRole(m, "battery"));
@@ -396,6 +403,8 @@ interface GleamValue {
 }
 type GleamEntry = { target: "self"; source: string } | { target: "party"; source: string; values: GleamValue[] };
 const GLEAM = kitJson.ascendantGleam as Record<string, GleamEntry>;
+// Shields and heals (#177): coverage is null when the kit has no duration to read (`missing`).
+const SUSTAIN = kitJson.sustain as Record<string, { coverage: number | null; missing?: string }>;
 const KIT_BUFFS = kitJson.characters as Record<
   string,
   { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number }[] }
