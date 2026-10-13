@@ -720,6 +720,14 @@ function readStellar(id, spec) {
 //   times: a multiplier from the text (Furina's Salon Members with 4 characters above 50% HP); timesNeedsHealer: only
 //       when another healer keeps them there
 //   needsReaction: it only fires after the party triggers a reaction (Nahida's Tri-Karma Purification)
+//   lunar: the hit is direct Lunar reaction DMG of that reaction (#151; damage.ts's Lunar formula, no DMG Bonus)
+//   whenReaction: it only fires while the team triggers that reaction (Ineffa's Overclocking Circuit: thunderclouds)
+//   pickOne: only one source of this group fires per use; the scorer picks by the team's reactions (Columbina's
+//       Gravity Interference: the Lunar reaction that built the most Gravity)
+//   (per character, SUBDPS_LUNAR_BASE below) lunarBaseBonus: { stat, perPoint, max, reactions }: their own Moonsign
+//       Benediction's Base DMG bonus to their direct Lunar hits of those reactions
+//   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
+//       names the source; `label` still keys its hit rate and table values)
 const SUBDPS = {
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
@@ -762,10 +770,23 @@ const SUBDPS = {
     { talent: "burst", label: "Spiritvessel Skull DMG", hits: 1, cd: "CD" },
   ],
   Columbina: [
-    // Gravity Interference needs Lunar reactions and is left out for now.
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Gravity Ripple: Continuous DMG", every: "rate", duration: "Gravity Ripple Duration", cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    // Gravity Interference (#151): one kind per trigger, the Lunar reaction that built the most Gravity. Rate: every
+    // 6s at C0 (kit-overrides.json); KeqingMains' Columbina quick guide (accessed 2026-10-12): C2 "decreases the
+    // interval between each Gravity Interference attack from 6s to around 4.5s", and the type is "based on the most
+    // frequent Lunar Reaction".
+    ...["Lunar-Charged", "Lunar-Bloom", "Lunar-Crystallize"].map((r) => ({
+      talent: "skill",
+      label: `Gravity Interference: ${r} DMG`,
+      every: "rate",
+      duration: "Gravity Ripple Duration",
+      cd: "CD",
+      lunar: r.toLowerCase(),
+      whenReaction: r.toLowerCase(),
+      pickOne: "Gravity Interference",
+    })),
   ],
   Collei: [
     { talent: "skill", label: "Skill DMG", hits: 2, cd: "CD" }, // out and back ("dealing Dendro DMG once again")
@@ -820,6 +841,19 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Birgitta Discharge DMG", every: "rate", duration: "Birgitta Duration", cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    // Overclocking Circuit (#151): with thunderclouds nearby, each Discharge adds an attack "considered Lunar-Charged
+    // DMG" (passive 1), so it shares the Discharge's rate.
+    {
+      talent: "skill",
+      label: "Birgitta Discharge DMG",
+      name: "Overclocking Circuit (passive 1)",
+      passive: { from: "passive1", re: /equal to (\d+)% of Ineffa's ATK/, stat: "atk" },
+      every: "rate",
+      duration: "Birgitta Duration",
+      cd: "CD",
+      lunar: "lunar-charged",
+      whenReaction: "lunar-charged",
+    },
   ],
   Jahoda: [
     { talent: "skill", label: "Filled Treasure Flask DMG", hits: 1, cd: "CD" },
@@ -990,16 +1024,22 @@ function readSubDps(id, specs) {
     const value = (v, rateKey) =>
       v === undefined ? undefined : v === "rate" ? rate[rateKey] : typeof v === "number" ? v : typeof v === "string" ? tableValue(attrs, v, id) : fromText(v);
     const every = s.perSecond ? 1 / fromText(s.perSecond) : value(s.every, "every");
+    const passiveText = s.passive && talents[s.passive.from].description.replace(/\s+/g, " ");
+    const passiveValue = s.passive && Number(passiveText.match(s.passive.re)?.[1]);
+    if (s.passive && !passiveValue) throw new Error(`${id}: pattern ${s.passive.re} not found in ${s.passive.from}`);
     sources.push({
       talent: s.talent,
-      label: s.label,
-      scaling: scalingOf(attrs, s.label, id),
+      label: s.name ?? s.label,
+      scaling: s.passive ? { [s.passive.stat]: passiveValue / 100 } : scalingOf(attrs, s.label, id),
       ...(s.hits !== undefined ? { hits: value(s.hits, "hits") } : {}),
       ...(every !== undefined ? { every, duration: value(s.duration, "duration") } : {}),
       ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
       ...(s.needsReaction && fromTextRaw(s.needsReaction) ? { needsReaction: true } : {}),
       ...(s.times ? { times: fromText(s.times) / (fromText(s.times) > 10 ? 100 : 1) } : {}),
       ...(s.timesNeedsHealer ? { timesNeedsHealer: true } : {}),
+      ...(s.lunar ? { lunar: s.lunar } : {}),
+      ...(s.whenReaction ? { whenReaction: s.whenReaction } : {}),
+      ...(s.pickOne ? { pickOne: s.pickOne } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
     });
@@ -1015,7 +1055,8 @@ function readSubDps(id, specs) {
 //     type: normal | charged | plunge | skill | burst (the DMG type, for buffs), instances (separate hits in one row,
 //     for buffs added per hit; default 1), count "rate" (kit-overrides.json hitRates, keyed "carry: <label>"),
 //     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
-//     its flat estimate for hits without it)
+//     its flat estimate for hits without it), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
+//     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true })
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
 //   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
 //   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
@@ -1026,10 +1067,16 @@ function readSubDps(id, specs) {
 //   buffs: the carry's own buffs during those hits:
 //     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types), addPerStack (+ATK multiplier per stack per hit
 //     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino),
-//     flatAtk (+ATK multiplier x stacks per hit, capped, while one of `reactions` is active: Clorinde)
-//   missing: parts of the rotation not modeled yet, so the damage is too low (Flins's Normal Attacks)
+//     flatAtk (+ATK multiplier x stacks per hit, capped, while one of `reactions` is active: Clorinde),
+//     emFromAtk (EM from a share of ATK, capped: Flins), lunarBaseBonus (their Moonsign Benediction's Base DMG bonus
+//     to their Lunar reaction per point of a stat, capped: it also applies to their own direct Lunar hits, #135),
+//     lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar reaction: Flins), baseDmgMultiplier
+//     (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction, ascendantGleam }) gates it like a hit's.
+//   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
+//   missing: parts of the rotation not modeled yet, so the damage is too low (none left since #135)
 // The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
-// Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer.
+// Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer, except
+// hits that only exist with them (`when`).
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
 // Mavuika's combos (#114) differ only in their Flamestrider Charged Attacks: E, Q (Sunfell Slice), then Cyclic/Final.
 const mavuikaHits = ({ cyclic, cyclicReacting, final = 0, finalReacting }) => [
@@ -1205,14 +1252,27 @@ const CARRIES = {
     ],
   },
   Zibai: {
-    // E, N4E x4 in Lunar Phase Shift: each a Normal Attack string and a Spirit Steed's Stride (4 per mode).
+    // KeqingMains quick guide (fetched 2026-10-12), C0: "E 4[N4E]; if Q is available, replace any N4 with N1 Q". The
+    // rotation is her Burst's CD, so Q once: E 3[N4E] N1 Q E. Lunar-Crystallize DMG (#135): the 2nd hit of Spirit
+    // Steed's Stride and of her Burst, and at Ascendant Gleam an extra hit on each N4 (Skill text: "considered
+    // Lunar-Crystallize Reaction DMG"). Passive 1 ("The DMG dealt by the 2nd hit of Spirit Steed's Stride is increased
+    // by 60% of Zibai's DEF") on the first Stride is a Reaction Additive Base DMG Bonus to that Lunar hit (Jessie, #146;
+    // KeqingMains' Zibai quick guide: "considered Additive Base DMG Bonus as part of the Lunar-Crystallize damage
+    // formula"; the wiki's Lunar-Crystallize page doesn't list it): the wiki's direct Lunar formula adds it after the
+    // coefficient, Base DMG bonus and EM bonus (Damage § Direct).
     hits: [
-      ...[1, 2, 3, 4].map((n) => ({ table: "skill", label: `Lunar Phase Shift ${n}-Hit DMG`, count: 4, type: N })),
+      { table: "skill", label: "Lunar Phase Shift 1-Hit DMG", count: 4, type: N },
+      ...[2, 3, 4].map((n) => ({ table: "skill", label: `Lunar Phase Shift ${n}-Hit DMG`, count: 3, type: N })),
+      { table: "skill", label: "Lunar Phase Shift 4-Hit Additional DMG", count: 3, type: N, lunar: "lunar-crystallize", when: { ascendantGleam: true } },
       { table: "skill", label: "Spirit Steed's Stride 1-Hit DMG", count: 4, type: SK },
-      { table: "skill", label: "Spirit Steed's Stride 2-Hit DMG", count: 4, type: SK },
-      { from: "passive1", re: /increased by (\d+)% of Zibai's DEF/, stat: "def", count: 1, type: SK }, // the first Stride, within 4s of the Skill
+      { table: "skill", label: "Spirit Steed's Stride 2-Hit DMG", count: 4, type: SK, lunar: "lunar-crystallize" },
+      { from: "passive1", re: /increased by (\d+)% of Zibai's DEF/, stat: "def", count: 1, type: SK, lunar: "lunar-crystallize", additive: true }, // the first Stride, within 4s of the Skill
+      { table: "burst", label: "Skill 1-Hit DMG", count: 1, type: BU },
+      { table: "burst", label: "Skill 2-Hit DMG", count: 1, type: BU, lunar: "lunar-crystallize" },
     ],
-    buffs: [],
+    buffs: [
+      { kind: "lunarBaseBonus", from: "passive3", re: /every 100 DEF that Zibai has increasing Lunar-Crystallize's Base DMG by ([\d.]+)%/, per: 100, stat: "def", max: /maximum of (\d+)%/ },
+    ],
   },
   Skirk: {
     // E (Seven-Phase Flash), N5 x3 with its Normal Attacks, Q (Havoc: Extinction: no Void Rifts assumed).
@@ -1222,14 +1282,33 @@ const CARRIES = {
     buffs: [{ kind: "dmgBonus", table: "burst", label: "0/1/2/3 Void Rift Absorption DMG Bonus", pick: 0, types: [N], hitsCap: /canceled when it has triggered (\d+) times/ }],
   },
   Nefer: {
-    // E, Phantasm Performance x3, E, Phantasm Performance x3, Q.
+    // E, Phantasm Performance x3, E, Phantasm Performance x3, Q: KeqingMains quick guide (fetched 2026-10-12), "E 3[CD]
+    // E CD CQ CD", "6 special Charged Attacks in a full rotation". Lunar-Bloom DMG (#135): the shades' 3 hits ("DMG
+    // dealt by the shades is considered Lunar-Bloom DMG"); her own 2 hits and her Burst are Dendro DMG. Phantasm
+    // Performance needs Verdant Dew, which only Lunar-Bloom reactions give, so without one it drops out.
     hits: [
       { table: "skill", label: "Skill DMG", count: 2, type: SK },
-      ...["1-Hit DMG (Nefer)", "2-Hit DMG (Nefer)", "1-Hit DMG (Shades)", "2-Hit DMG (Shades)", "3-Hit DMG (Shades)"].map((p) => ({ table: "skill", label: `Phantasm Performance ${p}`, count: 6, type: CH })),
+      ...["1-Hit DMG (Nefer)", "2-Hit DMG (Nefer)"].map((p) => ({ table: "skill", label: `Phantasm Performance ${p}`, count: 6, type: CH, when: { reaction: "lunar-bloom" } })),
+      ...["1-Hit DMG (Shades)", "2-Hit DMG (Shades)", "3-Hit DMG (Shades)"].map((p) => ({ table: "skill", label: `Phantasm Performance ${p}`, count: 6, type: CH, lunar: "lunar-bloom", when: { reaction: "lunar-bloom" } })),
       { table: "burst", label: "1-Hit DMG", count: 1, type: BU },
       { table: "burst", label: "2-Hit DMG", count: 1, type: BU },
     ],
-    buffs: [],
+    buffs: [
+      { kind: "lunarBaseBonus", from: "passive3", re: /every point of Elemental Mastery that Nefer has increasing Lunar-Bloom's Base DMG by ([\d.]+)%/, per: 1, stat: "em", max: /maximum of (\d+)%/ },
+      // Veil of Falsehood (#148), estimate: 3 stacks for every Phantasm Performance. Passive 1 at Ascendant Gleam: her
+      // Charged Attacks absorb the Seeds of Deceit that Lunar-Bloom makes, 1 stack per seed; at 3 stacks EM +100 for
+      // 8s. Wiki tooltip: "Each stack of Veil of Falsehood increases the DMG dealt by Nefer's Phantasm Performance by
+      // 8%. The initial maximum number of stacks is 3". KeqingMains quick guide (fetched 2026-10-12): an "8% Base DMG
+      // Multiplier to Nefer's special Charged Attacks"; ideally 3 stacks from her first one, so +24% and 100 EM
+      // "throughout her field time". Needs Lunar-Bloom (the seeds) and Ascendant Gleam.
+      {
+        kind: "baseDmgMultiplier",
+        value: 0.08 * 3,
+        labels: ["1-Hit DMG (Nefer)", "2-Hit DMG (Nefer)", "1-Hit DMG (Shades)", "2-Hit DMG (Shades)", "3-Hit DMG (Shades)"].map((p) => `Phantasm Performance ${p}`),
+        when: { reaction: "lunar-bloom", ascendantGleam: true },
+      },
+      { kind: "emBonus", from: "passive1", re: /Elemental Mastery will be increased by (\d+)/, when: { reaction: "lunar-bloom", ascendantGleam: true } },
+    ],
   },
   Clorinde: {
     // E (Night Vigil), 6[N3E], Q: KeqingMains' basic combo from 0% Bond of Life (pasted by Jessie 2026-10-12: "E to
@@ -1257,14 +1336,29 @@ const CARRIES = {
     ],
   },
   Flins: {
-    // E (Manifest Flame), E (Northland Spearstorm), Q (Thunderous Symphony within 6s of it). His tags list no Normal
-    // Attacks, so this undercounts until the rotation is filled in (#103).
-    missing: ["Normal Attacks (his rotation tags list none; the rotation needs a source, #103)"],
+    // KeqingMains quick guide (fetched 2026-10-12), C0: "E N1 E sQ 2[N4D] N2 E sQ N4D (N5)" (N5 left out). E enters
+    // Manifest Flame (its Normal Attacks are the Skill table's rows), each later E is Northland Spearstorm, sQ is
+    // Thunderous Symphony (30 Energy); "it is not recommended to use Flins's normal Burst". Thunderous Symphony is
+    // Lunar-Charged DMG (#135), with one more Lunar-Charged hit at Ascendant Gleam "if there are thunderclouds nearby"
+    // (only Lunar-Charged reactions make them). Normal Attacks and Northland Spearstorm are plain Electro DMG.
     hits: [
-      { table: "skill", label: "Northland Spearstorm DMG", count: 1, type: SK },
-      { table: "burst", label: "Thunderous Symphony DMG", count: 1, type: BU },
+      { table: "skill", label: "1-Hit DMG", count: 5, type: N },
+      { table: "skill", label: "2-Hit DMG", count: 4, type: N },
+      { table: "skill", label: "3-Hit DMG", count: 3, type: N },
+      { table: "skill", label: "4-Hit DMG", count: 3, type: N, instances: 2 },
+      { table: "skill", label: "Northland Spearstorm DMG", count: 2, type: SK },
+      { table: "burst", label: "Thunderous Symphony DMG", count: 2, type: BU, lunar: "lunar-charged" },
+      { table: "burst", label: "Thunderous Symphony Additional DMG", count: 2, type: BU, lunar: "lunar-charged", when: { ascendantGleam: true, reaction: "lunar-charged" } },
     ],
-    buffs: [],
+    buffs: [
+      { kind: "emFromAtk", from: "passive2", re: /increased by (\d+)% of his ATK/, max: /maximum increase obtainable this way is (\d+)/ },
+      { kind: "lunarBaseBonus", from: "passive3", re: /every 100 ATK that Flins has increasing Lunar-Charged's Base DMG by ([\d.]+)%/, per: 100, stat: "atk", max: /maximum of (\d+)%/ },
+      // Passive 1 (#147): "Ascendant Gleam: Lunar-Charged reactions triggered by Flins will deal an additional 20% DMG".
+      // KeqingMains quick guide (fetched 2026-10-12): "It benefits both Lunar-Charged reaction damage and direct
+      // Lunar-Charged damage (from his Burst)". The wiki lists it as Reaction DMG Bonus (Damage § Reaction DMG Bonus
+      // Multiplier), added to the EM bonus.
+      { kind: "lunarReactionBonus", from: "passive1", re: /deal an additional (\d+)% DMG/, reaction: "lunar-charged", when: { ascendantGleam: true } },
+    ],
   },
   Arlecchino: {
     // E, CA (absorbs the Blood-Debt Directive: Bond of Life up to 145% of Max HP), N5 x3, Q.
@@ -1379,6 +1473,9 @@ function readCarry(id, spec) {
         count,
         ...(h.instances ? { instances: h.instances } : {}),
         ...(h.reacting !== undefined ? { reacting: h.reacting } : {}),
+        ...(h.lunar ? { lunar: h.lunar } : {}),
+        ...(h.additive ? { additive: true } : {}),
+        ...(h.when ? { when: h.when } : {}),
         ...(h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
     }
@@ -1424,6 +1521,16 @@ function readCarry(id, spec) {
         return { kind: b.kind, value: round((num(b.from, b.re) / 100) * num(b.from, b.stacks)), cap: num(b.from, b.cap), types: b.types, reactions: b.reactions };
       case "masque":
         return { kind: b.kind, ratio: raw(b.table, b.label), start: num(b.start.from, b.start.re) / 100, use: num(b.use.from, b.use.re) / 100 };
+      case "emFromAtk":
+        return { kind: b.kind, value: num(b.from, b.re) / 100, max: num(b.from, b.max) };
+      case "lunarBaseBonus":
+        return { kind: b.kind, stat: b.stat, perPoint: round(num(b.from, b.re) / 100 / b.per), max: num(b.from, b.max) / 100 };
+      case "lunarReactionBonus":
+        return { kind: b.kind, value: num(b.from, b.re) / 100, reaction: b.reaction, ...(b.when ? { when: b.when } : {}) };
+      case "baseDmgMultiplier":
+        return { kind: b.kind, value: round(b.value), labels: b.labels, ...(b.when ? { when: b.when } : {}) };
+      case "emBonus":
+        return { kind: b.kind, value: num(b.from, b.re), ...(b.when ? { when: b.when } : {}) };
       default:
         throw new Error(`${id}: unknown carry buff ${b.kind}`);
     }
@@ -1501,8 +1608,40 @@ const carriesTodo = tags.filter((c) => c.roles.includes("main-dps") && !CARRIES[
 for (const c of tags.filter((c) => c.roles.includes("sub-dps") && c.fieldTime === "off")) {
   if (!SUBDPS[c.id]) throw new Error(`${c.id} is an off-field sub-DPS in tags.json but has no SUBDPS entry`);
 }
+// A sub-DPS's own Moonsign Benediction Base DMG bonus to their direct Lunar hits (Jessie, 2026-10-12, PR #155), read
+// like a carry's lunarBaseBonus: per `per` points of `stat`, capped. Teammates' bonuses to them stay with #88.
+// Columbina's is for every Lunar reaction "inflicted by party members", so her own hits too.
+const SUBDPS_LUNAR_BASE = {
+  Ineffa: {
+    from: "passive3",
+    re: /every 100 ATK that Ineffa has increasing Lunar-Charged's Base DMG by ([\d.]+)%/,
+    per: 100,
+    stat: "atk",
+    max: /maximum of (\d+)%/,
+    reactions: ["lunar-charged"],
+  },
+  Columbina: {
+    from: "passive3",
+    re: /For every 1,000 points of Max HP, the Base DMG of Lunar reactions is increased by ([\d.]+)%/,
+    per: 1000,
+    stat: "hp",
+    max: /maximum of (\d+)%/,
+    reactions: ["lunar-charged", "lunar-bloom", "lunar-crystallize"],
+  },
+};
 const subDps = {};
-for (const [id, spec] of Object.entries(SUBDPS)) subDps[id] = readSubDps(id, spec);
+for (const [id, spec] of Object.entries(SUBDPS)) {
+  subDps[id] = readSubDps(id, spec);
+  const b = SUBDPS_LUNAR_BASE[id];
+  if (!b) continue;
+  const text = genshindb.talents(id)[b.from].description.replace(/\s+/g, " ");
+  const read = (re) => {
+    const m = text.match(re);
+    if (!m) throw new Error(`${id}: pattern ${re} not found in ${b.from}`);
+    return Number(m[1]);
+  };
+  subDps[id].lunarBaseBonus = { stat: b.stat, perPoint: round(read(b.re) / 100 / b.per), max: read(b.max) / 100, reactions: b.reactions };
+}
 
 // Every Stellar member needs a STELLAR entry, so a new one (or new Radiance text) can't be missed.
 const stellar = {};

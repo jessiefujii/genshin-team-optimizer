@@ -16,7 +16,12 @@ interface CarryHit {
   instances?: number;
   reacting?: number; // how many of `count` trigger the combo's amplifying reaction, where the source says (#114)
   tag?: string;
+  lunar?: LunarReaction; // direct Lunar reaction DMG (#135)
+  additive?: boolean; // a Reaction Additive Base DMG Bonus to a Lunar hit: added as is (Zibai's passive 1, #146)
+  when?: When; // the hit only lands with these
 }
+type When = { reaction?: Reaction; ascendantGleam?: boolean };
+export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
   | { kind: "addPerStack"; value: number; stacks: number; tag: string; fightingSpirit?: boolean }
@@ -27,7 +32,12 @@ type CarryBuff =
   | { kind: "dmgBonusFromEr"; perPercent: number }
   | { kind: "dmgBonusPerEm"; perEm: number; max: number; types: HitType[]; labels: string[] }
   | { kind: "masque"; ratio: number; start: number; use: number }
-  | { kind: "flatAtk"; value: number; cap: number; types: HitType[]; reactions: Reaction[] };
+  | { kind: "flatAtk"; value: number; cap: number; types: HitType[]; reactions: Reaction[] }
+  | { kind: "emFromAtk"; value: number; max: number }
+  | { kind: "lunarBaseBonus"; stat: "atk" | "def" | "em"; perPoint: number; max: number }
+  | { kind: "lunarReactionBonus"; value: number; reaction: LunarReaction; when?: When }
+  | { kind: "baseDmgMultiplier"; value: number; labels: string[]; when?: When }
+  | { kind: "emBonus"; value: number; when?: When };
 // When a combo fits a team (#114): one of the team's active reactions, a teammate from each `members` list, and
 // exactly that many teammates of each element in `elements`.
 interface ComboWhen {
@@ -52,6 +62,18 @@ interface CarryKit {
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
 
 export const hasCarryKit = (id: string) => id in CARRIES;
+
+// Whether the carry's damage model has their own Ascendant Gleam upgrade (a hit or buff that needs it: Zibai's N4
+// hit, Flins' passive 1, Nefer's Veil of Falsehood). For these carries the scorer counts the upgrade by the damage it
+// adds (carryDamage with vs without Ascendant Gleam) instead of the flat "enhances X's kit" line (#150).
+export function modelsAscendantGleam(id: string): boolean {
+  const kit = CARRIES[id];
+  if (!kit) return false;
+  const all = [kit, ...(kit.combos ?? [])];
+  return all.some(
+    (k) => k.hits.some((h) => h.when?.ascendantGleam) || (k.buffs ?? []).some((b) => "when" in b && b.when?.ascendantGleam),
+  );
+}
 
 // A carry's stats: their build's, else a benchmark carry built for the stat they scale on.
 function carryStats(c: ScoringCharacter) {
@@ -121,6 +143,16 @@ export function modelsReaction(c: ScoringCharacter, r: Reaction): boolean {
   return buffs.some((b) => (b.kind === "flatAtk" || b.kind === "factorByReactions") && b.reactions.includes(r));
 }
 
+// Direct Lunar reaction DMG (Genshin Impact Wiki, Damage § Lunar and Stellar Glimmer Reaction Damage, Direct, fetched
+// 2026-10-12): (coefficient x the talent's % x the stat x Base DMG Multiplier x (1 + Reaction Base DMG Bonus)
+// x (1 + 6 x EM / (EM + 2000) + Reaction Bonus) + Reaction Additive Base DMG Bonus). It has no DMG Bonus term: Elemental and other DMG % bonuses don't apply (KeqingMains' Flins
+// guide: Lunar-Charged "does not scale with Electro DMG"). Indirect Lunar DMG (thunderclouds, Moondrifts) is the
+// team's reaction, not the carry's hits: left to the scorer.
+const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6 };
+const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
+// One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151).
+export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0) =>
+  LUNAR_COEFFICIENT[reaction] * talentValue * (1 + baseBonus) * (1 + lunarEmBonus(em));
 const reactingShare = (h: CarryHit) => (h.reacting === undefined ? AMPLIFY_SHARE : h.count ? h.reacting / h.count : 0);
 
 // The carry's combo for this team (#114): the first of kit.json's combos whose `when` fits, else the default.
@@ -153,7 +185,8 @@ export interface CarryDamage {
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
 // `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit) and picks the combo (#114);
 // default: the carry alone. Cached per character, reactions and team: the team search scores each carry in thousands
-// of teams.
+// of teams. `noGleam` reads it as if the party weren't at Ascendant Gleam, so the scorer can measure what the carry's
+// own Ascendant Gleam upgrade adds (#150).
 // `buffs` adds the team's kit buffs to the carry's stats (#157, kit.ts teamBuffStats); default: none.
 const cache = new WeakMap<ScoringCharacter, Map<string, CarryDamage | null>>();
 export function carryDamage(
@@ -161,22 +194,29 @@ export function carryDamage(
   active: readonly Reaction[] = [],
   team: readonly ScoringCharacter[] = [c],
   buffs: TeamBuffStats = NO_TEAM_BUFFS,
+  noGleam = false,
 ): CarryDamage | null {
   // Readings with team buffs aren't cached: they're cheap, and one more entry per team ran the compare out of memory.
-  if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs);
+  if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs, noGleam);
   let byKey = cache.get(c);
   if (!byKey) cache.set(c, (byKey = new Map()));
-  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}`;
-  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs));
+  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}${noGleam ? "#noGleam" : ""}`;
+  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam));
   return byKey.get(key)!;
 }
 
-function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], buffs: TeamBuffStats): CarryDamage | null {
+function computeCarryDamage(
+  c: ScoringCharacter,
+  active: readonly Reaction[],
+  team: readonly ScoringCharacter[],
+  teamBuffs: TeamBuffStats,
+  noGleam: boolean,
+): CarryDamage | null {
   if (!CARRIES[c.id]) return null;
   const { kit, combo, reaction } = pickCombo(CARRIES[c.id], c, active, team);
   const own = carryStats(c);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
-  const s = { ...own, atk: own.atk + buffs.atk + buffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + buffs.dmgBonus };
+  const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
   const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;
   let atk = s.atk;
   for (const b of kit.buffs) {
@@ -185,16 +225,42 @@ function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], te
   }
   const instancesOf = (types: HitType[]) =>
     kit.hits.filter((h) => types.includes(h.type)).reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
-  const amp = amplifyGain(c, s.em, active, reaction ?? mainReactionOf(c));
-  const catalyze = catalyzeDamage(c, s.em, active, reaction ?? mainReactionOf(c));
+  // Ascendant Gleam: two Moonsign members (each Moonsign Benediction raises the party's Moonsign by a level).
+  const gleam = !noGleam && team.filter((m) => m.families?.includes("moonsign")).length >= 2;
+  const fits = (w?: When) => !w || ((!w.reaction || active.includes(w.reaction)) && (!w.ascendantGleam || gleam));
+  const lands = (h: CarryHit) => fits(h.when);
+  const buffs = kit.buffs.filter((b) => !("when" in b) || fits(b.when));
+  // EM from ATK (Flins' passive 2) only without a build: an imported build's EM is read as it is.
+  let em = s.em;
+  for (const b of buffs) {
+    if (b.kind === "emFromAtk" && !c.stats) em += Math.min(b.max, b.value * atk);
+    if (b.kind === "emBonus") em += b.value; // Nefer at 3 Veil of Falsehood stacks (#148)
+  }
+  const amp = amplifyGain(c, em, active, reaction ?? mainReactionOf(c));
+  const catalyze = catalyzeDamage(c, em, active, reaction ?? mainReactionOf(c));
+  const stat = { atk, def: s.def, em };
+  let lunarBase = 0;
+  for (const b of buffs) if (b.kind === "lunarBaseBonus") lunarBase += Math.min(b.max, b.perPoint * stat[b.stat]);
+  // Reaction DMG Bonus to direct Lunar hits (Flins' passive 1, #147): added to the EM bonus, as in the wiki formula.
+  const lunarBonus = (r: LunarReaction) => buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? b.value : 0), 0);
+  // Base DMG Multiplier by hit label (Nefer's Veil of Falsehood, #148): multiplies the hit's base, Lunar or not.
+  const baseMultiplier = (h: CarryHit) =>
+    buffs.reduce((a, b) => a * (b.kind === "baseDmgMultiplier" && b.labels.includes(h.label) ? 1 + b.value : 1), 1);
   let total = 0;
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
-    let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * s.em;
+    if (!lands(h)) continue;
+    let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * em;
+    perHit *= baseMultiplier(h);
+    if (h.lunar) {
+      if (h.additive) total += perHit * h.count;
+      else total += LUNAR_COEFFICIENT[h.lunar] * perHit * h.count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar));
+      continue;
+    }
     perHit += catalyze * (h.instances ?? 1) * reactingShare(h);
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
-    perHit += buffs.flat * (h.instances ?? 1);
+    perHit += teamBuffs.flat * (h.instances ?? 1);
     let bonus = s.dmgBonus;
     let factor = 1;
     for (const b of kit.buffs) {
@@ -206,7 +272,7 @@ function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], te
         bonus += b.value * share * (b.fightingSpirit ? fsShare : 1);
       }
       if (b.kind === "dmgBonusFromEr") bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
-      if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * s.em);
+      if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * em);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
       if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
         const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
@@ -222,6 +288,6 @@ function computeCarryDamage(c: ScoringCharacter, active: readonly Reaction[], te
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp);
   }
-  total *= expectedCrit(c, buffs.critRate);
+  total *= expectedCrit(c, teamBuffs.critRate);
   return { perSecond: total / kit.rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds: kit.rotationSeconds, missing: kit.missing ?? [] };
 }

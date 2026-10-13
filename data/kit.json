@@ -1780,8 +1780,60 @@
           },
           "hits": 1,
           "cd": 15
+        },
+        {
+          "talent": "skill",
+          "label": "Gravity Interference: Lunar-Charged DMG",
+          "scaling": {
+            "hp": 0.079968
+          },
+          "every": 6,
+          "duration": 25,
+          "lunar": "lunar-charged",
+          "whenReaction": "lunar-charged",
+          "pickOne": "Gravity Interference",
+          "cd": 17,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-12 (talent page): \"Columbina will gain the New Moon's Omen effect for 2s, continuously accumulating Gravity. 20 Gravity can be accumulated every 2s. You can have up to 60 Gravity\" and \"Once Gravity is accumulated to its limit, a special Gravity Interference will be triggered.\" So one every 6s while the team keeps triggering Lunar reactions (worked out here, not a wiki number)."
+        },
+        {
+          "talent": "skill",
+          "label": "Gravity Interference: Lunar-Bloom DMG",
+          "scaling": {
+            "hp": 0.11968
+          },
+          "every": 6,
+          "duration": 25,
+          "lunar": "lunar-bloom",
+          "whenReaction": "lunar-bloom",
+          "pickOne": "Gravity Interference",
+          "cd": 17,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-12 (talent page): \"Columbina will gain the New Moon's Omen effect for 2s, continuously accumulating Gravity. 20 Gravity can be accumulated every 2s. You can have up to 60 Gravity\" and \"Once Gravity is accumulated to its limit, a special Gravity Interference will be triggered.\" So one every 6s while the team keeps triggering Lunar reactions (worked out here, not a wiki number)."
+        },
+        {
+          "talent": "skill",
+          "label": "Gravity Interference: Lunar-Crystallize DMG",
+          "scaling": {
+            "hp": 0.150008
+          },
+          "every": 6,
+          "duration": 25,
+          "lunar": "lunar-crystallize",
+          "whenReaction": "lunar-crystallize",
+          "pickOne": "Gravity Interference",
+          "cd": 17,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-12 (talent page): \"Columbina will gain the New Moon's Omen effect for 2s, continuously accumulating Gravity. 20 Gravity can be accumulated every 2s. You can have up to 60 Gravity\" and \"Once Gravity is accumulated to its limit, a special Gravity Interference will be triggered.\" So one every 6s while the team keeps triggering Lunar reactions (worked out here, not a wiki number)."
         }
-      ]
+      ],
+      "lunarBaseBonus": {
+        "stat": "hp",
+        "perPoint": 0.000002,
+        "max": 0.07,
+        "reactions": [
+          "lunar-charged",
+          "lunar-bloom",
+          "lunar-crystallize"
+        ]
+      }
     },
     "Collei": {
       "sources": [
@@ -2104,8 +2156,29 @@
           },
           "hits": 1,
           "cd": 15
+        },
+        {
+          "talent": "skill",
+          "label": "Overclocking Circuit (passive 1)",
+          "scaling": {
+            "atk": 0.65
+          },
+          "every": 2,
+          "duration": 20,
+          "lunar": "lunar-charged",
+          "whenReaction": "lunar-charged",
+          "cd": 16,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\""
         }
-      ]
+      ],
+      "lunarBaseBonus": {
+        "stat": "atk",
+        "perPoint": 0.00007,
+        "max": 0.14,
+        "reactions": [
+          "lunar-charged"
+        ]
+      }
     },
     "Jahoda": {
       "sources": [
@@ -3468,7 +3541,7 @@
           "scaling": {
             "def": 0.885712
           },
-          "count": 4
+          "count": 3
         },
         {
           "label": "Lunar Phase Shift 3-Hit DMG",
@@ -3476,7 +3549,7 @@
           "scaling": {
             "def": 1.175358
           },
-          "count": 4
+          "count": 3
         },
         {
           "label": "Lunar Phase Shift 4-Hit DMG",
@@ -3484,7 +3557,19 @@
           "scaling": {
             "def": 1.48204
           },
-          "count": 4
+          "count": 3
+        },
+        {
+          "label": "Lunar Phase Shift 4-Hit Additional DMG",
+          "type": "normal",
+          "scaling": {
+            "def": 0.500752
+          },
+          "count": 3,
+          "lunar": "lunar-crystallize",
+          "when": {
+            "ascendantGleam": true
+          }
         },
         {
           "label": "Spirit Steed's Stride 1-Hit DMG",
@@ -3500,7 +3585,8 @@
           "scaling": {
             "def": 2.396456
           },
-          "count": 4
+          "count": 4,
+          "lunar": "lunar-crystallize"
         },
         {
           "label": "passive1 bonus",
@@ -3508,10 +3594,36 @@
           "scaling": {
             "def": 0.6
           },
+          "count": 1,
+          "lunar": "lunar-crystallize",
+          "additive": true
+        },
+        {
+          "label": "Skill 1-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "def": 2.15832
+          },
           "count": 1
+        },
+        {
+          "label": "Skill 2-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "def": 3.021648
+          },
+          "count": 1,
+          "lunar": "lunar-crystallize"
         }
       ],
-      "buffs": []
+      "buffs": [
+        {
+          "kind": "lunarBaseBonus",
+          "stat": "def",
+          "perPoint": 0.00007,
+          "max": 0.14
+        }
+      ]
     },
     "Skirk": {
       "rotationSeconds": 15,
@@ -3587,7 +3699,10 @@
             "atk": 0.41888,
             "em": 0.83776
           },
-          "count": 6
+          "count": 6,
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "Phantasm Performance 2-Hit DMG (Nefer)",
@@ -3596,7 +3711,10 @@
             "atk": 0.544544,
             "em": 1.089088
           },
-          "count": 6
+          "count": 6,
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "Phantasm Performance 1-Hit DMG (Shades)",
@@ -3604,7 +3722,11 @@
           "scaling": {
             "em": 1.632
           },
-          "count": 6
+          "count": 6,
+          "lunar": "lunar-bloom",
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "Phantasm Performance 2-Hit DMG (Shades)",
@@ -3612,7 +3734,11 @@
           "scaling": {
             "em": 1.632
           },
-          "count": 6
+          "count": 6,
+          "lunar": "lunar-bloom",
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "Phantasm Performance 3-Hit DMG (Shades)",
@@ -3620,7 +3746,11 @@
           "scaling": {
             "em": 2.176
           },
-          "count": 6
+          "count": 6,
+          "lunar": "lunar-bloom",
+          "when": {
+            "reaction": "lunar-bloom"
+          }
         },
         {
           "label": "1-Hit DMG",
@@ -3641,7 +3771,37 @@
           "count": 1
         }
       ],
-      "buffs": []
+      "buffs": [
+        {
+          "kind": "lunarBaseBonus",
+          "stat": "em",
+          "perPoint": 0.000175,
+          "max": 0.14
+        },
+        {
+          "kind": "baseDmgMultiplier",
+          "value": 0.24,
+          "labels": [
+            "Phantasm Performance 1-Hit DMG (Nefer)",
+            "Phantasm Performance 2-Hit DMG (Nefer)",
+            "Phantasm Performance 1-Hit DMG (Shades)",
+            "Phantasm Performance 2-Hit DMG (Shades)",
+            "Phantasm Performance 3-Hit DMG (Shades)"
+          ],
+          "when": {
+            "reaction": "lunar-bloom",
+            "ascendantGleam": true
+          }
+        },
+        {
+          "kind": "emBonus",
+          "value": 100,
+          "when": {
+            "reaction": "lunar-bloom",
+            "ascendantGleam": true
+          }
+        }
+      ]
     },
     "Clorinde": {
       "rotationSeconds": 15,
@@ -3707,12 +3867,45 @@
       "rotationSeconds": 20,
       "hits": [
         {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.990216
+          },
+          "count": 5
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.999559
+          },
+          "count": 4
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.238035
+          },
+          "count": 3
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.418656
+          },
+          "count": 3,
+          "instances": 2
+        },
+        {
           "label": "Northland Spearstorm DMG",
           "type": "skill",
           "scaling": {
             "atk": 3.0328
           },
-          "count": 1
+          "count": 2
         },
         {
           "label": "Thunderous Symphony DMG",
@@ -3720,12 +3913,43 @@
           "scaling": {
             "atk": 1.214752
           },
-          "count": 1
+          "count": 2,
+          "lunar": "lunar-charged"
+        },
+        {
+          "label": "Thunderous Symphony Additional DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.766912
+          },
+          "count": 2,
+          "lunar": "lunar-charged",
+          "when": {
+            "ascendantGleam": true,
+            "reaction": "lunar-charged"
+          }
         }
       ],
-      "buffs": [],
-      "missing": [
-        "Normal Attacks (his rotation tags list none; the rotation needs a source, #103)"
+      "buffs": [
+        {
+          "kind": "emFromAtk",
+          "value": 0.08,
+          "max": 160
+        },
+        {
+          "kind": "lunarBaseBonus",
+          "stat": "atk",
+          "perPoint": 0.00007,
+          "max": 0.14
+        },
+        {
+          "kind": "lunarReactionBonus",
+          "value": 0.2,
+          "reaction": "lunar-charged",
+          "when": {
+            "ascendantGleam": true
+          }
+        }
       ]
     },
     "Arlecchino": {
