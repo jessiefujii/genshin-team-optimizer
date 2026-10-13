@@ -507,19 +507,22 @@ const FIGHTING_SPIRIT = {
       cap: { talent: "skill", label: "Nightsoul Point Limit" },
       note: "Skill + 2 Normal Attack hits (her N x2), capped at her max; assumes 2 converted Source Samples",
     },
-    // Skill + Burst + 1 Spiritvessel Skull (one opponent) = 51, enough for Opal Fire (50+), which burns them all. Her
-    // passive 1 adds 16 after a Melt or Frozen while Itzpapa is out, at most once every 8s: once, since Mavuika's Pyro
-    // melts with her Cryo. Passive 2: 4 per party Nightsoul Burst, once per rotation (one Nightsoul Burst, as for
-    // Ororon) (#126; the wiki research there put the 16 on her C4, but genshin-db's passive 1 text has it, so it stays).
+    // Skill + Burst + 1 Spiritvessel Skull (one opponent) = 51, enough for Opal Fire (50+), which burns them all.
+    // Passive 2: 4 per party Nightsoul Burst, once per rotation (one Nightsoul Burst, as for Ororon). Her passive 1 adds
+    // 16 after a Melt or Frozen while Itzpapa is out, at most once every 8s: once, and only when the team can Melt or
+    // Freeze (Jessie, #126, 2026-10-14). C4's separate 16 (Spiritvessel Skull explosions) is left out: kits are C0.
     Citlali: {
       parts: [
         { from: "combat2", re: /Citlali gains (\d+) Nightsoul points/ },
         { talent: "burst", label: "Ice Storm Nightsoul Point Gain" },
         { talent: "burst", label: "Spiritvessel Skull Nightsoul Point Gain" },
-        { from: "passive1", re: /Citlali will regain (\d+) Nightsoul points/ },
         { from: "passive2", re: /when nearby party members trigger Nightsoul Bursts, Citlali regains (\d+) Nightsoul points/ },
       ],
-      note: "Skill + Burst + 1 Skull + passive 1 once (Melt with Mavuika) + passive 2 once (one Nightsoul Burst)",
+      withReactions: {
+        reactions: ["melt", "freeze"],
+        parts: [{ from: "passive1", re: /Citlali will regain (\d+) Nightsoul points/ }],
+      },
+      note: "Skill + Burst + 1 Skull + passive 2 once (one Nightsoul Burst), + passive 1 once when the team can Melt or Freeze",
     },
     // Skill + Burst. What the Kinetic Energy Scale restores for the active character's movement is left out (no number).
     Iansan: {
@@ -586,6 +589,12 @@ function readNightsoulPoints(id, spec) {
     fromTeammates = { elements: spec.withTeammateElements.elements, points: round(extra.points) };
     sources.push(`with another ${fromTeammates.elements.join("/")} member: ${extra.sources.join("; ")}`);
   }
+  let fromReactions;
+  if (spec.withReactions) {
+    const extra = readParts(talents, id, spec.withReactions.parts, label);
+    fromReactions = { reactions: spec.withReactions.reactions, points: round(extra.points) };
+    sources.push(`when the team can ${fromReactions.reactions.join(" or ")}: ${extra.sources.join("; ")}`);
+  }
   let cap;
   if (spec.capText) {
     const c = textNumber(spec.capText);
@@ -601,7 +610,7 @@ function readNightsoulPoints(id, spec) {
     points = Math.floor(points / pool) * pool;
     sources.push(`spent ${pool} at a time: ${spec.whole.talent} "${spec.whole.label}"`);
   }
-  return { points: round(points), ...(fromTeammates ? { fromTeammates } : {}), ...(cap ? { cap } : {}), note: spec.note, source: sources.join("; ") };
+  return { points: round(points), ...(fromTeammates ? { fromTeammates } : {}), ...(fromReactions ? { fromReactions } : {}), ...(cap ? { cap } : {}), note: spec.note, source: sources.join("; ") };
 }
 
 // The Nightsoul points a list of parts adds up to, with the sentence or label behind each.

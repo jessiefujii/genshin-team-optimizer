@@ -638,6 +638,12 @@ describe("talent levels (#25)", () => {
     expect(withOroron(xingqiu) - withOroron(bennett)).toBe(40); // 40 + 50 capped at 80
     // Raiden's Musou Isshin Normal Attacks (4 + 3 + 3 in her 3[N3C] N1C) count: 80 (Mavuika's Skill) + 1.5 x 10.
     expect(fightingSpiritBuilt(mav, raiden, [raiden, mav, bennett])).toBe(95);
+    // Citlali's passive-1 16 only when the team can Melt or Freeze (Jessie, #126): always with Pyro Mavuika; a made-up
+    // non-Pyro Mavuika with no Pyro or Hydro member loses it.
+    const citlali = byId.get("Citlali")!;
+    const anemoMav = { ...mav, element: "Anemo" as const };
+    expect(fightingSpiritBuilt(mav, raiden, [raiden, mav, citlali]) - fightingSpiritBuilt(mav, raiden, [raiden, mav])).toBe(71);
+    expect(fightingSpiritBuilt(anemoMav, raiden, [raiden, anemoMav, citlali]) - fightingSpiritBuilt(anemoMav, raiden, [raiden, anemoMav])).toBe(55);
     // Under 100 she plays Skill only: her default combo without the Burst hit, whatever the team's reaction.
     expect(carryDamage(mav, ["melt"], [mav, byId.get("Citlali")!, bennett, xingqiu])?.combo).toBeDefined();
     expect(carryDamage(mav, [], [mav, bennett, xingqiu, neuv])?.combo).toBe("E C8F (Skill only: can't Burst)");
