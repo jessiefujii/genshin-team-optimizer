@@ -52,7 +52,8 @@ interface CarryCombo {
   buffs?: CarryBuff[]; // default: the carry's
 }
 interface CarryKit {
-  rotationSeconds: number;
+  rotationSeconds: number; // sourced default, else the Burst cooldown (#103)
+  rotationTeams?: { when: ComboWhen[]; seconds: number }[]; // sourced lengths for teams that fit (#103)
   combo?: string; // the default combo (KQM notation), when the carry has others
   hits: CarryHit[];
   buffs: CarryBuff[];
@@ -132,12 +133,21 @@ const reactingShare = (h: CarryHit) => (h.reacting === undefined ? AMPLIFY_SHARE
 
 // The carry's combo for this team (#114): the first of kit.json's combos whose `when` fits, else the default.
 // `reaction` is the reaction the picked combo is built around (undefined for the default).
-function pickCombo(kit: CarryKit, c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+function teamFits(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
   const mates = team.filter((m) => m.id !== c.id);
-  const fits = (w: ComboWhen) =>
+  return (w: ComboWhen) =>
     (!w.reaction || active.includes(w.reaction)) &&
     (w.members ?? []).every((ids) => mates.some((m) => ids.includes(m.id))) &&
     Object.entries(w.elements ?? {}).every(([e, n]) => mates.filter((m) => m.element === e).length === n);
+}
+// The rotation's length (#103): a sourced length for a team that fits (kit.json rotationTeams, first match), else
+// the carry's sourced default, else their Burst cooldown (both in rotationSeconds).
+function rotationFor(kit: CarryKit, c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+  const fits = teamFits(c, active, team);
+  return kit.rotationTeams?.find((t) => t.when.some(fits))?.seconds ?? kit.rotationSeconds;
+}
+function pickCombo(kit: CarryKit, c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+  const fits = teamFits(c, active, team);
   for (const k of kit.combos ?? []) {
     const w = k.when.find(fits);
     if (w) return { kit: { ...kit, hits: k.hits, buffs: k.buffs ?? kit.buffs }, combo: k.combo, reaction: w.reaction };
@@ -237,5 +247,6 @@ export function carryDamage(c: ScoringCharacter, active: readonly Reaction[] = [
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp);
   }
-  return { perSecond: total / kit.rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds: kit.rotationSeconds, missing: kit.missing ?? [] };
+  const rotationSeconds = rotationFor(kit, c, active, team);
+  return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [] };
 }

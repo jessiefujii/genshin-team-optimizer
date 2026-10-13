@@ -3657,7 +3657,21 @@
       ]
     },
     "Nefer": {
-      "rotationSeconds": 15,
+      "rotationSeconds": 18,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 20
+        }
+      ],
       "hits": [
         {
           "label": "Skill DMG",
@@ -3780,7 +3794,7 @@
       ]
     },
     "Clorinde": {
-      "rotationSeconds": 15,
+      "rotationSeconds": 16,
       "hits": [
         {
           "label": "Swift Hunt DMG",
@@ -3840,7 +3854,36 @@
       ]
     },
     "Flins": {
-      "rotationSeconds": 20,
+      "rotationSeconds": 17.5,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Aino"
+                ]
+              ]
+            }
+          ],
+          "seconds": 16
+        },
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ],
+                [
+                  "Xilonen"
+                ]
+              ]
+            }
+          ],
+          "seconds": 16
+        }
+      ],
       "hits": [
         {
           "label": "1-Hit DMG",
@@ -3930,6 +3973,20 @@
     },
     "Arlecchino": {
       "rotationSeconds": 15,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Kachina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 20
+        }
+      ],
       "hits": [
         {
           "label": "Spike DMG",
@@ -4203,7 +4260,39 @@
       ]
     },
     "Alhaitham": {
-      "rotationSeconds": 18,
+      "rotationSeconds": 23.5,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Nilou"
+                ]
+              ]
+            }
+          ],
+          "seconds": 27
+        },
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Kuki Shinobu"
+                ],
+                [
+                  "Furina"
+                ],
+                [
+                  "Nahida"
+                ]
+              ]
+            }
+          ],
+          "seconds": 30
+        }
+      ],
       "hits": [
         {
           "label": "Rush Attack DMG",
@@ -4264,7 +4353,7 @@
             "atk": 3.4272,
             "em": 6.8544
           },
-          "count": 6,
+          "count": 6.5,
           "instances": 3
         }
       ],

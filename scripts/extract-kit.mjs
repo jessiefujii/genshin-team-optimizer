@@ -1087,7 +1087,8 @@ function readSubDps(id, specs) {
 //     lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar reaction: Flins), baseDmgMultiplier
 //     (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction, ascendantGleam }) gates it like a hit's.
 //   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
-// The rotation lasts as long as the carry's Elemental Burst cooldown (Jessie's choice; sourced lengths: #103).
+// The rotation lasts as long as a sourced length (data/kit-overrides.json `rotations`, #103: a default, plus lengths
+// for teams that fit a combo-style `when`), else the carry's Elemental Burst cooldown (Jessie's earlier choice).
 // Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer, except
 // hits that only exist with them (`when`).
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
@@ -1555,8 +1556,13 @@ function readCarry(id, spec) {
     if (!k.combo || !k.when?.length) throw new Error(`${id}: each combo needs combo and when`);
     return { combo: k.combo, when: k.when, hits: readHits(k.hits), ...(k.buffs ? { buffs: k.buffs.map(readBuff) } : {}) };
   });
+  const rotation = OVERRIDES.rotations?.[id] ?? {};
+  for (const t of rotation.teams ?? [])
+    if (!t.when?.length || !(t.seconds > 0) || !t.source) throw new Error(`${id}: each rotations team needs when, seconds, source`);
+  if (Object.keys(rotation).length && !rotation.source) throw new Error(`${id}: rotations needs a source`);
   return {
-    rotationSeconds: tableValue(tableAttrs("burst"), "CD", id),
+    rotationSeconds: rotation.seconds ?? tableValue(tableAttrs("burst"), "CD", id),
+    ...(rotation.teams?.length ? { rotationTeams: rotation.teams.map((t) => ({ when: t.when, seconds: t.seconds })) } : {}),
     ...(spec.combo ? { combo: spec.combo } : {}),
     hits,
     buffs,
@@ -1614,6 +1620,8 @@ const fightingSpirit = readFightingSpirit(tags.filter((c) => (c.families ?? []).
 // Carries (#101): the 16 compare carries first; other main DPS are listed until they get an entry.
 const carries = {};
 for (const [id, spec] of Object.entries(CARRIES)) carries[id] = readCarry(id, spec);
+for (const id of Object.keys(OVERRIDES.rotations ?? {}))
+  if (!id.startsWith("_") && !CARRIES[id]) throw new Error(`kit-overrides.json rotations: ${id} has no carry damage model`);
 const carriesTodo = tags.filter((c) => c.roles.includes("main-dps") && !CARRIES[c.id]).map((c) => c.id);
 
 // Every off-field sub-DPS needs a SUBDPS entry, so none is silently left without damage. Entries for supports whose
