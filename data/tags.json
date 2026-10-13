@@ -2066,10 +2066,13 @@
       "actions": [
         "E",
         "Q",
+        "infused attacks (4s)",
+        "E",
+        "infused attacks (4s)",
         "swap out"
       ]
     },
-    "notes": "Element always matches the Traveler's and can be swapped. Burst-focused (talent priority Burst > Skill > Normal; 150-200% ER per Game8). Burst places a Restricted Area that explodes for 200% ATK when they leave the field. Low priority. VERIFY: rotation, and whether they are better on- or off-field."
+    "notes": "Element always matches the Traveler's and can be swapped. Wiki (Manekin/Manekina, 2026-10-13): \"a DMG dealer\"; Skill infuses Normal/Charged/Plunging Attacks with their element for 4s (2 charges, CD 10s); Burst places a Restricted Area that follows them for 8s, deals DMG every 0.5s and disappears when they leave the field; passive 1: leaving the field with it active explodes it for 200% ATK. So: on-field for the 8s Burst with two Skill infusions, then swap out for the explosion (Jessie, #10). Talent priority Burst > Skill > Normal and 150-200% ER per Game8. No Character Roles on the wiki, so the DPS roles are hand tags."
   },
   {
     "id": "Manekina",
@@ -2090,10 +2093,13 @@
       "actions": [
         "E",
         "Q",
+        "infused attacks (4s)",
+        "E",
+        "infused attacks (4s)",
         "swap out"
       ]
     },
-    "notes": "Element always matches the Traveler's and can be swapped. Burst-focused (talent priority Burst > Skill > Normal; 150-200% ER per Game8). Burst places a Restricted Area that explodes for 200% ATK when they leave the field. Low priority. VERIFY: rotation, and whether they are better on- or off-field."
+    "notes": "Element always matches the Traveler's and can be swapped. Wiki (Manekin/Manekina, 2026-10-13): \"a DMG dealer\"; Skill infuses Normal/Charged/Plunging Attacks with their element for 4s (2 charges, CD 10s); Burst places a Restricted Area that follows them for 8s, deals DMG every 0.5s and disappears when they leave the field; passive 1: leaving the field with it active explodes it for 200% ATK. So: on-field for the 8s Burst with two Skill infusions, then swap out for the explosion (Jessie, #10). Talent priority Burst > Skill > Normal and 150-200% ER per Game8. No Character Roles on the wiki, so the DPS roles are hand tags."
   },
   {
     "id": "Mavuika",
