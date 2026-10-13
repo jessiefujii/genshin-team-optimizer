@@ -96,6 +96,17 @@ test("talent table labels are read per stat, hit and multiple (#95)", () => {
   expect(source("Yelan", "Exquisite Throw DMG").scaling.hp).toBeCloseTo(0.082824 * 3, 6); // "... Max HP ×3"
 });
 
+test("sub-DPS passives that add damage from EM are read into their hits (#172)", () => {
+  const source = (id: string, label: string) => subDps[id].sources.find((s) => s.label === label)! as SubDpsSource & {
+    dmgBonusPerStat?: Record<string, number>;
+  };
+  expect(source("Citlali", "Frostfall Storm DMG").scaling.em).toBe(0.9); // passive 2: +90% of EM
+  expect(source("Citlali", "Ice Storm DMG").scaling.em).toBe(12); // passive 2: +1200% of EM
+  expect(source("Aino", "Water Ball DMG").scaling.em).toBe(0.5); // passive 2: Burst DMG +50% of EM
+  expect(source("Traveler (Dendro)", "Skill DMG").dmgBonusPerStat).toEqual({ em: 0.0015 }); // +0.15% DMG per EM
+  expect(source("Traveler (Dendro)", "Lea Lotus Lamp Attack DMG").dmgBonusPerStat).toEqual({ em: 0.001 }); // +0.1%
+});
+
 for (const [id, d] of Object.entries(subDps)) {
   for (const m of d.missing ?? []) test.todo(`kit-overrides hitRates: ${id} ${m}`);
 }
