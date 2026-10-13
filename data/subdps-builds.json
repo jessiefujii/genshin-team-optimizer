@@ -32,6 +32,7 @@
     "Prune": { "priority": [["atkPct"], ["critRate"], ["critRate", "critDmg"]], "quote": "ER until requirement > ATK% > CRIT Rate (with Favonius Codex) > CRIT", "source": "https://keqingmains.com/q/prune-quickguide/" },
     "Rosaria": { "priority": [["critRate"], ["critDmg"], ["atkPct"]], "quote": "ER (until requirement) > CRIT Rate > CRIT DMG > ATK% (Support)", "source": "https://keqingmains.com/q/rosaria-quickguide/" },
     "Sigewinne": { "priority": [["hpPct"], ["critRate", "critDmg"]], "quote": "ER% (until requirement) > HP% > CRIT", "source": "https://keqingmains.com/q/sigewinne-quickguide/" },
+    "Traveler (Cryo)": { "priority": [], "fallback": true, "quote": "No KQM stat priority (checked 2026-10-13): no quick guide (404) and the KQM library page has no artifact section, so PR #163's split applies (#165)", "source": "https://library.keqingmains.com/characters/cryo/traveler-cryo" },
     "Traveler (Dendro)": { "priority": [["em"], ["critRate", "critDmg"], ["atkPct"]], "quote": "ER > EM1 > CRIT > EM2 ≥ ATK% > EM3", "source": "https://keqingmains.com/q/dendro-traveler-quickguide/" },
     "Traveler (Pyro)": { "priority": [["critRate"], ["critRate", "critDmg"], ["atkPct"]], "quote": "ER (until requirement) > CRIT Rate (Favonius) > CRIT > ATK%", "source": "https://keqingmains.com/q/pyro-traveler-quickguide/" },
     "Traveler (Geo)": { "priority": [["critRate"], ["atkPct"], ["atk"], ["critRate", "critDmg"]], "quote": "ER% > CRIT Rate* > ATK% > ATK > CRIT (Support)", "source": "https://keqingmains.com/geo-traveler/" },

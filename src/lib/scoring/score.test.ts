@@ -490,7 +490,11 @@ describe("sub-DPS (#96)", () => {
     const subDps = Object.keys(kitJson.subDps);
     expect(subDps.filter((id) => !byId.get(id)?.scalesOn?.length)).toEqual([]);
     expect(subDps.filter((id) => !(id in subDpsBuilds.characters))).toEqual([]);
-    for (const [id, b] of Object.entries(subDpsBuilds.characters)) expect(b.source, id).toMatch(/^https:\/\/keqingmains\.com\//);
+    // A KQM quick guide's stat priority, or a marked fallback to PR #163's split where KQM gives none (#165).
+    for (const [id, b] of Object.entries(subDpsBuilds.characters) as [string, { source: string; fallback?: boolean; priority: unknown[] }][]) {
+      if (b.fallback) expect(b.priority, id).toEqual([]);
+      else expect(b.source, id).toMatch(/^https:\/\/keqingmains\.com\//);
+    }
   });
 });
 
