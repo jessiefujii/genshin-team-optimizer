@@ -9,4 +9,5 @@ export interface BuildCatalog {
   weapons: Record<string, string[]>; // best rarity first
   sets: string[];
   weaponRarity: Record<string, number>; // every weapon, 1-2 stars too: the search's minimum checks it (#133)
+  weaponIcons: Record<string, string>; // genshin-db's icon file name per weapon ("UI_EquipIcon_Pole_Homa"), from Enka (#180)
 }

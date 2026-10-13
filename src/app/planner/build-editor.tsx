@@ -5,6 +5,7 @@ import { ascensionOf, isAscensionLevel, levelCap } from "@/lib/build/ascension";
 import { control } from "@/lib/ui/elements";
 import type { CharacterBuild } from "@/types/build";
 import { parseForm, STAT_FIELDS, toForm, type BuildForm } from "./build-form";
+import { WeaponIcon } from "./character-icon";
 import type { BuildCatalog, PlannerCharacter } from "./types";
 import type { OwnedEntry } from "./use-roster";
 
@@ -142,12 +143,15 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
           <legend className="mb-1 text-sm font-medium">Weapon ({character.weapon})</legend>
           <label className={label}>
             Weapon
-            <select value={form.weapon} onChange={(e) => set("weapon", e.target.value)} className={field}>
-              <option value="">Pick a weapon…</option>
-              {weaponOptions.map((w) => (
-                <option key={w}>{w}</option>
-              ))}
-            </select>
+            <span className="flex items-center gap-2">
+              <WeaponIcon icon={catalog.weaponIcons[form.weapon]} size={32} />
+              <select value={form.weapon} onChange={(e) => set("weapon", e.target.value)} className={`${field} min-w-0 flex-1`}>
+                <option value="">Pick a weapon…</option>
+                {weaponOptions.map((w) => (
+                  <option key={w}>{w}</option>
+                ))}
+              </select>
+            </span>
           </label>
           <label className={label}>
             Level
