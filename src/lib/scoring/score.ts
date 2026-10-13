@@ -767,26 +767,44 @@ function applicationsPerSecond(x: ScoringCharacter, carry: ScoringCharacter, ctx
     .filter((s) => !s.lunar && (!s.pickOne || picked.get(s.pickOne) === s))
     .reduce((a, s) => a + hitsPerSecond(s, carry, ctx, x) * appliedShare(s), 0);
 }
-// For each sub-DPS, the share of its applying hits that find an aura, per amplifying reaction.
+// For each sub-DPS, the share of its applying hits that find an aura, per amplifying reaction. One budget for the
+// whole team: each application either reacts (as a trigger) or lays an aura, never both (Durin's Pyro vaporizing
+// Columbina's Hydro can't also lay Pyro for Escoffier to melt), and an element's aura is shared by every reaction
+// triggered on it. Each (trigger, aura) pair asks for its applying hits; when an aura falls short, the pairs on it get
+// the same fraction of what they asked. Damped rounds settle it. The carry's reacting hits are served first within
+// their pair.
 function auraShares(ctx: TeamContext, carry: ScoringCharacter): Map<ScoringCharacter, Map<Reaction, number>> {
   const out = new Map<ScoringCharacter, Map<Reaction, number>>();
+  const apps = new Map<Element, number>();
+  for (const x of ctx.members) apps.set(x.element, (apps.get(x.element) ?? 0) + applicationsPerSecond(x, carry, ctx));
+  const pairs: { r: Reaction; trigger: Element; aura: Element; perAura: number; subs: ScoringCharacter[]; carryDemand: number; demand: number; reactions: number }[] = [];
   for (const [r, strong] of Object.entries(AMPLIFYING) as [Reaction, Element][]) {
     if (!ctx.active.includes(r)) continue;
     const [a, b] = reactionElements(r);
     for (const trigger of [a, b]) {
-      const aura = trigger === a ? b : a;
       const subs = ctx.members.filter((m) => m !== carry && m.element === trigger && SUB_DPS[m.id]);
-      if (!subs.length) continue;
-      const supply = ctx.members.filter((x) => x.element === aura).reduce((s, x) => s + applicationsPerSecond(x, carry, ctx), 0);
-      const capacity = (supply * 0.8) / (trigger === strong ? 2 : 0.5);
       const rates = carry.element === trigger && mainReactionOf(carry) === r ? carryHitRates(carry, ctx.active, ctx.members) : null;
       const carryDemand = rates ? Math.min(rates.reactingPerSecond, applicationsPerSecond(carry, carry, ctx)) : 0;
-      const demand = subs.reduce((s, m) => s + applicationsPerSecond(m, carry, ctx), 0);
-      const share = demand > 0 ? Math.min(1, Math.max(0, capacity - carryDemand) / demand) : 0;
-      for (const m of subs) {
-        if (!out.has(m)) out.set(m, new Map());
-        out.get(m)!.set(r, share);
-      }
+      const demand = carryDemand + subs.reduce((s, m) => s + applicationsPerSecond(m, carry, ctx), 0);
+      if (demand > 0) pairs.push({ r, trigger, aura: trigger === a ? b : a, perAura: 0.8 / (trigger === strong ? 2 : 0.5), subs, carryDemand, demand, reactions: 0 });
+    }
+  }
+  for (let i = 0; i < 12; i++) {
+    for (const p of pairs) {
+      const on = pairs.filter((q) => q.aura === p.aura);
+      // The aura's element: its applications minus those that reacted as triggers themselves.
+      const laid = Math.max(0, (apps.get(p.aura) ?? 0) - pairs.filter((q) => q.trigger === p.aura).reduce((s, q) => s + q.reactions, 0));
+      const needed = on.reduce((s, q) => s + q.demand / q.perAura, 0); // aura applications all of them would use
+      const scale = needed > 0 ? Math.min(1, laid / needed) : 0;
+      p.reactions = (p.reactions + p.demand * scale) / 2;
+    }
+  }
+  for (const p of pairs) {
+    const subDemand = p.demand - p.carryDemand;
+    const share = subDemand > 0 ? Math.min(1, Math.max(0, p.reactions - p.carryDemand) / subDemand) : 0;
+    for (const m of p.subs) {
+      if (!out.has(m)) out.set(m, new Map());
+      out.get(m)!.set(p.r, share);
     }
   }
   return out;
@@ -889,7 +907,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
           const add = share * (perHit * amplifyGain(m, stat.em, ctx.active, r) + catalyzeDamage(m, stat.em, ctx.active, r));
           if (add > extra) [extra, best] = [add, r];
         }
-        if (best) reacted.add(best);
+        if (best && extra >= 0.01 * perHit) reacted.add(best); // named only when it adds at least 1% to the hit
         dps += (perHit + extra) * hitsPerSecond(s, carry, ctx, m) * (1 + dmgBonus + perStat);
       }
     }

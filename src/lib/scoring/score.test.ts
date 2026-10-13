@@ -118,8 +118,8 @@ describe("scoreTeam", () => {
   test("a sub-DPS's own hits react when a teammate brings the other element (#153)", () => {
     const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
     const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
-    // Xingqiu's Hydro on Hu Tao's Pyro: Vaporize.
-    expect(line("Xingqiu", "Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toMatch(/, with Vaporize$/);
+    // Hu Tao's Pyro reacts with Xingqiu's Hydro and leaves little Pyro aura, so his swords don't vaporize (#191).
+    expect(line("Xingqiu", "Hu Tao", "Xingqiu", "Yelan", "Zhongli")).not.toMatch(/with/);
     // Xiangling's Pyro vaporizes on Xingqiu's Hydro with Raiden, though neither is on field.
     expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
     // Without a Pyro member, Xingqiu's hits don't amplify (Bloom is a transformative reaction: not counted here).
@@ -133,10 +133,11 @@ describe("scoreTeam", () => {
   test("Vaporize and Melt on sub-DPS hits share one aura budget (#189, #191)", () => {
     const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
     const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
-    // Furina and Yelan both vaporize on the Pyro aura only Hu Tao lays: each gets less than Furina alone with him.
-    const furinaWithYelan = pct(line("Furina", "Hu Tao", "Furina", "Yelan", "Escoffier"));
-    const furinaAlone = pct(line("Furina", "Hu Tao", "Furina", "Zhongli", "Escoffier"));
-    expect(furinaWithYelan).toBeLessThan(furinaAlone);
+    // Durin's Pyro aura is shared: Escoffier melts on it, until Furina's Hydro vaporizes it first.
+    expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/, with Melt$/);
+    const withFurina = line("Escoffier", "Skirk", "Escoffier", "Durin", "Furina");
+    expect(withFurina).not.toMatch(/with/);
+    expect(pct(withFurina)).toBeLessThan(pct(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")));
     // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize.
     expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toBe("Xiangling's own hits add ~+54% damage, with Vaporize");
   });
