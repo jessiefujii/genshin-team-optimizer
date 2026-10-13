@@ -763,13 +763,11 @@ describe("effects.json in scoring", () => {
     expect(lines(geared({ Bennett: many }, "Hu Tao", "Bennett", "Xingqiu", "Zhongli"), "Effects")).toHaveLength(3);
   });
 
-  test("a battery role from a weapon feeds high-cost bursts", () => {
+  test("a Favonius weapon's particles lower the team's ER needs (#37)", () => {
     const favonius: EffectTag = { source: "weapon", id: "Favonius Sword", roles: ["battery"] };
-    const vape = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli"];
-    expect(lines(team(...vape), "Energy")[0].points).toBe(-5); // two high-cost bursts, no battery
-    expect(lines(geared({ Xingqiu: [favonius] }, ...vape), "Energy")[0]).toEqual({
-      rule: "Energy", points: 5, reason: "Xingqiu Favonius Sword feeds high-cost bursts",
-    });
+    const ids = ["Neuvillette", "Ineffa", "Columbina", "Sucrose"];
+    const need = (t: ScoringCharacter[], id: string) => scoreTeam(t).energy.find((e) => e.id === id)!.need!;
+    expect(need(geared({ Sucrose: [favonius] }, ...ids), "Sucrose")).toBeLessThan(need(team(...ids), "Sucrose"));
   });
 
   test("an infusion conflicts with a melee carry of another element only", () => {

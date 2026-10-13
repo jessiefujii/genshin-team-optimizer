@@ -2,10 +2,10 @@ import type { EffectTag } from "../../types/effects";
 import { type Buff, type CompositionPref, type Role, type Talent } from "../../types/tags";
 import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
-import { energyCheck, erTargetOf } from "./energy";
+import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, normalAttacks, teamBuffStats } from "./kit";
-import { carryDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
+import { carryDamage, carryRotationSeconds, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -32,8 +32,7 @@ export const POINTS = {
   hypercarryMaxBuffers: 3, // a hypercarry (mainReaction 'none') is built around buffers, not reactions
   survivability: 10,
   noSurvivability: -10,
-  battery: 5,
-  starvedBursts: -5,
+  starvedBursts: -5, // per 20% of rotations a member can't Burst in, by the particle model (#37)
   ownAscendantGleam: 10, // a Moonsign carry's own kit upgrade at Ascendant Gleam (#63)
   ownSecretRite: 10, // a Hexerei carry's own kit upgrade at Hexerei: Secret Rite (#63)
   ownRadiance: 10, // a Stellar carry's own kit upgrade in Radiance (#63)
@@ -354,15 +353,6 @@ function teamLines(ctx: TeamContext, out: Sink) {
   if (sustain) out.add("Survivability", POINTS.survivability, () => `${sustain.id} heals or shields`);
   else out.add("Survivability", POINTS.noSurvivability, () => "No healer or shielder");
 
-  const hungry = members.filter((m) => m.energyNeed === "high");
-  const batteries = members.filter((m) => hasRole(m, "battery"));
-  const batteryName = (b: ScoringCharacter) => (b.roles.includes("battery") ? b.id : effectName(b, roleEffect(b, "battery")!));
-  if (hungry.some((h) => batteries.some((b) => b !== h))) {
-    out.add("Energy", POINTS.battery, () => `${batteries.map(batteryName).join(", ")} feeds high-cost bursts`);
-  } else if (hungry.length >= 2 && batteries.length === 0) {
-    out.add("Energy", POINTS.starvedBursts, () => `${hungry.length} high-cost bursts and no battery`);
-  }
-
   const anemo = members.filter((m) => m.element === "Anemo");
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   if (anemo.length >= 2 && !swirlActive) {
@@ -640,6 +630,7 @@ interface SubDpsSource {
   alternatives?: { when: { topElement?: Element }; hits?: number; every?: number; duration?: number }[];
   dmgBonusPerStat?: Partial<Record<ScaleStat, number>>; // DMG Bonus per point of a stat (Dendro Traveler, #172)
   pickOne?: string; // one source of the group per use, picked by the team's reactions
+  talent?: string; // the talent the hit is from: "burst" hits need the Burst's Energy (#37)
   cd: number;
 }
 // lunarBaseBonus: their own Moonsign Benediction's Base DMG bonus to their direct Lunar hits (PR #155; Ineffa,
@@ -786,6 +777,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
   const carryDps = modeledCarryDps(carry, ctx) ?? generic; // who out-damages whom: with reactions
   const shareOf = modeledCarryDps(carry, ctx, false) ?? generic;
   let lead: { m: ScoringCharacter; dps: number } | null = null;
+  const needs = energyNeeds(ctx.members, carry, carryRotationSeconds(carry, ctx.active, ctx.members));
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
     if (m === carry || !entry) continue;
@@ -794,6 +786,8 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     let dps = 0;
     let lunarDps = 0;
     const picked = pickedSources(entry.sources, carry, ctx);
+    // Burst hits only in the rotations the team's Energy funds (#37).
+    const burstPart = needs.get(m)?.share ?? 1;
     const own = entry.lunarBaseBonus;
     const lunarBase = (r: LunarReaction) => (own && own.reactions.includes(r) ? Math.min(own.max, own.perPoint * stat[own.stat]) : 0);
     for (const s of entry.sources) {
@@ -801,11 +795,12 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
       // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151), with
       // their own Moonsign Benediction Base DMG bonus (PR #155).
-      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * hitsPerSecond(s, carry, ctx, m);
+      const rate = hitsPerSecond(s, carry, ctx, m) * (s.talent === "burst" ? burstPart : 1);
+      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * rate;
       else {
         // DMG Bonus per point of a stat on this hit (Dendro Traveler's 0.15% per EM, #172).
         const perStat = Object.entries(s.dmgBonusPerStat ?? {}).reduce((a, [k, v]) => a + v * stat[k as ScaleStat], 0);
-        dps += perHit * hitsPerSecond(s, carry, ctx, m) * (1 + dmgBonus + perStat);
+        dps += perHit * rate * (1 + dmgBonus + perStat);
       }
     }
     // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
@@ -879,6 +874,22 @@ function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: Tea
     return m.reactions.some((r) => (r === "hyperbloom" || r === "burgeon") && ctx.active.includes(r));
   }
   return false;
+}
+
+// Bursts the team's Energy can't fund every rotation (#37, energy.ts): starvedBursts points per 20% of rotations a
+// member misses. Only for Bursts outside the damage model: the modeled carry's Burst hits and sub-DPS Burst sources
+// already lose that share of their damage. This replaces the role-based battery lines: a battery now counts by
+// keeping teammates' Bursts funded. A member with a build under their ER target is scored by statLines instead.
+function energyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  const seconds = carry ? carryRotationSeconds(carry, ctx.active, ctx.members) : undefined;
+  for (const [m, e] of energyNeeds(ctx.members, carry, seconds)) {
+    const modeled = m === carry ? seconds !== undefined : !!carry && SUB_DPS[m.id]?.sources.some((s) => s.talent === "burst");
+    if (e.share >= 1 || modeled || (m.stats && m.stats.energyRecharge < e.target)) continue;
+    const points = Math.round((POINTS.starvedBursts * (1 - e.share)) / 0.2);
+    if (points < 0) {
+      out.add("Energy", points, () => `${m.id} Bursts in ~${Math.round(e.share * 100)}% of rotations: needs ~${e.need}% ER here (${e.target}% target)`);
+    }
+  }
 }
 
 function statLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
@@ -959,6 +970,7 @@ function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: b
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);
     statLines(ctx, carry, out);
+    energyLines(ctx, carry, out);
     if (!best || out.total > best.out.total) best = { carry, lead, out };
   }
   return { ctx, carry: best!.carry, lead: best!.lead, out: best!.out };
@@ -981,6 +993,6 @@ export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}):
     activeReactions: ctx.active,
     defaultBuilds: team.filter((m) => !m.stats).map((m) => m.id),
     rotation,
-    energy: energyCheck(team),
+    energy: energyCheck(team, carry, carry ? carryRotationSeconds(carry, ctx.active, team) : undefined),
   };
 }
