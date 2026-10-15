@@ -1,0 +1,437 @@
+{
+  "median": 119477.7,
+  "carries": {
+    "Alhaitham": {
+      "team": [
+        "Alhaitham",
+        "Yae Miko",
+        "Nahida",
+        "Zhongli"
+      ],
+      "value": 186855
+    },
+    "Aloy": {
+      "team": [
+        "Aloy",
+        "Bennett",
+        "Xiangling",
+        "Shenhe"
+      ],
+      "value": 65246.3
+    },
+    "Arataki Itto": {
+      "team": [
+        "Arataki Itto",
+        "Xilonen",
+        "Furina",
+        "Yelan"
+      ],
+      "value": 117153.2
+    },
+    "Arlecchino": {
+      "team": [
+        "Arlecchino",
+        "Furina",
+        "Yelan",
+        "Xilonen"
+      ],
+      "value": 128717.6
+    },
+    "Chasca": {
+      "team": [
+        "Chasca",
+        "Escoffier",
+        "Furina",
+        "Citlali"
+      ],
+      "value": 108076.6
+    },
+    "Clorinde": {
+      "team": [
+        "Clorinde",
+        "Fischl",
+        "Nahida",
+        "Furina"
+      ],
+      "value": 126726.5
+    },
+    "Cyno": {
+      "team": [
+        "Cyno",
+        "Nahida",
+        "Yelan",
+        "Kuki Shinobu"
+      ],
+      "value": 106540.6
+    },
+    "Diluc": {
+      "team": [
+        "Diluc",
+        "Xingqiu",
+        "Yelan",
+        "Bennett"
+      ],
+      "value": 109310.5
+    },
+    "Eula": {
+      "team": [
+        "Eula",
+        "Kuki Shinobu",
+        "Shenhe",
+        "Yelan"
+      ],
+      "value": 81035
+    },
+    "Flins": {
+      "team": [
+        "Flins",
+        "Fischl",
+        "Columbina",
+        "Durin"
+      ],
+      "value": 130751.3
+    },
+    "Freminet": {
+      "team": [
+        "Freminet",
+        "Furina",
+        "Escoffier",
+        "Yae Miko"
+      ],
+      "value": 154752
+    },
+    "Gaming": {
+      "team": [
+        "Gaming",
+        "Citlali",
+        "Bennett",
+        "Escoffier"
+      ],
+      "value": 90801.2
+    },
+    "Ganyu": {
+      "team": [
+        "Ganyu",
+        "Furina",
+        "Escoffier",
+        "Citlali"
+      ],
+      "value": 126240.7
+    },
+    "Hu Tao": {
+      "team": [
+        "Hu Tao",
+        "Yelan",
+        "Zhongli",
+        "Albedo"
+      ],
+      "value": 168243.9
+    },
+    "Kamisato Ayaka": {
+      "team": [
+        "Kamisato Ayaka",
+        "Escoffier",
+        "Furina",
+        "Yelan"
+      ],
+      "value": 179368.8
+    },
+    "Kamisato Ayato": {
+      "team": [
+        "Kamisato Ayato",
+        "Escoffier",
+        "Furina",
+        "Yelan"
+      ],
+      "value": 147779.8
+    },
+    "Kaveh": {
+      "team": [
+        "Kaveh",
+        "Nilou",
+        "Yelan",
+        "Furina"
+      ],
+      "value": 123332.4
+    },
+    "Keqing": {
+      "team": [
+        "Keqing",
+        "Baizhu",
+        "Furina",
+        "Yelan"
+      ],
+      "value": 119942.6
+    },
+    "Kinich": {
+      "team": [
+        "Kinich",
+        "Dehya",
+        "Furina",
+        "Bennett"
+      ],
+      "value": 108309.2
+    },
+    "Klee": {
+      "team": [
+        "Klee",
+        "Durin",
+        "Columbina",
+        "Ineffa"
+      ],
+      "value": 143414.2
+    },
+    "Lohen": {
+      "team": [
+        "Lohen",
+        "Durin",
+        "Escoffier",
+        "Furina"
+      ],
+      "value": 144069.1
+    },
+    "Lyney": {
+      "team": [
+        "Lyney",
+        "Bennett",
+        "Xiangling",
+        "Zhongli"
+      ],
+      "value": 48711.3
+    },
+    "Mavuika": {
+      "team": [
+        "Mavuika",
+        "Citlali",
+        "Iansan",
+        "Bennett"
+      ],
+      "value": 128780.8
+    },
+    "Mualani": {
+      "team": [
+        "Mualani",
+        "Chiori",
+        "Mavuika",
+        "Xilonen"
+      ],
+      "value": 77981.2
+    },
+    "Navia": {
+      "team": [
+        "Navia",
+        "Xilonen",
+        "Furina",
+        "Yelan"
+      ],
+      "value": 119012.8
+    },
+    "Nefer": {
+      "team": [
+        "Nefer",
+        "Furina",
+        "Lauma",
+        "Ineffa"
+      ],
+      "value": 124171.4
+    },
+    "Neuvillette": {
+      "team": [
+        "Neuvillette",
+        "Ineffa",
+        "Nahida",
+        "Furina"
+      ],
+      "value": 154888.2
+    },
+    "Ningguang": {
+      "team": [
+        "Ningguang",
+        "Fischl",
+        "Furina",
+        "Xilonen"
+      ],
+      "value": 94659.1
+    },
+    "Noelle": {
+      "team": [
+        "Noelle",
+        "Linnea",
+        "Columbina",
+        "Furina"
+      ],
+      "value": 135915.9
+    },
+    "Raiden Shogun": {
+      "team": [
+        "Raiden Shogun",
+        "Furina",
+        "Yelan",
+        "Xilonen"
+      ],
+      "value": 114082.5
+    },
+    "Razor": {
+      "team": [
+        "Razor",
+        "Layla",
+        "Yelan",
+        "Xingqiu"
+      ],
+      "value": 88763.4
+    },
+    "Sandrone": {
+      "team": [
+        "Sandrone",
+        "Columbina",
+        "Ineffa",
+        "Yae Miko"
+      ],
+      "value": 130259
+    },
+    "Sethos": {
+      "team": [
+        "Sethos",
+        "Fischl",
+        "Nahida",
+        "Zhongli"
+      ],
+      "value": 84234.7
+    },
+    "Shikanoin Heizou": {
+      "team": [
+        "Shikanoin Heizou",
+        "Yelan",
+        "Kuki Shinobu",
+        "Traveler (Dendro)"
+      ],
+      "value": 77747.7
+    },
+    "Skirk": {
+      "team": [
+        "Skirk",
+        "Furina",
+        "Escoffier",
+        "Yelan"
+      ],
+      "value": 171863.1
+    },
+    "Tartaglia": {
+      "team": [
+        "Tartaglia",
+        "Albedo",
+        "Xiangling",
+        "Bennett"
+      ],
+      "value": 88189.4
+    },
+    "Tighnari": {
+      "team": [
+        "Tighnari",
+        "Fischl",
+        "Yae Miko",
+        "Yaoyao"
+      ],
+      "value": 106353.4
+    },
+    "Traveler (Cryo)": {
+      "team": [
+        "Traveler (Cryo)",
+        "Yae Miko",
+        "Odette",
+        "Alyosha"
+      ],
+      "value": 108067.1
+    },
+    "Varesa": {
+      "team": [
+        "Varesa",
+        "Iansan",
+        "Furina",
+        "Xianyun"
+      ],
+      "value": 135249.6
+    },
+    "Varka": {
+      "team": [
+        "Varka",
+        "Prune",
+        "Odette",
+        "Escoffier"
+      ],
+      "value": 108324.4
+    },
+    "Vesna": {
+      "team": [
+        "Vesna",
+        "Odette",
+        "Vodyanitsa",
+        "Traveler (Cryo)"
+      ],
+      "value": 78944.6
+    },
+    "Wanderer": {
+      "team": [
+        "Wanderer",
+        "Fischl",
+        "Yae Miko",
+        "Baizhu"
+      ],
+      "value": 83628.3
+    },
+    "Wriothesley": {
+      "team": [
+        "Wriothesley",
+        "Escoffier",
+        "Furina",
+        "Yelan"
+      ],
+      "value": 186278.9
+    },
+    "Xiao": {
+      "team": [
+        "Xiao",
+        "Faruzan",
+        "Xianyun",
+        "Furina"
+      ],
+      "value": 103268.6
+    },
+    "Yanfei": {
+      "team": [
+        "Yanfei",
+        "Furina",
+        "Yelan",
+        "Xianyun"
+      ],
+      "value": 119942.6
+    },
+    "Yoimiya": {
+      "team": [
+        "Yoimiya",
+        "Yelan",
+        "Ineffa",
+        "Bennett"
+      ],
+      "value": 124272.9
+    },
+    "Yumemizuki Mizuki": {
+      "team": [
+        "Yumemizuki Mizuki",
+        "Ineffa",
+        "Columbina",
+        "Durin"
+      ],
+      "value": 117119.5
+    },
+    "Zibai": {
+      "team": [
+        "Zibai",
+        "Linnea",
+        "Columbina",
+        "Ineffa"
+      ],
+      "value": 154749.4
+    }
+  }
+}

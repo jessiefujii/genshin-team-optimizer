@@ -2,10 +2,11 @@
 // (design doc, "Model checks before any compare"). A failure names the team, the member and the rule.
 // A check the scorer can't pass yet is a `test.fails` naming the issue that fixes it: when the fix lands, the test
 // starts passing, vitest reports that as a failure, and it becomes a plain `test`.
-// Still to come: "counted once" needs team damage (#202).
+// Still to come: "counted once", once buffs reach every member's hits (#204).
 import { describe, expect, test } from "vitest";
 import kitJson from "../../../data/kit.json";
 import particlesJson from "../../../data/particles.json";
+import referenceJson from "../../../data/team-reference.json";
 import jessieRoster from "../../../data/test-rosters/jessie.json";
 import type { CharacterBuild } from "../../types/build";
 import { hasCarryKit } from "./damage";
@@ -163,54 +164,41 @@ function stronger(m: ScoringCharacter): ScoringCharacter {
   return { ...m, stats: { ...s, atk: s.atk * 1.1, hp: s.hp * 1.1, elementalMastery: s.elementalMastery + 50, critRate: s.critRate + 5 } };
 }
 
-const lineTotals = (s: ScoredTeam) => {
-  const out = new Map<string, number>();
-  for (const l of s.breakdown) out.set(l.rule, (out.get(l.rule) ?? 0) + l.points);
-  return out;
-};
-
-// Score drops when one member gets stronger, with the rules whose lines fell.
+// Score drops when one member gets stronger.
 const drops = (() => {
-  const out: { where: string; rules: string[] }[] = [];
+  const out: string[] = [];
   for (const team of sampleTeams(built, 150, 202)) {
     const before = scoreTeam(team);
     for (let i = 0; i < 4; i++) {
       const after = scoreTeam(team.map((m, j) => (j === i ? stronger(m) : m)));
-      if (after.score >= before.score) continue;
-      const was = lineTotals(before);
-      const fell = [...lineTotals(after)].filter(([r, p]) => p < (was.get(r) ?? 0)).map(([r]) => r);
-      out.push({ where: `${names(team)}: stronger ${team[i].id}, ${before.score} -> ${after.score}`, rules: fell });
+      if (after.score < before.score) out.push(`${names(team)}: stronger ${team[i].id}, ${before.score} -> ${after.score}`);
     }
   }
   return out;
 })();
 
-// Lines measured against the carry's own damage, which shrink when the carry gets stronger: sub-DPS and buffer
-// shares (Alyosha's ~+7% on Flins rounds 3 -> 2), and the carry's build and talent lines, which scale with the
-// carry's points, teammates' buffs included (a stronger Shenhe: Freminet's buff +1, his build and talent lines -2).
-// Team damage against one reference fixes all four (#202).
-const RELATIVE_TO_CARRY = ["Sub-DPS", "Buffs", "Carry build", "Carry talent"];
-
 describe("monotonic", () => {
-  test("a stronger member never lowers the score, apart from lines relative to the carry (#202)", () => {
-    const bad = drops.filter((d) => d.rules.some((r) => !RELATIVE_TO_CARRY.includes(r)));
-    expect(bad.map((d) => `${d.where} (${d.rules.join(", ")})`)).toEqual([]);
-  });
-
-  test.fails("a stronger member never lowers the score (#202)", () => {
-    expect(drops.map((d) => d.where)).toEqual([]);
+  // Before #202, lines measured against the carry's own damage shrank when the carry got stronger (sub-DPS and buffer
+  // shares), and the carry's build and talent lines scaled with teammates' buffs.
+  test("a stronger member never lowers the score (#202)", () => {
+    expect(drops).toEqual([]);
   });
 });
 
+// A member's own damage per second, from their Sub-DPS line.
+const ownDps = (s: ScoredTeam, id: string) => {
+  const line = s.breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(`${id}'s own hits`));
+  return Number(line?.reason.match(/~(\d+) damage per second/)?.[1] ?? 0);
+};
+
 describe("same hits, same damage", () => {
-  // Yae Miko's turrets don't depend on the carry, so the same turrets should score the same in every team. Today
-  // they are a share of the carry's damage without reactions (#199): +309% next to Nefer, +63% next to Alhaitham.
-  test.fails("a sub-DPS whose hits don't depend on the carry scores the same with any carry (#199, #202)", () => {
-    const yae = ["Nefer", "Clorinde", "Alhaitham", "Skirk"].map((carry) => {
-      const s = scoreTeam(["Yae Miko", carry, "Zhongli", "Kaedehara Kazuha"].map((id) => byId.get(id)!));
-      return s.breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Yae Miko"))?.points ?? 0;
-    });
-    expect(Math.max(...yae) / Math.min(...yae)).toBeLessThan(1.1);
+  // Yae Miko's turrets don't depend on the carry: next to two Dendro carries they Aggravate alike and her Burst is
+  // funded alike (another element's carry changes her particles, so her Burst share). Before #202 they were a share of
+  // the carry's damage without reactions (#199): +309% next to Nefer, +63% next to Alhaitham.
+  test("a sub-DPS whose hits get the same reactions and Energy deals the same damage with any carry (#199)", () => {
+    const yae = (carry: string) => ownDps(scoreTeam(["Yae Miko", carry, "Zhongli", "Kaedehara Kazuha"].map((id) => byId.get(id)!)), "Yae Miko");
+    expect(yae("Nefer")).toBeGreaterThan(0);
+    expect(yae("Nefer")).toBe(yae("Alhaitham"));
   });
 });
 
@@ -228,26 +216,18 @@ describe("flat points", () => {
 });
 
 describe("outlier sweep", () => {
-  // Any single line worth 100+ points (+200% damage) is listed for review. Known ones, with the issue that explains
-  // them, stay below; a new one fails until someone looks at it.
-  const KNOWN_OUTLIERS: Record<string, string> = {
-    "Nefer|Furina": "#199",
-    "Nefer|Ineffa": "#199",
-    "Nefer|Columbina": "#199",
-    "Flins|Yelan": "#199",
-  };
+  // No team should score far above the best guide team of any carry: a team above 1.5x the highest guide-team score
+  // is listed for review (Nefer at 485 and Clorinde at 327 were #199). A known one gets a line here with its issue.
+  const KNOWN_OUTLIERS: Record<string, string> = {};
 
-  test("no unreviewed line worth 100+ points", () => {
-    const bad: string[] = [];
-    for (const { team, s } of scored) {
-      for (const l of s.breakdown) {
-        if (l.points < 100) continue;
-        const who = team.find((m) => l.reason.startsWith(m.id))?.id ?? "?";
-        if (!KNOWN_OUTLIERS[`${s.onField}|${who}`]) bad.push(`${l.points} ${l.rule}: ${l.reason} [${names(team)}]`);
-      }
-    }
+  test("no unreviewed team above 1.5x the best guide team", () => {
+    const best = Math.max(...Object.values(referenceJson.carries).map((c) => c.value));
+    const ceiling = (1.5 * 100 * best) / referenceJson.median;
+    const bad = scored
+      .filter(({ team, s }) => s.score > ceiling && !KNOWN_OUTLIERS[key(team.map((m) => m.id))])
+      .map(({ team, s }) => `${Math.round(s.score)} [${names(team)}]: ${s.breakdown[0].reason}`);
     expect(bad).toEqual([]);
   });
 });
 
-test.todo("counted once: removing a buff's source lowers team damage by that buff alone (#202)");
+test.todo("counted once: removing a buff's source lowers team damage by that buff alone (#204)");
