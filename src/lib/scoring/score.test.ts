@@ -217,6 +217,18 @@ describe("scoreTeam", () => {
     expect(withPrefs(skirk, "Skirk", "Escoffier", "Furina", "Bennett").some((l) => l.points < 0)).toBe(true);
   });
 
+  test("survivability scores by how much of the rotation shields and heals cover (#177)", () => {
+    const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
+    // Zhongli's shield: 20s per 12s Hold cooldown, always up.
+    expect(line("Hu Tao", "Zhongli", "Xingqiu", "Yelan")).toEqual({ rule: "Survivability", points: 10, reason: "Zhongli heal or shield ~100% of the rotation" });
+    // Bennett's field: 12s per 15s; Bennett and Xianyun (16s per 18s) together: 1 - 0.2 x 0.11.
+    expect(line("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu").points).toBe(8);
+    expect(line("Xiao", "Bennett", "Xianyun", "Faruzan").reason).toBe("Bennett, Xianyun heal or shield ~98% of the rotation");
+    // Jean's field has no duration in the kit: she counts as full, as the healer tag did.
+    expect(line("Kamisato Ayaka", "Jean", "Shenhe", "Furina").points).toBe(10);
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
+  });
+
   test("Hexerei only counts for characters whose quest is done", () => {
     const ids = ["Varka", "Venti", "Klee", "Durin"];
     const locked = scoreTeam(team(...ids), { hexereiUnlocked: ["Varka"] });
@@ -334,7 +346,7 @@ describe("scoreTeam", () => {
 
     test("element buffs only count for that element", () => {
       expect(buffLine(score("Hu Tao", "Shenhe", "Xingqiu", "Zhongli"), "Shenhe")?.points).toBe(0);
-      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(11);
+      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(16); // Quills + Burst Cryo RES shred (#177)
     });
 
     test("EM buffs need a reaction that uses EM", () => {
