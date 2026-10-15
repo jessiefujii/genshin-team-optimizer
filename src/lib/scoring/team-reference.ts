@@ -3,6 +3,7 @@
 // against the median, so stronger carries rank higher; each carry's own best guide team gives the per-carry ratio.
 // data/team-reference.json holds the result: `npm run reference` rewrites it after a scoring change, and
 // team-reference.test.ts fails while it is stale. Carries with no guide team get one sourced first (#210).
+import { GUIDE_TEAMS } from "./guide-teams";
 import { KNOWN_TEAMS } from "./known-teams";
 import { META_TEAMS } from "./meta-teams";
 import { carryTeamValue } from "./score";
@@ -20,6 +21,7 @@ export function computeReference(all: readonly ScoringCharacter[]): TeamReferenc
   const guide = new Map<string, (readonly string[])[]>();
   for (const k of KNOWN_TEAMS) guide.set(k.carry, [...k.teams]);
   for (const m of META_TEAMS) guide.set(m.carry, [...(guide.get(m.carry) ?? []), m.topPick, ...m.teams]);
+  for (const g of GUIDE_TEAMS) guide.set(g.carry, [...(guide.get(g.carry) ?? []), ...g.teams]);
 
   const carries: TeamReference["carries"] = {};
   for (const carry of [...guide.keys()].sort()) {

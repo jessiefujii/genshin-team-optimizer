@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import referenceJson from "../../../data/team-reference.json";
 import { loadScoringCharacters } from "./load";
 import { scoreTeam } from "./score";
+import { GUIDE_TEAMS } from "./guide-teams";
 import { computeReference, type TeamReference } from "./team-reference";
 
 const all = loadScoringCharacters();
@@ -9,6 +10,16 @@ const byId = new Map(all.map((c) => [c.id, c]));
 const stored = referenceJson as TeamReference;
 
 describe("guide-team reference (#202)", () => {
+  test("guide teams (#210): four different known characters, the carry among them", () => {
+    for (const { carry, teams } of GUIDE_TEAMS) {
+      for (const t of teams) {
+        expect(new Set(t).size, t.join(", ")).toBe(4);
+        expect(t, carry).toContain(carry);
+        for (const id of t) expect(byId.has(id), `${id} is not in tags.json`).toBe(true);
+      }
+    }
+  });
+
   // A scoring change moves every value; the stored reference must move with it, or every score drifts.
   test("data/team-reference.json matches the scorer (else run npm run reference)", () => {
     expect(computeReference(all)).toEqual(stored);

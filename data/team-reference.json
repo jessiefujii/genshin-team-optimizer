@@ -1,5 +1,5 @@
 {
-  "median": 128780.8,
+  "median": 127722.1,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -73,6 +73,15 @@
       ],
       "value": 108309.2
     },
+    "Klee": {
+      "team": [
+        "Klee",
+        "Durin",
+        "Columbina",
+        "Ineffa"
+      ],
+      "value": 143414.2
+    },
     "Mavuika": {
       "team": [
         "Mavuika",
@@ -127,6 +136,33 @@
       ],
       "value": 171863.1
     },
+    "Tartaglia": {
+      "team": [
+        "Tartaglia",
+        "Albedo",
+        "Xiangling",
+        "Bennett"
+      ],
+      "value": 88189.4
+    },
+    "Tighnari": {
+      "team": [
+        "Tighnari",
+        "Fischl",
+        "Yae Miko",
+        "Yaoyao"
+      ],
+      "value": 106353.4
+    },
+    "Traveler (Cryo)": {
+      "team": [
+        "Traveler (Cryo)",
+        "Yae Miko",
+        "Odette",
+        "Alyosha"
+      ],
+      "value": 108067.1
+    },
     "Varesa": {
       "team": [
         "Varesa",
@@ -171,6 +207,15 @@
         "Furina"
       ],
       "value": 103268.6
+    },
+    "Yoimiya": {
+      "team": [
+        "Yoimiya",
+        "Yelan",
+        "Ineffa",
+        "Bennett"
+      ],
+      "value": 124272.9
     },
     "Yumemizuki Mizuki": {
       "team": [
