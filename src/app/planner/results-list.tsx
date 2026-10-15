@@ -103,17 +103,22 @@ export default function ResultsList({ teams, byId }: Props) {
                           <th className="pr-3 text-left font-normal">Burst</th>
                           <th className="pr-3 text-right font-normal">Cost</th>
                           <th className="pr-3 text-right font-normal">ER target</th>
+                          <th className="pr-3 text-right font-normal" title="From this team's particles (#37)">Needs here</th>
                           <th className="text-right font-normal">ER</th>
                         </tr>
                       </thead>
                       <tbody>
                         {team.energy.map((e) => {
                           const low = e.target !== undefined && e.er !== undefined && e.er < e.target;
+                          const short = e.need !== undefined && e.target !== undefined && e.need > (e.er ?? e.target);
                           return (
                             <tr key={e.id}>
                               <td className="pr-3">{e.id}</td>
                               <td className="pr-3 text-right tabular-nums">{e.cost}</td>
                               <td className="pr-3 text-right tabular-nums">{e.target === undefined ? "not checked" : `${e.target}%`}</td>
+                              <td className={`pr-3 text-right tabular-nums ${short ? "text-red-700 dark:text-red-400" : ""}`}>
+                                {e.need === undefined ? "" : `${e.need}%`}
+                              </td>
                               <td
                                 className={`text-right tabular-nums ${e.er === undefined ? "text-zinc-400" : low ? "text-red-700 dark:text-red-400" : "text-green-700 dark:text-green-400"}`}
                               >

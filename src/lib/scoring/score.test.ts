@@ -108,10 +108,39 @@ describe("scoreTeam", () => {
   });
 
   test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
-    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share.
+    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share. Nahida's Dendro also lets
+    // Fischl's own hits Aggravate (#153), which adds to her share instead.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+60% damage");
-    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+60% damage");
+    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+58% damage");
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+71% damage, with Aggravate");
+  });
+
+  test("a sub-DPS's own hits react when a teammate brings the other element (#153)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Hu Tao's Pyro reacts with Xingqiu's Hydro and leaves little Pyro aura, so his swords don't vaporize (#191).
+    expect(line("Xingqiu", "Hu Tao", "Xingqiu", "Yelan", "Zhongli")).not.toMatch(/with/);
+    // Xiangling's Pyro vaporizes on Xingqiu's Hydro with Raiden, though neither is on field.
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
+    // Without a Pyro member, Xingqiu's hits don't amplify (Bloom is a transformative reaction: not counted here).
+    expect(line("Xingqiu", "Alhaitham", "Xingqiu", "Nahida", "Zhongli")).not.toMatch(/with/);
+    // Anemo and Geo hits never amplify or catalyze.
+    expect(line("Chiori", "Clorinde", "Fischl", "Nahida", "Chiori")).not.toMatch(/with/);
+    // The reaction adds to the share: Fischl with Nahida (Aggravate) beats Fischl with Chiori.
+    expect(pct(line("Fischl", "Clorinde", "Fischl", "Nahida", "Zhongli"))).toBeGreaterThan(pct(line("Fischl", "Clorinde", "Fischl", "Zhongli", "Chiori")));
+  });
+
+  test("Vaporize and Melt on sub-DPS hits share one aura budget (#189, #191)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Durin's Pyro aura is shared: Escoffier melts on it, until Furina's Hydro vaporizes it first.
+    expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/, with Melt$/);
+    const withFurina = line("Escoffier", "Skirk", "Escoffier", "Durin", "Furina");
+    expect(withFurina).not.toMatch(/with/);
+    expect(pct(withFurina)).toBeLessThan(pct(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")));
+    // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
+    // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toBe("Xiangling's own hits add ~+35% damage, with Vaporize");
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
@@ -187,6 +216,18 @@ describe("scoreTeam", () => {
     // A carry's onlyElements preference that the team breaks costs points.
     const skirk = { Skirk: [{ kind: "composition" as const, onlyElements: ["Hydro" as const, "Cryo" as const] }] };
     expect(withPrefs(skirk, "Skirk", "Escoffier", "Furina", "Bennett").some((l) => l.points < 0)).toBe(true);
+  });
+
+  test("survivability scores by how much of the rotation shields and heals cover (#177)", () => {
+    const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
+    // Zhongli's shield: 20s per 12s Hold cooldown, always up.
+    expect(line("Hu Tao", "Zhongli", "Xingqiu", "Yelan")).toEqual({ rule: "Survivability", points: 10, reason: "Zhongli heal or shield ~100% of the rotation" });
+    // Bennett's field: 12s per 15s; Bennett and Xianyun (16s per 18s) together: 1 - 0.2 x 0.11.
+    expect(line("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu").points).toBe(8);
+    expect(line("Xiao", "Bennett", "Xianyun", "Faruzan").reason).toBe("Bennett, Xianyun heal or shield ~98% of the rotation");
+    // Jean's field has no duration in the kit: she counts as full, as the healer tag did.
+    expect(line("Kamisato Ayaka", "Jean", "Shenhe", "Furina").points).toBe(10);
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
   });
 
   test("Hexerei only counts for characters whose quest is done", () => {
@@ -306,7 +347,7 @@ describe("scoreTeam", () => {
 
     test("element buffs only count for that element", () => {
       expect(buffLine(score("Hu Tao", "Shenhe", "Xingqiu", "Zhongli"), "Shenhe")?.points).toBe(0);
-      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(11);
+      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(16); // Quills + Burst Cryo RES shred (#177)
     });
 
     test("EM buffs need a reaction that uses EM", () => {
@@ -453,15 +494,21 @@ describe("sub-DPS (#96)", () => {
 
   test("a sub-DPS without a build gets a KQM Standards build for the stat they scale on (#158, #164-#167)", () => {
     const stats = (id: string) => subDpsStats(byId.get(id)!)!;
-    // Ineffa scales on ATK: level 90 base 330 + the 500 benchmark weapon, ATK% sands + 4 ATK% rolls, plume, 2 ATK rolls.
+    // Ineffa scales on ATK: level 90 base 330 + the 500 benchmark weapon, ATK% sands + the 2 fixed ATK% rolls, plume,
+    // 2 ATK rolls. KQM: "ER (until requirement)* > CRIT > ATK% > EM": 8 ER rolls reach her 150% (#173), CRIT takes the rest.
     const ineffa = stats("Ineffa");
-    expect(ineffa.atk).toBeCloseTo(830 * (1 + 0.466 + 4 * 0.0496) + 311 + 2 * 16.54, 0);
-    expect(ineffa.em).toBeCloseTo(2 * 19.82, 1); // KQM: "CRIT > ATK% > EM", so only the 2 fixed EM rolls
-    // CRIT Rate circlet, 2 fixed + 8 rolls, and her level 90 ascension stat, CRIT Rate 24.2% (#166).
-    expect(ineffa.critRate).toBeCloseTo(0.05 + 0.311 + 10 * 0.0331 + 0.242, 3);
-    expect(ineffa.critDmg).toBeCloseTo(0.5 + 12 * 0.0662, 3); // 2 fixed + 10 rolls
-    // Columbina scales on HP; KQM "CRIT = HP%" spreads the rolls: HP% 6, CRIT Rate 7, CRIT DMG 7.
-    expect(stats("Columbina").hp).toBeCloseTo(14695 * (1 + 0.466 + 8 * 0.0496) + 4780 + 2 * 253.94, 0);
+    expect(ineffa.er).toBeCloseTo(1 + 10 * 0.0551, 3);
+    expect(ineffa.atk).toBeCloseTo(830 * (1 + 0.466 + 2 * 0.0496) + 311 + 2 * 16.54, 0);
+    expect(ineffa.em).toBeCloseTo(2 * 19.82, 1); // only the 2 fixed EM rolls
+    // CRIT Rate circlet, 2 fixed + 6 rolls, and her level 90 ascension stat, CRIT Rate 24.2% (#166).
+    expect(ineffa.critRate).toBeCloseTo(0.05 + 0.311 + 8 * 0.0331 + 0.242, 3);
+    expect(ineffa.critDmg).toBeCloseTo(0.5 + 8 * 0.0662, 3); // 2 fixed + 6 rolls
+    // Columbina scales on HP; after 8 ER rolls, KQM "CRIT = HP%" spreads the other 12: HP% 4, CRIT Rate 4, CRIT DMG 4.
+    expect(stats("Columbina").hp).toBeCloseTo(14695 * (1 + 0.466 + 6 * 0.0496) + 4780 + 2 * 253.94, 0);
+    // A 200% requirement is out of reach with 10 ER rolls: ER sands (51.8%) and 7 rolls (Xingqiu, #173).
+    expect(stats("Xingqiu").er).toBeCloseTo(1 + 0.518 + 9 * 0.0551, 3);
+    // No ER in the KQM priority: only the 2 fixed rolls (Chiori: "CRIT > DEF% > ATK%").
+    expect(stats("Chiori").er).toBeCloseTo(1 + 2 * 0.0551, 3);
     // Nahida is hand-tagged EM first (#167): EM sands, goblet and circlet, EM 800 (Jessie) + her 115.2 EM ascension stat.
     expect(stats("Nahida")).toMatchObject({ em: 915.2, dmgBonus: 0 });
     // Albedo's Geo DMG ascension stat adds to the Geo goblet.
@@ -624,8 +671,8 @@ describe("talent levels (#25)", () => {
     expect(topElement(team("Skirk", "Jahoda", "Citlali", "Bennett"))).toBe("Cryo");
     expect(topElement(team("Jahoda", "Sucrose", "Zhongli", "Lynette"))).toBeUndefined();
     const jahodaLine = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Jahoda's own hits"))?.reason;
-    expect(jahodaLine("Flins", "Jahoda", "Citlali", "Escoffier")).toBe("Jahoda's own hits add ~+24% damage"); // 12 hits
-    expect(jahodaLine("Flins", "Jahoda", "Ineffa", "Escoffier")).toBe("Jahoda's own hits add ~+22% damage"); // 10
+    expect(jahodaLine("Flins", "Jahoda", "Citlali", "Escoffier")).toBe("Jahoda's own hits add ~+19% damage"); // 12 hits
+    expect(jahodaLine("Flins", "Jahoda", "Ineffa", "Escoffier")).toBe("Jahoda's own hits add ~+18% damage"); // 10
   });
 
   test("Fighting Spirit decisions (#126): Ororon's Hydro/Electro points, Raiden's Musou Isshin hits, Skill only", () => {
@@ -763,13 +810,11 @@ describe("effects.json in scoring", () => {
     expect(lines(geared({ Bennett: many }, "Hu Tao", "Bennett", "Xingqiu", "Zhongli"), "Effects")).toHaveLength(3);
   });
 
-  test("a battery role from a weapon feeds high-cost bursts", () => {
+  test("a Favonius weapon's particles lower the team's ER needs (#37)", () => {
     const favonius: EffectTag = { source: "weapon", id: "Favonius Sword", roles: ["battery"] };
-    const vape = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli"];
-    expect(lines(team(...vape), "Energy")[0].points).toBe(-5); // two high-cost bursts, no battery
-    expect(lines(geared({ Xingqiu: [favonius] }, ...vape), "Energy")[0]).toEqual({
-      rule: "Energy", points: 5, reason: "Xingqiu Favonius Sword feeds high-cost bursts",
-    });
+    const ids = ["Neuvillette", "Ineffa", "Columbina", "Sucrose"];
+    const need = (t: ScoringCharacter[], id: string) => scoreTeam(t).energy.find((e) => e.id === id)!.need!;
+    expect(need(geared({ Sucrose: [favonius] }, ...ids), "Sucrose")).toBeLessThan(need(team(...ids), "Sucrose"));
   });
 
   test("an infusion conflicts with a melee carry of another element only", () => {

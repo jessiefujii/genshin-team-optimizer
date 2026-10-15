@@ -765,6 +765,18 @@
           "duration": 10,
           "cd": 10,
           "uptime": 1
+        },
+        {
+          "kind": "resShred",
+          "value": 0.14,
+          "elements": [
+            "Cryo"
+          ],
+          "unit": "Cryo RES",
+          "source": "burst talent \"RES Decrease\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
         }
       ]
     },
@@ -1575,7 +1587,8 @@
             "atk": 2.2168
           },
           "hits": 1,
-          "cd": 30
+          "cd": 30,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -1594,7 +1607,8 @@
             "atk": 6.2424
           },
           "hits": 1,
-          "cd": 12
+          "cd": 12,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -1667,7 +1681,8 @@
             "atk": 2.0944
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -1676,7 +1691,11 @@
             "atk": 8.59248
           },
           "hits": 1,
-          "cd": 12
+          "cd": 12,
+          "icd": {
+            "reset": 1,
+            "every": 3
+          }
         }
       ]
     },
@@ -1698,7 +1717,8 @@
             "atk": 2.0672
           },
           "hits": 1,
-          "cd": 7.5
+          "cd": 7.5,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -1707,7 +1727,8 @@
             "atk": 2.0672
           },
           "hits": 1,
-          "cd": 20
+          "cd": 20,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -1741,7 +1762,11 @@
             "def": 3.1722
           },
           "hits": 1,
-          "cd": 16
+          "cd": 16,
+          "icd": {
+            "reset": 1.9,
+            "every": "first"
+          }
         },
         {
           "talent": "skill",
@@ -1752,7 +1777,11 @@
           },
           "every": 3.6,
           "duration": 17,
-          "cd": 16
+          "cd": 16,
+          "icd": {
+            "reset": 1.9,
+            "every": "first"
+          }
         },
         {
           "talent": "burst",
@@ -1762,7 +1791,8 @@
             "def": 5.4468
           },
           "hits": 1,
-          "cd": 13.5
+          "cd": 13.5,
+          "icd": "none"
         }
       ]
     },
@@ -1784,7 +1814,8 @@
             "atk": 2.92468
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -1793,7 +1824,8 @@
             "atk": 2.4208
           },
           "hits": 3,
-          "cd": 12
+          "cd": 12,
+          "icd": "none"
         }
       ]
     },
@@ -1815,7 +1847,8 @@
             "atk": 1.24032
           },
           "hits": 1,
-          "cd": 16
+          "cd": 16,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -1826,7 +1859,11 @@
           },
           "hits": 6,
           "cd": 16,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dawnfrost_Darkstar, fetched 2026-10-10 (talent page): \"Frostfall Storm hits once every second.\" It runs while Opal Fire burns 8 Nightsoul points per second (genshin-db skill table). Per rotation she gains 24 (skill) + 24 (burst, \"Ice Storm Nightsoul Point Gain\") + 3 (one Spiritvessel Skull) = 51 points, so ~6.4s of storm: 6 hits. Worked out here, not a wiki number."
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dawnfrost_Darkstar, fetched 2026-10-10 (talent page): \"Frostfall Storm hits once every second.\" It runs while Opal Fire burns 8 Nightsoul points per second (genshin-db skill table). Per rotation she gains 24 (skill) + 24 (burst, \"Ice Storm Nightsoul Point Gain\") + 3 (one Spiritvessel Skull) = 51 points, so ~6.4s of storm: 6 hits. Worked out here, not a wiki number.",
+          "icd": {
+            "reset": 1.5,
+            "every": "first"
+          }
         },
         {
           "talent": "burst",
@@ -1836,7 +1873,8 @@
             "em": 12
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -1867,7 +1905,8 @@
             "hp": 0.28424
           },
           "hits": 1,
-          "cd": 17
+          "cd": 17,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -1878,7 +1917,8 @@
           "every": 2,
           "duration": 25,
           "cd": 17,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-11 (talent page): \"Gravity Ripple attacks once every 2 seconds.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-11 (talent page): \"Gravity Ripple attacks once every 2 seconds.\"",
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -1887,7 +1927,8 @@
             "hp": 0.54808
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -1961,7 +2002,8 @@
             "atk": 2.5704
           },
           "hits": 2,
-          "cd": 12
+          "cd": 12,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -1970,7 +2012,11 @@
             "atk": 3.431008
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": {
+            "reset": 3,
+            "every": "first"
+          }
         },
         {
           "talent": "burst",
@@ -1980,7 +2026,11 @@
           },
           "hits": 12,
           "cd": 15,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Collei, fetched 2026-10-10: \"This skill ticks a total of 12 times, in addition to the initial hit.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Collei, fetched 2026-10-10: \"This skill ticks a total of 12 times, in addition to the initial hit.\"",
+          "icd": {
+            "reset": 3,
+            "every": "first"
+          }
         }
       ]
     },
@@ -2002,7 +2052,8 @@
             "atk": 1.91896
           },
           "hits": 1,
-          "cd": 20
+          "cd": 20,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -2013,7 +2064,8 @@
           },
           "every": 2.5,
           "duration": 12,
-          "cd": 20
+          "cd": 20,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2034,7 +2086,8 @@
             "hp": 0.040596
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         }
       ]
     },
@@ -2098,7 +2151,8 @@
             "atk": 0.80036
           },
           "hits": 1,
-          "cd": 14
+          "cd": 14,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -2109,7 +2163,11 @@
           "every": 1.5,
           "duration": 22,
           "cd": 14,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Emilie, fetched 2026-10-10: \"Level 1/2 Lumidouce Case attacks once every 1.5 seconds.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Emilie, fetched 2026-10-10: \"Level 1/2 Lumidouce Case attacks once every 1.5 seconds.\"",
+          "icd": {
+            "reset": 2,
+            "every": "first"
+          }
         },
         {
           "talent": "skill",
@@ -2119,7 +2177,8 @@
           },
           "every": 10,
           "duration": 22,
-          "cd": 14
+          "cd": 14,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2151,7 +2210,11 @@
             "atk": 0.8568
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": {
+            "reset": 1.5,
+            "every": "first"
+          }
         },
         {
           "talent": "skill",
@@ -2162,7 +2225,11 @@
           "every": 1,
           "duration": 20,
           "cd": 15,
-          "rateSource": "HoYoLAB, \"[5.6] Escoffier - COMPLETE GUIDE\" by Magnus Minorium, https://www.hoyolab.com/article/38652033 (from Jessie, fetched 2026-10-10; talent values at Lv.9 match genshin-db): \"Note: The Frosty Parfaits are fired once every second to the closest enemy.\""
+          "rateSource": "HoYoLAB, \"[5.6] Escoffier - COMPLETE GUIDE\" by Magnus Minorium, https://www.hoyolab.com/article/38652033 (from Jessie, fetched 2026-10-10; talent values at Lv.9 match genshin-db): \"Note: The Frosty Parfaits are fired once every second to the closest enemy.\"",
+          "icd": {
+            "reset": 1.5,
+            "every": "first"
+          }
         },
         {
           "talent": "skill",
@@ -2172,7 +2239,8 @@
           },
           "every": 10,
           "duration": 20,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2181,7 +2249,8 @@
             "atk": 10.0776
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         }
       ]
     },
@@ -2203,7 +2272,8 @@
             "atk": 1.96248
           },
           "hits": 1,
-          "cd": 25
+          "cd": 25,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -2214,7 +2284,11 @@
           "every": 1,
           "duration": 20,
           "cd": 25,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Fischl, fetched 2026-10-10: \"Oz attacks at 1-second intervals. ... With proper rotation between this skill and Fischl's Elemental Skill, Oz can be on the field for 20s (or 24s with Fischl's C6) every 25s.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Fischl, fetched 2026-10-10: \"Oz attacks at 1-second intervals. ... With proper rotation between this skill and Fischl's Elemental Skill, Oz can be on the field for 20s (or 24s with Fischl's C6) every 25s.\"",
+          "icd": {
+            "reset": 5,
+            "every": 4
+          }
         },
         {
           "talent": "burst",
@@ -2223,7 +2297,11 @@
             "atk": 3.536
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": {
+            "reset": 5,
+            "every": 4
+          }
         }
       ]
     },
@@ -2245,7 +2323,8 @@
             "hp": 0.133688
           },
           "hits": 1,
-          "cd": 20
+          "cd": 20,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -2258,7 +2337,11 @@
           "times": 1.4,
           "timesNeedsHealer": true,
           "cd": 20,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Gentilhomme Usher Will attack if target is within 6m, with 2.9s CD.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Gentilhomme Usher Will attack if target is within 6m, with 2.9s CD.\"",
+          "icd": {
+            "reset": 30,
+            "every": 2
+          }
         },
         {
           "talent": "skill",
@@ -2271,7 +2354,11 @@
           "times": 1.4,
           "timesNeedsHealer": true,
           "cd": 20,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Surintendante Chevalmarin Will attack if target is within 9.5m, with 1.19s CD.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Surintendante Chevalmarin Will attack if target is within 9.5m, with 1.19s CD.\"",
+          "icd": {
+            "reset": 30,
+            "every": 2
+          }
         },
         {
           "talent": "skill",
@@ -2284,7 +2371,8 @@
           "times": 1.4,
           "timesNeedsHealer": true,
           "cd": 20,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Mademoiselle Crabaletta Will attack if target is within 20m, with 4.8s CD.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Furina, fetched 2026-10-10: \"Mademoiselle Crabaletta Will attack if target is within 20m, with 4.8s CD.\"",
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2293,7 +2381,8 @@
             "hp": 0.193909
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         }
       ]
     },
@@ -2442,7 +2531,8 @@
             "def": 6.5416
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         }
       ]
     },
@@ -2464,7 +2554,8 @@
             "atk": 3.2504
           },
           "hits": 1,
-          "cd": 6
+          "cd": 6,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2554,7 +2645,8 @@
             "atk": 8.2824
           },
           "hits": 1,
-          "cd": 16
+          "cd": 16,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2628,7 +2720,8 @@
             "atk": 2.2168
           },
           "hits": 1,
-          "cd": 25
+          "cd": 25,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -2640,7 +2733,11 @@
           "every": 2.5,
           "duration": 25,
           "needsReaction": true,
-          "cd": 6
+          "cd": 6,
+          "icd": {
+            "reset": 1,
+            "every": "first"
+          }
         }
       ]
     },
@@ -2680,7 +2777,8 @@
             "hp": 0.313344
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2689,7 +2787,8 @@
             "hp": 0.382976
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         }
       ]
     },
@@ -2791,7 +2890,11 @@
             "atk": 2.964528
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": {
+            "reset": 3,
+            "every": "first"
+          }
         },
         {
           "talent": "burst",
@@ -2801,7 +2904,11 @@
           },
           "hits": 9,
           "cd": 15,
-          "rateSource": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Ororon guide, Constellation 4 notes: \"This Constellation increases the frequency of Ororon's Burst hits, totalling ~12 hits instead of ~9.\" (C0: ~9)"
+          "rateSource": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Ororon guide, Constellation 4 notes: \"This Constellation increases the frequency of Ororon's Burst hits, totalling ~12 hits instead of ~9.\" (C0: ~9)",
+          "icd": {
+            "reset": 3,
+            "every": "first"
+          }
         }
       ]
     },
@@ -2823,7 +2930,8 @@
             "atk": 2.84648
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2832,7 +2940,8 @@
             "atk": 1.64832
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2842,7 +2951,8 @@
           },
           "hits": 6,
           "cd": 18,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Prune, fetched 2026-10-10: \"The hammer attacks every 2 seconds and up to 6 attacks can happen during the skill's duration.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Prune, fetched 2026-10-10: \"The hammer attacks every 2 seconds and up to 6 attacks can happen during the skill's duration.\"",
+          "icd": "none"
         }
       ]
     },
@@ -2864,7 +2974,8 @@
             "atk": 3.3048
           },
           "hits": 1,
-          "cd": 6
+          "cd": 6,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2873,7 +2984,8 @@
             "atk": 4.352
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2883,7 +2995,8 @@
           },
           "hits": 4,
           "cd": 15,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Rosaria, fetched 2026-10-10: \"Ice Lance releases a blast of cold air every 2 seconds for a total of 4 blasts.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Rosaria, fetched 2026-10-10: \"Ice Lance releases a blast of cold air every 2 seconds for a total of 4 blasts.\"",
+          "icd": "none"
         }
       ]
     },
@@ -2905,7 +3018,11 @@
             "hp": 0.03876
           },
           "hits": 5,
-          "cd": 18
+          "cd": 18,
+          "icd": {
+            "reset": 2,
+            "every": "first"
+          }
         },
         {
           "talent": "burst",
@@ -2916,7 +3033,11 @@
           "every": 0.4,
           "duration": 2.5,
           "cd": 18,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Sigewinne, fetched 2026-10-10: \"This skill deals DMG every 0.4s to opponents within its AoE.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Sigewinne, fetched 2026-10-10: \"This skill deals DMG every 0.4s to opponents within its AoE.\"",
+          "icd": {
+            "reset": 1.9,
+            "every": "first"
+          }
         }
       ]
     },
@@ -2941,7 +3062,8 @@
             "em": 0.0015
           },
           "hits": 1,
-          "cd": 8
+          "cd": 8,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -2987,7 +3109,8 @@
             "atk": 7.2624
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         }
       ]
     },
@@ -3075,7 +3198,8 @@
             "atk": 4.692
           },
           "hits": 1,
-          "cd": 6
+          "cd": 6,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3085,7 +3209,11 @@
           },
           "hits": 20,
           "cd": 15,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Venti, fetched 2026-10-10: \"The Stormeye deals 20x Anemo DMG within 8 seconds.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Venti, fetched 2026-10-10: \"The Stormeye deals 20x Anemo DMG within 8 seconds.\"",
+          "icd": {
+            "reset": 1,
+            "every": 3
+          }
         }
       ]
     },
@@ -3108,7 +3236,8 @@
           },
           "hits": 4,
           "cd": 12,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xiangling, fetched 2026-10-10: \"After 2s from skill activation, Guoba will breathe fire at opponents every 1.5s, 4 times.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xiangling, fetched 2026-10-10: \"After 2s from skill activation, Guoba will breathe fire at opponents every 1.5s, 4 times.\"",
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3145,7 +3274,8 @@
           },
           "hits": 7,
           "cd": 20,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xiangling, fetched 2026-10-10: \"the Pyronado will hit smaller enemies 7-8 times with no player/enemy movement.\" (the lower count)"
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xiangling, fetched 2026-10-10: \"the Pyronado will hit smaller enemies 7-8 times with no player/enemy movement.\" (the lower count)",
+          "icd": "none"
         }
       ]
     },
@@ -3167,7 +3297,8 @@
             "atk": 6.1064
           },
           "hits": 1,
-          "cd": 21
+          "cd": 21,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3213,7 +3344,8 @@
             "atk": 4.42
           },
           "hits": 1,
-          "cd": 22
+          "cd": 22,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3222,7 +3354,8 @@
             "atk": 5.674872
           },
           "hits": 3,
-          "cd": 22
+          "cd": 22,
+          "icd": "none"
         }
       ]
     },
@@ -3244,7 +3377,8 @@
             "hp": 0.384431
           },
           "hits": 1,
-          "cd": 10
+          "cd": 10,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3253,7 +3387,8 @@
             "hp": 0.124236
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3264,9 +3399,610 @@
           "every": 1,
           "duration": 15,
           "onCarryNormal": true,
-          "cd": 18
+          "cd": 18,
+          "icd": {
+            "reset": 2,
+            "every": 3
+          }
         }
       ]
+    }
+  },
+  "sustain": {
+    "Alyosha": {
+      "effects": [],
+      "coverage": null,
+      "missing": "Tugarin's healing (passive 1) has no duration or rate in genshin-db's text"
+    },
+    "Baizhu": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.0136,
+            "flat": 156.65404
+          },
+          "source": "burst talent \"Seamless Shield DMG Absorption\", \"Pulsing Clarity Duration\" / \"CD\", level 9",
+          "duration": 14,
+          "cd": 20,
+          "uptime": 0.7
+        }
+      ],
+      "coverage": 0.7
+    },
+    "Barbara": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.068,
+            "flat": 783.2704
+          },
+          "source": "skill talent \"Continuous Regeneration\", \"Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 32,
+          "uptime": 0.46875
+        }
+      ],
+      "coverage": 0.46875
+    },
+    "Beidou": {
+      "effects": [],
+      "coverage": null,
+      "missing": "her Hold shield lasts only while the Skill is held; no duration in the tables"
+    },
+    "Bennett": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.102,
+            "flat": 1174.0051
+          },
+          "source": "burst talent \"Continuous Regeneration Per Sec\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Charlotte": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 0.156672,
+            "flat": 116.81735
+          },
+          "source": "burst talent \"Kamera Continuous Regeneration\", \"Newsflash Field Duration\" / \"CD\", level 9",
+          "duration": 4,
+          "cd": 20,
+          "uptime": 0.2
+        }
+      ],
+      "coverage": 0.2
+    },
+    "Chevreuse": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.045333,
+            "flat": 522.1803
+          },
+          "source": "skill talent \"HP Regeneration Over Time\", \"Healing Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Citlali": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "em": 9.792,
+            "flat": 2819.7734
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 20,
+          "cd": 16,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Dahlia": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.05712,
+            "flat": 657.94714
+          },
+          "source": "burst talent \"Shield of Sacred Favor DMG Absorption\", \"Favonian Favor Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Diona": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.1224,
+            "flat": 1408.8062
+          },
+          "source": "skill talent \"Base Shield DMG Absorption\", \"Duration\" x 5 Icy Paws (Hold) / \"Hold CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        },
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.090712,
+            "flat": 1043.5602
+          },
+          "source": "burst talent \"HP Regeneration Over Time\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.92
+    },
+    "Dori": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.11339,
+            "flat": 1305.4507
+          },
+          "source": "burst talent \"Continuous Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.6
+    },
+    "Escoffier": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.3824
+          },
+          "source": "passive1: \"Rehab Diet effect for 9s: Restores HP for nearby active characters every 1s based on 138.24% of Escoffier's ATK\"",
+          "duration": 9,
+          "cd": 15,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.6
+    },
+    "Furina": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.0816,
+            "flat": 939.9245
+          },
+          "source": "skill talent \"Singer of Many Waters Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 30,
+          "cd": 20,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Iansan": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 0.6
+          },
+          "source": "passive2: \"she will heal your current active character for 60% of her ATK\"",
+          "duration": 12,
+          "cd": 18,
+          "uptime": 0.666667
+        }
+      ],
+      "coverage": 0.666667
+    },
+    "Ifa": {
+      "effects": [],
+      "coverage": null,
+      "missing": "his Tonicshots heal while he's on-field in Nightsoul's Blessing; no duration in the tables"
+    },
+    "Ineffa": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "atk": 3.760128,
+            "flat": 2819.7734
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 20,
+          "cd": 16,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Jahoda": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.357824,
+            "flat": 1018.23846
+          },
+          "source": "burst talent \"Purrsonal Coordinated Assistance Robot Healing\", \"Purrsonal Coordinated Assistance Robot Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 18,
+          "uptime": 0.666667
+        }
+      ],
+      "coverage": 0.666667
+    },
+    "Jean": {
+      "effects": [],
+      "coverage": null,
+      "missing": "the Dandelion Field's duration isn't in genshin-db or the wiki's talent table"
+    },
+    "Kirara": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.17,
+            "flat": 1956.6753
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 8,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Kuki Shinobu": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.051,
+            "flat": 587.4528
+          },
+          "source": "skill talent \"Grass Ring of Sanctification Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Lan Yan": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "atk": 4.70016,
+            "flat": 2349.8105
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 12.5,
+          "cd": 16,
+          "uptime": 0.78125
+        }
+      ],
+      "coverage": 0.78125
+    },
+    "Layla": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.1836,
+            "flat": 2114.83
+          },
+          "source": "skill talent \"Base Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 12,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Linnea": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "def": 0.544,
+            "flat": 313.30817
+          },
+          "source": "burst talent \"Continuous Healing\", \"Healing Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Mika": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.041344,
+            "flat": 475.74066
+          },
+          "source": "burst talent \"Eagleplume Healing\", \"Eagleplume Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 18,
+          "uptime": 0.833333
+        }
+      ],
+      "coverage": 0.833333
+    },
+    "Nicole": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "atk": 3.760128,
+            "flat": 2819.761
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 20,
+          "cd": 16,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Noelle": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "def": 2.72,
+            "flat": 1565.3402
+          },
+          "source": "skill talent \"DMG Absorption\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 24,
+          "uptime": 0.5
+        }
+      ],
+      "coverage": 0.5
+    },
+    "Qiqi": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.1832,
+            "flat": 916.18445
+          },
+          "source": "skill talent \"Continuous Regeneration\", \"Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 30,
+          "uptime": 0.5
+        },
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.53,
+            "flat": 1174.0051
+          },
+          "source": "burst talent \"Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 20,
+          "uptime": 0.75
+        }
+      ],
+      "coverage": 0.875
+    },
+    "Sangonomiya Kokomi": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.0748,
+            "flat": 861.59705
+          },
+          "source": "skill talent \"Regeneration\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        },
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.013736,
+            "flat": 156.65373
+          },
+          "source": "burst talent \"HP Regeneration Per Hit\", \"Duration\" / \"CD\", level 9",
+          "duration": 10,
+          "cd": 18,
+          "uptime": 0.555556
+        }
+      ],
+      "coverage": 0.822222
+    },
+    "Sayu": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 1.357824,
+            "flat": 1017.4711
+          },
+          "source": "burst talent \"Muji-Muji Daruma Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.6
+    },
+    "Sigewinne": {
+      "effects": [],
+      "coverage": null,
+      "missing": "Bolstering Bubblebalm heals per bounce; no duration in the tables"
+    },
+    "Thoma": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.1224,
+            "flat": 1409.8805
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 8,
+          "cd": 15,
+          "uptime": 0.533333
+        },
+        {
+          "kind": "shield",
+          "size": {
+            "hp": 0.019448,
+            "flat": 223.75157
+          },
+          "source": "burst talent \"Shield DMG Absorption\", \"Scorching Ooyoroi Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 20,
+          "uptime": 0.75
+        }
+      ],
+      "coverage": 0.883333
+    },
+    "Vodyanitsa": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "flat": 548.28345,
+            "hp": 0.0476
+          },
+          "source": "skill talent \"Song of Ages Past Healing\", \"Duration\" / \"Skill CD\", level 9",
+          "duration": 16,
+          "cd": 16,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Xianyun": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 0.731136,
+            "flat": 548.2893
+          },
+          "source": "burst talent \"Continuous Healing\", \"Duration\" / \"CD\", level 9",
+          "duration": 16,
+          "cd": 18,
+          "uptime": 0.888889
+        }
+      ],
+      "coverage": 0.888889
+    },
+    "Xilonen": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "def": 1.768,
+            "flat": 1018.23846
+          },
+          "source": "burst talent \"Continuous Healing\", \"Ebullient Rhythm Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Xinyan": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "def": 2.448,
+            "flat": 1408.8062
+          },
+          "source": "skill talent \"Shield Level 3 DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 18,
+          "uptime": 0.666667
+        }
+      ],
+      "coverage": 0.666667
+    },
+    "Yaoyao": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "hp": 0.029143,
+            "flat": 335.6862
+          },
+          "source": "skill talent \"White Jade Radish Healing\", \"Yuegui: Throwing Mode Duration\" / \"CD\", level 9",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667
+        }
+      ],
+      "coverage": 0.666667
+    },
+    "Yumemizuki Mizuki": {
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "em": 2.21952,
+            "flat": 639.67084
+          },
+          "source": "burst talent \"Snack Pick-Up HP Regeneration\", \"Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 15,
+          "uptime": 0.8
+        }
+      ],
+      "coverage": 0.8
+    },
+    "Zhongli": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "flat": 2506.079,
+            "hp": 0.2176
+          },
+          "source": "skill talent \"Shield Base Absorption\" + \"Additional Shield Absorption\", \"Shield Duration\" / \"Hold CD\", level 9",
+          "duration": 20,
+          "cd": 12,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
     }
   },
   "carries": {

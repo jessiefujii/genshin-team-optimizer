@@ -3,6 +3,7 @@
 // RES/DEF (left out on both sides of the comparison), talent level 9, C0. Hits count at expected crit (#152).
 import kitJson from "../../../data/kit.json";
 import { BENCHMARK } from "./benchmark";
+import { burstShare } from "./energy";
 import { FIGHTING_SPIRIT_LIMIT, NO_TEAM_BUFFS, fightingSpirit, type TeamBuffStats } from "./kit";
 import { mainReactionOf } from "./reactions";
 import type { Element, Reaction, ScoringCharacter } from "./types";
@@ -111,7 +112,7 @@ const AMPLIFY: Partial<Record<Reaction, Partial<Record<Element, number>>>> = {
 // that share instead of the flat one.
 const AMPLIFY_SHARE = 0.7; // reactions.ts: amplifying, main reaction
 // The extra damage a hit that reacts gains (2x Melt with EM: about 1.5 more), or 0 when the reaction doesn't amplify.
-function amplifyGain(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
+export function amplifyGain(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
   if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
   const amp = AMPLIFY[reaction]?.[c.element];
   if (!amp) return 0; // other reactions: later (#101)
@@ -126,7 +127,7 @@ const CATALYZE: Partial<Record<Reaction, { element: Element; coefficient: number
   aggravate: { element: "Electro", coefficient: 1.15 },
 };
 const LEVEL_MULTIPLIER_90 = 1446.85;
-function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
+export function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
   if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
   const r = CATALYZE[reaction];
   if (!r || r.element !== c.element) return 0;
@@ -190,6 +191,11 @@ function rotationFor(kit: CarryKit, c: ScoringCharacter, active: readonly Reacti
   const fits = teamFits(c, active, team);
   return kit.rotationTeams?.find((t) => t.when.some(fits))?.seconds ?? kit.rotationSeconds;
 }
+// The carry's rotation length for this team (#103), for the energy model (#37); undefined without a damage model.
+export function carryRotationSeconds(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+  const kit = CARRIES[c.id];
+  return kit ? rotationFor(kit, c, active, team) : undefined;
+}
 function pickCombo(kit: CarryKit, c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
   const fits = teamFits(c, active, team);
   for (const k of kit.combos ?? []) {
@@ -204,6 +210,23 @@ export interface CarryDamage {
   combo?: string; // the combo picked for this team, when the carry has several (#114)
   rotationSeconds: number;
   missing: string[]; // hits left out for lack of a source
+}
+
+// The carry's hits per second in this team's combo and rotation, and how many of them react (each hit's reacting
+// share, as in carryDamage), for the sub-DPS aura budget (score.ts, #189/#191); null when the carry isn't modeled.
+// Every hit is taken as elemental, and `when`-gated hits are counted as landing (estimate).
+export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+  if (!CARRIES[c.id]) return null;
+  const { kit } = pickCombo(CARRIES[c.id], c, active, team);
+  const seconds = rotationFor(kit, c, active, team);
+  let hits = 0;
+  let reacting = 0;
+  for (const h of kit.hits) {
+    const n = h.count * (h.instances ?? 1);
+    hits += n;
+    reacting += h.count * reactingShare(h) * (h.instances ?? 1);
+  }
+  return { hitsPerSecond: hits / seconds, reactingPerSecond: reacting / seconds };
 }
 
 // Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,
@@ -284,15 +307,19 @@ function computeCarryDamage(
   // Base DMG Multiplier by hit label (Nefer's Veil of Falsehood, #148): multiplies the hit's base, Lunar or not.
   const baseMultiplier = (h: CarryHit) =>
     buffs.reduce((a, b) => a * (b.kind === "baseDmgMultiplier" && b.labels.includes(h.label) ? 1 + b.value : 1), 1);
+  const rotationSeconds = rotationFor(kit, c, active, team);
+  // The share of rotations the team's Energy lets them Burst in (#37, energy.ts); 1 for a carry scored alone.
+  const burstPart = burstShare(c, team, c, rotationSeconds);
   let total = 0;
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     if (!lands(h)) continue;
+    const count = h.count * (h.type === "burst" ? burstPart : 1);
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * em;
     perHit *= baseMultiplier(h);
     if (h.lunar) {
-      if (h.additive) total += perHit * h.count;
-      else total += LUNAR_COEFFICIENT[h.lunar] * perHit * h.count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar));
+      if (h.additive) total += perHit * count;
+      else total += LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar));
       continue;
     }
     perHit += catalyze * (h.instances ?? 1) * reactingShare(h);
@@ -319,7 +346,7 @@ function computeCarryDamage(
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
       }
     }
-    total += perHit * h.count * (1 + bonus) * factor * (1 + reactingShare(h) * amp);
+    total += perHit * count * (1 + bonus) * factor * (1 + reactingShare(h) * amp);
   }
   // Masque of the Red Death: each Normal Attack hit adds ATK x ratio x Bond of Life %, and uses `use` of it.
   for (const b of kit.buffs) {
@@ -329,6 +356,5 @@ function computeCarryDamage(
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp);
   }
   total *= expectedCrit(c, teamBuffs.critRate);
-  const rotationSeconds = rotationFor(kit, c, active, team);
   return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [] };
 }
