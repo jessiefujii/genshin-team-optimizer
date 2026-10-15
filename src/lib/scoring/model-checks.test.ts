@@ -2,13 +2,14 @@
 // (design doc, "Model checks before any compare"). A failure names the team, the member and the rule.
 // A check the scorer can't pass yet is a `test.fails` naming the issue that fixes it: when the fix lands, the test
 // starts passing, vitest reports that as a failure, and it becomes a plain `test`.
-// Still to come: particle counts (#198) and sustain entries (#192) in the coverage gate once those PRs are in the
-// stack; "counted once" needs team damage (#202).
+// Still to come: "counted once" needs team damage (#202).
 import { describe, expect, test } from "vitest";
 import kitJson from "../../../data/kit.json";
+import particlesJson from "../../../data/particles.json";
 import jessieRoster from "../../../data/test-rosters/jessie.json";
 import type { CharacterBuild } from "../../types/build";
 import { hasCarryKit } from "./damage";
+import { erTargetOf } from "./energy";
 import { characterEffects } from "./effects";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
@@ -64,6 +65,8 @@ describe("coverage gate", () => {
   // #203 brings both to 0. Until then they may only shrink: a new character without a damage profile fails here.
   const NO_DAMAGE_PROFILE = 71;
   const MAIN_DPS_WITHOUT_CARRY_KIT = 35;
+  const NO_PARTICLE_COUNT = 5;
+  const NO_SUSTAIN_COVERAGE = 5;
 
   test("every character has a damage profile (#203)", () => {
     const missing = all.filter((c) => !hasCarryKit(c.id) && !(c.id in SUB_DPS)).map((c) => c.id);
@@ -73,6 +76,23 @@ describe("coverage gate", () => {
   test("every main DPS has a carry kit (#137, #203)", () => {
     const missing = all.filter((c) => c.roles.includes("main-dps") && !hasCarryKit(c.id)).map((c) => c.id);
     expect(missing.length, `main DPS with no carry kit: ${missing.join(", ")}`).toBeLessThanOrEqual(MAIN_DPS_WITHOUT_CARRY_KIT);
+  });
+
+  // Members with an Energy Burst and a guide ER target need a particle count (#198); without one they count as a
+  // standard teammate. Today: Ineffa, Varesa, Vesna, Vodyanitsa, Traveler (Cryo) (no wiki count).
+  test("every Energy-Burst character has a particle count (#198)", () => {
+    const PARTICLES = (particlesJson as { characters: Record<string, unknown> }).characters;
+    const missing = all.filter((c) => c.burstCost && erTargetOf(c) !== undefined && !(c.id in PARTICLES)).map((c) => c.id);
+    expect(missing.length, `no particle count: ${missing.join(", ")}`).toBeLessThanOrEqual(NO_PARTICLE_COUNT);
+  });
+
+  // Healers and shielders need a sustain entry with a coverage (#192); without a duration they count as full.
+  // Today: Alyosha, Beidou, Ifa, Jean, Sigewinne.
+  test("every healer and shielder has a sustain coverage (#192, #208)", () => {
+    const SUSTAIN = kitJson.sustain as Record<string, { coverage: number | null }>;
+    const sustainers = all.filter((c) => c.roles.includes("healer") || c.roles.includes("shielder"));
+    const missing = sustainers.filter((c) => SUSTAIN[c.id]?.coverage == null).map((c) => c.id);
+    expect(missing.length, `no sustain coverage: ${missing.join(", ")}`).toBeLessThanOrEqual(NO_SUSTAIN_COVERAGE);
   });
 });
 
