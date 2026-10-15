@@ -51,9 +51,8 @@ const particlesPerRotation = (p: Particles, seconds: number) =>
 function energyFor(m: ScoringCharacter, team: readonly ScoringCharacter[], carry: ScoringCharacter | null, seconds: number) {
   let particles = 0;
   let flat = 0;
-  // Summed in a fixed order: the same team in another member order sums the same, to the last bit, so a share on a
-  // rounding boundary scores the same (Baizhu at ~94%: -1 or -2 by member order, found by the model checks, #213).
-  for (const g of [...team].sort((x, y) => x.id.localeCompare(y.id))) {
+  // In the order given: energyNeeds passes the team sorted, so the sums don't depend on member order (#213).
+  for (const g of team) {
     if (g.effects?.some((e) => e.roles?.includes("battery") && e.id.startsWith("Favonius"))) {
       const procs = Math.max(1, Math.floor(seconds / ENERGY.favoniusCd));
       const rate = (g === m ? 1 : ENERGY.offField) * (g.element === m.element ? ENERGY.sameElement : ENERGY.otherElement);
@@ -88,17 +87,44 @@ export interface EnergyNeed {
 // absolute errors cancel (#37's first try, particles x energy values alone, overshot guides 2-9x): with E the
 // particle Energy at 100% ER and F flat Energy, a guide target t covers the standard team's t x E_std + F_std, so
 // this team needs (t x E_std + F_std - F_team) / E_team. Members without a target or an Energy Burst are left out.
+// Cached (#215): a team's needs depend on its members, carry and rotation length, and the scorer asks for them several
+// times per team (carry and sub-DPS Burst shares, the Energy lines). Per team array object, which the scorer keeps for
+// the whole team; per member, the standard team, which depends only on them. Callers only read the result.
+const needsCache = new WeakMap<readonly ScoringCharacter[], Map<string, Map<ScoringCharacter, EnergyNeed>>>();
+const standardCache = new WeakMap<ScoringCharacter, Map<string, { particles: number; flat: number }>>();
+
+// The standard team: m with 3 standard teammates (no particle data, so energyFor counts them as standard), one of
+// them on field unless m is this team's carry.
+function standardEnergy(m: ScoringCharacter, isCarry: boolean, seconds: number) {
+  let byKey = standardCache.get(m);
+  if (!byKey) standardCache.set(m, (byKey = new Map()));
+  const key = `${isCarry}|${seconds}`;
+  let std = byKey.get(key);
+  if (!std) {
+    const standardMates = [0, 1, 2].map((i) => ({ id: `standard ${i}` }) as ScoringCharacter);
+    std = energyFor(m, [m, ...standardMates], isCarry ? m : standardMates[0], seconds);
+    byKey.set(key, std);
+  }
+  return std;
+}
+
 export function energyNeeds(team: readonly ScoringCharacter[], carry: ScoringCharacter | null, seconds = ENERGY.defaultRotation) {
+  let byKey = needsCache.get(team);
+  if (!byKey) needsCache.set(team, (byKey = new Map()));
+  const key = `${carry?.id ?? ""}|${seconds}`;
+  const cached = byKey.get(key);
+  if (cached) return cached;
   const out = new Map<ScoringCharacter, EnergyNeed>();
+  byKey.set(key, out);
+  // Particles summed in a fixed order: the same team in another member order sums the same, to the last bit, so a
+  // share on a rounding boundary scores the same (#213). Sorted once here, not per energyFor call (#215).
+  const ordered = [...team].sort((x, y) => (x.id < y.id ? -1 : x.id > y.id ? 1 : 0));
   for (const m of team) {
     const targetPct = erTargetOf(m);
     if (!m.burstCost || targetPct === undefined) continue;
     const t = targetPct / 100;
-    // The standard team: m with 3 standard teammates (no particle data, so energyFor counts them as standard), one of
-    // them on field unless m is this team's carry.
-    const standardMates = [0, 1, 2].map((i) => ({ id: `standard ${i}` }) as ScoringCharacter);
-    const std = energyFor(m, [m, ...standardMates], m === carry ? m : standardMates[0], seconds);
-    const own = energyFor(m, team, carry, seconds);
+    const std = standardEnergy(m, m === carry, seconds);
+    const own = energyFor(m, ordered, carry, seconds);
     const needed = t * (std.particles + ENERGY.otherEnergy) + std.flat - own.flat;
     const got = own.particles + ENERGY.otherEnergy;
     const need = Math.max(1, got > 0 ? needed / got : needed > 0 ? Infinity : 1);

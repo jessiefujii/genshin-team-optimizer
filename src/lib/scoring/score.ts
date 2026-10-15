@@ -697,7 +697,16 @@ function scaleStatOf(m: ScoringCharacter, entry: SubDpsEntry): ScaleStat {
 
 // A sub-DPS's stats: their build's, else a KQM Standards benchmark build for the stat they scale on (benchmark.ts,
 // #158). Their crit feeds #152's expected crit in subDpsLines.
+// Cached per character object (#215): a benchmark build depends only on them, and every team asks again.
+const statsCache = new WeakMap<ScoringCharacter, SubDpsStats | null>();
 export function subDpsStats(m: ScoringCharacter): SubDpsStats | null {
+  if (statsCache.has(m)) return statsCache.get(m)!;
+  const stats = readSubDpsStats(m);
+  statsCache.set(m, stats);
+  return stats;
+}
+
+function readSubDpsStats(m: ScoringCharacter): SubDpsStats | null {
   const entry = SUB_DPS[m.id];
   if (!entry) return null;
   if (m.stats) {
@@ -1082,8 +1091,8 @@ export function buildGaps(c: ScoringCharacter): string[] {
 function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: boolean, onlyCarry?: string) {
   if (given.length !== 4) throw new Error(`A team needs 4 members, got ${given.length}`);
   // Read in a fixed member order, so sums and products of floats come out the same, to the last bit, whatever
-  // order the team arrives in (the model checks' order test, #201).
-  const team = [...given].sort((a, b) => a.id.localeCompare(b.id));
+  // order the team arrives in (the model checks' order test, #201). By code unit, not localeCompare: much faster (#215).
+  const team = [...given].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const sink = (): Sink => (explain ? new Breakdown() : new Tally());
   const ctx = buildContext(team, options);
   const shared = sink();

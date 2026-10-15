@@ -242,7 +242,11 @@ export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], 
 // of teams. `noGleam` reads it as if the party weren't at Ascendant Gleam, so the scorer can measure what the carry's
 // own Ascendant Gleam upgrade adds (#150).
 // `buffs` adds the team's kit buffs to the carry's stats (#157, kit.ts teamBuffStats); default: none.
-const cache = new WeakMap<ScoringCharacter, Map<string, CarryDamage | null>>();
+// Cached per team array object (#215): the scorer reads each team as one array (score.ts bestReading) and asks for
+// the same readings several times (with and without reactions and buffs, per candidate carry); the entries go with
+// the array, so the search's thousands of teams don't pile up (a per-character cache keyed by the team's ids, and
+// every buffed reading, ran the compare out of memory). A carry read alone ([c], tests, kit.ts) isn't cached.
+const cache = new WeakMap<readonly ScoringCharacter[], Map<string, Map<TeamBuffStats, CarryDamage | null>>>();
 export function carryDamage(
   c: ScoringCharacter,
   active: readonly Reaction[] = [],
@@ -250,13 +254,16 @@ export function carryDamage(
   buffs: TeamBuffStats = NO_TEAM_BUFFS,
   noGleam = false,
 ): CarryDamage | null {
-  // Readings with team buffs aren't cached: they're cheap, and one more entry per team ran the compare out of memory.
-  if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs, noGleam);
-  let byKey = cache.get(c);
-  if (!byKey) cache.set(c, (byKey = new Map()));
-  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}${noGleam ? "#noGleam" : ""}`;
-  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam));
-  return byKey.get(key)!;
+  if (team.length < 4) return computeCarryDamage(c, active, team, buffs, noGleam);
+  let byKey = cache.get(team);
+  if (!byKey) cache.set(team, (byKey = new Map()));
+  // The buffs by object: teamBuffStats returns the same object for the same carry and team (kit.ts).
+  const key = `${c.id}#${active.join("|")}${noGleam ? "#noGleam" : ""}`;
+  let byBuffs = byKey.get(key);
+  if (!byBuffs) byKey.set(key, (byBuffs = new Map()));
+  let result = byBuffs.get(buffs);
+  if (result === undefined) byBuffs.set(buffs, (result = computeCarryDamage(c, active, team, buffs, noGleam)));
+  return result;
 }
 
 function computeCarryDamage(

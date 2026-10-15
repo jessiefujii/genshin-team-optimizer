@@ -404,8 +404,17 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
   return out;
 }
 
+// Cached per team array object (#215): the scorer asks for the same carry's buffs several times per team, and
+// damage.ts caches carry readings by this object, so the same buffs must come back as the same object.
+const teamBuffsCache = new WeakMap<readonly ScoringCharacter[], Map<string, TeamBuffStats>>();
 export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
+  let byKey = teamBuffsCache.get(team);
+  if (!byKey) teamBuffsCache.set(team, (byKey = new Map()));
+  const key = `${carry.id}#${carryReactions.join("|")}`;
+  const cached = byKey.get(key);
+  if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
+  byKey.set(key, out);
   for (const s of team) {
     const entry = KIT[s.id];
     if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
