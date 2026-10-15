@@ -108,10 +108,39 @@ describe("scoreTeam", () => {
   });
 
   test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
-    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share.
+    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share. Nahida's Dendro also lets
+    // Fischl's own hits Aggravate (#153), which adds to her share instead.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+58% damage");
     expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+58% damage");
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+71% damage, with Aggravate");
+  });
+
+  test("a sub-DPS's own hits react when a teammate brings the other element (#153)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Hu Tao's Pyro reacts with Xingqiu's Hydro and leaves little Pyro aura, so his swords don't vaporize (#191).
+    expect(line("Xingqiu", "Hu Tao", "Xingqiu", "Yelan", "Zhongli")).not.toMatch(/with/);
+    // Xiangling's Pyro vaporizes on Xingqiu's Hydro with Raiden, though neither is on field.
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
+    // Without a Pyro member, Xingqiu's hits don't amplify (Bloom is a transformative reaction: not counted here).
+    expect(line("Xingqiu", "Alhaitham", "Xingqiu", "Nahida", "Zhongli")).not.toMatch(/with/);
+    // Anemo and Geo hits never amplify or catalyze.
+    expect(line("Chiori", "Clorinde", "Fischl", "Nahida", "Chiori")).not.toMatch(/with/);
+    // The reaction adds to the share: Fischl with Nahida (Aggravate) beats Fischl with Chiori.
+    expect(pct(line("Fischl", "Clorinde", "Fischl", "Nahida", "Zhongli"))).toBeGreaterThan(pct(line("Fischl", "Clorinde", "Fischl", "Zhongli", "Chiori")));
+  });
+
+  test("Vaporize and Melt on sub-DPS hits share one aura budget (#189, #191)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Durin's Pyro aura is shared: Escoffier melts on it, until Furina's Hydro vaporizes it first.
+    expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/, with Melt$/);
+    const withFurina = line("Escoffier", "Skirk", "Escoffier", "Durin", "Furina");
+    expect(withFurina).not.toMatch(/with/);
+    expect(pct(withFurina)).toBeLessThan(pct(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")));
+    // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
+    // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toBe("Xiangling's own hits add ~+35% damage, with Vaporize");
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
@@ -187,6 +216,18 @@ describe("scoreTeam", () => {
     // A carry's onlyElements preference that the team breaks costs points.
     const skirk = { Skirk: [{ kind: "composition" as const, onlyElements: ["Hydro" as const, "Cryo" as const] }] };
     expect(withPrefs(skirk, "Skirk", "Escoffier", "Furina", "Bennett").some((l) => l.points < 0)).toBe(true);
+  });
+
+  test("survivability scores by how much of the rotation shields and heals cover (#177)", () => {
+    const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
+    // Zhongli's shield: 20s per 12s Hold cooldown, always up.
+    expect(line("Hu Tao", "Zhongli", "Xingqiu", "Yelan")).toEqual({ rule: "Survivability", points: 10, reason: "Zhongli heal or shield ~100% of the rotation" });
+    // Bennett's field: 12s per 15s; Bennett and Xianyun (16s per 18s) together: 1 - 0.2 x 0.11.
+    expect(line("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu").points).toBe(8);
+    expect(line("Xiao", "Bennett", "Xianyun", "Faruzan").reason).toBe("Bennett, Xianyun heal or shield ~98% of the rotation");
+    // Jean's field has no duration in the kit: she counts as full, as the healer tag did.
+    expect(line("Kamisato Ayaka", "Jean", "Shenhe", "Furina").points).toBe(10);
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
   });
 
   test("Hexerei only counts for characters whose quest is done", () => {
@@ -306,7 +347,7 @@ describe("scoreTeam", () => {
 
     test("element buffs only count for that element", () => {
       expect(buffLine(score("Hu Tao", "Shenhe", "Xingqiu", "Zhongli"), "Shenhe")?.points).toBe(0);
-      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(11);
+      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(16); // Quills + Burst Cryo RES shred (#177)
     });
 
     test("EM buffs need a reaction that uses EM", () => {
@@ -644,6 +685,12 @@ describe("talent levels (#25)", () => {
     expect(withOroron(xingqiu) - withOroron(bennett)).toBe(40); // 40 + 50 capped at 80
     // Raiden's Musou Isshin Normal Attacks (4 + 3 + 3 in her 3[N3C] N1C) count: 80 (Mavuika's Skill) + 1.5 x 10.
     expect(fightingSpiritBuilt(mav, raiden, [raiden, mav, bennett])).toBe(95);
+    // Citlali's passive-1 16 only when the team can Melt or Freeze (Jessie, #126): always with Pyro Mavuika; a made-up
+    // non-Pyro Mavuika with no Pyro or Hydro member loses it.
+    const citlali = byId.get("Citlali")!;
+    const anemoMav = { ...mav, element: "Anemo" as const };
+    expect(fightingSpiritBuilt(mav, raiden, [raiden, mav, citlali]) - fightingSpiritBuilt(mav, raiden, [raiden, mav])).toBe(71);
+    expect(fightingSpiritBuilt(anemoMav, raiden, [raiden, anemoMav, citlali]) - fightingSpiritBuilt(anemoMav, raiden, [raiden, anemoMav])).toBe(55);
     // Under 100 she plays Skill only: her default combo without the Burst hit, whatever the team's reaction.
     expect(carryDamage(mav, ["melt"], [mav, byId.get("Citlali")!, bennett, xingqiu])?.combo).toBeDefined();
     expect(carryDamage(mav, [], [mav, bennett, xingqiu, neuv])?.combo).toBe("E C8F (Skill only: can't Burst)");

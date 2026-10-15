@@ -112,7 +112,7 @@ const AMPLIFY: Partial<Record<Reaction, Partial<Record<Element, number>>>> = {
 // that share instead of the flat one.
 const AMPLIFY_SHARE = 0.7; // reactions.ts: amplifying, main reaction
 // The extra damage a hit that reacts gains (2x Melt with EM: about 1.5 more), or 0 when the reaction doesn't amplify.
-function amplifyGain(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
+export function amplifyGain(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
   if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
   const amp = AMPLIFY[reaction]?.[c.element];
   if (!amp) return 0; // other reactions: later (#101)
@@ -127,7 +127,7 @@ const CATALYZE: Partial<Record<Reaction, { element: Element; coefficient: number
   aggravate: { element: "Electro", coefficient: 1.15 },
 };
 const LEVEL_MULTIPLIER_90 = 1446.85;
-function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
+export function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
   if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
   const r = CATALYZE[reaction];
   if (!r || r.element !== c.element) return 0;
@@ -210,6 +210,23 @@ export interface CarryDamage {
   combo?: string; // the combo picked for this team, when the carry has several (#114)
   rotationSeconds: number;
   missing: string[]; // hits left out for lack of a source
+}
+
+// The carry's hits per second in this team's combo and rotation, and how many of them react (each hit's reacting
+// share, as in carryDamage), for the sub-DPS aura budget (score.ts, #189/#191); null when the carry isn't modeled.
+// Every hit is taken as elemental, and `when`-gated hits are counted as landing (estimate).
+export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+  if (!CARRIES[c.id]) return null;
+  const { kit } = pickCombo(CARRIES[c.id], c, active, team);
+  const seconds = rotationFor(kit, c, active, team);
+  let hits = 0;
+  let reacting = 0;
+  for (const h of kit.hits) {
+    const n = h.count * (h.instances ?? 1);
+    hits += n;
+    reacting += h.count * reactingShare(h) * (h.instances ?? 1);
+  }
+  return { hitsPerSecond: hits / seconds, reactingPerSecond: reacting / seconds };
 }
 
 // Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,

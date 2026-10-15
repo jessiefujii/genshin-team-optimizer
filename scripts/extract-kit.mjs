@@ -90,7 +90,14 @@ const SPEC = {
     duration: "Grace of Kenosis Duration",
     cd: "CD",
   },
-  Shenhe: { talent: "skill", values: [{ kind: "flatDmgFromAtk", label: "DMG Bonus", unit: "of Shenhe's ATK as flat Cryo DMG", elements: ["Cryo"] }], duration: "Press/Hold Duration", cd: "Press CD" },
+  Shenhe: {
+    talent: "skill",
+    values: [{ kind: "flatDmgFromAtk", label: "DMG Bonus", unit: "of Shenhe's ATK as flat Cryo DMG", elements: ["Cryo"] }],
+    duration: "Press/Hold Duration",
+    cd: "Press CD",
+    // Her Burst field "decreases the Cryo RES and Physical RES of opponents within it" (#177); Physical isn't scored.
+    also: [{ talent: "burst", values: [{ kind: "resShred", label: "RES Decrease", unit: "Cryo RES", elements: ["Cryo"] }], duration: "Duration", cd: "CD" }],
+  },
   Vodyanitsa: { talent: "skill", values: [{ kind: "resShred", label: "Hydro/Cryo RES Reduction", unit: "Hydro/Cryo RES", elements: ["Hydro", "Cryo"] }], duration: "RES Reduction Duration", cd: "Skill CD" },
   Xilonen: { talent: "skill", values: [{ kind: "resShred", label: "Elemental RES Decrease", unit: "RES of the party's elements" }], duration: "Source Sample Activation Duration", cd: "CD" },
   "Yun Jin": { talent: "burst", values: [{ kind: "flatDmgFromDef", label: "DMG Increase", unit: "of Yun Jin's DEF as flat Normal Attack DMG", appliesTo: ["normal"] }], duration: "Duration", cd: "CD" },
@@ -184,7 +191,9 @@ function tableValue(attrs, label, id) {
 const round = (n) => (n === null || n === undefined ? n : Math.round(n * 1e6) / 1e6); // 6 places: Prune is 0.025% per ATK point
 const uptime = (duration, cd) => (duration && cd ? round(Math.min(1, duration / cd)) : null);
 
+// spec.also: more specs for the same buffer, from other talents (Shenhe's Burst RES shred, #177).
 function readBuffs(id, spec) {
+  if (spec.also) return [...readBuffs(id, { ...spec, also: undefined }), ...spec.also.flatMap((s) => readBuffs(id, s))];
   const talents = talentsOf(id);
   if (!talents) throw new Error(`${id}: no talent data in genshin-db`);
   if (spec.talent) {
@@ -507,19 +516,22 @@ const FIGHTING_SPIRIT = {
       cap: { talent: "skill", label: "Nightsoul Point Limit" },
       note: "Skill + 2 Normal Attack hits (her N x2), capped at her max; assumes 2 converted Source Samples",
     },
-    // Skill + Burst + 1 Spiritvessel Skull (one opponent) = 51, enough for Opal Fire (50+), which burns them all. Her
-    // passive 1 adds 16 after a Melt or Frozen while Itzpapa is out, at most once every 8s: once, since Mavuika's Pyro
-    // melts with her Cryo. Passive 2: 4 per party Nightsoul Burst, once per rotation (one Nightsoul Burst, as for
-    // Ororon) (#126; the wiki research there put the 16 on her C4, but genshin-db's passive 1 text has it, so it stays).
+    // Skill + Burst + 1 Spiritvessel Skull (one opponent) = 51, enough for Opal Fire (50+), which burns them all.
+    // Passive 2: 4 per party Nightsoul Burst, once per rotation (one Nightsoul Burst, as for Ororon). Her passive 1 adds
+    // 16 after a Melt or Frozen while Itzpapa is out, at most once every 8s: once, and only when the team can Melt or
+    // Freeze (Jessie, #126, 2026-10-14). C4's separate 16 (Spiritvessel Skull explosions) is left out: kits are C0.
     Citlali: {
       parts: [
         { from: "combat2", re: /Citlali gains (\d+) Nightsoul points/ },
         { talent: "burst", label: "Ice Storm Nightsoul Point Gain" },
         { talent: "burst", label: "Spiritvessel Skull Nightsoul Point Gain" },
-        { from: "passive1", re: /Citlali will regain (\d+) Nightsoul points/ },
         { from: "passive2", re: /when nearby party members trigger Nightsoul Bursts, Citlali regains (\d+) Nightsoul points/ },
       ],
-      note: "Skill + Burst + 1 Skull + passive 1 once (Melt with Mavuika) + passive 2 once (one Nightsoul Burst)",
+      withReactions: {
+        reactions: ["melt", "freeze"],
+        parts: [{ from: "passive1", re: /Citlali will regain (\d+) Nightsoul points/ }],
+      },
+      note: "Skill + Burst + 1 Skull + passive 2 once (one Nightsoul Burst), + passive 1 once when the team can Melt or Freeze",
     },
     // Skill + Burst. What the Kinetic Energy Scale restores for the active character's movement is left out (no number).
     Iansan: {
@@ -586,6 +598,12 @@ function readNightsoulPoints(id, spec) {
     fromTeammates = { elements: spec.withTeammateElements.elements, points: round(extra.points) };
     sources.push(`with another ${fromTeammates.elements.join("/")} member: ${extra.sources.join("; ")}`);
   }
+  let fromReactions;
+  if (spec.withReactions) {
+    const extra = readParts(talents, id, spec.withReactions.parts, label);
+    fromReactions = { reactions: spec.withReactions.reactions, points: round(extra.points) };
+    sources.push(`when the team can ${fromReactions.reactions.join(" or ")}: ${extra.sources.join("; ")}`);
+  }
   let cap;
   if (spec.capText) {
     const c = textNumber(spec.capText);
@@ -601,7 +619,7 @@ function readNightsoulPoints(id, spec) {
     points = Math.floor(points / pool) * pool;
     sources.push(`spent ${pool} at a time: ${spec.whole.talent} "${spec.whole.label}"`);
   }
-  return { points: round(points), ...(fromTeammates ? { fromTeammates } : {}), ...(cap ? { cap } : {}), note: spec.note, source: sources.join("; ") };
+  return { points: round(points), ...(fromTeammates ? { fromTeammates } : {}), ...(fromReactions ? { fromReactions } : {}), ...(cap ? { cap } : {}), note: spec.note, source: sources.join("; ") };
 }
 
 // The Nightsoul points a list of parts adds up to, with the sentence or label behind each.
@@ -764,6 +782,8 @@ function readStellar(id, spec) {
 //   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
 //       names the source; `label` still keys its hit rate and table values)
 //   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
+//   icd: its elemental application ICD from kit-overrides.json `icd` (#190): "none" or { reset, every }; left out:
+//     the standard 2.5s / every 3rd hit
 //   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, source }]) are passed through as the source's
 //   `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that element
 //   has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
@@ -1089,6 +1109,7 @@ function scalingOf(attrs, label, id, pick = 0) {
 function readSubDps(id, specs) {
   const talents = talentsOf(id);
   const rates = OVERRIDES.hitRates?.[id] ?? {};
+  const icds = OVERRIDES.icd?.[id] ?? {}; // elemental application ICD per source (#190)
   const missing = [];
   const sources = [];
   for (const s of specs) {
@@ -1141,6 +1162,7 @@ function readSubDps(id, specs) {
       ...(s.pickOne ? { pickOne: s.pickOne } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
+      ...(icds[`${s.talent}: ${s.label}`] ? { icd: icds[`${s.talent}: ${s.label}`] } : {}),
       ...(needsRate && rate.alternatives ? { alternatives: rate.alternatives.map(({ source, ...alt }) => ({ ...alt, rateSource: source })) } : {}),
     });
   }
@@ -1771,6 +1793,122 @@ for (const c of tags.filter((c) => (c.families ?? []).includes("stellar"))) {
   stellar[c.id] = readStellar(c.id, STELLAR[c.id]);
 }
 
+// Shields and heals (#177). Each healer/shielder's effects that keep the team up: a shield, or healing over time.
+// Scored by coverage: the share of the rotation an effect is up, duration / cooldown (capped at 1), both from the
+// talent tables; a character's effects combine as 1 - product(1 - uptime). Sizes (absorption, healing per tick) are
+// kept for review and a later size check; they aren't scored yet (Jessie's call, #177).
+//   talent, value: the table row with the size; duration: a table label, a number, or { from, re } in the text;
+//   cd: a table label (of `talent`, or { talent, label }); paws: Diona's Hold fires this many Icy Paws, each adds
+//   the "per Paw" duration; from + re (instead of talent + value): a passive's sentence with the size
+//   missing: no duration or cooldown to read; the scorer then counts the member as covering the rotation, as the
+//   flat healer/shielder tag did
+// Instant heals (Barbara's and Jean's Burst, Baizhu's Skill) top HP up once; they add no coverage and are left out.
+const SUSTAIN = {
+  Alyosha: { missing: "Tugarin's healing (passive 1) has no duration or rate in genshin-db's text" },
+  Baizhu: [{ kind: "shield", talent: "burst", value: "Seamless Shield DMG Absorption", duration: "Pulsing Clarity Duration", cd: "CD" }],
+  Barbara: [{ kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD" }],
+  Beidou: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables" },
+  Bennett: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration Per Sec", duration: "Duration", cd: "CD" }],
+  // Newsflash Field Duration is the field's own; the wiki gives no longer duration for Kamera's regeneration.
+  Charlotte: [{ kind: "heal", talent: "burst", value: "Kamera Continuous Regeneration", duration: "Newsflash Field Duration", cd: "CD" }],
+  Chevreuse: [{ kind: "heal", talent: "skill", value: "HP Regeneration Over Time", duration: "Healing Duration", cd: "CD" }],
+  Citlali: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
+  Dahlia: [{ kind: "shield", talent: "burst", value: "Shield of Sacred Favor DMG Absorption", duration: "Favonian Favor Duration", cd: "CD" }],
+  Diona: [
+    { kind: "shield", talent: "skill", value: "Base Shield DMG Absorption", duration: "Duration", paws: 5, cd: "Hold CD" },
+    { kind: "heal", talent: "burst", value: "HP Regeneration Over Time", duration: "Duration", cd: "CD" },
+  ],
+  Dori: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD" }],
+  Escoffier: [{ kind: "heal", from: "passive1", re: /Rehab Diet effect for (\d+)s: Restores HP for nearby active characters every 1s based on ([\d.]+)% of Escoffier's ATK/, cd: { talent: "burst", label: "CD" } }],
+  Furina: [{ kind: "heal", talent: "skill", value: "Singer of Many Waters Healing", duration: "Duration", cd: "CD" }],
+  Iansan: [{ kind: "heal", from: "passive2", re: /she will heal your current active character for (\d+)% of her ATK/, duration: { talent: "burst", label: "Duration" }, cd: { talent: "burst", label: "CD" } }],
+  Ifa: { missing: "his Tonicshots heal while he's on-field in Nightsoul's Blessing; no duration in the tables" },
+  Ineffa: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
+  Jahoda: [{ kind: "heal", talent: "burst", value: "Purrsonal Coordinated Assistance Robot Healing", duration: "Purrsonal Coordinated Assistance Robot Duration", cd: "CD" }],
+  Jean: { missing: "the Dandelion Field's duration isn't in genshin-db or the wiki's talent table" },
+  Kirara: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
+  "Kuki Shinobu": [{ kind: "heal", talent: "skill", value: "Grass Ring of Sanctification Healing", duration: "Duration", cd: "CD" }],
+  "Lan Yan": [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
+  Layla: [{ kind: "shield", talent: "skill", value: "Base Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
+  Linnea: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Healing Duration", cd: "CD" }],
+  Mika: [{ kind: "heal", talent: "burst", value: "Eagleplume Healing", duration: "Eagleplume Duration", cd: "CD" }],
+  Nicole: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
+  Noelle: [{ kind: "shield", talent: "skill", value: "DMG Absorption", duration: "Duration", cd: "CD" }],
+  Qiqi: [
+    { kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD" },
+    { kind: "heal", talent: "burst", value: "Healing", duration: "Duration", cd: "CD" },
+  ],
+  "Sangonomiya Kokomi": [
+    { kind: "heal", talent: "skill", value: "Regeneration", duration: "Duration", cd: "CD" },
+    { kind: "heal", talent: "burst", value: "HP Regeneration Per Hit", duration: "Duration", cd: "CD" },
+  ],
+  Sayu: [{ kind: "heal", talent: "burst", value: "Muji-Muji Daruma Healing", duration: "Duration", cd: "CD" }],
+  Sigewinne: { missing: "Bolstering Bubblebalm heals per bounce; no duration in the tables" },
+  Thoma: [
+    { kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" },
+    { kind: "shield", talent: "burst", value: "Shield DMG Absorption", duration: "Scorching Ooyoroi Duration", cd: "CD" },
+  ],
+  Vodyanitsa: [{ kind: "heal", talent: "skill", value: "Song of Ages Past Healing", duration: "Duration", cd: "Skill CD" }],
+  Xianyun: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD" }],
+  Xilonen: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Ebullient Rhythm Duration", cd: "CD" }],
+  Xinyan: [{ kind: "shield", talent: "skill", value: "Shield Level 3 DMG Absorption", duration: "Shield Duration", cd: "CD" }],
+  Yaoyao: [{ kind: "heal", talent: "skill", value: "White Jade Radish Healing", duration: "Yuegui: Throwing Mode Duration", cd: "CD" }],
+  "Yumemizuki Mizuki": [{ kind: "heal", talent: "burst", value: "Snack Pick-Up HP Regeneration", duration: "Duration", cd: "CD" }],
+  Zhongli: [{ kind: "shield", talent: "skill", value: ["Shield Base Absorption", "Additional Shield Absorption"], duration: "Shield Duration", cd: "Hold CD" }],
+};
+
+// A shield's or heal's size from table rows like "{p}% Max HP+{q}": { hp: p, flat: q } (a bare number is flat).
+function sizeOf(attrs, labels, id) {
+  const out = {};
+  for (const label of [labels].flat()) {
+    const entry = attrs.labels.find((l) => l.split("|")[0].trim() === label);
+    if (!entry) throw new Error(`${id}: no talent label "${label}" (labels: ${attrs.labels.join("; ")})`);
+    for (const [, key, words] of entry.slice(entry.indexOf("|") + 1).matchAll(/\{(param\d+):[^}]*\}\s*([^{+]*)/g)) {
+      const stat = STAT_WORDS.find(([re]) => re.test(words.trim()))?.[1] ?? "flat";
+      out[stat] = round((out[stat] ?? 0) + attrs.parameters[key][TALENT_LEVEL - 1]);
+    }
+  }
+  return out;
+}
+
+function readSustain(id, spec) {
+  if (spec.missing) return { effects: [], coverage: null, missing: spec.missing };
+  const talents = talentsOf(id);
+  const effects = spec.map((e) => {
+    const attrsOf = (t) => talents[COMBAT[t]].attributes;
+    const label = (x, t) => (typeof x === "string" ? tableValue(attrsOf(t), x, id) : tableValue(attrsOf(x.talent), x.label, id));
+    if (e.from) {
+      const text = talents[e.from].description.replace(/\s+/g, " ");
+      const m = text.match(e.re);
+      if (!m) throw new Error(`${id}: pattern ${e.re} not found in ${e.from}: ${text}`);
+      // Escoffier's sentence holds the duration first, then the % of ATK; Iansan's only the %.
+      const duration = e.duration ? label(e.duration) : Number(m[1]);
+      const cd = label(e.cd);
+      return { kind: e.kind, size: { atk: Number(m[m.length - 1]) / 100 }, source: `${e.from}: "${m[0]}"`, duration, cd, uptime: uptime(duration, cd) };
+    }
+    const duration = typeof e.duration === "number" ? e.duration : label(e.duration, e.talent) * (e.paws ?? 1);
+    const cd = label(e.cd, e.talent);
+    const values = [e.value].flat();
+    return {
+      kind: e.kind,
+      size: sizeOf(attrsOf(e.talent), values, id),
+      source: `${e.talent} talent ${values.map((v) => `"${v}"`).join(" + ")}, "${typeof e.duration === "string" ? e.duration : e.duration.label}"${e.paws ? ` x ${e.paws} Icy Paws (Hold)` : ""} / "${typeof e.cd === "string" ? e.cd : e.cd.label}", level ${TALENT_LEVEL}`,
+      duration,
+      cd,
+      uptime: uptime(duration, cd),
+    };
+  });
+  return { effects, coverage: round(1 - effects.reduce((a, e) => a * (1 - e.uptime), 1)) };
+}
+
+// Every healer and shielder needs a SUSTAIN entry, so a new one can't be missed.
+const sustain = {};
+for (const c of tags.filter((c) => c.roles.includes("healer") || c.roles.includes("shielder"))) {
+  if (!SUSTAIN[c.id]) throw new Error(`${c.id} heals or shields in tags.json but has no SUSTAIN entry`);
+  sustain[c.id] = readSustain(c.id, SUSTAIN[c.id]);
+}
+for (const id of Object.keys(SUSTAIN)) if (!sustain[id]) throw new Error(`SUSTAIN: ${id} isn't a healer or shielder in tags.json`);
+
 const out = new URL("../data/kit.json", import.meta.url);
 writeFileSync(
   out,
@@ -1786,6 +1924,7 @@ writeFileSync(
       fightingSpirit,
       stellar,
       subDps,
+      sustain,
       carries,
       carriesTodo }, null, 2) + "\n",
 );
@@ -1799,5 +1938,5 @@ if (empty.length + nightsoul > 0) {
   console.log(`kit-overrides.json: ${empty.length + nightsoul} empty: ${[...empty, ...(nightsoul ? ["rules.nightsoulBurst"] : [])].join(", ")}`);
 }
 console.log(
-  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects, ${Object.keys(stellar).length} Stellar members, ${Object.keys(subDps).length} sub-DPS, ${Object.keys(carries).length} carries (${carriesTodo.length} to do)`,
+  `Wrote ${Object.keys(characters).length} buffers (${Object.values(characters).filter((c) => c.missing).length} without a readable value), ${Object.keys(ascendantGleam).length} Ascendant Gleam upgrades, ${Object.keys(secretRite).length} Secret Rite effects, ${Object.keys(nightsoulBurst).length} Nightsoul Burst effects, ${Object.keys(stellar).length} Stellar members, ${Object.keys(subDps).length} sub-DPS, ${Object.keys(sustain).length} healers/shielders (${Object.values(sustain).filter((s) => s.missing).length} without a coverage), ${Object.keys(carries).length} carries (${carriesTodo.length} to do)`,
 );

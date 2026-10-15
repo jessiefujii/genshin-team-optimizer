@@ -4,7 +4,7 @@
 import kitJson from "../../../data/kit.json";
 import type { Reaction } from "../../types/tags";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, resShredGain } from "./benchmark";
-import { reactionShare } from "./reactions";
+import { canTrigger, reactionShare } from "./reactions";
 import type { ScoringCharacter } from "./types";
 
 export interface KitBuff {
@@ -51,7 +51,8 @@ export const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a
 // gets its count with a damage model, #137). Teammates' own Normal Attacks (Xilonen's N x2) are left out: they're
 // off-field. Every rotation is taken as one of Mavuika's Bursts (no rescaling by length).
 // A teammate entry can add points when another member has one of `fromTeammates.elements` (Ororon: other members'
-// Hydro/Electro hits), up to its `cap` (#126).
+// Hydro/Electro hits), up to its `cap` (#126), and when the team can trigger one of `fromReactions.reactions` (Citlali's
+// passive 1 after a Melt or Frozen; Jessie, #126).
 // Her Burst needs at least 100 (50% of the limit). Below that she can't Burst (KQM's "E only" teams): returns 0, so her
 // passive 2 buff and the Burst's own damage drop out, and only her Skill (Flamestrider) damage counts.
 interface FightingSpiritKit {
@@ -60,7 +61,10 @@ interface FightingSpiritKit {
   perNormalHit: number;
   normalHitEvery: number;
   own: { points: number };
-  teammates: Record<string, { points: number; fromTeammates?: { elements: string[]; points: number }; cap?: number }>;
+  teammates: Record<
+    string,
+    { points: number; fromTeammates?: { elements: string[]; points: number }; fromReactions?: { reactions: Reaction[]; points: number }; cap?: number }
+  >;
 }
 const FIGHTING_SPIRIT = (kitJson as unknown as { fightingSpirit: FightingSpiritKit }).fightingSpirit;
 export const FIGHTING_SPIRIT_LIMIT = FIGHTING_SPIRIT.limit;
@@ -86,11 +90,13 @@ export function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, tea
 // The Fighting Spirit the team builds for Mavuika (s) in one rotation, before the 100 her Burst needs.
 export function fightingSpiritBuilt(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
   const fs = FIGHTING_SPIRIT;
+  const elements = new Set(team.map((m) => m.element));
   const teammatePoints = (m: ScoringCharacter) => {
     const t = fs.teammates[m.id];
     if (!t) return 0;
     const fed = t.fromTeammates && team.some((o) => o !== m && t.fromTeammates!.elements.includes(o.element));
-    return Math.min(t.cap ?? Infinity, t.points + (fed ? t.fromTeammates!.points : 0));
+    const reacts = t.fromReactions && t.fromReactions.reactions.some((r) => canTrigger(r, elements));
+    return Math.min(t.cap ?? Infinity, t.points + (fed ? t.fromTeammates!.points : 0) + (reacts ? t.fromReactions!.points : 0));
   };
   const points = team.filter((m) => m !== s).reduce((a, m) => a + teammatePoints(m), fs.own.points);
   return Math.min(fs.limit, points + fs.perNormalHit * normalAttackHits(carry));
