@@ -10,6 +10,7 @@ import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints,
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import subDpsBuildsJson from "../../../data/subdps-builds.json";
+import referenceJson from "../../../data/team-reference.json";
 import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, ScoringCharacter } from "./types";
 
 // Point values are starting guesses from the design doc; tune them against known-strong teams.
@@ -84,6 +85,7 @@ interface TeamContext {
   elements: Set<Element>;
   active: Reaction[];
   options: ScoreOptions;
+  carryDps: Map<ScoringCharacter, number>; // carryDamagePerSecond, once per carry and team
 }
 
 const NO_FAMILIES: Family[] = [];
@@ -111,7 +113,7 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
   const converted = new Set<Reaction>();
   for (const m of members) for (const r of m.converts ?? []) converted.add(r);
   const active = listed.filter((r) => canTrigger(r, elements, converted));
-  return { members, elements, active, options };
+  return { members, elements, active, options, carryDps: new Map() };
 }
 
 // A support only partners a reaction if it brings an element the carry lacks (Bennett is not a Vaporize partner for Hu Tao).
@@ -131,32 +133,42 @@ function mainReactionLines(carry: ScoringCharacter, r: Reaction, partners: Scori
 
 // Collects a team's score lines. The search only needs the points, so reasons are passed as
 // functions and only turned into text when the breakdown is kept (#4).
+// A team scores by its damage (#202). Lines the damage model doesn't cover yet keep their points and turn them into a
+// multiplier on team damage at the buffer rate, 2% per point (Jessie, 2026-10-15): their points add up, and team
+// damage is multiplied by 1 + 2% x the total, never below x0.05. Additive, like the points they replace: compounding
+// a line at a time took a typical team to x4-5, so these lines outweighed the damage itself. Each goes as its aspect
+// gets modeled (#203-#208). Lines whose effect is already inside the damage (modeled reactions, sub-DPS hits, buffs
+// in carry stats) say so with 0 points.
+const POINT_GAIN = GAIN_FOR_POINTS / POINTS.buffer;
+
 interface Sink {
-  total: number;
+  points: number;
   add(rule: string, points: number, reason: () => string): void;
   addAll(other: Sink): void;
 }
 
+const factorOf = (sink: Sink) => Math.max(0.05, 1 + sink.points * POINT_GAIN);
+
 class Breakdown implements Sink {
-  total = 0;
+  points = 0;
   lines: ScoreLine[] = [];
   add(rule: string, points: number, reason: () => string) {
-    this.total += points;
+    this.points += points;
     this.lines.push({ rule, points, reason: reason() });
   }
   addAll(other: Sink) {
-    this.total += other.total;
+    this.points += other.points;
     this.lines.push(...(other as Breakdown).lines);
   }
 }
 
 class Tally implements Sink {
-  total = 0;
+  points = 0;
   add(_rule: string, points: number) {
-    this.total += points;
+    this.points += points;
   }
   addAll(other: Sink) {
-    this.total += other.total;
+    this.points += other.points;
   }
 }
 
@@ -210,8 +222,11 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   const emUseful = usesEmReaction(carry, ctx);
   const maxBuffers = main === "none" ? POINTS.hypercarryMaxBuffers : POINTS.maxBuffers;
+  // A modeled carry's damage already has the buffs teamBuffStats turns into stats (ATK, DMG Bonus, crit, flat DMG):
+  // a buffer's line then scores only the rest of their kit (#202).
+  const inDamage = modeledCarryDps(carry, ctx) !== null;
   // Every fitting buffer is scored, then the strongest count up to the cap (#60).
-  const fitting: { id: string; points: number; reason: () => string }[] = [];
+  const fitting: { id: string; points: number; inDamage: number; reason: () => string }[] = [];
   for (const s of supports.filter((m) => m.roles.includes("buffer"))) {
     // Anemo buffers (Kazuha, Sucrose) need something to swirl.
     if (s.element === "Anemo" && !swirlActive) continue;
@@ -236,17 +251,25 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
       );
       continue;
     }
-    const base = kit ? (POINTS.buffer * kit.gain) / GAIN_FOR_POINTS : POINTS.buffer;
-    const est = kit ? `~+${Math.round(kit.gain * 100)}% damage` : "";
+    const outside = kit && inDamage ? kitBuffValue(s, carry, carryActive, ctx.members, true)! : kit;
+    const base = outside ? (POINTS.buffer * outside.gain) / GAIN_FOR_POINTS : POINTS.buffer;
+    const counted = kit && outside && kit.gain - outside.gain >= 0.005 ? `, ~+${Math.round((kit.gain - outside.gain) * 100)}% of it in ${carry.id}'s damage` : "";
+    const est = kit ? `~+${Math.round(kit.gain * 100)}% damage${counted}` : "";
     const detail = [est, level === undefined ? "" : `${talent} level ${level}`].filter(Boolean).join(", ");
     fitting.push({
       id: s.id,
       points: Math.round(base * talentFactor(level)),
+      inDamage: kit && outside ? kit.gain - outside.gain : 0,
       reason: () => `${s.id} buffs ${carry.id}${detail ? ` (${detail})` : ""}`,
     });
   }
-  fitting.sort((a, b) => b.points - a.points);
-  for (const f of fitting.slice(0, maxBuffers)) out.add("Buffs", f.points, f.reason);
+  // The strongest count their points, up to the cap. A buffer past it whose buff is in the carry's damage still
+  // shows, with 0 points: team damage has every buffer (teamBuffStats has no cap).
+  fitting.sort((a, b) => b.points - a.points || b.inDamage - a.inDamage);
+  fitting.forEach((f, i) => {
+    if (i < maxBuffers) out.add("Buffs", f.points, f.reason);
+    else if (f.inDamage >= 0.005) out.add("Buffs", 0, f.reason);
+  });
 
   effectBuffLines(ctx, carry, emUseful, out);
 }
@@ -834,13 +857,10 @@ function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = 
   return own && own.missing.length === 0 ? own.perSecond : null;
 }
 
-// The team's reactions score by the damage they add to a modeled carry (#134): carry damage with them vs without
-// any, on the buffer scale (+20% = `buffer` points). This replaces the flat reaction points (main reaction, extra
-// partners, secondary reactions) for the reactions the damage model covers (damage.ts modelsReaction); returns
-// those, empty for a carry not modeled yet. Without reactions the carry plays their default combo (#114).
-// Both readings include the team's kit buffs (#157), the same ones either way (read for the team's reactions), so
-// flat reaction damage (Aggravate, Spread, Clorinde's passive) is weighed against buffed hits. The buffs themselves
-// still score as buffer points; here they only set the yardstick, so nothing counts twice.
+// The reactions the damage model covers (damage.ts modelsReaction) are inside the carry's damage (#134, #202); these
+// lines say what they add, with 0 points. They replace the flat reaction points (main reaction, extra partners,
+// secondary reactions) for those reactions; returns them, empty for a carry not modeled yet. Without reactions the
+// carry plays their default combo (#114). Both readings include the team's kit buffs (#157).
 function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink): Reaction[] {
   const covered = ctx.active.filter((r) => modelsReaction(carry, r));
   if (covered.length === 0) return covered;
@@ -854,34 +874,30 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
   const passiveOn = enabler ? carryDamage(carry, [enabler], ctx.members, buffs) : null;
   if (passiveOn && passiveOn.missing.length === 0) {
     const passiveGain = passiveOn.perSecond / without - 1;
-    const p = gainPoints(passiveGain, POINTS.buffer);
-    if (p > 0) out.add("Reactions", p, () => `Any ${carry.element}-related reaction enables ${carry.id}'s passive: ~+${Math.round(passiveGain * 100)}% damage`);
+    if (passiveGain >= 0.01) {
+      out.add("Reactions", 0, () => `Any ${carry.element}-related reaction enables ${carry.id}'s passive: ~+${Math.round(passiveGain * 100)}% damage`);
+    }
     without = passiveOn.perSecond;
   }
   const gain = withReactions / without - 1;
-  const points = gainPoints(gain, POINTS.buffer);
-  if (points > 0) {
+  if (gain >= 0.01) {
     const verb = covered.length === 1 ? "adds" : "add";
     const onTop = passiveOn ? ", on top of the passive" : "";
-    out.add("Reactions", points, () => `${covered.map(label).join(", ")} ${verb} ~+${Math.round(gain * 100)}% to ${carry.id}'s damage${onTop}`);
+    out.add("Reactions", 0, () => `${covered.map(label).join(", ")} ${verb} ~+${Math.round(gain * 100)}% to ${carry.id}'s damage${onTop}`);
   }
   return covered;
 }
 
-// Off-field sub-DPS (#96): the damage their own hits add, from data/kit.json `subDps` (talent level 9), as a share
-// of the carry's own damage (the generic BENCHMARK hit for a carry that isn't modeled yet), on the buffer scale:
-// +20% = `buffer` points. Their hits add to the carry's: the carry keeps attacking while they fire.
-// The share is of the carry's damage without the team's reactions (#134): a team that enables the carry's reaction
-// scores that in reactionDamageLine, and shouldn't shrink every sub-DPS share for it.
+// Off-field sub-DPS (#96): the damage per second of their own hits, from data/kit.json `subDps` (talent level 9),
+// added to the carry's in team damage (#202): the carry keeps attacking while they fire. No longer a share of the
+// carry's damage, which made the same hits worth 2-3x more next to a reaction carry (#199).
 // Their stats, crit included, come from their build, else a KQM Standards benchmark build (subDpsStats, #158/#152).
 // Enemy RES is left out, as on the carry's side; reactions on their hits count from #153 (subDpsReactions).
-// Returns the sub-DPS who out-damages the carry, if one does: the team is really theirs (Jessie, #96).
-function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): ScoringCharacter | null {
-  if (!carry) return null;
-  // A carry not modeled yet: the generic benchmark carry (a non-crit hit), at their expected crit like the sub-DPS.
-  const generic = BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond * expectedCrit(carry);
-  const carryDps = modeledCarryDps(carry, ctx) ?? generic; // who out-damages whom: with reactions
-  const shareOf = modeledCarryDps(carry, ctx, false) ?? generic;
+// Returns their total, and the sub-DPS who out-damages the carry, if one does: the team is really theirs (#96).
+function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): { lead: ScoringCharacter | null; dps: number } {
+  if (!carry) return { lead: null, dps: 0 };
+  const carryDps = carryDamagePerSecond(carry, ctx); // who out-damages whom
+  let total = 0;
   let lead: { m: ScoringCharacter; dps: number } | null = null;
   const needs = energyNeeds(ctx.members, carry, carryRotationSeconds(carry, ctx.active, ctx.members));
   const auras = auraShares(ctx, carry);
@@ -925,17 +941,31 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     }
     // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
     dps = (dps + lunarDps) * (1 + Math.min(stat.critRate, 1) * stat.critDmg);
-    const gain = dps / shareOf;
-    const points = gainPoints(gain, POINTS.buffer);
+    total += dps;
     const withReactions = reacted.size ? `, with ${[...reacted].map(label).join(", ")}` : "";
-    if (points > 0) out.add("Sub-DPS", points, () => `${m.id}'s own hits add ~+${Math.round(gain * 100)}% damage${withReactions}`);
+    if (dps >= 1) out.add("Sub-DPS", 0, () => `${m.id}'s own hits: ~${Math.round(dps)} damage per second${withReactions}`);
     if (dps > carryDps && (!lead || dps > lead.dps)) lead = { m, dps };
   }
   if (lead) {
     const { m, dps } = lead;
     out.add("Carry", 0, () => `${m.id} out-damages ${carry.id} (~${Math.round(dps)} vs ~${Math.round(carryDps)} per second): ${m.id} is the main DPS`);
   }
-  return lead?.m ?? null;
+  return { lead: lead?.m ?? null, dps: total };
+}
+
+// The carry's damage per second in team damage (#202): modeled, with the team's reactions and the kit buffs that
+// read as carry stats (#157); else the generic benchmark carry (a non-crit hit) at their expected crit. Scaled by
+// their key talent's level, which the damage model reads at 9.
+function carryDamagePerSecond(carry: ScoringCharacter, ctx: TeamContext): number {
+  const known = ctx.carryDps.get(carry);
+  if (known !== undefined) return known;
+  const buffs = teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members);
+  const own = modeledCarryDps(carry, ctx, true, buffs);
+  const generic = BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond * expectedCrit(carry);
+  const level = carry.keyTalent && carry.talents?.[carry.keyTalent];
+  const dps = (own ?? generic) * talentFactor(level || undefined);
+  ctx.carryDps.set(carry, dps);
+  return dps;
 }
 
 // Team preferences: the carry's count fully; a support's describe what that support wants, so they count less (#43).
@@ -959,30 +989,20 @@ function prefLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) 
 // Pure reaction carries (EM only, e.g. Kaveh) don't crit, so CV says nothing about them.
 const usesCrit = (c: ScoringCharacter) => !(c.scalesOn?.length === 1 && c.scalesOn[0] === "EM");
 
-// Scales the carry's points by their crit value; no line without stats (benchmark assumed).
-function carryBuildLine(carry: ScoringCharacter, carryPoints: number, out: Sink) {
-  if (!carry.stats || !usesCrit(carry) || carryPoints <= 0) return;
-  const cv = Math.round(2 * carry.stats.critRate + carry.stats.critDmg);
-  const factor = Math.min(Math.max(cv / POINTS.cvBenchmark, POINTS.cvMinFactor), POINTS.cvMaxFactor);
-  const points = Math.round(carryPoints * (factor - 1));
-  if (points !== 0) out.add("Carry build", points, () => `${carry.id} CV ${cv} vs ${POINTS.cvBenchmark} benchmark`);
-}
-
 // Level / benchmark within bounds; no level (no build, or a passive) = benchmark.
 function talentFactor(level: number | undefined): number {
   if (level === undefined) return 1;
   return Math.min(Math.max(level / POINTS.talentBenchmark, POINTS.talentMinFactor), POINTS.talentMaxFactor);
 }
 
-// Scales the carry's points by their key talent's level, like the CV line.
-function carryTalentLine(carry: ScoringCharacter, carryPoints: number, out: Sink) {
+// Says how the carry's key talent level scales their damage (carryDamagePerSecond). Their build's stats, crit
+// included, are inside the damage itself, so the CV line is gone (#202): it scaled the carry's points, teammates'
+// buffs included, so a stronger buffer could lower the score (found by the model checks, #201).
+function carryTalentLine(carry: ScoringCharacter, out: Sink) {
   const talent: Talent | undefined = carry.keyTalent;
   const level = talent && carry.talents?.[talent];
-  if (!level || carryPoints <= 0) return;
-  const points = Math.round(carryPoints * (talentFactor(level) - 1));
-  if (points !== 0) {
-    out.add("Carry talent", points, () => `${carry.id} ${talent} level ${level} vs ${POINTS.talentBenchmark} benchmark`);
-  }
+  if (!level || talentFactor(level) === 1) return;
+  out.add("Carry talent", 0, () => `${carry.id} ${talent} level ${level} vs ${POINTS.talentBenchmark} benchmark: ×${talentFactor(level).toFixed(2)} damage`);
 }
 
 // Members whose damage or buff comes from EM: Swirl buffers, Hyperbloom/Burgeon triggers, EM carries.
@@ -1056,61 +1076,92 @@ export function buildGaps(c: ScoringCharacter): string[] {
   return gaps;
 }
 
-// Scores a team once per possible carry and keeps the best reading. `explain` keeps the breakdown text.
-function bestReading(team: ScoringCharacter[], options: ScoreOptions, explain: boolean) {
-  if (team.length !== 4) throw new Error(`A team needs 4 members, got ${team.length}`);
+// Scores a team once per possible carry and keeps the reading with the most team damage (#202): the carry's damage
+// plus each sub-DPS's own, times the factor of the lines not inside the damage yet. `explain` keeps the breakdown
+// text. `onlyCarry` reads the team with that carry on field (the guide-team reference, team-reference.ts).
+function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: boolean, onlyCarry?: string) {
+  if (given.length !== 4) throw new Error(`A team needs 4 members, got ${given.length}`);
+  // Read in a fixed member order, so sums and products of floats come out the same, to the last bit, whatever
+  // order the team arrives in (the model checks' order test, #201).
+  const team = [...given].sort((a, b) => a.id.localeCompare(b.id));
   const sink = (): Sink => (explain ? new Breakdown() : new Tally());
   const ctx = buildContext(team, options);
   const shared = sink();
   teamLines(ctx, shared);
   // The member who deals the most damage carries (#96): of the main DPS whose damage is modeled, only the strongest
-  // is tried as the on-field carry. The others are still tried by score.
+  // is tried as the on-field carry. The others are still tried by team damage.
   const mainDps = team.filter((m) => m.roles.includes("main-dps"));
   const modeled = mainDps.map((m) => ({ m, dps: modeledCarryDps(m, ctx) })).filter((x) => x.dps !== null);
   const strongest = modeled.reduce<(typeof modeled)[number] | null>((a, x) => (!a || x.dps! > a.dps! ? x : a), null);
-  const candidates = mainDps.filter((m) => !modeled.some((x) => x.m === m) || m === strongest?.m);
+  const candidates = onlyCarry
+    ? team.filter((m) => m.id === onlyCarry)
+    : mainDps.filter((m) => !modeled.some((x) => x.m === m) || m === strongest?.m);
 
-  let best: { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink } | null = null;
+  type Reading = { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink; dps: number; value: number };
+  let best: Reading | null = null;
   for (const carry of candidates.length > 0 ? candidates : [null]) {
     const out = sink();
     carryLines(ctx, carry, out);
-    if (carry) {
-      // Both factors apply to the carry's own points, not to each other's adjustment.
-      const carryPoints = out.total;
-      carryBuildLine(carry, carryPoints, out);
-      carryTalentLine(carry, carryPoints, out);
-    }
+    if (carry) carryTalentLine(carry, out);
     out.addAll(shared);
     carryResonanceLines(ctx, carry, out);
     ascendantGleamLines(ctx, carry, out);
     secretRiteLines(ctx, carry, out);
     nightsoulBurstLines(ctx, carry, out);
     stellarLines(ctx, carry, out);
-    const lead = subDpsLines(ctx, carry, out);
+    const sub = subDpsLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);
     statLines(ctx, carry, out);
     energyLines(ctx, carry, out);
-    if (!best || out.total > best.out.total) best = { carry, lead, out };
+    // No carry: the generic benchmark hit stands in for whoever is on field; the -30 line marks the missing carry.
+    const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
+    const dps = own + sub.dps;
+    const value = dps * factorOf(out);
+    if (!best || value > best.value) best = { carry, lead: sub.lead, out, dps, value };
   }
-  return { ctx, carry: best!.carry, lead: best!.lead, out: best!.out };
+  return { ctx, ...best! };
 }
+
+// The guide-team reference (#202, Jessie 2026-10-15), written by `npm run reference` (team-reference.ts): `median`,
+// the median across carries of their best guide team's value, sets the score scale (a team at the median = 100);
+// `carries` holds each carry's best guide team, for the per-carry ratio. Single target; AoE: #211.
+const REFERENCE = referenceJson as { median: number; carries: Record<string, { team: string[]; value: number }> };
+const toScore = (value: number) => (100 * value) / REFERENCE.median;
 
 // The team's score alone, without building the breakdown; the search uses it to skip teams outside the top.
 export function teamScore(team: ScoringCharacter[], options: ScoreOptions = {}): number {
-  return bestReading(team, options, false).out.total;
+  return toScore(bestReading(team, options, false).value);
+}
+
+// A team's value with this carry on field, for the reference (team-reference.ts).
+export function carryTeamValue(team: ScoringCharacter[], carry: string): number {
+  return bestReading(team, {}, false, carry).value;
 }
 
 export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
-  const { ctx, carry, lead, out } = bestReading(team, options, true);
+  const { ctx, carry, lead, out, dps, value } = bestReading(team, options, true);
   const rotation = generateRotation(team, carry?.id ?? null); // the on-field carry's, even when a sub-DPS out-damages them
+  const guide = carry ? REFERENCE.carries[carry.id] : undefined;
+  const guideRatio = guide ? value / guide.value : null;
+  const vsGuide = !carry
+    ? ""
+    : guide
+      ? `; ${guideRatio!.toFixed(2)}× ${carry.id}'s best guide team (${guide.team.filter((id) => id !== carry.id).join(", ")})`
+      : `; no guide team for ${carry.id} yet (#210)`;
+  const head: ScoreLine = {
+    rule: "Team damage",
+    points: 0,
+    reason: `~${Math.round(dps)} damage per second, ×${factorOf(out).toFixed(2)} from the lines below${vsGuide}`,
+  };
   return {
     members: team.map((m) => m.id) as ScoredTeam["members"],
     mainDps: (lead ?? carry)?.id ?? null,
     onField: carry?.id ?? null,
-    score: out.total,
-    breakdown: (out as Breakdown).lines,
+    score: toScore(value),
+    damage: { perSecond: dps, factor: factorOf(out), guideRatio },
+    breakdown: [head, ...(out as Breakdown).lines],
     activeReactions: ctx.active,
     defaultBuilds: team.filter((m) => !m.stats).map((m) => m.id),
     rotation,

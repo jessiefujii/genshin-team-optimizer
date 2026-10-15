@@ -248,11 +248,14 @@ export interface KitBuffValue {
 // carry's reactions (objects, not ids: a test or a build can give the same id other stats).
 const cache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string, KitBuffValue | null>>>();
 
+// `outsideDamage`: only the buffs a modeled carry's damage doesn't already read through teamBuffStats (#202): EM,
+// Reaction Bonus, RES and DEF shred, attack speed, and buffs for some reactions only.
 export function kitBuffValue(
   s: ScoringCharacter,
   carry: ScoringCharacter,
   carryReactions: readonly Reaction[],
   team: readonly ScoringCharacter[],
+  outsideDamage = false,
 ): KitBuffValue | null {
   let byCarry = cache.get(s);
   if (!byCarry) cache.set(s, (byCarry = new WeakMap()));
@@ -264,19 +267,26 @@ export function kitBuffValue(
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
   };
-  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
+  const key = `${outsideDamage}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
-  const value = computeKitBuffValue(s, carry, carryReactions, shape);
+  const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage);
   byReactions.set(key, value);
   return value;
 }
 
-function computeKitBuffValue(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): KitBuffValue | null {
+function computeKitBuffValue(
+  s: ScoringCharacter,
+  carry: ScoringCharacter,
+  carryReactions: readonly Reaction[],
+  team: TeamShape,
+  outsideDamage: boolean,
+): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
   const stats = bufferStats(s, entry.base, entry.buildFor);
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
+    if (outsideDamage && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
     // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
     const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions) : 1;
     const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share;
@@ -304,6 +314,12 @@ export interface TeamBuffStats {
 }
 
 export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0 };
+
+// The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
+const IN_CARRY_DAMAGE = new Set([
+  "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate",
+  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg",
+]);
 
 function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
   const cap = (n: number) => (buff.max === undefined ? n : Math.min(n, buff.max));

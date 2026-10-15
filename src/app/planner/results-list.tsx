@@ -61,7 +61,7 @@ export default function ResultsList({ teams, byId }: Props) {
                 </span>
               </span>
               <span className="shrink-0 text-right">
-                <span className="block text-lg font-semibold tabular-nums">{team.score}</span>
+                <span className="block text-lg font-semibold tabular-nums">{Math.round(team.score)}</span>
                 <span className="text-xs text-zinc-500">{expanded ? "Hide" : "Why"}</span>
               </span>
             </button>

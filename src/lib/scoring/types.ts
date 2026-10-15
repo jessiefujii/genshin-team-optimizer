@@ -28,7 +28,8 @@ export interface ScoredTeam {
   members: [string, string, string, string];
   mainDps: string | null; // who deals the most damage: the on-field carry, or an off-field DPS who out-damages them (#96)
   onField: string | null; // the on-field carry the rotation and buffs are built around
-  score: number;
+  score: number; // team damage against the guide-team reference: 100 = the median carry's best guide team (#202)
+  damage: { perSecond: number; factor: number; guideRatio: number | null }; // guideRatio: vs this carry's best guide team
   breakdown: ScoreLine[];
   activeReactions: Reaction[];
   defaultBuilds: string[]; // members with no build, scored as if built to the benchmark

@@ -22,6 +22,8 @@ const team = (...ids: string[]) =>
     return c;
   });
 const score = (...ids: string[]) => scoreTeam(team(...ids));
+// A sub-DPS's own damage per second, from their Sub-DPS line (#202).
+const dps = (reason?: string) => Number(reason?.match(/~(\d+) damage per second/)?.[1] ?? 0);
 
 describe("reactions", () => {
   test("base reactions need both elements", () => {
@@ -84,40 +86,41 @@ describe("scoreTeam", () => {
     const reasons = s.breakdown.map((l) => l.reason);
     expect(reasons.some((r) => r.startsWith("Electrocharged:"))).toBe(false);
     expect(reasons).toContain("Electrocharged as a secondary reaction");
+    // Partners list in the fixed member order the team is read in (#201).
     expect(score("Keqing", "Nahida", "Baizhu", "Furina").breakdown.map((l) => l.reason)).toContain(
-      "Aggravate: Keqing + Nahida, Baizhu",
+      "Aggravate: Keqing + Baizhu, Nahida",
     );
   });
 
-  test("a modeled carry's reactions score by the damage they add (#134)", () => {
+  test("a modeled carry's reactions are inside their damage, with a 0-point line saying what they add (#134, #202)", () => {
     const reactions = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions");
     expect(reactions("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toEqual([
-      { rule: "Reactions", points: 27, reason: "Vaporize adds ~+54% to Hu Tao's damage" },
+      { rule: "Reactions", points: 0, reason: "Vaporize adds ~+54% to Hu Tao's damage" },
     ]);
     // Clorinde's Dark-Shattering Flame needs any Electro-related reaction (#141): its own line, at full value with
-    // Overloaded alone; Aggravate then scores only what it adds on top.
+    // Overloaded alone; Aggravate then adds only what it adds on top.
     expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
-      { rule: "Reactions", points: 38, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
+      { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
     ]);
     expect(reactions("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toEqual([
-      { rule: "Reactions", points: 38, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
-      { rule: "Reactions", points: 27, reason: "Aggravate, Quicken add ~+54% to Clorinde's damage, on top of the passive" },
+      { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
+      { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+54% to Clorinde's damage, on top of the passive" },
     ]);
     // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze.
     expect(reactions("Wriothesley", "Sandrone", "Fischl", "Furina").map((l) => l.reason)).toEqual(["Freeze: Wriothesley + Furina"]);
   });
 
-  test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
-    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share. Nahida's Dendro also lets
-    // Fischl's own hits Aggravate (#153), which adds to her share instead.
+  test("sub-DPS add their own damage per second to the team, whatever the carry's reactions (#134, #202)", () => {
+    // Nahida's Dendro lets Fischl's own hits Aggravate (#153), which adds to her damage; Chiori's Geo doesn't.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
-    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+58% damage");
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+71% damage, with Aggravate");
+    expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toMatch(/^Fischl's own hits: ~\d+ damage per second$/);
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toMatch(/^Fischl's own hits: ~\d+ damage per second, with Aggravate$/);
+    expect(dps(fischl("Clorinde", "Fischl", "Nahida", "Zhongli"))).toBeGreaterThan(dps(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")));
   });
 
   test("a sub-DPS's own hits react when a teammate brings the other element (#153)", () => {
     const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
-    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    const pct = dps;
     // Hu Tao's Pyro reacts with Xingqiu's Hydro and leaves little Pyro aura, so his swords don't vaporize (#191).
     expect(line("Xingqiu", "Hu Tao", "Xingqiu", "Yelan", "Zhongli")).not.toMatch(/with/);
     // Xiangling's Pyro vaporizes on Xingqiu's Hydro with Raiden, though neither is on field.
@@ -132,7 +135,7 @@ describe("scoreTeam", () => {
 
   test("Vaporize and Melt on sub-DPS hits share one aura budget (#189, #191)", () => {
     const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
-    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    const pct = dps;
     // Durin's Pyro aura is shared: Escoffier melts on it, until Furina's Hydro vaporizes it first.
     expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/, with Melt$/);
     const withFurina = line("Escoffier", "Skirk", "Escoffier", "Durin", "Furina");
@@ -140,7 +143,7 @@ describe("scoreTeam", () => {
     expect(pct(withFurina)).toBeLessThan(pct(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")));
     // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
     // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
-    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toBe("Xiangling's own hits add ~+35% damage, with Vaporize");
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
@@ -160,7 +163,7 @@ describe("scoreTeam", () => {
     const s = score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli");
     // Only his passive 1 counts, by the damage it adds (#134): Swirl and Crystallize stacks.
     expect(s.breakdown.filter((l) => l.rule === "Reactions")).toEqual([
-      { rule: "Reactions", points: 9, reason: "Swirl, Crystallize add ~+19% to Neuvillette's damage" },
+      { rule: "Reactions", points: 0, reason: "Swirl, Crystallize add ~+19% to Neuvillette's damage" },
     ]);
   });
 
@@ -340,14 +343,24 @@ describe("scoreTeam", () => {
       expect(line?.reason).toBe("Bennett: ATK buff, but Neuvillette scales on HP");
     });
 
-    test("ATK buffs count for carries that scale on ATK", () => {
-      expect(buffLine(score("Hu Tao", "Bennett", "Xingqiu", "Yelan"), "Bennett")?.points).toBe(12); // ~+24% (#68)
-      expect(buffLine(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"), "Bennett")?.points).toBe(12);
+    test("ATK buffs count for carries that scale on ATK: inside a modeled carry's damage, as points otherwise (#202)", () => {
+      // Hu Tao is modeled: Bennett's ATK is in her damage, so his line scores 0 and says so.
+      expect(buffLine(score("Hu Tao", "Bennett", "Xingqiu", "Yelan"), "Bennett")).toEqual({
+        rule: "Buffs",
+        points: 0,
+        reason: "Bennett buffs Hu Tao (~+24% damage, ~+24% of it in Hu Tao's damage)",
+      });
+      expect(score("Hu Tao", "Bennett", "Xingqiu", "Yelan").damage.perSecond).toBeGreaterThan(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan").damage.perSecond);
+      // Diluc isn't modeled yet: the same buff scores points (~+24% = 12, #68).
+      expect(buffLine(score("Diluc", "Bennett", "Xingqiu", "Yelan"), "Bennett")?.points).toBe(12);
     });
 
     test("element buffs only count for that element", () => {
       expect(buffLine(score("Hu Tao", "Shenhe", "Xingqiu", "Zhongli"), "Shenhe")?.points).toBe(0);
-      expect(buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe")?.points).toBe(16); // Quills + Burst Cryo RES shred (#177)
+      // Ayaka: the Quills' flat DMG is in her damage; the Burst's Cryo RES shred (#177) isn't yet, so it scores points.
+      const shenhe = buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe");
+      expect(shenhe?.points).toBeGreaterThan(0);
+      expect(shenhe?.reason).toMatch(/of it in Kamisato Ayaka's damage\)$/);
     });
 
     test("EM buffs need a reaction that uses EM", () => {
@@ -379,8 +392,9 @@ describe("scoreTeam", () => {
     });
 
     test("Kazuha's swirl buff does nothing for an Anemo carry (#58)", () => {
-      expect(buffLine(score("Xiao", "Bennett", "Kaedehara Kazuha", "Nicole"), "Kaedehara Kazuha")?.points).toBe(0);
-      expect(buffLine(score("Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"), "Kaedehara Kazuha")?.points).toBe(10);
+      expect(buffLine(score("Xiao", "Bennett", "Kaedehara Kazuha", "Nicole"), "Kaedehara Kazuha")?.reason).toMatch(/^Kaedehara Kazuha: /);
+      // For Hu Tao it fits; his DMG bonus is inside her modeled damage (#202).
+      expect(buffLine(score("Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"), "Kaedehara Kazuha")?.reason).toMatch(/^Kaedehara Kazuha buffs Hu Tao \(~\+\d+% damage/);
     });
 
     test("every main DPS has scalesOn", () => {
@@ -426,21 +440,11 @@ describe("scoreTeam", () => {
       expect(result.defaultBuilds).toEqual(vape);
     });
 
-    test("carry CV scales the carry's points, within bounds", () => {
-      const weak = lines(built({ "Hu Tao": { critRate: 30, critDmg: 60 } }, ...vape), "Carry build"); // CV 120
-      const strong = lines(built({ "Hu Tao": { critRate: 80, critDmg: 200 } }, ...vape), "Carry build"); // CV 360
-      expect(weak[0].points).toBeLessThan(0);
-      expect(weak[0].reason).toBe("Hu Tao CV 120 vs 200 benchmark");
-      expect(strong[0].points).toBeGreaterThan(0);
-      // Capped at 1.2x, so a huge CV can't outweigh team fit.
-      const carryPoints = scoreTeam(team(...vape)).breakdown
-        .filter((l) => l.rule === "Carry" || l.rule === "Reactions" || l.rule === "Buffs")
-        .reduce((s, l) => s + l.points, 0);
-      expect(strong[0].points).toBe(Math.round(carryPoints * 0.2));
-    });
-
-    test("a benchmark carry gets no CV line", () => {
-      expect(lines(built({ "Hu Tao": {} }, ...vape), "Carry build")).toEqual([]);
+    test("the carry's crit is inside their damage, with no CV line (#202)", () => {
+      const weak = scoreTeam(built({ "Hu Tao": { critRate: 30, critDmg: 60 } }, ...vape)); // CV 120
+      const strong = scoreTeam(built({ "Hu Tao": { critRate: 80, critDmg: 200 } }, ...vape)); // CV 360
+      expect(strong.damage.perSecond).toBeGreaterThan(weak.damage.perSecond);
+      expect([...weak.breakdown, ...strong.breakdown].some((l) => l.rule === "Carry build")).toBe(false);
     });
 
     test("ER under the tagged target costs points", () => {
@@ -475,16 +479,13 @@ describe("scoreTeam", () => {
 
 describe("sub-DPS (#96)", () => {
   test("Furina's Salon bonus needs another healer to keep members above 50% HP (#130)", () => {
-    const share = (...ids: string[]) =>
-      Number(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Furina"))?.reason.match(/~\+(\d+)%/)?.[1]);
+    const share = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Furina"))?.reason);
     // Same carry and supports' elements; Bennett heals, Xiangling doesn't.
     expect(share("Neuvillette", "Furina", "Bennett", "Kaedehara Kazuha")).toBeGreaterThan(share("Neuvillette", "Furina", "Xiangling", "Kaedehara Kazuha"));
   });
 
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
-    const share = (who: string, ...ids: string[]) =>
-      Number(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason.match(/~\+(\d+)%/)?.[1]);
-    // Yoimiya isn't modeled yet, so every share is of the same benchmark carry.
+    const share = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.
     expect(share("Ineffa", "Yoimiya", "Ineffa", "Xingqiu", "Bennett")).toBeGreaterThan(share("Ineffa", "Yoimiya", "Ineffa", "Zhongli", "Bennett"));
     // Columbina's Gravity Interference needs a Lunar reaction: Ineffa's Electro-Charged turns Lunar-Charged; with
@@ -555,20 +556,25 @@ describe("talent levels (#25)", () => {
     team(...ids).map((c) => (levels[c.id] ? { ...c, talents: levels[c.id] } : c));
   const lines = (t: ScoringCharacter[], rule: string) => scoreTeam(t).breakdown.filter((l) => l.rule === rule);
   const vape = ["Hu Tao", "Bennett", "Xingqiu", "Zhongli"];
-  const carryPoints = scoreTeam(team(...vape)).breakdown
-    .filter((l) => l.rule === "Carry" || l.rule === "Reactions" || l.rule === "Buffs" || l.rule === "Effects")
-    .reduce((sum, l) => sum + l.points, 0);
+  // Diluc isn't modeled yet, so his buffers still score points for their whole kit: the buffer-point mechanics
+  // (talent scaling, kit values, the cap) are tested on him; a modeled carry has those buffs in their damage (#202).
+  const diluc = ["Diluc", "Bennett", "Xingqiu", "Zhongli"];
+  // A Buffs reason without the part about the carry's damage, for the kit value alone.
+  const kitPart = (reason?: string) => reason?.replace(/, ~\+\d+% of it in [^)]*/, "");
 
   test("every main DPS has a key talent and every tag buff says where it comes from", () => {
     expect(all.filter((c) => c.roles.includes("main-dps") && !c.keyTalent).map((c) => c.id)).toEqual([]);
     expect(all.filter((c) => c.buffs?.some((b) => !b.talent)).map((c) => c.id)).toEqual([]);
   });
 
-  test("the carry's key talent scales the carry's points, within bounds", () => {
-    const low = lines(leveled({ "Hu Tao": talents(6, 10, 10) }, ...vape), "Carry talent");
-    expect(low).toEqual([{ rule: "Carry talent", points: Math.round(carryPoints * (0.7 - 1)), reason: "Hu Tao normal level 6 vs 9 benchmark" }]);
-    const high = lines(leveled({ "Hu Tao": talents(13, 1, 1) }, ...vape), "Carry talent");
-    expect(high[0].points).toBe(Math.round(carryPoints * 0.15)); // capped at 1.15x
+  test("the carry's key talent scales the carry's damage, within bounds (#202)", () => {
+    const low = leveled({ "Hu Tao": talents(6, 10, 10) }, ...vape);
+    expect(lines(low, "Carry talent")).toEqual([{ rule: "Carry talent", points: 0, reason: "Hu Tao normal level 6 vs 9 benchmark: ×0.70 damage" }]);
+    const high = leveled({ "Hu Tao": talents(13, 1, 1) }, ...vape);
+    expect(lines(high, "Carry talent")[0].reason).toBe("Hu Tao normal level 13 vs 9 benchmark: ×1.15 damage"); // capped
+    const dps = (t: ScoringCharacter[]) => scoreTeam(t).damage.perSecond;
+    expect(dps(low)).toBeLessThan(dps(team(...vape)));
+    expect(dps(high)).toBeGreaterThan(dps(team(...vape)));
   });
 
   test("level 9, or no build, gets no talent line", () => {
@@ -578,24 +584,28 @@ describe("talent levels (#25)", () => {
 
   test("a buffer's points scale with the talent its buff comes from", () => {
     const bennett = (levels: ReturnType<typeof talents>) =>
-      lines(leveled({ Bennett: levels }, ...vape), "Buffs").find((l) => l.reason.startsWith("Bennett"));
-    expect(bennett(talents(1, 1, 13))).toEqual({ rule: "Buffs", points: 14, reason: "Bennett buffs Hu Tao (~+24% damage, burst level 13)" });
+      lines(leveled({ Bennett: levels }, ...diluc), "Buffs").find((l) => l.reason.startsWith("Bennett"));
+    expect(bennett(talents(1, 1, 13))).toEqual({ rule: "Buffs", points: 14, reason: "Bennett buffs Diluc (~+24% damage, burst level 13)" });
     expect(bennett(talents(13, 13, 6))?.points).toBe(8);
     expect(bennett(talents(9, 9, 9))?.points).toBe(12);
   });
 
   test("passive buffs don't scale", () => {
-    const swirl = ["Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
+    const swirl = ["Diluc", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
     const kazuha = lines(leveled({ "Kaedehara Kazuha": talents(1, 1, 1) }, ...swirl), "Buffs").find((l) => l.reason.startsWith("Kaedehara"));
-    expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Hu Tao (~+20% damage)" });
+    expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Diluc (~+20% damage)" });
   });
 
   test("buffer points come from the kit's numbers: +20% damage = 10 points, no cap (#68, #90)", () => {
     const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
-    const hutao = score("Hu Tao", "Furina", "Bennett", "Zhongli");
+    const s = score("Diluc", "Furina", "Bennett", "Zhongli");
     // Furina's Fanfare averages 3/4 of its max with a healer (Bennett) here (#90): +52% DMG, ~+32% damage.
-    expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 16, reason: "Furina buffs Hu Tao (~+32% damage)" });
-    expect(buffLine(hutao, "Bennett")?.points).toBe(12);
+    expect(buffLine(s, "Furina")).toEqual({ rule: "Buffs", points: 16, reason: "Furina buffs Diluc (~+32% damage)" });
+    expect(buffLine(s, "Bennett")?.points).toBe(12);
+    expect(buffLine(score("Diluc", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(8);
+    // For modeled Hu Tao, Furina's DMG bonus is in her damage (0 points); Zhongli's RES shred isn't yet (#202).
+    const hutao = score("Hu Tao", "Furina", "Bennett", "Zhongli");
+    expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 0, reason: "Furina buffs Hu Tao (~+32% damage, ~+32% of it in Hu Tao's damage)" });
     expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(8);
   });
 
@@ -642,7 +652,7 @@ describe("talent levels (#25)", () => {
 
   test("Mavuika's bonus grows with the Fighting Spirit the team can build (#68)", () => {
     const mavuika = (...ids: string[]) =>
-      score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Mavuika"))?.reason;
+      kitPart(score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Mavuika"))?.reason);
     // Her own Skill gives 80 and Neuvillette's Charged Attacks none: under the 100 her Burst needs, so no buff (#116).
     expect(mavuika("Neuvillette", "Mavuika", "Furina", "Escoffier")).toBe("Mavuika can't Burst: the team builds ~80 of 100 Fighting Spirit");
     // Kachina's Skill adds 60 and Hu Tao's 14 Normal Attack hits 21: 161 of 200. (Hu Tao, not Neuvillette: with
@@ -657,10 +667,9 @@ describe("talent levels (#25)", () => {
 
   test("a sub-DPS source's `when` gates it: Jahoda's robots only at Ascendant Gleam (#100)", () => {
     const jahodaLine = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Jahoda's own hits"))?.reason;
-    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
     // Jahoda and Columbina are both Moonsign: Ascendant Gleam, so the robots' 10 hits per Burst count.
-    const gleam = pct(jahodaLine("Hu Tao", "Jahoda", "Columbina", "Zhongli"));
-    const none = pct(jahodaLine("Hu Tao", "Jahoda", "Xingqiu", "Zhongli"));
+    const gleam = dps(jahodaLine("Hu Tao", "Jahoda", "Columbina", "Zhongli"));
+    const none = dps(jahodaLine("Hu Tao", "Jahoda", "Xingqiu", "Zhongli"));
     expect(gleam).toBeGreaterThan(none);
   });
 
@@ -671,8 +680,8 @@ describe("talent levels (#25)", () => {
     expect(topElement(team("Skirk", "Jahoda", "Citlali", "Bennett"))).toBe("Cryo");
     expect(topElement(team("Jahoda", "Sucrose", "Zhongli", "Lynette"))).toBeUndefined();
     const jahodaLine = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Jahoda's own hits"))?.reason;
-    expect(jahodaLine("Flins", "Jahoda", "Citlali", "Escoffier")).toBe("Jahoda's own hits add ~+19% damage"); // 12 hits
-    expect(jahodaLine("Flins", "Jahoda", "Ineffa", "Escoffier")).toBe("Jahoda's own hits add ~+18% damage"); // 10
+    // 12 robot hits with Cryo leading, 10 otherwise.
+    expect(dps(jahodaLine("Flins", "Jahoda", "Citlali", "Escoffier"))).toBeGreaterThan(dps(jahodaLine("Flins", "Jahoda", "Ineffa", "Escoffier")));
   });
 
   test("Fighting Spirit decisions (#126): Ororon's Hydro/Electro points, Raiden's Musou Isshin hits, Skill only", () => {
@@ -698,8 +707,9 @@ describe("talent levels (#25)", () => {
 
   test("a kit buff limited to an attack type only helps carries who use it (#68)", () => {
     const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
-    // Xianyun's bonus is Plunging Attack DMG: Xiao's rotation plunges, Hu Tao's doesn't.
-    expect(buffLine(score("Xiao", "Xianyun", "Faruzan", "Furina"), "Xianyun")?.points).toBe(29); // uncapped since #90
+    // Xianyun's bonus is Plunging Attack DMG: Xiao's rotation plunges, Hu Tao's doesn't. Xiao is modeled, so it is in
+    // his damage (#202).
+    expect(kitPart(buffLine(score("Xiao", "Xianyun", "Faruzan", "Furina"), "Xianyun")?.reason)).toBe("Xianyun buffs Xiao (~+57% damage)"); // uncapped since #90
     expect(buffLine(score("Hu Tao", "Xianyun", "Xingqiu", "Zhongli"), "Xianyun")).toEqual({
       rule: "Buffs",
       points: 0,
@@ -719,14 +729,19 @@ describe("talent levels (#25)", () => {
 
   test("the strongest fitting buffers count, whatever their team order (#60)", () => {
     // Yun Jin is listed first, but Furina and Bennett are worth more, so they are the two that count.
-    const s = score("Hu Tao", "Yun Jin", "Bennett", "Furina");
+    const s = score("Diluc", "Yun Jin", "Bennett", "Furina");
     const buffs = s.breakdown.filter((l) => l.rule === "Buffs").map((l) => [l.reason.split(" ")[0], l.points]);
     expect(buffs).toEqual([["Furina", 16], ["Bennett", 12]]);
+    // For modeled Hu Tao all three are in her damage: none scores, all show (team damage has no cap).
+    expect(score("Hu Tao", "Yun Jin", "Bennett", "Furina").breakdown.filter((l) => l.rule === "Buffs").map((l) => l.points)).toEqual([0, 0, 0]);
   });
 
   test("Faruzan's buff reaches Xiao (#60)", () => {
     const s = score("Xiao", "Xianyun", "Faruzan", "Furina");
-    expect(s.breakdown.find((l) => l.reason.startsWith("Faruzan buffs"))?.points).toBe(13);
+    // Her DMG bonus is in his damage; her Anemo RES shred scores points until RES is in damage (#204).
+    const faruzan = s.breakdown.find((l) => l.reason.startsWith("Faruzan buffs"));
+    expect(faruzan?.points).toBeGreaterThan(0);
+    expect(faruzan?.reason).toMatch(/of it in Xiao's damage\)$/);
   });
 
   test("Electro enablers partner a Dendro carry's Spread (#61)", () => {
@@ -735,7 +750,7 @@ describe("talent levels (#25)", () => {
       "Spread adds ~+98% to Alhaitham's damage",
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
-      "Spread: Tighnari + Yae Miko, Fischl",
+      "Spread: Tighnari + Fischl, Yae Miko",
     );
   });
 
@@ -765,8 +780,9 @@ describe("talent levels (#25)", () => {
 
   test("a hypercarry counts a third buffer (#51)", () => {
     const buffs = (s: ReturnType<typeof scoreTeam>) => s.breakdown.filter((l) => l.rule === "Buffs" && l.points > 0).length;
-    expect(buffs(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(3);
-    expect(buffs(score("Hu Tao", "Yelan", "Zhongli", "Sucrose"))).toBe(2);
+    // Lyney is a hypercarry not modeled yet, so his buffers score points (Diluc: a reaction carry, also not modeled).
+    expect(buffs(score("Lyney", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(3);
+    expect(buffs(score("Diluc", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(2);
   });
 });
 
