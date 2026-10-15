@@ -108,10 +108,38 @@ describe("scoreTeam", () => {
   });
 
   test("sub-DPS are measured against the carry without the team's reactions (#134)", () => {
-    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share.
+    // Enabling Clorinde's Aggravate scores as a reaction; it doesn't shrink Fischl's share. Nahida's Dendro also lets
+    // Fischl's own hits Aggravate (#153), which adds to her share instead.
     const fischl = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Fischl's own hits"))?.reason;
-    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+60% damage");
     expect(fischl("Clorinde", "Fischl", "Zhongli", "Chiori")).toBe("Fischl's own hits add ~+60% damage");
+    expect(fischl("Clorinde", "Fischl", "Nahida", "Zhongli")).toBe("Fischl's own hits add ~+74% damage, with Aggravate");
+  });
+
+  test("a sub-DPS's own hits react when a teammate brings the other element (#153)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Hu Tao's Pyro reacts with Xingqiu's Hydro and leaves little Pyro aura, so his swords don't vaporize (#191).
+    expect(line("Xingqiu", "Hu Tao", "Xingqiu", "Yelan", "Zhongli")).not.toMatch(/with/);
+    // Xiangling's Pyro vaporizes on Xingqiu's Hydro with Raiden, though neither is on field.
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
+    // Without a Pyro member, Xingqiu's hits don't amplify (Bloom is a transformative reaction: not counted here).
+    expect(line("Xingqiu", "Alhaitham", "Xingqiu", "Nahida", "Zhongli")).not.toMatch(/with/);
+    // Anemo and Geo hits never amplify or catalyze.
+    expect(line("Chiori", "Clorinde", "Fischl", "Nahida", "Chiori")).not.toMatch(/with/);
+    // The reaction adds to the share: Fischl with Nahida (Aggravate) beats Fischl with Chiori.
+    expect(pct(line("Fischl", "Clorinde", "Fischl", "Nahida", "Zhongli"))).toBeGreaterThan(pct(line("Fischl", "Clorinde", "Fischl", "Zhongli", "Chiori")));
+  });
+
+  test("Vaporize and Melt on sub-DPS hits share one aura budget (#189, #191)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
+    const pct = (r?: string) => Number(r?.match(/~\+(\d+)%/)?.[1] ?? 0);
+    // Durin's Pyro aura is shared: Escoffier melts on it, until Furina's Hydro vaporizes it first.
+    expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/, with Melt$/);
+    const withFurina = line("Escoffier", "Skirk", "Escoffier", "Durin", "Furina");
+    expect(withFurina).not.toMatch(/with/);
+    expect(pct(withFurina)).toBeLessThan(pct(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")));
+    // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize.
+    expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toBe("Xiangling's own hits add ~+54% damage, with Vaporize");
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {

@@ -773,6 +773,8 @@ function readStellar(id, spec) {
 //   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
 //       names the source; `label` still keys its hit rate and table values)
 //   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
+//   icd: its elemental application ICD from kit-overrides.json `icd` (#190): "none" or { reset, every }; left out:
+//     the standard 2.5s / every 3rd hit
 //   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, source }]) are passed through as the source's
 //   `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that element
 //   has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
@@ -1098,6 +1100,7 @@ function scalingOf(attrs, label, id, pick = 0) {
 function readSubDps(id, specs) {
   const talents = talentsOf(id);
   const rates = OVERRIDES.hitRates?.[id] ?? {};
+  const icds = OVERRIDES.icd?.[id] ?? {}; // elemental application ICD per source (#190)
   const missing = [];
   const sources = [];
   for (const s of specs) {
@@ -1150,6 +1153,7 @@ function readSubDps(id, specs) {
       ...(s.pickOne ? { pickOne: s.pickOne } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
+      ...(icds[`${s.talent}: ${s.label}`] ? { icd: icds[`${s.talent}: ${s.label}`] } : {}),
       ...(needsRate && rate.alternatives ? { alternatives: rate.alternatives.map(({ source, ...alt }) => ({ ...alt, rateSource: source })) } : {}),
     });
   }
