@@ -51,7 +51,9 @@ const particlesPerRotation = (p: Particles, seconds: number) =>
 function energyFor(m: ScoringCharacter, team: readonly ScoringCharacter[], carry: ScoringCharacter | null, seconds: number) {
   let particles = 0;
   let flat = 0;
-  for (const g of team) {
+  // Summed in a fixed order: the same team in another member order sums the same, to the last bit, so a share on a
+  // rounding boundary scores the same (Baizhu at ~94%: -1 or -2 by member order, found by the model checks, #213).
+  for (const g of [...team].sort((x, y) => x.id.localeCompare(y.id))) {
     if (g.effects?.some((e) => e.roles?.includes("battery") && e.id.startsWith("Favonius"))) {
       const procs = Math.max(1, Math.floor(seconds / ENERGY.favoniusCd));
       const rate = (g === m ? 1 : ENERGY.offField) * (g.element === m.element ? ENERGY.sameElement : ENERGY.otherElement);
