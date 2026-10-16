@@ -696,6 +696,36 @@
         "hits": 5,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dominus_Lapidis, fetched 2026-10-16 (Gameplay Notes): \"From 2 s after creating the Stone Stele, it resonates with itself and nearby Geo Constructs every 2 seconds\": over the 12s Hold CD, 5 resonances per Hold. The 5 is worked out here, not a wiki number."
       }
+    },
+    "Baizhu": {
+      "burst: Spiritvein DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Holistic_Revivification, fetched 2026-10-16 (Gameplay Notes): \"Throughout the whole duration of the Pulsing Clarity state, a total of 6 shields will be created\"; one Spiritvein strike per shield (estimate)."
+      }
+    },
+    "Diona": {
+      "burst: Continuous Field DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Signature_Mix, fetched 2026-10-16 (Gameplay Notes): \"Drunken Mist first activates 2s after casting and every 2s afterwards for a total of 6 activations dealing Cryo DMG\""
+      }
+    },
+    "Mona": {
+      "skill: DoT": {
+        "hits": 4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Mirror_Reflection_of_Doom, fetched 2026-10-16 (Gameplay Notes): \"It deals Hydro DMG every second (DoT) for a total of 4 times, followed by a final AoE Hydro DMG Explosion.\""
+      }
+    },
+    "Yaoyao": {
+      "skill: White Jade Radish DMG": {
+        "hits": 10,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Raphanus_Sky_Cluster, fetched 2026-10-16 (Gameplay Notes): \"Yuegui: Throwing Mode throws 1 radish every second for a total of 10 radishes over the full duration.\""
+      }
+    },
+    "Layla": {
+      "burst: Starlight Slug DMG": {
+        "hits": 8,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dream_of_the_Star-Stream_Shaker, fetched 2026-10-16 (Gameplay Notes): \"A Starlight Slug is fired once every 1.5 seconds. A total of 8 Starlight Slugs can be fired throughout this skill's duration.\""
+      }
     }
   },
   "rotations": {

@@ -1,5 +1,5 @@
 {
-  "median": 123301,
+  "median": 123751.9,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -104,10 +104,10 @@
       "team": [
         "Gaming",
         "Citlali",
-        "Bennett",
-        "Escoffier"
+        "Nicole",
+        "Albedo"
       ],
-      "value": 100723.8
+      "value": 103037.8
     },
     "Ganyu": {
       "team": [
@@ -161,7 +161,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 119942.6
+      "value": 125568.2
     },
     "Kinich": {
       "team": [
@@ -203,10 +203,10 @@
       "team": [
         "Mavuika",
         "Citlali",
-        "Xilonen",
+        "Iansan",
         "Bennett"
       ],
-      "value": 132515.1
+      "value": 137404.8
     },
     "Mualani": {
       "team": [
@@ -278,7 +278,7 @@
         "Yelan",
         "Xingqiu"
       ],
-      "value": 88763.4
+      "value": 95755.5
     },
     "Sandrone": {
       "team": [
@@ -332,7 +332,7 @@
         "Yae Miko",
         "Yaoyao"
       ],
-      "value": 106353.4
+      "value": 111594.9
     },
     "Traveler (Cryo)": {
       "team": [
@@ -350,16 +350,16 @@
         "Furina",
         "Xianyun"
       ],
-      "value": 137777.1
+      "value": 142421.7
     },
     "Varka": {
       "team": [
         "Varka",
-        "Prune",
-        "Odette",
-        "Escoffier"
+        "Venti",
+        "Nicole",
+        "Durin"
       ],
-      "value": 108324.4
+      "value": 111006.9
     },
     "Vesna": {
       "team": [
@@ -373,11 +373,11 @@
     "Wanderer": {
       "team": [
         "Wanderer",
-        "Faruzan",
-        "Bennett",
-        "Furina"
+        "Fischl",
+        "Yae Miko",
+        "Baizhu"
       ],
-      "value": 87244.1
+      "value": 87640.5
     },
     "Wriothesley": {
       "team": [

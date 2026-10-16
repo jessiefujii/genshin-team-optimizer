@@ -274,7 +274,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Barbara",
@@ -473,7 +476,10 @@
       ],
       "buffSeconds": 6
     },
-    "notes": "Full buff only when the team is all Pyro and Electro."
+    "notes": "Full buff only when the team is all Pyro and Electro.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Chiori",
@@ -804,7 +810,10 @@
         "hold E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Dori",
@@ -1189,7 +1198,10 @@
       ],
       "buffSeconds": 12
     },
-    "notes": "Full buff needs 3 Geo characters."
+    "notes": "Full buff needs 3 Geo characters.",
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Hu Tao",
@@ -1245,7 +1257,10 @@
         "E"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Ifa",
@@ -1835,7 +1850,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Linnea",
@@ -2147,7 +2165,10 @@
         "Q"
       ],
       "buffSeconds": 5
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Mualani",
@@ -2331,7 +2352,10 @@
       ],
       "buffSeconds": 20
     },
-    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family)."
+    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family).",
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Nilou",
@@ -3592,7 +3616,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Yelan",
@@ -3709,7 +3736,10 @@
         "E"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Zhongli",

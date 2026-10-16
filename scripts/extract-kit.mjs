@@ -848,6 +848,52 @@ const SUBDPS = {
     { talent: "skill", label: "Pressurized Collapse Vortex DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
   ],
+  // Batch 3. Left out for want of a count: Chevreuse's Secondary Explosive Shells and Overcharged Ball (Overloaded
+  // only), Yaoyao's Burst radishes (they depend on how many Yuegui are out), Layla's Shooting Stars.
+  Baizhu: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Spiritvein DMG", hits: "rate", cd: "CD" },
+  ],
+  Chevreuse: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Explosive Grenade DMG", hits: 1, cd: "CD" },
+  ],
+  Diona: [
+    { talent: "skill", label: "Icy Paw DMG", hits: /Rapidly fires off (\d+) Icy Paws/, cd: "Press CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Continuous Field DMG", hits: "rate", cd: "CD" },
+  ],
+  Gorou: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Crystal Collapse DMG", every: /Generates 1 Crystal Collapse every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+  ],
+  Mona: [
+    { talent: "skill", label: "DoT", hits: "rate", cd: "CD" },
+    { talent: "skill", label: "Explosion DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Illusory Bubble Explosion DMG", hits: 1, cd: "CD" },
+  ],
+  Nicole: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Arcane Projection DMG", hits: "Arcane Projection Attack Count", cd: "CD" },
+  ],
+  "Yun Jin": [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Yaoyao: [
+    { talent: "skill", label: "White Jade Radish DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Layla: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Starlight Slug DMG", hits: "rate", cd: "CD" },
+  ],
+  Iansan: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Stage 2 DMG", hits: 1, cd: "CD" },

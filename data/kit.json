@@ -1921,6 +1921,358 @@
         }
       ]
     },
+    "Baizhu": {
+      "base": {
+        "hp": 13348,
+        "atk": 193,
+        "def": 500,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.288
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.3464
+          },
+          "hits": 1,
+          "cd": 10
+        },
+        {
+          "talent": "burst",
+          "label": "Spiritvein DMG",
+          "scaling": {
+            "atk": 1.650088
+          },
+          "hits": 6,
+          "cd": 20,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Holistic_Revivification, fetched 2026-10-16 (Gameplay Notes): \"Throughout the whole duration of the Pulsing Clarity state, a total of 6 shields will be created\"; one Spiritvein strike per shield (estimate)."
+        }
+      ]
+    },
+    "Chevreuse": {
+      "base": {
+        "hp": 11962,
+        "atk": 193,
+        "def": 605,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Press DMG",
+          "scaling": {
+            "atk": 1.9584
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Explosive Grenade DMG",
+          "scaling": {
+            "atk": 6.25872
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Diona": {
+      "base": {
+        "hp": 9570,
+        "atk": 212,
+        "def": 601,
+        "ascension": {
+          "stat": "FIGHT_PROP_ICE_ADD_HURT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Icy Paw DMG",
+          "scaling": {
+            "atk": 0.71264
+          },
+          "hits": 2,
+          "cd": 6
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.36
+          },
+          "hits": 1,
+          "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "Continuous Field DMG",
+          "scaling": {
+            "atk": 0.89488
+          },
+          "hits": 6,
+          "cd": 20,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Signature_Mix, fetched 2026-10-16 (Gameplay Notes): \"Drunken Mist first activates 2s after casting and every 2s afterwards for a total of 6 activations dealing Cryo DMG\""
+        }
+      ]
+    },
+    "Gorou": {
+      "base": {
+        "hp": 9570,
+        "atk": 183,
+        "def": 648,
+        "ascension": {
+          "stat": "FIGHT_PROP_ROCK_ADD_HURT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.8224
+          },
+          "hits": 1,
+          "cd": 10
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "def": 1.669672
+          },
+          "hits": 1,
+          "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "Crystal Collapse DMG",
+          "scaling": {
+            "def": 1.0421
+          },
+          "every": 1.5,
+          "duration": 9,
+          "cd": 20
+        }
+      ]
+    },
+    "Mona": {
+      "base": {
+        "hp": 10409,
+        "atk": 287,
+        "def": 653,
+        "ascension": {
+          "stat": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.32
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "DoT",
+          "scaling": {
+            "atk": 0.544
+          },
+          "hits": 4,
+          "cd": 12,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Mirror_Reflection_of_Doom, fetched 2026-10-16 (Gameplay Notes): \"It deals Hydro DMG every second (DoT) for a total of 4 times, followed by a final AoE Hydro DMG Explosion.\""
+        },
+        {
+          "talent": "skill",
+          "label": "Explosion DMG",
+          "scaling": {
+            "atk": 2.2576
+          },
+          "hits": 1,
+          "cd": 12
+        },
+        {
+          "talent": "burst",
+          "label": "Illusory Bubble Explosion DMG",
+          "scaling": {
+            "atk": 7.5208
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Nicole": {
+      "base": {
+        "hp": 10409,
+        "atk": 342,
+        "def": 563,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.288
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 2.3528
+          },
+          "hits": 1,
+          "cd": 16
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 5.3856
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Arcane Projection DMG",
+          "scaling": {
+            "atk": 1.71
+          },
+          "hits": 4,
+          "cd": 15
+        }
+      ]
+    },
+    "Yun Jin": {
+      "base": {
+        "hp": 10657,
+        "atk": 191,
+        "def": 734,
+        "ascension": {
+          "stat": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.2667
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Press DMG",
+          "scaling": {
+            "def": 2.53504
+          },
+          "hits": 1,
+          "cd": 9
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 4.148
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Yaoyao": {
+      "base": {
+        "hp": 12289,
+        "atk": 212,
+        "def": 751,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "White Jade Radish DMG",
+          "scaling": {
+            "atk": 0.50864
+          },
+          "hits": 10,
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Raphanus_Sky_Cluster, fetched 2026-10-16 (Gameplay Notes): \"Yuegui: Throwing Mode throws 1 radish every second for a total of 10 radishes over the full duration.\""
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.94752
+          },
+          "hits": 1,
+          "cd": 20
+        }
+      ]
+    },
+    "Layla": {
+      "base": {
+        "hp": 11092,
+        "atk": 217,
+        "def": 655,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 0.2176
+          },
+          "hits": 1,
+          "cd": 12
+        },
+        {
+          "talent": "burst",
+          "label": "Starlight Slug DMG",
+          "scaling": {
+            "hp": 0.07903
+          },
+          "hits": 8,
+          "cd": 12,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dream_of_the_Star-Stream_Shaker, fetched 2026-10-16 (Gameplay Notes): \"A Starlight Slug is fired once every 1.5 seconds. A total of 8 Starlight Slugs can be fired throughout this skill's duration.\""
+        }
+      ]
+    },
+    "Iansan": {
+      "base": {
+        "hp": 10657,
+        "atk": 257,
+        "def": 638,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 4.8688
+          },
+          "hits": 1,
+          "cd": 16
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 7.3168
+          },
+          "hits": 1,
+          "cd": 18
+        }
+      ]
+    },
     "Aino": {
       "base": {
         "hp": 11201,
