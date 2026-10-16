@@ -7692,6 +7692,129 @@
           "value": 0.68
         }
       ]
+    },
+    "Shikanoin Heizou": {
+      "rotationSeconds": 12,
+      "combo": "N1C Q E",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.637051
+          },
+          "count": 1
+        },
+        {
+          "label": "Charged Attack",
+          "type": "charged",
+          "scaling": {
+            "atk": 1.241
+          },
+          "count": 1
+        },
+        {
+          "label": "Fudou Style Vacuum Slugger DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 5.349696
+          },
+          "count": 1
+        },
+        {
+          "label": "Windmuster Iris DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.364752
+          },
+          "count": 1,
+          "when": {
+            "reaction": "swirl"
+          }
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.86784
+          },
+          "count": 1,
+          "tag": "heartstopper"
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.96696,
+          "stacks": 4,
+          "tag": "heartstopper"
+        },
+        {
+          "kind": "addPerStack",
+          "value": 1.93392,
+          "stacks": 1,
+          "tag": "heartstopper"
+        }
+      ]
+    },
+    "Gaming": {
+      "rotationSeconds": 15,
+      "combo": "Q 7[EP]",
+      "hits": [
+        {
+          "label": "Plunging Attack: Charmed Cloudstrider DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 3.9168
+          },
+          "count": 7
+        },
+        {
+          "label": "Suanni Man Chai Smash DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 6.2968
+          },
+          "count": 5
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.2,
+          "types": [
+            "plunge"
+          ]
+        }
+      ],
+      "combos": [
+        {
+          "combo": "Q 5.5[EP]",
+          "when": [
+            {
+              "reaction": "melt"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Plunging Attack: Charmed Cloudstrider DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 3.9168
+              },
+              "count": 5.5
+            },
+            {
+              "label": "Suanni Man Chai Smash DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.2968
+              },
+              "count": 5
+            }
+          ]
+        }
+      ]
     }
   },
   "carriesTodo": [
@@ -7701,7 +7824,6 @@
     "Diluc",
     "Eula",
     "Freminet",
-    "Gaming",
     "Kaveh",
     "Keqing",
     "Lohen",
@@ -7712,7 +7834,6 @@
     "Razor",
     "Sandrone",
     "Sethos",
-    "Shikanoin Heizou",
     "Tartaglia",
     "Traveler (Anemo)",
     "Traveler (Hydro)",

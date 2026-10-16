@@ -242,6 +242,18 @@ describe("carry damage (#101)", () => {
     const at = (hp: number) => carryDamage({ ...mualani, stats: { ...stats, hp } })!.perSecond;
     expect(at(42000) / at(35000)).toBeCloseTo(1.2, 2); // every hit scales on HP alone
   });
+
+  // Carry batch 4 (#203): a hit that needs a reaction, a combo for Melt.
+  test("Heizou's Windmuster Iris lands only with an element to Swirl", () => {
+    const heizou = byId.get("Shikanoin Heizou")!;
+    expect(carryDamage(heizou, ["swirl"])!.perSecond).toBeGreaterThan(carryDamage(heizou, [])!.perSecond);
+  });
+
+  test("Gaming plays fewer Skill plunges in Melt teams (KQM)", () => {
+    const gaming = byId.get("Gaming")!;
+    expect(carryDamage(gaming, ["melt"])!.combo).toBe("Q 5.5[EP]");
+    expect(carryDamage(gaming, ["vaporize"])!.combo).toBe("Q 7[EP]");
+  });
 });
 
 for (const [id, c] of Object.entries(carries)) {

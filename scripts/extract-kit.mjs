@@ -1931,6 +1931,47 @@ const CARRIES = {
     ],
     buffs: [{ kind: "atkFromDef", table: "burst", label: "ATK Bonus" }],
   },
+  "Shikanoin Heizou": {
+    // KQM quick guide, C0 with Burst: "N1C Q (N1) E" ((N1) optional: "to fully stack Declension in the first
+    // rotation", left out); his Skill at 4 Declension stacks and Conviction ("When you possess 4 Declension stacks, the
+    // Conviction effect will be produced"). Windmuster Iris: one on a single opponent, only with an element to absorb
+    // (lands with Swirl). Passive 2's party EM is a buff for the others.
+    combo: "N1C Q E",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 1, type: N },
+      { table: "normal", label: "Charged Attack", count: 1, type: CH },
+      { table: "burst", label: "Fudou Style Vacuum Slugger DMG", count: 1, type: BU },
+      { table: "burst", label: "Windmuster Iris DMG", count: 1, type: BU, when: { reaction: "swirl" } },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK, tag: "heartstopper" },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "skill", label: "Declension DMG Bonus", stacks: 4, hits: "heartstopper" },
+      { kind: "addPerStack", table: "skill", label: "Conviction DMG Bonus", stacks: 1, hits: "heartstopper" },
+    ],
+  },
+  Gaming: {
+    // KQM quick guide, Vaporize default: Burst, then "seven Skill-plunge cycles"; "Man Chai is resummoned every time
+    // Gaming performs his enhanced Plunging Attack" above 50% HP, and KQM counts 4-6 enhanced plunges during the
+    // Burst state: 5 Man Chai Smashes. Passive 2: +20% Charmed Cloudstrider DMG at 50% HP or more (his own healing,
+    // passive 1, keeps him there).
+    combo: "Q 7[EP]",
+    hits: [
+      { table: "skill", label: "Plunging Attack: Charmed Cloudstrider DMG", count: 7, type: PL },
+      { table: "burst", label: "Suanni Man Chai Smash DMG", count: 5, type: BU },
+    ],
+    buffs: [{ kind: "dmgBonus", from: "passive2", re: /Charmed Cloudstrider will deal (\d+)% more DMG/, types: [PL] }],
+    combos: [
+      {
+        // KQM, Melt default: Burst, then "five to six Skill-plunge cycles": 5.5.
+        combo: "Q 5.5[EP]",
+        when: [{ reaction: "melt" }],
+        hits: [
+          { table: "skill", label: "Plunging Attack: Charmed Cloudstrider DMG", count: 5.5, type: PL },
+          { table: "burst", label: "Suanni Man Chai Smash DMG", count: 5, type: BU },
+        ],
+      },
+    ],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
