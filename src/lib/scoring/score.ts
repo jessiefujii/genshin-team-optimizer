@@ -435,8 +435,9 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   // counts once, by the damage it adds (with vs without Ascendant Gleam, +20% = buffer points), and the flat line
   // drops (#150). Upgrades not modeled yet keep the flat points.
   if (moonsign.includes(carry) && GLEAM[carry.id]?.target === "self") {
-    const withGleam = modelsAscendantGleam(carry.id) ? carryDamage(carry, ctx.active, ctx.members) : null;
-    const without = withGleam ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, true) : null;
+    const share = carryAmpShare(ctx, carry);
+    const withGleam = modelsAscendantGleam(carry.id) ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, share) : null;
+    const without = withGleam ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, true, share) : null;
     if (withGleam && without && withGleam.missing.length === 0 && without.perSecond > 0) {
       const gain = withGleam.perSecond / without.perSecond - 1;
       const points = gainPoints(gain, POINTS.buffer);
@@ -781,7 +782,8 @@ function appliedShare(s: SubDpsSource): number {
 // their ICD share, the carry's hits at the standard ICD), each taken as 1U (most off-field sources are 1U: KQM's
 // Elemental Gauges compendium), leaving 0.8U ("Aura Tax"). Each reaction uses 2U when the trigger is the strong side
 // (Hydro on Pyro, Pyro on Cryo: "2x unit modifier") and 0.5U when weak. The carry's own reacting hits on the same aura
-// are served first; the sub-DPS share what's left. Members without a sub-DPS entry (Bennett) add no supply
+// are served first, as far as the aura reaches, and the applications that fed them can't react (#239); the sub-DPS share
+// what's left. Members without a sub-DPS entry (Bennett) add no supply
 // (estimate). Spread and Aggravate don't use this budget: the Quicken aura isn't consumed the same way.
 const AMPLIFYING: Partial<Record<Reaction, Element>> = { vaporize: "Hydro", melt: "Pyro" }; // the strong-side trigger
 function applicationsPerSecond(x: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext): number {
@@ -805,25 +807,61 @@ function applicationsPerSecond(x: ScoringCharacter, carry: ScoringCharacter, ctx
 // the same fraction of what they asked. Damped rounds settle it. The carry's reacting hits are served first within
 // their pair.
 function auraShares(ctx: TeamContext, carry: ScoringCharacter): Map<ScoringCharacter, Map<Reaction, number>> {
+  return auraBudget(ctx, carry).subs;
+}
+// The share of the carry's own Vaporize or Melt hits their pair's aura feeds (#239); 1 when nothing else claims it.
+function carryAmpShare(ctx: TeamContext, carry: ScoringCharacter): number {
+  return auraBudget(ctx, carry).carry;
+}
+const budgetCache = new WeakMap<TeamContext, Map<ScoringCharacter, { subs: Map<ScoringCharacter, Map<Reaction, number>>; carry: number }>>();
+function auraBudget(ctx: TeamContext, carry: ScoringCharacter) {
+  let byCarry = budgetCache.get(ctx);
+  if (!byCarry) budgetCache.set(ctx, (byCarry = new Map()));
+  if (!byCarry.has(carry)) byCarry.set(carry, computeAuraBudget(ctx, carry));
+  return byCarry.get(carry)!;
+}
+function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   const out = new Map<ScoringCharacter, Map<Reaction, number>>();
   const apps = new Map<Element, number>();
   for (const x of ctx.members) apps.set(x.element, (apps.get(x.element) ?? 0) + applicationsPerSecond(x, carry, ctx));
-  const pairs: { r: Reaction; trigger: Element; aura: Element; perAura: number; subs: ScoringCharacter[]; carryDemand: number; demand: number; reactions: number }[] = [];
-  for (const [r, strong] of Object.entries(AMPLIFYING) as [Reaction, Element][]) {
-    if (!ctx.active.includes(r)) continue;
+  const full = new Map(apps);
+  const perAuraOf = (r: Reaction, trigger: Element) => 0.8 / (trigger === AMPLIFYING[r] ? 2 : 0.5);
+  const active = (Object.keys(AMPLIFYING) as Reaction[]).filter((r) => ctx.active.includes(r));
+  // The carry first (#239): teammates' applications of the other element lay the aura their reacting hits need, and an
+  // application spent that way can't react itself; the carry's reacting hits lay none of the carry's element. The rest
+  // of both elements is what the sub-DPS share below. (Before, the carry kept a flat share whatever the aura, so Klee's
+  // Vaporize and Columbina's, on each other's aura, both counted in full.)
+  let carryShare = 1;
+  const own = carryHitRates(carry, ctx.active, ctx.members);
+  if (own && active.includes(own.reaction as Reaction) && reactionElements(own.reaction as Reaction).includes(carry.element)) {
+    const r = own.reaction as Reaction;
+    const [a, b] = reactionElements(r);
+    const aura = carry.element === a ? b : a;
+    const demand = Math.min(own.reactingPerSecond, applicationsPerSecond(carry, carry, ctx));
+    if (demand > 0) {
+      const perAura = perAuraOf(r, carry.element);
+      const reactions = Math.min(demand, (apps.get(aura) ?? 0) * perAura);
+      carryShare = reactions / demand;
+      apps.set(aura, (apps.get(aura) ?? 0) - reactions / perAura);
+      apps.set(carry.element, (apps.get(carry.element) ?? 0) - reactions);
+    }
+  }
+  // Each (trigger, aura) pair of sub-DPS asks for its applying hits, as many as its element has left; when an aura falls
+  // short, the pairs on it get the same fraction of what they asked. Damped rounds settle it.
+  const pairs: { r: Reaction; trigger: Element; aura: Element; perAura: number; subs: ScoringCharacter[]; asked: number; demand: number; reactions: number }[] = [];
+  for (const r of active) {
     const [a, b] = reactionElements(r);
     for (const trigger of [a, b]) {
       const subs = ctx.members.filter((m) => m !== carry && m.element === trigger && SUB_DPS[m.id]);
-      const rates = carry.element === trigger && mainReactionOf(carry) === r ? carryHitRates(carry, ctx.active, ctx.members) : null;
-      const carryDemand = rates ? Math.min(rates.reactingPerSecond, applicationsPerSecond(carry, carry, ctx)) : 0;
-      const demand = carryDemand + subs.reduce((s, m) => s + applicationsPerSecond(m, carry, ctx), 0);
-      if (demand > 0) pairs.push({ r, trigger, aura: trigger === a ? b : a, perAura: 0.8 / (trigger === strong ? 2 : 0.5), subs, carryDemand, demand, reactions: 0 });
+      const asked = subs.reduce((s, m) => s + applicationsPerSecond(m, carry, ctx), 0);
+      const left = (full.get(trigger) ?? 0) > 0 ? Math.max(0, apps.get(trigger) ?? 0) / full.get(trigger)! : 0;
+      if (asked > 0) pairs.push({ r, trigger, aura: trigger === a ? b : a, perAura: perAuraOf(r, trigger), subs, asked, demand: asked * left, reactions: 0 });
     }
   }
   for (let i = 0; i < 12; i++) {
     for (const p of pairs) {
       const on = pairs.filter((q) => q.aura === p.aura);
-      // The aura's element: its applications minus those that reacted as triggers themselves.
+      // The aura's element: its applications left minus those that reacted as triggers themselves.
       const laid = Math.max(0, (apps.get(p.aura) ?? 0) - pairs.filter((q) => q.trigger === p.aura).reduce((s, q) => s + q.reactions, 0));
       const needed = on.reduce((s, q) => s + q.demand / q.perAura, 0); // aura applications all of them would use
       const scale = needed > 0 ? Math.min(1, laid / needed) : 0;
@@ -831,14 +869,13 @@ function auraShares(ctx: TeamContext, carry: ScoringCharacter): Map<ScoringChara
     }
   }
   for (const p of pairs) {
-    const subDemand = p.demand - p.carryDemand;
-    const share = subDemand > 0 ? Math.min(1, Math.max(0, p.reactions - p.carryDemand) / subDemand) : 0;
+    const share = Math.min(1, p.reactions / p.asked);
     for (const m of p.subs) {
       if (!out.has(m)) out.set(m, new Map());
       out.get(m)!.set(p.r, share);
     }
   }
-  return out;
+  return { subs: out, carry: carryShare };
 }
 function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
   return SUB_DPS_REACTIONS.filter((r) => {
@@ -853,7 +890,7 @@ function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
 // missing. An undercounted carry (Flins, 748/s) would make every sub-DPS look several times bigger.
 // `reactions: false` reads it as if the team triggered no reactions (#134); `buffs` adds the team's kit buffs (#157).
 function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = true, buffs = NO_TEAM_BUFFS): number | null {
-  const own = carryDamage(carry, reactions ? ctx.active : [], ctx.members, buffs);
+  const own = carryDamage(carry, reactions ? ctx.active : [], ctx.members, buffs, false, reactions ? carryAmpShare(ctx, carry) : 1);
   return own && own.missing.length === 0 ? own.perSecond : null;
 }
 

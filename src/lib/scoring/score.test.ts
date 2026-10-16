@@ -95,6 +95,18 @@ describe("scoreTeam", () => {
     );
   });
 
+  test("an aura feeds the carry's Vaporize or a sub-DPS's, not both (#239)", () => {
+    const reasons = (...ids: string[]) => score(...ids).breakdown.map((l) => l.reason);
+    // Columbina's Hydro lays the aura Klee's Pyro vaporizes on, so her own hits can't vaporize on Klee's Pyro too.
+    const klee = reasons("Klee", "Albedo", "Bennett", "Columbina");
+    expect(klee.some((r) => r.startsWith("Vaporize adds") && r.endsWith("to Klee's damage"))).toBe(true);
+    expect(klee.find((r) => r.startsWith("Columbina's own hits"))).not.toMatch(/with Vaporize/);
+    // Two Hydro sources leave Hu Tao her full share.
+    expect(reasons("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toContain("Vaporize adds ~+54% to Hu Tao's damage");
+    // Gaming's main reaction is Melt; his Vaporize teams amplify by Vaporize (his Vaporize combo).
+    expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+54% to Gaming's damage");
+  });
+
   test("a modeled carry's reactions are inside their damage, with a 0-point line saying what they add (#134, #202)", () => {
     const reactions = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions");
     expect(reactions("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toEqual([
@@ -511,8 +523,9 @@ describe("sub-DPS (#96)", () => {
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.
     expect(share("Ineffa", "Yoimiya", "Ineffa", "Xingqiu", "Bennett")).toBeGreaterThan(share("Ineffa", "Yoimiya", "Ineffa", "Zhongli", "Bennett"));
     // Columbina's Gravity Interference needs a Lunar reaction: Ineffa's Electro-Charged turns Lunar-Charged; with
-    // Kazuha instead there is none.
-    expect(share("Columbina", "Yoimiya", "Columbina", "Ineffa", "Bennett")).toBeGreaterThan(share("Columbina", "Yoimiya", "Columbina", "Kaedehara Kazuha", "Bennett"));
+    // Chongyun instead there is none. No Pyro (her other hits' Vaporize would move with the team, #239), no Geo (Lunar-
+    // Crystallize) and no party buff on her hits (Kazuha's, #219), so only the Lunar reaction differs.
+    expect(share("Columbina", "Kamisato Ayaka", "Columbina", "Ineffa", "Diona")).toBeGreaterThan(share("Columbina", "Kamisato Ayaka", "Columbina", "Chongyun", "Diona"));
   });
 
   test("a sub-DPS without a build gets a KQM Standards build for the stat they scale on (#158, #164-#167)", () => {
