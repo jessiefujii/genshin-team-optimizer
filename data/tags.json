@@ -298,7 +298,10 @@
       "actions": [
         "E"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Beidou",
@@ -394,7 +397,10 @@
         "Q"
       ],
       "buffSeconds": 9
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Charlotte",
@@ -415,7 +421,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Chasca",
@@ -732,7 +741,10 @@
         "Q"
       ]
     },
-    "notes": "Shield regenerates from Benison stacks."
+    "notes": "Shield regenerates from Benison stacks.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Dehya",
@@ -835,7 +847,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Durin",
@@ -1298,7 +1313,10 @@
         "N x3",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Illuga",
@@ -1333,7 +1351,10 @@
       ],
       "buffSeconds": 20
     },
-    "notes": "Geo buffer; his burst buff lasts 20s."
+    "notes": "Geo buffer; his burst buff lasts 20s.",
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Ineffa",
@@ -1428,7 +1449,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Kachina",
@@ -1676,7 +1700,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Klee",
@@ -1733,7 +1760,10 @@
         "Q"
       ],
       "buffSeconds": 6
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Kuki Shinobu",
@@ -2133,7 +2163,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Mona",
@@ -2547,7 +2580,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Raiden Shogun",
@@ -2716,7 +2752,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Sethos",
@@ -2941,7 +2980,10 @@
         "Q",
         "E"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Tighnari",
@@ -3041,7 +3083,10 @@
         "Q"
       ]
     },
-    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine.",
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Traveler (Geo)",
@@ -3315,7 +3360,10 @@
         "E"
       ]
     },
-    "notes": "Stellar-Swirl enabler, healer and RES shredder."
+    "notes": "Stellar-Swirl enabler, healer and RES shredder.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Wanderer",
@@ -3533,7 +3581,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Yae Miko",

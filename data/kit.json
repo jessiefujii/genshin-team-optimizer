@@ -2273,6 +2273,629 @@
         }
       ]
     },
+    "Barbara": {
+      "base": {
+        "hp": 9787,
+        "atk": 159,
+        "def": 669,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Droplet DMG",
+          "scaling": {
+            "atk": 0.9928
+          },
+          "hits": 2,
+          "cd": 32,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Let_the_Show_Begin%E2%99%AA, fetched 2026-10-16 (Gameplay Notes): \"This skill deals 2 instances of damage at the start of the skill.\""
+        }
+      ]
+    },
+    "Candace": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Basic DMG",
+          "scaling": {
+            "hp": 0.204
+          },
+          "hits": 1,
+          "cd": 6
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "hp": 0.112377
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Wave Impact DMG",
+          "scaling": {
+            "hp": 0.112377
+          },
+          "hits": 3,
+          "cd": 15
+        }
+      ]
+    },
+    "Charlotte": {
+      "base": {
+        "hp": 10766,
+        "atk": 173,
+        "def": 546,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Photo DMG (Press)",
+          "scaling": {
+            "atk": 1.1424
+          },
+          "hits": 1,
+          "cd": 12
+        },
+        {
+          "talent": "skill",
+          "label": "\"Snappy Silhouette\" Mark DMG",
+          "scaling": {
+            "atk": 0.6664
+          },
+          "every": 1.5,
+          "duration": 6,
+          "cd": 12
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.319472
+          },
+          "hits": 1,
+          "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "Kamera DMG",
+          "scaling": {
+            "atk": 0.109956
+          },
+          "hits": 8,
+          "cd": 20,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Still_Photo:_Comprehensive_Confirmation, fetched 2026-10-16 (Gameplay Notes): \"Newsflash Field's DMG and healing effects activate a total of 8 times.\""
+        }
+      ]
+    },
+    "Dahlia": {
+      "base": {
+        "hp": 12506,
+        "atk": 189,
+        "def": 560,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 3.9576
+          },
+          "hits": 1,
+          "cd": 9
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 6.9088
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Dori": {
+      "base": {
+        "hp": 12397,
+        "atk": 223,
+        "def": 723,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Troubleshooter Shot DMG",
+          "scaling": {
+            "atk": 2.50376
+          },
+          "hits": 1,
+          "cd": 9
+        },
+        {
+          "talent": "skill",
+          "label": "After-Sales Service Round DMG",
+          "scaling": {
+            "atk": 0.53652
+          },
+          "hits": 2,
+          "cd": 9
+        },
+        {
+          "talent": "burst",
+          "label": "Connector DMG",
+          "scaling": {
+            "atk": 0.270001
+          },
+          "every": 0.4,
+          "duration": 12,
+          "cd": 20
+        }
+      ]
+    },
+    "Ifa": {
+      "base": {
+        "hp": 10081,
+        "atk": 178,
+        "def": 605,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 96
+        }
+      },
+      "sources": [
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 8.64416
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Illuga": {
+      "base": {
+        "hp": 11962,
+        "atk": 191,
+        "def": 814,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 96
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Press DMG",
+          "scaling": {
+            "em": 8.20352,
+            "def": 4.10176
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "em": 14.0624,
+            "def": 7.0312
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Jean": {
+      "base": {
+        "hp": 14695,
+        "atk": 239,
+        "def": 769,
+        "ascension": {
+          "stat": "FIGHT_PROP_HEAL_ADD",
+          "value": 0.2215
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 4.964
+          },
+          "hits": 1,
+          "cd": 6
+        },
+        {
+          "talent": "burst",
+          "label": "Burst DMG",
+          "scaling": {
+            "atk": 7.2216
+          },
+          "hits": 1,
+          "cd": 20
+        }
+      ]
+    },
+    "Kirara": {
+      "base": {
+        "hp": 12180,
+        "atk": 223,
+        "def": 546,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Tail-Flicking Flying Kick DMG",
+          "scaling": {
+            "atk": 1.768
+          },
+          "hits": 1,
+          "cd": 8
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 9.69408
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Cat Grass Cardamom Explosion DMG",
+          "scaling": {
+            "atk": 0.60588
+          },
+          "hits": 6,
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Secret_Art:_Surprise_Dispatch, fetched 2026-10-16 (Gameplay Notes): \"The Special Delivery Package generates 6 Cat Grass Cardamoms.\""
+        }
+      ]
+    },
+    "Kujou Sara": {
+      "base": {
+        "hp": 9570,
+        "atk": 195,
+        "def": 628,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Tengu Juurai: Ambush DMG",
+          "scaling": {
+            "atk": 2.13792
+          },
+          "hits": 1,
+          "cd": 10
+        },
+        {
+          "talent": "burst",
+          "label": "Tengu Juurai: Titanbreaker DMG",
+          "scaling": {
+            "atk": 6.9632
+          },
+          "hits": 1,
+          "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "Tengu Juurai: Stormcluster DMG",
+          "scaling": {
+            "atk": 0.58004
+          },
+          "hits": 4,
+          "cd": 20
+        }
+      ]
+    },
+    "Mika": {
+      "base": {
+        "hp": 12506,
+        "atk": 223,
+        "def": 713,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Flowfrost Arrow DMG",
+          "scaling": {
+            "atk": 1.1424
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Qiqi": {
+      "base": {
+        "hp": 12368,
+        "atk": 287,
+        "def": 922,
+        "ascension": {
+          "stat": "FIGHT_PROP_HEAL_ADD",
+          "value": 0.2215
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.632
+          },
+          "hits": 1,
+          "cd": 30
+        },
+        {
+          "talent": "skill",
+          "label": "Herald of Frost DMG",
+          "scaling": {
+            "atk": 0.612
+          },
+          "hits": 9,
+          "cd": 30,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Adeptus_Art:_Herald_of_Frost, fetched 2026-10-16 (Gameplay Notes): \"After its initial hit, Herald of Frost will deal damage 9 times over its duration\""
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 4.8416
+          },
+          "hits": 1,
+          "cd": 20
+        }
+      ]
+    },
+    "Sayu": {
+      "base": {
+        "hp": 11854,
+        "atk": 244,
+        "def": 745,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 96
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Fuufuu Whirlwind Kick Press DMG",
+          "scaling": {
+            "atk": 2.6928
+          },
+          "hits": 1,
+          "cd": 6
+        },
+        {
+          "talent": "burst",
+          "label": "Skill Activation DMG",
+          "scaling": {
+            "atk": 1.9856
+          },
+          "hits": 1,
+          "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "Muji-Muji Daruma DMG",
+          "scaling": {
+            "atk": 0.884
+          },
+          "hits": 7,
+          "cd": 20,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yoohoo_Art:_Mujina_Flurry, fetched 2026-10-16 (Gameplay Notes): \"After performing the initial attack and heal upon skill activation, the Muji-Muji Daruma will attack or heal ... 7 more times (once per ~1.7 seconds)\"; all 7 taken as attacks (it attacks while nearby characters are above 70% HP; estimate)."
+        }
+      ]
+    },
+    "Thoma": {
+      "base": {
+        "hp": 10331,
+        "atk": 202,
+        "def": 751,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 2.4888
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.496
+          },
+          "hits": 1,
+          "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "Fiery Collapse DMG",
+          "scaling": {
+            "atk": 0.986
+          },
+          "every": 1,
+          "duration": 15,
+          "onCarryNormal": true,
+          "cd": 20
+        }
+      ]
+    },
+    "Traveler (Electro)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.337288
+          },
+          "hits": 1,
+          "cd": 13.5
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.9448
+          },
+          "hits": 1,
+          "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "Falling Thunder DMG",
+          "scaling": {
+            "atk": 0.5576
+          },
+          "every": 0.5,
+          "duration": 12,
+          "onCarryNormal": true,
+          "cd": 20
+        }
+      ]
+    },
+    "Vodyanitsa": {
+      "base": {
+        "hp": 14818,
+        "atk": 108,
+        "def": 484,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.288
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "hp": 0.055624
+          },
+          "hits": 1,
+          "cd": 16
+        },
+        {
+          "talent": "skill",
+          "label": "Horn of Spring's Call DMG",
+          "scaling": {
+            "hp": 0.055624
+          },
+          "every": 3,
+          "duration": 16,
+          "cd": 16
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "hp": 0.776506
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Xinyan": {
+      "base": {
+        "hp": 11201,
+        "atk": 249,
+        "def": 799,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Swing DMG",
+          "scaling": {
+            "atk": 2.8832
+          },
+          "hits": 1,
+          "cd": 18
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 5.7936
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Pyro DoT",
+          "scaling": {
+            "atk": 0.68
+          },
+          "hits": 7,
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Riff_Revolution, fetched 2026-10-16 (Gameplay Notes): \"The DoT portion of Riff Revolution can hit up to 7 times\""
+        }
+      ]
+    },
     "Aino": {
       "base": {
         "hp": 11201,

@@ -894,6 +894,79 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
   ],
+  // Batch 4. Left out: Ifa's Tonicshots (his Skill is an on-field mode) and Sedation Mark (no count found), Jean's
+  // field entering/exiting hits, Mika's Rimestar Flare (it needs the Flowfrost Arrow to hit several opponents).
+  Barbara: [{ talent: "skill", label: "Droplet DMG", hits: "rate", cd: "CD" }],
+  Candace: [
+    { talent: "skill", label: "Basic DMG", hits: 1, cd: "Press CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Wave Impact DMG", hits: "Wave Instances", cd: "CD" },
+  ],
+  Charlotte: [
+    { talent: "skill", label: "Photo DMG (Press)", hits: 1, cd: "CD" },
+    { talent: "skill", label: "\"Snappy Silhouette\" Mark DMG", every: "\"Snappy Silhouette\" Mark Trigger Interval", duration: "\"Snappy Silhouette\" Mark Duration", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Kamera DMG", hits: "rate", cd: "CD" },
+  ],
+  Dahlia: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "Skill CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Dori: [
+    { talent: "skill", label: "Troubleshooter Shot DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "After-Sales Service Round DMG", hits: /create (\d+) After-Sales Service Rounds/, cd: "CD" },
+    { talent: "burst", label: "Connector DMG", every: /every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+  ],
+  Ifa: [{ talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" }],
+  Illuga: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Jean: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Burst DMG", hits: 1, cd: "CD" },
+  ],
+  Kirara: [
+    { talent: "skill", label: "Tail-Flicking Flying Kick DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Cat Grass Cardamom Explosion DMG", hits: "rate", cd: "CD" },
+  ],
+  "Kujou Sara": [
+    { talent: "skill", label: "Tengu Juurai: Ambush DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Tengu Juurai: Titanbreaker DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Tengu Juurai: Stormcluster DMG", hits: /into (\d+) consecutive bouts of Tengu Juurai: Stormcluster/, cd: "CD" },
+  ],
+  Mika: [{ talent: "skill", label: "Flowfrost Arrow DMG", hits: 1, cd: "CD" }],
+  Qiqi: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Herald of Frost DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Sayu: [
+    { talent: "skill", label: "Fuufuu Whirlwind Kick Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill Activation DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Muji-Muji Daruma DMG", hits: "rate", cd: "CD" },
+  ],
+  Thoma: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Fiery Collapse DMG", onCarryNormal: true, every: /Fiery Collapse can be triggered once every ([\d.]+)s/, duration: "Scorching Ooyoroi Duration", cd: "CD" },
+  ],
+  "Traveler (Electro)": [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Falling Thunder DMG", onCarryNormal: true, every: /One instance of Falling Thunder can be generated every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+  ],
+  Vodyanitsa: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "Skill CD" },
+    { talent: "skill", label: "Horn of Spring's Call DMG", every: "Horn of Spring's Call Attack Interval", duration: "Duration", cd: "Skill CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Xinyan: [
+    { talent: "skill", label: "Swing DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Pyro DoT", hits: "rate", cd: "CD" },
+  ],
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Stage 2 DMG", hits: 1, cd: "CD" },

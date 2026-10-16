@@ -726,6 +726,42 @@
         "hits": 8,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dream_of_the_Star-Stream_Shaker, fetched 2026-10-16 (Gameplay Notes): \"A Starlight Slug is fired once every 1.5 seconds. A total of 8 Starlight Slugs can be fired throughout this skill's duration.\""
       }
+    },
+    "Barbara": {
+      "skill: Droplet DMG": {
+        "hits": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Let_the_Show_Begin%E2%99%AA, fetched 2026-10-16 (Gameplay Notes): \"This skill deals 2 instances of damage at the start of the skill.\""
+      }
+    },
+    "Charlotte": {
+      "burst: Kamera DMG": {
+        "hits": 8,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Still_Photo:_Comprehensive_Confirmation, fetched 2026-10-16 (Gameplay Notes): \"Newsflash Field's DMG and healing effects activate a total of 8 times.\""
+      }
+    },
+    "Kirara": {
+      "burst: Cat Grass Cardamom Explosion DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Secret_Art:_Surprise_Dispatch, fetched 2026-10-16 (Gameplay Notes): \"The Special Delivery Package generates 6 Cat Grass Cardamoms.\""
+      }
+    },
+    "Qiqi": {
+      "skill: Herald of Frost DMG": {
+        "hits": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Adeptus_Art:_Herald_of_Frost, fetched 2026-10-16 (Gameplay Notes): \"After its initial hit, Herald of Frost will deal damage 9 times over its duration\""
+      }
+    },
+    "Sayu": {
+      "burst: Muji-Muji Daruma DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yoohoo_Art:_Mujina_Flurry, fetched 2026-10-16 (Gameplay Notes): \"After performing the initial attack and heal upon skill activation, the Muji-Muji Daruma will attack or heal ... 7 more times (once per ~1.7 seconds)\"; all 7 taken as attacks (it attacks while nearby characters are above 70% HP; estimate)."
+      }
+    },
+    "Xinyan": {
+      "burst: Pyro DoT": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Riff_Revolution, fetched 2026-10-16 (Gameplay Notes): \"The DoT portion of Riff Revolution can hit up to 7 times\""
+      }
     }
   },
   "rotations": {
