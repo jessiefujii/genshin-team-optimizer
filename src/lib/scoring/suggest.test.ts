@@ -63,7 +63,8 @@ describe("not built characters in the search", () => {
 describe("suggestBuilds", () => {
   const ids = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli", "Bennett", "Xiangling", "Kaedehara Kazuha", "Fischl"];
   const roster: ScoringCharacter[] = ids.map(get);
-  // Top 5: Xingqiu's best team here is #5 since Zhongli, Kazuha and Bennett deal their own damage (#203).
+  // Top 5: Xingqiu's best team here is #5 since Zhongli, Kazuha and Bennett deal their own damage (#203) and
+  // Kazuha's DMG bonus reaches Yelan's hits (#204).
   const search = (r: ScoringCharacter[]) => {
     const top = findBestTeams(r, { limit: 5 });
     return { top, suggestions: suggestBuilds(r, top, { limit: 5 }) };

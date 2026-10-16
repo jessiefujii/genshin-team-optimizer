@@ -1,5 +1,5 @@
 {
-  "median": 123751.9,
+  "median": 135009.8,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -26,7 +26,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 125932.2
+      "value": 143841.6
     },
     "Arlecchino": {
       "team": [
@@ -35,16 +35,16 @@
         "Yelan",
         "Xilonen"
       ],
-      "value": 135476
+      "value": 150100.9
     },
     "Chasca": {
       "team": [
         "Chasca",
         "Escoffier",
         "Furina",
-        "Bennett"
+        "Shenhe"
       ],
-      "value": 114658.1
+      "value": 134789.7
     },
     "Clorinde": {
       "team": [
@@ -53,7 +53,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 126726.5
+      "value": 135229.9
     },
     "Cyno": {
       "team": [
@@ -89,7 +89,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 131517.1
+      "value": 142432.6
     },
     "Freminet": {
       "team": [
@@ -98,7 +98,7 @@
         "Escoffier",
         "Yae Miko"
       ],
-      "value": 154752
+      "value": 181363.1
     },
     "Gaming": {
       "team": [
@@ -116,7 +116,7 @@
         "Escoffier",
         "Shenhe"
       ],
-      "value": 126244.9
+      "value": 161515.2
     },
     "Hu Tao": {
       "team": [
@@ -134,7 +134,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 179368.8
+      "value": 206251.9
     },
     "Kamisato Ayato": {
       "team": [
@@ -143,7 +143,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 147779.8
+      "value": 173822.8
     },
     "Kaveh": {
       "team": [
@@ -152,7 +152,7 @@
         "Yelan",
         "Furina"
       ],
-      "value": 123332.4
+      "value": 135799.7
     },
     "Keqing": {
       "team": [
@@ -161,7 +161,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 125568.2
+      "value": 142717.2
     },
     "Kinich": {
       "team": [
@@ -170,25 +170,25 @@
         "Furina",
         "Bennett"
       ],
-      "value": 114586.7
+      "value": 123527.8
     },
     "Klee": {
       "team": [
         "Klee",
-        "Durin",
-        "Columbina",
-        "Ineffa"
+        "Furina",
+        "Albedo",
+        "Xilonen"
       ],
-      "value": 143414.2
+      "value": 155401.4
     },
     "Lohen": {
       "team": [
         "Lohen",
-        "Durin",
         "Escoffier",
-        "Furina"
+        "Furina",
+        "Mona"
       ],
-      "value": 144069.1
+      "value": 170574.9
     },
     "Lyney": {
       "team": [
@@ -197,16 +197,16 @@
         "Kaedehara Kazuha",
         "Zhongli"
       ],
-      "value": 67993.2
+      "value": 68829.9
     },
     "Mavuika": {
       "team": [
         "Mavuika",
-        "Citlali",
-        "Iansan",
+        "Xilonen",
+        "Furina",
         "Bennett"
       ],
-      "value": 137404.8
+      "value": 146410.2
     },
     "Mualani": {
       "team": [
@@ -215,7 +215,7 @@
         "Mavuika",
         "Xilonen"
       ],
-      "value": 87735.6
+      "value": 97876.9
     },
     "Navia": {
       "team": [
@@ -224,16 +224,16 @@
         "Furina",
         "Yelan"
       ],
-      "value": 127931.1
+      "value": 146124.8
     },
     "Nefer": {
       "team": [
         "Nefer",
         "Furina",
         "Lauma",
-        "Ineffa"
+        "Kuki Shinobu"
       ],
-      "value": 124171.4
+      "value": 132975.1
     },
     "Neuvillette": {
       "team": [
@@ -242,7 +242,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 154888.2
+      "value": 164930.7
     },
     "Ningguang": {
       "team": [
@@ -251,7 +251,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 103577.4
+      "value": 113174.2
     },
     "Noelle": {
       "team": [
@@ -260,7 +260,7 @@
         "Columbina",
         "Furina"
       ],
-      "value": 135915.9
+      "value": 153602.6
     },
     "Raiden Shogun": {
       "team": [
@@ -269,7 +269,7 @@
         "Yelan",
         "Xilonen"
       ],
-      "value": 120840.9
+      "value": 134628.3
     },
     "Razor": {
       "team": [
@@ -314,7 +314,7 @@
         "Escoffier",
         "Yelan"
       ],
-      "value": 171863.1
+      "value": 198746.2
     },
     "Tartaglia": {
       "team": [
@@ -350,7 +350,7 @@
         "Furina",
         "Xianyun"
       ],
-      "value": 142421.7
+      "value": 144953.5
     },
     "Varka": {
       "team": [
@@ -373,11 +373,11 @@
     "Wanderer": {
       "team": [
         "Wanderer",
-        "Fischl",
-        "Yae Miko",
-        "Baizhu"
+        "Faruzan",
+        "Bennett",
+        "Furina"
       ],
-      "value": 87640.5
+      "value": 92338.2
     },
     "Wriothesley": {
       "team": [
@@ -386,7 +386,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 186278.9
+      "value": 213162
     },
     "Xiao": {
       "team": [
@@ -395,7 +395,7 @@
         "Xianyun",
         "Furina"
       ],
-      "value": 111281.8
+      "value": 114401.1
     },
     "Yanfei": {
       "team": [
@@ -404,16 +404,16 @@
         "Yelan",
         "Xianyun"
       ],
-      "value": 123269.5
+      "value": 139607
     },
     "Yoimiya": {
       "team": [
         "Yoimiya",
-        "Bennett",
+        "Yelan",
         "Furina",
-        "Escoffier"
+        "Xilonen"
       ],
-      "value": 133234.3
+      "value": 151832.8
     },
     "Yumemizuki Mizuki": {
       "team": [
@@ -427,11 +427,11 @@
     "Zibai": {
       "team": [
         "Zibai",
-        "Linnea",
+        "Xilonen",
         "Columbina",
-        "Ineffa"
+        "Furina"
       ],
-      "value": 154749.4
+      "value": 159730.4
     }
   }
 }

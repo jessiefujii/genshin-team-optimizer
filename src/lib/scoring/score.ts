@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, normalAttacks, teamBuffStats } from "./kit";
+import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, teamBuffStats } from "./kit";
 import { amplifyGain, carryDamage, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
@@ -892,7 +892,8 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
 // added to the carry's in team damage (#202): the carry keeps attacking while they fire. No longer a share of the
 // carry's damage, which made the same hits worth 2-3x more next to a reaction carry (#199).
 // Their stats, crit included, come from their build, else a KQM Standards benchmark build (subDpsStats, #158/#152).
-// Enemy RES is left out, as on the carry's side; reactions on their hits count from #153 (subDpsReactions).
+// Enemy RES is left out, as on the carry's side; reactions on their hits count from #153 (subDpsReactions); teammates'
+// party-wide kit buffs from #204 (memberBuffStats).
 // Returns their total, and the sub-DPS who out-damages the carry, if one does: the team is really theirs (#96).
 function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): { lead: ScoringCharacter | null; dps: number } {
   if (!carry) return { lead: null, dps: 0 };
@@ -906,6 +907,8 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     if (m === carry || !entry) continue;
     const stat = subDpsStats(m)!;
     const dmgBonus = stat.dmgBonus;
+    // Base ATK, for teammates' ATK% buffs: the build's, else the character's plus the benchmark weapon's.
+    const baseAtk = m.stats?.baseAtk ?? (entry.base ? entry.base.atk + BENCHMARK.buffer.weaponBaseAtk : BENCHMARK.carryBaseAtk);
     let dps = 0;
     let lunarDps = 0;
     const picked = pickedSources(entry.sources, carry, ctx);
@@ -917,12 +920,19 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     const reacted = new Set<Reaction>();
     for (const s of entry.sources) {
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
-      const perHit = (s.scaling.atk ?? 0) * stat.atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
+      // Teammates' party-wide kit buffs on this hit (#204, kit.ts memberBuffStats): ATK, DMG Bonus, CRIT Rate, flat DMG.
+      const team = memberBuffStats(m, carry, ctx.active, ctx.members, s.talent);
+      const atk = stat.atk + team.atk + team.atkPct * baseAtk;
+      const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
+      // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
+      const crit = 1 + Math.min(stat.critRate + team.critRate, 1) * stat.critDmg;
       // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151), with
       // their own Moonsign Benediction Base DMG bonus (PR #155).
       const rate = hitsPerSecond(s, carry, ctx, m) * (s.talent === "burst" ? burstPart : 1);
-      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * rate;
+      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * rate * crit;
       else {
+        // Additive Base DMG Bonus from teammates (Shenhe's quills): per hit, before DMG Bonus and crit, as on the carry.
+        const base = perHit + team.flat;
         // DMG Bonus per point of a stat on this hit (Dendro Traveler's 0.15% per EM, #172).
         const perStat = Object.entries(s.dmgBonusPerStat ?? {}).reduce((a, [k, v]) => a + v * stat[k as ScaleStat], 0);
         // A reacting hit (#153): the extra damage of the best reaction, on the hits that react.
@@ -932,15 +942,14 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
         // share for Vaporize and Melt (Spread and Aggravate: all applying hits).
         for (const r of reactions) {
           const share = appliedShare(s) * (AMPLIFYING[r] ? (auras.get(m)?.get(r) ?? 0) : 1);
-          const add = share * (perHit * amplifyGain(m, stat.em, ctx.active, r) + catalyzeDamage(m, stat.em, ctx.active, r));
+          const add = share * (base * amplifyGain(m, stat.em, ctx.active, r) + catalyzeDamage(m, stat.em, ctx.active, r));
           if (add > extra) [extra, best] = [add, r];
         }
-        if (best && extra >= 0.01 * perHit) reacted.add(best); // named only when it adds at least 1% to the hit
-        dps += (perHit + extra) * rate * (1 + dmgBonus + perStat);
+        if (best && extra >= 0.01 * base) reacted.add(best); // named only when it adds at least 1% to the hit
+        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat) * crit;
       }
     }
-    // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
-    dps = (dps + lunarDps) * (1 + Math.min(stat.critRate, 1) * stat.critDmg);
+    dps += lunarDps;
     total += dps;
     const withReactions = reacted.size ? `, with ${[...reacted].map(label).join(", ")}` : "";
     if (dps >= 1) out.add("Sub-DPS", 0, () => `${m.id}'s own hits: ~${Math.round(dps)} damage per second${withReactions}`);

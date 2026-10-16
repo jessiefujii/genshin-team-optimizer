@@ -4,7 +4,7 @@ import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { carryDamage } from "./damage";
-import { fightingSpiritBuilt } from "./kit";
+import { fightingSpiritBuilt, memberBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
@@ -136,11 +136,12 @@ describe("scoreTeam", () => {
   test("Vaporize and Melt on sub-DPS hits share one aura budget (#189, #191)", () => {
     const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
     const pct = dps;
-    // Durin's Pyro aura is shared: Escoffier melts on it, until Furina's Hydro vaporizes it first.
+    // Durin's Pyro aura is shared: Escoffier melts on it, until Xingqiu's Hydro vaporizes it first. (Xingqiu, not
+    // Furina: her Fanfare now buffs Escoffier's hits too, #204, which would hide the lost Melt.)
     expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/, with Melt$/);
-    const withFurina = line("Escoffier", "Skirk", "Escoffier", "Durin", "Furina");
-    expect(withFurina).not.toMatch(/with/);
-    expect(pct(withFurina)).toBeLessThan(pct(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")));
+    const withXingqiu = line("Escoffier", "Skirk", "Escoffier", "Durin", "Xingqiu");
+    expect(withXingqiu).not.toMatch(/with/);
+    expect(pct(withXingqiu)).toBeLessThan(pct(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")));
     // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
     // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
     expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
@@ -478,6 +479,24 @@ describe("scoreTeam", () => {
 });
 
 describe("sub-DPS (#96)", () => {
+  test("party-wide kit buffs reach sub-DPS hits; on-field ones don't (#204)", () => {
+    const buffsOn = (id: string, ...ids: string[]) => {
+      const t = team(...ids);
+      const active = score(...ids).activeReactions;
+      return memberBuffStats(byId.get(id)!, t[0], active, t);
+    };
+    // Furina's Fanfare and Rosaria's CRIT Rate are for every party member, so Yelan's own hits get them.
+    expect(buffsOn("Yelan", "Hu Tao", "Yelan", "Furina", "Zhongli").dmgBonus).toBeGreaterThan(0);
+    expect(buffsOn("Xingqiu", "Hu Tao", "Xingqiu", "Rosaria", "Zhongli").critRate).toBeGreaterThan(0);
+    // Bennett's field buffs whoever stands in it, the on-field carry: not Yelan's off-field hits.
+    expect(buffsOn("Yelan", "Hu Tao", "Yelan", "Bennett", "Zhongli").atk).toBe(0);
+    // A buffer's buff on their own hits is left out (#98): Furina's Fanfare doesn't reach her own Salon here.
+    expect(buffsOn("Furina", "Hu Tao", "Yelan", "Furina", "Zhongli").dmgBonus).toBe(0);
+    // And the buff shows in their damage: Yelan with Furina beside her deals more than with Zhongli in that slot.
+    const yelan = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.reason.startsWith("Yelan's own hits"))?.reason);
+    expect(yelan("Hu Tao", "Yelan", "Furina", "Xingqiu")).toBeGreaterThan(yelan("Hu Tao", "Yelan", "Zhongli", "Xingqiu"));
+  });
+
   test("Furina's Salon bonus needs another healer to keep members above 50% HP (#130)", () => {
     const share = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Furina"))?.reason);
     // Same carry and supports' elements; Bennett heals, Xiangling doesn't.
