@@ -232,7 +232,7 @@ export interface CarryDamage {
 // Every hit is taken as elemental, and `when`-gated hits are counted as landing (estimate).
 export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
   if (!CARRIES[c.id]) return null;
-  const { kit } = pickCombo(CARRIES[c.id], c, active, team);
+  const { kit, reaction } = pickCombo(CARRIES[c.id], c, active, team);
   const seconds = rotationFor(kit, c, active, team);
   let hits = 0;
   let reacting = 0;
@@ -241,7 +241,7 @@ export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], 
     hits += n;
     reacting += h.count * reactingShare(h) * (h.instances ?? 1);
   }
-  return { hitsPerSecond: hits / seconds, reactingPerSecond: reacting / seconds };
+  return { hitsPerSecond: hits / seconds, reactingPerSecond: reacting / seconds, reaction: reaction ?? mainReactionOf(c) };
 }
 
 // Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,
@@ -264,13 +264,15 @@ export function carryDamage(
   team: readonly ScoringCharacter[] = [c],
   buffs: TeamBuffStats = NO_TEAM_BUFFS,
   noGleam = false,
+  // The share of the carry's Vaporize or Melt hits the team's aura can feed (score.ts auraShares, #239); 1 alone.
+  ampShare = 1,
 ): CarryDamage | null {
   // Readings with team buffs aren't cached: they're cheap, and one more entry per team ran the compare out of memory.
-  if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs, noGleam);
+  if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs, noGleam, ampShare);
   let byKey = cache.get(c);
   if (!byKey) cache.set(c, (byKey = new Map()));
-  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}${noGleam ? "#noGleam" : ""}`;
-  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam));
+  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}`;
+  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam, ampShare));
   return byKey.get(key)!;
 }
 
@@ -280,6 +282,7 @@ function computeCarryDamage(
   team: readonly ScoringCharacter[],
   teamBuffs: TeamBuffStats,
   noGleam: boolean,
+  ampShare = 1,
 ): CarryDamage | null {
   if (!CARRIES[c.id]) return null;
   const base = CARRIES[c.id];
@@ -313,7 +316,7 @@ function computeCarryDamage(
     if (b.kind === "emFromAtk") em += Math.min(b.max, b.value * own.atk); // own ATK: no team buffs (#157)
     if (b.kind === "emBonus") em += b.value; // Nefer at 3 Veil of Falsehood stacks (#148)
   }
-  const amp = amplifyGain(c, em, active, reaction ?? mainReactionOf(c));
+  const amp = amplifyGain(c, em, active, reaction ?? mainReactionOf(c)) * ampShare;
   const catalyze = catalyzeDamage(c, em, active, reaction ?? mainReactionOf(c));
   // A hit of another damage type (#222): its own DMG Bonus (Physical: the build's; another element: none of the carry's),
   // the team buffs that reach that type (read as if it were the carry's element, so a Cryo-only buff skips Physical

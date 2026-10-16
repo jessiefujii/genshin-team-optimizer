@@ -7866,6 +7866,32 @@
               "count": 5
             }
           ]
+        },
+        {
+          "combo": "Q 7[EP]",
+          "when": [
+            {
+              "reaction": "vaporize"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Plunging Attack: Charmed Cloudstrider DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 3.9168
+              },
+              "count": 7
+            },
+            {
+              "label": "Suanni Man Chai Smash DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.2968
+              },
+              "count": 5
+            }
+          ]
         }
       ]
     },

@@ -1,5 +1,5 @@
 {
-  "median": 138179.1,
+  "median": 135827.9,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -71,7 +71,7 @@
         "Yelan",
         "Bennett"
       ],
-      "value": 99277.8
+      "value": 99362.3
     },
     "Eula": {
       "team": [
@@ -103,11 +103,11 @@
     "Gaming": {
       "team": [
         "Gaming",
-        "Citlali",
-        "Bennett",
-        "Escoffier"
+        "Furina",
+        "Xianyun",
+        "Bennett"
       ],
-      "value": 162864.3
+      "value": 177511.2
     },
     "Ganyu": {
       "team": [
@@ -125,7 +125,7 @@
         "Zhongli",
         "Albedo"
       ],
-      "value": 180839.5
+      "value": 180827
     },
     "Kamisato Ayaka": {
       "team": [
@@ -179,7 +179,7 @@
         "Albedo",
         "Xilonen"
       ],
-      "value": 224550.2
+      "value": 224536.8
     },
     "Lohen": {
       "team": [
@@ -206,16 +206,16 @@
         "Furina",
         "Bennett"
       ],
-      "value": 146410.2
+      "value": 142772.5
     },
     "Mualani": {
       "team": [
         "Mualani",
-        "Chiori",
-        "Mavuika",
-        "Xilonen"
+        "Xiangling",
+        "Yelan",
+        "Zhongli"
       ],
-      "value": 137347.8
+      "value": 114844.7
     },
     "Navia": {
       "team": [
@@ -404,7 +404,7 @@
         "Yelan",
         "Xianyun"
       ],
-      "value": 94504.9
+      "value": 94499.8
     },
     "Yoimiya": {
       "team": [
@@ -413,7 +413,7 @@
         "Furina",
         "Escoffier"
       ],
-      "value": 139092.6
+      "value": 136425.9
     },
     "Yumemizuki Mizuki": {
       "team": [

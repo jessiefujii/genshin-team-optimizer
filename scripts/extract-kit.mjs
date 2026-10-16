@@ -1988,6 +1988,16 @@ const CARRIES = {
           { table: "burst", label: "Suanni Man Chai Smash DMG", count: 5, type: BU },
         ],
       },
+      {
+        // His tagged main reaction is Melt, so a default combo would amplify by Melt: KQM's Vaporize default (the hits
+        // above) gets its own entry for Vaporize teams (#239 found it unamplified).
+        combo: "Q 7[EP]",
+        when: [{ reaction: "vaporize" }],
+        hits: [
+          { table: "skill", label: "Plunging Attack: Charmed Cloudstrider DMG", count: 7, type: PL },
+          { table: "burst", label: "Suanni Man Chai Smash DMG", count: 5, type: BU },
+        ],
+      },
     ],
   },
   Diluc: {
