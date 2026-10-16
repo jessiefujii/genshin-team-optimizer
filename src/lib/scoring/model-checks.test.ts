@@ -74,6 +74,15 @@ describe("coverage gate", () => {
     expect(missing.length, `no carry kit or sub-DPS entry: ${missing.join(", ")}`).toBeLessThanOrEqual(NO_DAMAGE_PROFILE);
   });
 
+  // A carry kit with an unsourced hit counts as not modeled, in the scorer and in these checks alike (#227).
+  test("hasCarryKit agrees with the scorer on who is modeled (#227)", () => {
+    const disagree = all.filter((c) => {
+      const own = carryDamage(c);
+      return hasCarryKit(c.id) !== (own !== null && own.missing.length === 0);
+    });
+    expect(disagree.map((c) => c.id)).toEqual([]);
+  });
+
   test("every main DPS has a carry kit (#137, #203)", () => {
     const missing = all.filter((c) => c.roles.includes("main-dps") && !hasCarryKit(c.id)).map((c) => c.id);
     expect(missing.length, `main DPS with no carry kit: ${missing.join(", ")}`).toBeLessThanOrEqual(MAIN_DPS_WITHOUT_CARRY_KIT);

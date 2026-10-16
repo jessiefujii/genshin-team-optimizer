@@ -1813,6 +1813,24 @@ const CARRIES = {
       // Passive 2: +20% Cryo DMG inside Celestial Shower: the 4 Charged Attacks after the Burst.
       { kind: "dmgBonus", from: "passive2", re: /grants a (\d+)% Cryo DMG Bonus/, share: 4 / 5, types: [CH] },
     ],
+    combos: [
+      {
+        // #228. KQM quick guide, Melt (Bennett, Jean, Zhongli): "Ganyu E(Q) > Zhongli hE > Bennett Q > Jean EQ > Ganyu
+        // 4[C]": one Skill (2 hits), her Burst, 4 Frostflake Arrows, all in Celestial Shower. Its other Melt samples
+        // (5[C] with Xilonen, 6[C] with Dehya) skip her Burst. Which arrows Melt: the flat estimate (#226).
+        combo: "E Q 4[C]",
+        when: [{ reaction: "melt" }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 2, type: SK },
+          { table: "normal", label: "Frostflake Arrow DMG", count: 4, type: CH },
+          { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 4, type: CH },
+        ],
+        buffs: [
+          { kind: "critRate", from: "passive1", re: /increased by (\d+)% for/, share: 3 / 4, labels: ["Frostflake Arrow DMG", "Frostflake Arrow Bloom DMG"] },
+          { kind: "dmgBonus", from: "passive2", re: /grants a (\d+)% Cryo DMG Bonus/, types: [CH] },
+        ],
+      },
+    ],
   },
   "Kamisato Ayato": {
     // KQM quick guide, "Default combo (reactions)": "Q > Team > E N15 > Team > E N15"; "15 consecutive Shunsuiken
