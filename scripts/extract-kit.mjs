@@ -794,10 +794,10 @@ function readStellar(id, spec) {
 //       Traveler's 0.15% per EM: { from: "passive2", re: /Razorgrass Blade by ([\d.]+)%/, stat: "em" }; written as
 //       `dmgBonusPerStat: { em: 0.0015 }` (DMG Bonus added per point) (#172)
 const SUBDPS = {
-  // Supports' own hits (#203, batch 1): every character gets a damage profile, whatever their role. Their Skill and
-  // Burst hits once per cooldown, from the talent tables; recurring hits whose interval isn't in the text (Kazuha's
-  // and Sucrose's Burst DoT, Shenhe's Burst DoT, Kokomi's Bake-Kurage, Zhongli's stele resonance, Kuki's Burst,
-  // Xianyun's Starwicker) wait for sourced rates (batch 2). A conditional hit (Xilonen's Follow-Up Beat) is left out.
+  // Supports' own hits (#203): every character gets a damage profile, whatever their role. Their Skill and Burst hits,
+  // from the talent tables; recurring hits at rates from the wiki's Gameplay Notes (kit-overrides.json hitRates).
+  // Left out: conditional hits (Xilonen's Follow-Up Beat), and Xianyun's Starwicker (it raises teammates' plunges, a
+  // buff her kit entry already has).
   Bennett: [
     { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
@@ -805,10 +805,15 @@ const SUBDPS = {
   "Kaedehara Kazuha": [
     { talent: "skill", label: "Press Skill DMG", hits: 1, cd: "Press CD" },
     { talent: "burst", label: "Slashing DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Additional Elemental DMG", hits: "rate", cd: "CD" },
   ],
+  // Passive 2: "Dominus Lapidis' Stone Stele, resonance, and hold DMG is increased by 1.9% of Max HP"; "Planet Befall's
+  // DMG is increased by 33% of Max HP". The Hold makes the stele, which resonates on its own until the next Hold.
   Zhongli: [
-    { talent: "skill", label: "Hold DMG", hits: 1, cd: "Hold CD" },
-    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Hold DMG", hits: 1, cd: "Hold CD", addScaling: [{ from: "passive2", re: /resonance, and hold DMG is increased by ([\d.]+)% of Max HP/, stat: "hp" }] },
+    { talent: "skill", label: "Stone Stele/Resonance DMG", hits: "rate", cd: "Hold CD", addScaling: [{ from: "passive2", re: /resonance, and hold DMG is increased by ([\d.]+)% of Max HP/, stat: "hp" }] },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD", addScaling: [{ from: "passive2", re: /Planet Befall's DMG is increased by ([\d.]+)% of Max HP/, stat: "hp" }] },
   ],
   Xianyun: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
@@ -819,15 +824,24 @@ const SUBDPS = {
     { talent: "skill", label: "Rush DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
   ],
-  Sucrose: [{ talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" }],
-  "Sangonomiya Kokomi": [{ talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" }],
+  Sucrose: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Additional Elemental DMG", hits: "rate", cd: "CD" },
+  ],
+  "Sangonomiya Kokomi": [
+    { talent: "skill", label: "Ripple DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
   "Kuki Shinobu": [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Grass Ring of Sanctification DMG", every: /every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+    { talent: "burst", label: "Single Instance DMG", hits: "rate", cd: "CD" },
   ],
   Shenhe: [
     { talent: "skill", label: "Press Skill DMG", hits: 1, cd: "Press CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
   ],
   Faruzan: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },

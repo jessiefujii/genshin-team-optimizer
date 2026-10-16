@@ -652,6 +652,50 @@
         "hits": 6.5,
         "source": "KeqingMains Alhaitham quick guide, https://keqingmains.com/q/alhaitham-quickguide/ (pasted by Jessie 2026-10-11), ER assumptions: \"Rotations vary from 21–26s\", \"Alhaitham triggers 6–7 Projection Attacks per rotation\". The midpoint, to match his rotation length (rotations: 23.5s, the midpoint of the same range, #103); counted them all as 3-Mirror."
       }
+    },
+    "Kaedehara Kazuha": {
+      "burst: DoT": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kazuha_Slash, fetched 2026-10-16 (Gameplay Notes): \"The Autumn Whirlwind field deals DMG every 2 seconds for a total of 5 times.\""
+      },
+      "burst: Additional Elemental DMG": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kazuha_Slash, fetched 2026-10-16 (Gameplay Notes): the field's 5 hits (\"every 2 seconds for a total of 5 times\"), each with the absorbed element. Every hit taken as absorbed (estimate: the wiki doesn't say when absorption happens)."
+      }
+    },
+    "Sucrose": {
+      "burst: DoT": {
+        "hits": 3,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Forbidden_Creation_-_Isomer_75_/_Type_II, fetched 2026-10-16 (Gameplay Notes): \"The Elemental Burst has a total of three pulses.\""
+      },
+      "burst: Additional Elemental DMG": {
+        "hits": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Forbidden_Creation_-_Isomer_75_/_Type_II, fetched 2026-10-16 (Gameplay Notes): \"Elemental Absorption does not occur until after the first pulse\": 2 of the 3 pulses."
+      }
+    },
+    "Shenhe": {
+      "burst: DoT": {
+        "hits": 12,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Divine_Maiden's_Deliverance, fetched 2026-10-16 (Gameplay Notes): \"The DoT hits 12 times.\" (C0; C2 adds 6)"
+      }
+    },
+    "Sangonomiya Kokomi": {
+      "skill: Ripple DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kurage's_Oath, fetched 2026-10-16 (Gameplay Notes): \"The Bake-Kurage ticks every 2 seconds, for a total of 7 times before its 12s duration ends.\""
+      }
+    },
+    "Kuki Shinobu": {
+      "burst: Single Instance DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gyoei_Narukami_Kariyama_Rite, fetched 2026-10-16 (Gameplay Notes): \"7 instances of damage if she has more than 50% Max HP. 12 Instances of damage if she has 50% or less Max HP.\" (above 50%)"
+      }
+    },
+    "Zhongli": {
+      "skill: Stone Stele/Resonance DMG": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dominus_Lapidis, fetched 2026-10-16 (Gameplay Notes): \"From 2 s after creating the Stone Stele, it resonates with itself and nearby Geo Constructs every 2 seconds\": over the 12s Hold CD, 5 resonances per Hold. The 5 is worked out here, not a wiki number."
+      }
     }
   },
   "rotations": {

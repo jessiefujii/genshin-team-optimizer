@@ -1586,6 +1586,26 @@
           },
           "hits": 1,
           "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "DoT",
+          "scaling": {
+            "atk": 2.04
+          },
+          "hits": 5,
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kazuha_Slash, fetched 2026-10-16 (Gameplay Notes): \"The Autumn Whirlwind field deals DMG every 2 seconds for a total of 5 times.\""
+        },
+        {
+          "talent": "burst",
+          "label": "Additional Elemental DMG",
+          "scaling": {
+            "atk": 0.612
+          },
+          "hits": 5,
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kazuha_Slash, fetched 2026-10-16 (Gameplay Notes): the field's 5 hits (\"every 2 seconds for a total of 5 times\"), each with the absorbed element. Every hit taken as absorbed (estimate: the wiki doesn't say when absorption happens)."
         }
       ]
     },
@@ -1604,16 +1624,29 @@
           "talent": "skill",
           "label": "Hold DMG",
           "scaling": {
-            "atk": 1.36
+            "atk": 1.36,
+            "hp": 0.019
           },
           "hits": 1,
           "cd": 12
         },
         {
+          "talent": "skill",
+          "label": "Stone Stele/Resonance DMG",
+          "scaling": {
+            "atk": 0.272,
+            "hp": 0.019
+          },
+          "hits": 5,
+          "cd": 12,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dominus_Lapidis, fetched 2026-10-16 (Gameplay Notes): \"From 2 s after creating the Stone Stele, it resonates with itself and nearby Geo Constructs every 2 seconds\": over the 12s Hold CD, 5 resonances per Hold. The 5 is worked out here, not a wiki number."
+        },
+        {
           "talent": "burst",
           "label": "Skill DMG",
           "scaling": {
-            "atk": 8.3468
+            "atk": 8.3468,
+            "hp": 0.33
           },
           "hits": 1,
           "cd": 12
@@ -1710,6 +1743,26 @@
           },
           "hits": 1,
           "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "DoT",
+          "scaling": {
+            "atk": 2.516
+          },
+          "hits": 3,
+          "cd": 20,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Forbidden_Creation_-_Isomer_75_/_Type_II, fetched 2026-10-16 (Gameplay Notes): \"The Elemental Burst has a total of three pulses.\""
+        },
+        {
+          "talent": "burst",
+          "label": "Additional Elemental DMG",
+          "scaling": {
+            "atk": 0.748
+          },
+          "hits": 2,
+          "cd": 20,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Forbidden_Creation_-_Isomer_75_/_Type_II, fetched 2026-10-16 (Gameplay Notes): \"Elemental Absorption does not occur until after the first pulse\": 2 of the 3 pulses."
         }
       ]
     },
@@ -1724,6 +1777,16 @@
         }
       },
       "sources": [
+        {
+          "talent": "skill",
+          "label": "Ripple DMG",
+          "scaling": {
+            "atk": 1.856237
+          },
+          "hits": 7,
+          "cd": 20,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kurage's_Oath, fetched 2026-10-16 (Gameplay Notes): \"The Bake-Kurage ticks every 2 seconds, for a total of 7 times before its 12s duration ends.\""
+        },
         {
           "talent": "burst",
           "label": "Skill DMG",
@@ -1764,6 +1827,16 @@
           "every": 1.5,
           "duration": 12,
           "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Single Instance DMG",
+          "scaling": {
+            "hp": 0.061282
+          },
+          "hits": 7,
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gyoei_Narukami_Kariyama_Rite, fetched 2026-10-16 (Gameplay Notes): \"7 instances of damage if she has more than 50% Max HP. 12 Instances of damage if she has 50% or less Max HP.\" (above 50%)"
         }
       ]
     },
@@ -1795,6 +1868,16 @@
           },
           "hits": 1,
           "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "DoT",
+          "scaling": {
+            "atk": 0.56304
+          },
+          "hits": 12,
+          "cd": 20,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Divine_Maiden's_Deliverance, fetched 2026-10-16 (Gameplay Notes): \"The DoT hits 12 times.\" (C0; C2 adds 6)"
         }
       ]
     },

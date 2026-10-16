@@ -8,7 +8,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 192151
+      "value": 200170.3
     },
     "Aloy": {
       "team": [
@@ -17,7 +17,7 @@
         "Xiangling",
         "Shenhe"
       ],
-      "value": 75604.9
+      "value": 80061.5
     },
     "Arataki Itto": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 113140.1
+      "value": 117683
     },
     "Diluc": {
       "team": [
@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 84788.5
+      "value": 89835.1
     },
     "Flins": {
       "team": [
@@ -114,9 +114,9 @@
         "Ganyu",
         "Furina",
         "Escoffier",
-        "Citlali"
+        "Shenhe"
       ],
-      "value": 126240.7
+      "value": 126244.9
     },
     "Hu Tao": {
       "team": [
@@ -125,7 +125,7 @@
         "Zhongli",
         "Albedo"
       ],
-      "value": 173253.6
+      "value": 180839.5
     },
     "Kamisato Ayaka": {
       "team": [
@@ -194,10 +194,10 @@
       "team": [
         "Lyney",
         "Bennett",
-        "Xiangling",
+        "Kaedehara Kazuha",
         "Zhongli"
       ],
-      "value": 57774.8
+      "value": 67993.2
     },
     "Mavuika": {
       "team": [
@@ -296,16 +296,16 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 90246.4
+      "value": 99349.4
     },
     "Shikanoin Heizou": {
       "team": [
         "Shikanoin Heizou",
-        "Faruzan",
-        "Xingqiu",
-        "Yelan"
+        "Yelan",
+        "Kuki Shinobu",
+        "Traveler (Dendro)"
       ],
-      "value": 83202
+      "value": 86039.8
     },
     "Skirk": {
       "team": [
