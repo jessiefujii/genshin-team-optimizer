@@ -215,6 +215,14 @@ describe("carry damage (#101)", () => {
     expect(at(100) / at(90)).toBeLessThan(3 / 2.8);
   });
 
+  test("Ganyu plays KQM's Melt rotation in Melt teams, and it Melts (#228)", () => {
+    const ganyu = byId.get("Ganyu")!;
+    expect(carryDamage(ganyu, ["melt"])!.combo).toBe("E Q 4[C]");
+    expect(carryDamage(ganyu, ["freeze"])!.combo).toBe("E C EQ 4[C]");
+    // Reverse Melt (x1.5) on her arrows outweighs the Freeze rotation's extra arrow and Skill.
+    expect(carryDamage(ganyu, ["melt"])!.perSecond).toBeGreaterThan(carryDamage(ganyu, ["freeze"])!.perSecond);
+  });
+
   test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {
     const navia = byId.get("Navia")!;
     expect(carryDamage(navia, ["crystallize"])!.perSecond).toBeGreaterThan(carryDamage(navia, [])!.perSecond * 1.2);

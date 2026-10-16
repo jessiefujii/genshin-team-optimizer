@@ -66,7 +66,9 @@ interface CarryKit {
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
 
-export const hasCarryKit = (id: string) => id in CARRIES;
+// Whether the carry's damage is modeled: a kit with no unsourced (missing) hit. The scorer reads a carry with one as not
+// modeled (modeledCarryDps), so this does too: model checks then treat them alike (#227).
+export const hasCarryKit = (id: string) => id in CARRIES && !CARRIES[id].missing?.length;
 
 // Whether the carry's damage model has their own Ascendant Gleam upgrade (a hit or buff that needs it: Zibai's N4
 // hit, Flins' passive 1, Nefer's Veil of Falsehood). For these carries the scorer counts the upgrade by the damage it

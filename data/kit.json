@@ -7192,6 +7192,59 @@
             "charged"
           ]
         }
+      ],
+      "combos": [
+        {
+          "combo": "E Q 4[C]",
+          "when": [
+            {
+              "reaction": "melt"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.244
+              },
+              "count": 2
+            },
+            {
+              "label": "Frostflake Arrow DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.176
+              },
+              "count": 4
+            },
+            {
+              "label": "Frostflake Arrow Bloom DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 3.6992
+              },
+              "count": 4
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "critRate",
+              "value": 0.15,
+              "labels": [
+                "Frostflake Arrow DMG",
+                "Frostflake Arrow Bloom DMG"
+              ]
+            },
+            {
+              "kind": "dmgBonus",
+              "value": 0.2,
+              "types": [
+                "charged"
+              ]
+            }
+          ]
+        }
       ]
     },
     "Kamisato Ayato": {
