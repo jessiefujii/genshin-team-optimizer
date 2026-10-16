@@ -1,5 +1,5 @@
 {
-  "median": 135009.8,
+  "median": 135514.8,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -179,7 +179,7 @@
         "Albedo",
         "Xilonen"
       ],
-      "value": 155401.4
+      "value": 224550.2
     },
     "Lohen": {
       "team": [
@@ -329,10 +329,10 @@
       "team": [
         "Tighnari",
         "Fischl",
-        "Yae Miko",
-        "Yaoyao"
+        "Nahida",
+        "Zhongli"
       ],
-      "value": 111594.9
+      "value": 152898.7
     },
     "Traveler (Cryo)": {
       "team": [
@@ -409,11 +409,11 @@
     "Yoimiya": {
       "team": [
         "Yoimiya",
-        "Yelan",
+        "Bennett",
         "Furina",
-        "Xilonen"
+        "Escoffier"
       ],
-      "value": 151832.8
+      "value": 139092.6
     },
     "Yumemizuki Mizuki": {
       "team": [

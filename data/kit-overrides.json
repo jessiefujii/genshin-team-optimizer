@@ -762,6 +762,12 @@
         "hits": 7,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Riff_Revolution, fetched 2026-10-16 (Gameplay Notes): \"The DoT portion of Riff Revolution can hit up to 7 times\""
       }
+    },
+    "Klee": {
+      "carry: Sparks 'n' Splash DMG": {
+        "hits": 24,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Sparks_'n'_Splash, fetched 2026-10-16 (Gameplay Notes): \"Sparks 'n' Splash can be triggered once every 1.8 seconds, resulting in 6 instances ... Each Sparks 'n' Splash sends 4 sparks\": 24 on one opponent."
+      }
     }
   },
   "rotations": {

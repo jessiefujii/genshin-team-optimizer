@@ -66,14 +66,14 @@ describe("scoreTeam", () => {
   // The flat reaction points only apply to carries whose damage isn't modeled yet (Yoimiya, Tartaglia, Keqing):
   // a modeled carry's reactions score by the damage they add (#134).
   test("double Hydro gets credit for the second Hydro support", () => {
-    const double = score("Yoimiya", "Xingqiu", "Yelan", "Zhongli");
+    const double = score("Diluc", "Xingqiu", "Yelan", "Zhongli");
     expect(double.breakdown.some((l) => l.reason === "2 supports enable Vaporize")).toBe(true);
   });
 
   test("same-element supports are not reaction partners (#1)", () => {
-    const yoimiya = score("Yoimiya", "Bennett", "Furina", "Xingqiu");
-    const vape = yoimiya.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
-    expect(vape?.reason).toBe("Vaporize: Yoimiya + Furina, Xingqiu");
+    const diluc = score("Diluc", "Bennett", "Furina", "Xingqiu");
+    const vape = diluc.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
+    expect(vape?.reason).toBe("Vaporize: Diluc + Furina, Xingqiu");
 
     const childe = score("Tartaglia", "Bennett", "Furina", "Xiangling");
     expect(childe.breakdown.find((l) => l.reason.startsWith("Vaporize:"))?.reason).toBe(
@@ -660,13 +660,13 @@ describe("talent levels (#25)", () => {
     // Lunar-Charged gets only 0.2% per point.
     expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+4% damage)");
     // Prune: 0.025% per ATK point above 2,000; without a build she is assumed at 3,000 ATK.
-    expect(buff("Prune", "Klee", "Prune", "Mona", "Bennett")).toBe("Prune buffs Klee (~+16% damage)");
+    expect(buff("Prune", "Klee", "Prune", "Mona", "Bennett")).toBe("Prune buffs Klee (~+16% damage, ~+16% of it in Klee's damage)");
     const stats: CharacterStats = {
       atk: 4200, hp: 15000, def: 800, critRate: 50, critDmg: 100, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 0,
     };
     const built = team("Klee", "Prune", "Mona", "Bennett").map((c) => (c.id === "Prune" ? { ...c, stats } : c));
     // At 4,200 ATK she hits the 50% cap.
-    expect(scoreTeam(built).breakdown.find((l) => l.reason.startsWith("Prune"))?.reason).toBe("Prune buffs Klee (~+31% damage)");
+    expect(scoreTeam(built).breakdown.find((l) => l.reason.startsWith("Prune"))?.reason).toBe("Prune buffs Klee (~+31% damage, ~+31% of it in Klee's damage)");
   });
 
   test("Mavuika's bonus grows with the Fighting Spirit the team can build (#68)", () => {
@@ -764,12 +764,12 @@ describe("talent levels (#25)", () => {
   });
 
   test("Electro enablers partner a Dendro carry's Spread (#61)", () => {
-    // Alhaitham is modeled, so his Spread counts by damage (#134).
+    // Alhaitham and Tighnari are modeled, so their Spread counts by damage (#134).
     expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
       "Spread adds ~+98% to Alhaitham's damage",
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
-      "Spread: Tighnari + Fischl, Yae Miko",
+      "Spread adds ~+174% to Tighnari's damage",
     );
   });
 

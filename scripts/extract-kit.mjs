@@ -1735,6 +1735,56 @@ const CARRIES = {
     // Passive 2: +0.1% Projection and Burst DMG per EM, up to 100%.
     buffs: [{ kind: "dmgBonusPerEm", from: "passive2", re: /by ([\d.]+)%\. The DMG of both/, max: /maximum of (\d+)% this way/, types: [SK, BU], labels: ["3-Mirror Projection Attack DMG", "Single-Instance DMG"] }],
   },
+  // #203 / #137: the main DPS outside the compare, from their KQM quick guides (fetched 2026-10-16).
+  Klee: {
+    // KQM's Normal Attack Spam, "her easiest combo": "N1 sEQ N3 E 5[N3]"; "This combo gets 5 additional Charged
+    // Attacks easily" (Explosive Sparks: passive 1). Jumpy Dumpty "bounces thrice" per throw, 2 throws (sE, E).
+    // Sparks 'n' Splash: 6 waves of 4 sparks (wiki). Her mines are left out: how many of the 8 hit one opponent isn't
+    // sourced.
+    combo: "N1 sEQ N3 E 5[N3]",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 7, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 5, type: CH },
+      { table: "skill", label: "Jumpy Dumpty DMG", count: 6, type: SK },
+      { table: "burst", label: "Sparks 'n' Splash DMG", count: "rate", type: BU },
+    ],
+    // Passive 1 (kit-overrides.json's updated text): a Spark Charged Attack, Boom-Boom Strike, deals 50% more; all 5 are.
+    buffs: [{ kind: "dmgBonus", from: "passive1", re: /Boom-Boom Strike, dealing (\d+)% increased DMG/, types: [CH] }],
+  },
+  Tighnari: {
+    // KQM: "E Q 3CS" (Charged Shots: Wreath Arrows; "Upon hit, the Wreath Arrow will create 4 Clusterbloom Arrows").
+    // His Burst fires 6 Tanglevine Shafts and a secondary wave (genshin-db: "fire 6 Tanglevine Shafts"; one each).
+    combo: "E Q 3CS",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Tanglevine Shaft DMG", count: 6, type: BU },
+      { table: "burst", label: "Secondary Tanglevine Shaft DMG", count: 6, type: BU },
+      { table: "normal", label: "Wreath Arrow DMG", count: 3, type: CH },
+      { table: "normal", label: "Clusterbloom Arrow DMG", count: 12, type: CH },
+    ],
+    buffs: [
+      // Passive 1: +50 EM for 4s after each Wreath Arrow: up through his Charged Shots.
+      { kind: "emBonus", from: "passive1", re: /Elemental Mastery is increased by (\d+)/ },
+      // Passive 2: +0.06% Charged Attack and Burst DMG per EM, up to 60%.
+      { kind: "dmgBonusPerEm", from: "passive2", re: /are increased by ([\d.]+)%/, max: /maximum DMG Bonus obtainable this way is (\d+)%/, types: [CH, BU], labels: ["Wreath Arrow DMG", "Clusterbloom Arrow DMG", "Tanglevine Shaft DMG", "Secondary Tanglevine Shaft DMG"] },
+    ],
+  },
+  Yoimiya: {
+    // KQM: "her entire Normal Attack string repeated 3 times" in Niwabi Fire-Dance (E), the highest-damage combo in
+    // most teams; her Burst "should only be used when it is available (typically every 2 or 3 rotations)": 0.4.
+    combo: "E 3[N5]",
+    hits: [
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG", "5-Hit DMG"].map((label) => ({ table: "normal", label, count: 3, type: N, ...(label === "1-Hit DMG" || label === "4-Hit DMG" ? { instances: 2 } : {}) })),
+      { table: "burst", label: "Skill DMG", count: 0.4, type: BU },
+    ],
+    buffs: [
+      { kind: "factor", table: "skill", label: "Blazing Arrow DMG", types: [N] },
+      // Passive 1: +2% Pyro DMG per Normal Attack hit, up to 10 stacks: ~8.5 stacks on average over the 3 strings.
+      { kind: "dmgBonus", value: 0.17, types: [N, BU], note: "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]" },
+    ],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.

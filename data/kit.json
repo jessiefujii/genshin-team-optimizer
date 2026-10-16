@@ -6942,6 +6942,210 @@
           ]
         }
       ]
+    },
+    "Klee": {
+      "rotationSeconds": 15,
+      "combo": "N1 sEQ N3 E 5[N3]",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.22672
+          },
+          "count": 7
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.0608
+          },
+          "count": 6
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.52864
+          },
+          "count": 6
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.67512
+          },
+          "count": 5
+        },
+        {
+          "label": "Jumpy Dumpty DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.6184
+          },
+          "count": 6
+        },
+        {
+          "label": "Sparks 'n' Splash DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.72488
+          },
+          "count": 24
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.5,
+          "types": [
+            "charged"
+          ]
+        }
+      ]
+    },
+    "Tighnari": {
+      "rotationSeconds": 12,
+      "combo": "E Q 3CS",
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.5432
+          },
+          "count": 1
+        },
+        {
+          "label": "Tanglevine Shaft DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.94554
+          },
+          "count": 6
+        },
+        {
+          "label": "Secondary Tanglevine Shaft DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.15566
+          },
+          "count": 6
+        },
+        {
+          "label": "Wreath Arrow DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 1.4824
+          },
+          "count": 3
+        },
+        {
+          "label": "Clusterbloom Arrow DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.6562
+          },
+          "count": 12
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "emBonus",
+          "value": 50
+        },
+        {
+          "kind": "dmgBonusPerEm",
+          "perEm": 0.0006,
+          "max": 0.6,
+          "types": [
+            "charged",
+            "burst"
+          ],
+          "labels": [
+            "Wreath Arrow DMG",
+            "Clusterbloom Arrow DMG",
+            "Tanglevine Shaft DMG",
+            "Secondary Tanglevine Shaft DMG"
+          ]
+        }
+      ]
+    },
+    "Yoimiya": {
+      "rotationSeconds": 15,
+      "combo": "E 3[N5]",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.1988
+          },
+          "count": 3,
+          "instances": 2
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.14996
+          },
+          "count": 3
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.494948
+          },
+          "count": 3
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.5614
+          },
+          "count": 3,
+          "instances": 2
+        },
+        {
+          "label": "5-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.78044
+          },
+          "count": 3
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.1624
+          },
+          "count": 0.4
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "factor",
+          "value": 1.58793,
+          "types": [
+            "normal"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.17,
+          "types": [
+            "normal",
+            "burst"
+          ],
+          "note": "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]"
+        }
+      ]
     }
   },
   "carriesTodo": [
@@ -6957,7 +7161,6 @@
     "Kamisato Ayato",
     "Kaveh",
     "Keqing",
-    "Klee",
     "Lan Yan",
     "Lohen",
     "Lyney",
@@ -6972,7 +7175,6 @@
     "Sethos",
     "Shikanoin Heizou",
     "Tartaglia",
-    "Tighnari",
     "Traveler (Anemo)",
     "Traveler (Hydro)",
     "Traveler (Cryo)",
@@ -6980,7 +7182,6 @@
     "Vesna",
     "Wanderer",
     "Yanfei",
-    "Yoimiya",
     "Yumemizuki Mizuki"
   ]
 }
