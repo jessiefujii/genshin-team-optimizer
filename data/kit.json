@@ -7490,13 +7490,214 @@
           ]
         }
       ]
+    },
+    "Cyno": {
+      "rotationSeconds": 20,
+      "combo": "E Q N2E 3[N5 N2E]",
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.2168
+          },
+          "count": 1
+        },
+        {
+          "label": "Mortuary Rite DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.6656
+          },
+          "count": 4
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.438227
+          },
+          "count": 7
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.515125
+          },
+          "count": 7
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.922339
+          },
+          "count": 3,
+          "instances": 2
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.89946
+          },
+          "count": 3,
+          "instances": 2
+        },
+        {
+          "label": "5-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.403891
+          },
+          "count": 3
+        },
+        {
+          "label": "passive1 bonus",
+          "type": "skill",
+          "scaling": {
+            "atk": 1
+          },
+          "count": 9
+        },
+        {
+          "label": "passive2 bonus",
+          "type": "normal",
+          "scaling": {
+            "em": 1.5
+          },
+          "count": 29,
+          "addOn": true
+        },
+        {
+          "label": "passive2 bonus",
+          "type": "skill",
+          "scaling": {
+            "em": 2.5
+          },
+          "count": 9,
+          "addOn": true
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "emBonus",
+          "value": 100
+        },
+        {
+          "kind": "baseDmgMultiplier",
+          "value": 0.2625,
+          "labels": [
+            "Mortuary Rite DMG"
+          ]
+        }
+      ]
+    },
+    "Mualani": {
+      "rotationSeconds": 16,
+      "combo": "E 3[N1]",
+      "hits": [
+        {
+          "label": "Sharky's Bite Base DMG",
+          "type": "normal",
+          "scaling": {
+            "hp": 0.14756
+          },
+          "count": 3,
+          "tag": "bite"
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "hp": 0.993466
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.07378,
+          "stacks": 3,
+          "tag": "bite",
+          "stat": "hp"
+        },
+        {
+          "kind": "addPerStack",
+          "value": 0.3689,
+          "stacks": 1,
+          "tag": "bite",
+          "stat": "hp"
+        }
+      ]
+    },
+    "Noelle": {
+      "rotationSeconds": 23.5,
+      "combo": "EQ 5[N3D] N2",
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "def": 2.04
+          },
+          "count": 1
+        },
+        {
+          "label": "Burst DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.1424
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.5776
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.4536
+          },
+          "count": 6
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.34774
+          },
+          "count": 6
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.58474
+          },
+          "count": 5
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "atkFromDef",
+          "value": 0.68
+        }
+      ]
     }
   },
   "carriesTodo": [
     "Aloy",
     "Arataki Itto",
     "Chasca",
-    "Cyno",
     "Diluc",
     "Eula",
     "Freminet",
@@ -7508,9 +7709,7 @@
     "Lyney",
     "Manekin",
     "Manekina",
-    "Mualani",
     "Ningguang",
-    "Noelle",
     "Razor",
     "Sandrone",
     "Sethos",

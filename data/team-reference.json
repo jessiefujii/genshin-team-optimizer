@@ -1,5 +1,5 @@
 {
-  "median": 135009.8,
+  "median": 135514.8,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 117683
+      "value": 166185.1
     },
     "Diluc": {
       "team": [
@@ -215,7 +215,7 @@
         "Mavuika",
         "Xilonen"
       ],
-      "value": 97876.9
+      "value": 137347.8
     },
     "Navia": {
       "team": [
@@ -260,7 +260,7 @@
         "Columbina",
         "Furina"
       ],
-      "value": 153602.6
+      "value": 134702.5
     },
     "Raiden Shogun": {
       "team": [

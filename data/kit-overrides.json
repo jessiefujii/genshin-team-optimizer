@@ -772,6 +772,14 @@
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Mualani": {
+      "seconds": 16,
+      "source": "KeqingMains Mualani quick guide, https://keqingmains.com/q/mualani-quickguide/, fetched 2026-10-16: \"a typical Mualani rotation of ~16s\"."
+    },
+    "Noelle": {
+      "seconds": 23.5,
+      "source": "KeqingMains Noelle quick guide, https://keqingmains.com/q/noelle-quickguide/, fetched 2026-10-16: \"22-25s rotations with safe particle generation\" (midpoint)."
+    },
     "Kamisato Ayato": {
       "seconds": 25,
       "source": "KeqingMains Ayato quick guide, https://keqingmains.com/q/ayato-quickguide/, fetched 2026-10-16: \"He usually casts two Elemental Skills per rotation, leading to ~24–26s rotations\" (midpoint). Left out: ~20s with 4pc Thundering Fury (an artifact set, not a team)."

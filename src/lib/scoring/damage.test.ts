@@ -219,6 +219,29 @@ describe("carry damage (#101)", () => {
     const navia = byId.get("Navia")!;
     expect(carryDamage(navia, ["crystallize"])!.perSecond).toBeGreaterThan(carryDamage(navia, [])!.perSecond * 1.2);
   });
+
+  // Carry batch 3 (#203): DMG from EM on hits counted elsewhere, ATK from DEF.
+  test("Cyno's passive 2 DMG from EM adds no Aggravate of its own", () => {
+    const cyno = byId.get("Cyno")!;
+    const kitHits = (kit as unknown as { carries: Record<string, { hits: { addOn?: boolean; count: number; instances?: number }[] }> }).carries.Cyno.hits;
+    const instances = (h: { count: number; instances?: number }) => h.count * (h.instances ?? 1);
+    // Aggravate's flat DMG lands on his own hits only: 29 Burst Normal Attack instances, 9 bolts, 5 Skills.
+    expect(kitHits.filter((h) => !h.addOn).reduce((a, h) => a + instances(h), 0)).toBe(43);
+    expect(carryDamage(cyno, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(cyno, [])!.perSecond);
+  });
+
+  test("Noelle's Burst turns DEF into ATK: more DEF alone raises her damage", () => {
+    const noelle = byId.get("Noelle")!;
+    const stats = { atk: 1500, baseAtk: 750, hp: 15000, def: 2000, critRate: 60, critDmg: 120, energyRecharge: 140, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    expect(carryDamage({ ...noelle, stats: { ...stats, def: 2600 } })!.perSecond).toBeGreaterThan(carryDamage({ ...noelle, stats })!.perSecond);
+  });
+
+  test("Mualani's Surging Bites scale on Max HP", () => {
+    const mualani = byId.get("Mualani")!;
+    const stats = { atk: 1100, baseAtk: 650, hp: 35000, def: 700, critRate: 60, critDmg: 120, energyRecharge: 110, elementalMastery: 100, elementalDmgBonus: 46.6 };
+    const at = (hp: number) => carryDamage({ ...mualani, stats: { ...stats, hp } })!.perSecond;
+    expect(at(42000) / at(35000)).toBeCloseTo(1.2, 2); // every hit scales on HP alone
+  });
 });
 
 for (const [id, c] of Object.entries(carries)) {

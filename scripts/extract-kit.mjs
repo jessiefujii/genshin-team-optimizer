@@ -1878,6 +1878,59 @@ const CARRIES = {
       { kind: "dmgBonus", table: "burst", label: "Charged Attack DMG Bonus", types: [CH] },
     ],
   },
+  Cyno: {
+    // KQM quick guide, non-Thundering Fury: "E (N1) Q N2E 3[N5 N2E]" ((N1) optional, left out): his Skill before the
+    // Burst, then 4 Mortuary Rites; KQM: ideal combos use the Skill "during 3 Endseer stance windows", so 3 Judications
+    // (passive 1: +35% on that Mortuary Rite, "3 Duststalker Bolts" each: 9). Burst Normal Attacks: N2 + 3 N5 + 3 N2,
+    // 29 hit instances (3- and 4-Hit hit twice).
+    combo: "E Q N2E 3[N5 N2E]",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "skill", label: "Mortuary Rite DMG", count: 4, type: SK },
+      { table: "burst", label: "1-Hit DMG", count: 7, type: N },
+      { table: "burst", label: "2-Hit DMG", count: 7, type: N },
+      { table: "burst", label: "3-Hit DMG", count: 3, instances: 2, type: N },
+      { table: "burst", label: "4-Hit DMG", count: 3, instances: 2, type: N },
+      { table: "burst", label: "5-Hit DMG", count: 3, type: N },
+      { from: "passive1", re: /Duststalker Bolts that deal (\d+)% of Cyno's ATK/, count: 9, type: SK },
+      // Passive 2: DMG from his EM on those same hits, so no Aggravate or teammates' flat DMG of its own (addOn).
+      { from: "passive2", re: /Normal Attack DMG is increased by (\d+)% of his Elemental Mastery/, stat: "em", count: 29, type: N, addOn: true },
+      { from: "passive2", re: /Duststalker Bolt DMG .*? increased by (\d+)% of his Elemental Mastery/, stat: "em", count: 9, type: SK, addOn: true },
+    ],
+    buffs: [
+      { kind: "emBonus", table: "burst", label: "Elemental Mastery Bonus" },
+      // Judication's +35% on 3 of the 4 Mortuary Rites, averaged; no flat DMG lands on them, so as a multiplier.
+      { kind: "baseDmgMultiplier", value: 0.35 * 3 / 4, labels: ["Mortuary Rite DMG"] },
+    ],
+  },
+  Mualani: {
+    // KQM quick guide: "3[3-stacked bite]", "She uses 3 fully stacked Sharky's Bites": each a Sharky's Surging Bite
+    // (Normal Attack DMG) at 3 Wave Momentum stacks. Her Burst "if available" (Energy decides). On one opponent her
+    // missiles have no other marked target. Passive 2 (Burst DMG per party Nightsoul Burst) is left to the scorer.
+    combo: "E 3[N1]",
+    hits: [
+      { table: "skill", label: "Sharky's Bite Base DMG", count: 3, type: N, tag: "bite" },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "skill", label: "Wave Momentum DMG Bonus", stacks: 3, stat: "hp", hits: "bite" },
+      { kind: "addPerStack", table: "skill", label: "Sharky's Surging Bite Additional DMG Bonus", stacks: 1, stat: "hp", hits: "bite" },
+    ],
+  },
+  Noelle: {
+    // KQM quick guide: N3D is "Noelle's bread and butter combo"; its rotation for Linnea, Columbina and Illuga or
+    // Furina or Gorou: "Noelle EQ 5[N3D] N2" (strings vary by team, KQM). Burst: ATK from DEF.
+    combo: "EQ 5[N3D] N2",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Burst DMG", count: 1, type: BU },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 5, type: N },
+    ],
+    buffs: [{ kind: "atkFromDef", table: "burst", label: "ATK Bonus" }],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
@@ -1916,6 +1969,7 @@ function readCarry(id, spec) {
         ...(h.reacting !== undefined ? { reacting: h.reacting } : {}),
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
+        ...(h.addOn ? { addOn: true } : {}),
         ...(h.when ? { when: h.when } : {}),
         ...(h.tag ? { tag: h.tag } : h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
@@ -1953,6 +2007,8 @@ function readCarry(id, spec) {
         const value = Math.min(num(b.from, b.max), num(b.from, b.per) * (b.hp * 100 - num(b.from, b.above))) / 100;
         return { kind: "dmgBonus", value: round(value), types: b.types, note: `${b.from} at ${b.hp * 100}% HP` };
       }
+      case "atkFromDef":
+        return { kind: b.kind, value: raw(b.table, b.label) };
       case "atkPct":
         return { kind: b.kind, value: (num(b.from, b.re) / 100) * (b.times ? num(b.from, b.times) : 1) };
       case "dmgBonusPerEnergy":
@@ -1974,7 +2030,7 @@ function readCarry(id, spec) {
       case "baseDmgMultiplier":
         return { kind: b.kind, value: round(b.value), labels: b.labels, ...(b.when ? { when: b.when } : {}) };
       case "emBonus":
-        return { kind: b.kind, value: num(b.from, b.re), ...(b.when ? { when: b.when } : {}) };
+        return { kind: b.kind, value: b.from ? num(b.from, b.re) : raw(b.table, b.label), ...(b.when ? { when: b.when } : {}) };
       default:
         throw new Error(`${id}: unknown carry buff ${b.kind}`);
     }
