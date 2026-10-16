@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run --exclude \"**/*.perf.test.ts\" --exclude \"**/*.compare.test.ts\" --exclude \"**/*.write.test.ts\"",
     "bench": "vitest run src/lib/scoring/search.perf.test.ts",
-    "compare": "vitest run src/lib/scoring/known-teams.compare.test.ts",
+    "compare": "vitest run src/lib/scoring/known-teams.compare.test.ts --silent=false",
     "meta": "vitest run src/lib/scoring/meta-teams.compare.test.ts --silent=false",
     "reference": "vitest run src/lib/scoring/team-reference.write.test.ts --silent=false",
     "kit": "node scripts/extract-kit.mjs",
