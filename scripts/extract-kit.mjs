@@ -794,6 +794,179 @@ function readStellar(id, spec) {
 //       Traveler's 0.15% per EM: { from: "passive2", re: /Razorgrass Blade by ([\d.]+)%/, stat: "em" }; written as
 //       `dmgBonusPerStat: { em: 0.0015 }` (DMG Bonus added per point) (#172)
 const SUBDPS = {
+  // Supports' own hits (#203): every character gets a damage profile, whatever their role. Their Skill and Burst hits,
+  // from the talent tables; recurring hits at rates from the wiki's Gameplay Notes (kit-overrides.json hitRates).
+  // Left out: conditional hits (Xilonen's Follow-Up Beat), and Xianyun's Starwicker (it raises teammates' plunges, a
+  // buff her kit entry already has).
+  Bennett: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  "Kaedehara Kazuha": [
+    { talent: "skill", label: "Press Skill DMG", hits: 1, cd: "Press CD" },
+    { talent: "burst", label: "Slashing DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Additional Elemental DMG", hits: "rate", cd: "CD" },
+  ],
+  // Passive 2: "Dominus Lapidis' Stone Stele, resonance, and hold DMG is increased by 1.9% of Max HP"; "Planet Befall's
+  // DMG is increased by 33% of Max HP". The Hold makes the stele, which resonates on its own until the next Hold.
+  Zhongli: [
+    { talent: "skill", label: "Hold DMG", hits: 1, cd: "Hold CD", addScaling: [{ from: "passive2", re: /resonance, and hold DMG is increased by ([\d.]+)% of Max HP/, stat: "hp" }] },
+    { talent: "skill", label: "Stone Stele/Resonance DMG", hits: "rate", cd: "Hold CD", addScaling: [{ from: "passive2", re: /resonance, and hold DMG is increased by ([\d.]+)% of Max HP/, stat: "hp" }] },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD", addScaling: [{ from: "passive2", re: /Planet Befall's DMG is increased by ([\d.]+)% of Max HP/, stat: "hp" }] },
+  ],
+  Xianyun: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Driftcloud Wave DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Xilonen: [
+    { talent: "skill", label: "Rush DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Sucrose: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Additional Elemental DMG", hits: "rate", cd: "CD" },
+  ],
+  "Sangonomiya Kokomi": [
+    { talent: "skill", label: "Ripple DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  "Kuki Shinobu": [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Grass Ring of Sanctification DMG", every: /every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+    { talent: "burst", label: "Single Instance DMG", hits: "rate", cd: "CD" },
+  ],
+  Shenhe: [
+    { talent: "skill", label: "Press Skill DMG", hits: 1, cd: "Press CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
+  ],
+  Faruzan: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Pressurized Collapse Vortex DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  // Batch 3. Left out for want of a count: Chevreuse's Secondary Explosive Shells and Overcharged Ball (Overloaded
+  // only), Yaoyao's Burst radishes (they depend on how many Yuegui are out), Layla's Shooting Stars.
+  Baizhu: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Spiritvein DMG", hits: "rate", cd: "CD" },
+  ],
+  Chevreuse: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Explosive Grenade DMG", hits: 1, cd: "CD" },
+  ],
+  Diona: [
+    { talent: "skill", label: "Icy Paw DMG", hits: /Rapidly fires off (\d+) Icy Paws/, cd: "Press CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Continuous Field DMG", hits: "rate", cd: "CD" },
+  ],
+  Gorou: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Crystal Collapse DMG", every: /Generates 1 Crystal Collapse every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+  ],
+  Mona: [
+    { talent: "skill", label: "DoT", hits: "rate", cd: "CD" },
+    { talent: "skill", label: "Explosion DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Illusory Bubble Explosion DMG", hits: 1, cd: "CD" },
+  ],
+  Nicole: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Arcane Projection DMG", hits: "Arcane Projection Attack Count", cd: "CD" },
+  ],
+  "Yun Jin": [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Yaoyao: [
+    { talent: "skill", label: "White Jade Radish DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Layla: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Starlight Slug DMG", hits: "rate", cd: "CD" },
+  ],
+  Iansan: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  // Batch 4. Left out: Ifa's Tonicshots (his Skill is an on-field mode) and Sedation Mark (no count found), Jean's
+  // field entering/exiting hits, Mika's Rimestar Flare (it needs the Flowfrost Arrow to hit several opponents).
+  Barbara: [{ talent: "skill", label: "Droplet DMG", hits: "rate", cd: "CD" }],
+  Candace: [
+    { talent: "skill", label: "Basic DMG", hits: 1, cd: "Press CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Wave Impact DMG", hits: "Wave Instances", cd: "CD" },
+  ],
+  Charlotte: [
+    { talent: "skill", label: "Photo DMG (Press)", hits: 1, cd: "CD" },
+    { talent: "skill", label: "\"Snappy Silhouette\" Mark DMG", every: "\"Snappy Silhouette\" Mark Trigger Interval", duration: "\"Snappy Silhouette\" Mark Duration", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Kamera DMG", hits: "rate", cd: "CD" },
+  ],
+  Dahlia: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "Skill CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Dori: [
+    { talent: "skill", label: "Troubleshooter Shot DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "After-Sales Service Round DMG", hits: /create (\d+) After-Sales Service Rounds/, cd: "CD" },
+    { talent: "burst", label: "Connector DMG", every: /every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+  ],
+  Ifa: [{ talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" }],
+  Illuga: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Jean: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Burst DMG", hits: 1, cd: "CD" },
+  ],
+  Kirara: [
+    { talent: "skill", label: "Tail-Flicking Flying Kick DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Cat Grass Cardamom Explosion DMG", hits: "rate", cd: "CD" },
+  ],
+  "Kujou Sara": [
+    { talent: "skill", label: "Tengu Juurai: Ambush DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Tengu Juurai: Titanbreaker DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Tengu Juurai: Stormcluster DMG", hits: /into (\d+) consecutive bouts of Tengu Juurai: Stormcluster/, cd: "CD" },
+  ],
+  Mika: [{ talent: "skill", label: "Flowfrost Arrow DMG", hits: 1, cd: "CD" }],
+  Qiqi: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Herald of Frost DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Sayu: [
+    { talent: "skill", label: "Fuufuu Whirlwind Kick Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill Activation DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Muji-Muji Daruma DMG", hits: "rate", cd: "CD" },
+  ],
+  Thoma: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Fiery Collapse DMG", onCarryNormal: true, every: /Fiery Collapse can be triggered once every ([\d.]+)s/, duration: "Scorching Ooyoroi Duration", cd: "CD" },
+  ],
+  "Traveler (Electro)": [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Falling Thunder DMG", onCarryNormal: true, every: /One instance of Falling Thunder can be generated every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+  ],
+  Vodyanitsa: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "Skill CD" },
+    { talent: "skill", label: "Horn of Spring's Call DMG", every: "Horn of Spring's Call Attack Interval", duration: "Duration", cd: "Skill CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Xinyan: [
+    { talent: "skill", label: "Swing DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Pyro DoT", hits: "rate", cd: "CD" },
+  ],
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Stage 2 DMG", hits: 1, cd: "CD" },
@@ -1201,6 +1374,17 @@ function readSubDps(id, specs) {
 // Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer, except
 // hits that only exist with them (`when`).
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
+// Navia's hits in "Q 2[E N3D N2]" (#203): 2 Gunbrella shots, 1 Surging Blade, the 2 Normal Attack strings, her Burst
+// and its Cannon Fire Support (every 0.75s for 12s, wiki). Her combos differ only in the Shardshots' buffs.
+const naviaHits = [
+  { table: "skill", label: "Rosula Shardshot Base DMG", count: 2, type: SK },
+  { table: "skill", label: "Surging Blade DMG", count: 1, type: SK },
+  { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+  { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+  { table: "normal", label: "3-Hit DMG", count: 2, type: N },
+  { table: "burst", label: "Skill DMG", count: 1, type: BU },
+  { table: "burst", label: "Cannon Fire Support DMG", count: 16, type: BU },
+];
 // Mavuika's combos (#114) differ only in their Flamestrider Charged Attacks: E, Q (Sunfell Slice), then Cyclic/Final.
 // These are her Melt and Vaporize combos, and Sunfell Slice reacts in them (#121, web research 2026-10-13: KQM's
 // Mavuika quick guide has the Burst hit melt/vaporize, about a third of her damage), so `reacting: 1`.
@@ -1562,6 +1746,300 @@ const CARRIES = {
     // Passive 2: +0.1% Projection and Burst DMG per EM, up to 100%.
     buffs: [{ kind: "dmgBonusPerEm", from: "passive2", re: /by ([\d.]+)%\. The DMG of both/, max: /maximum of (\d+)% this way/, types: [SK, BU], labels: ["3-Mirror Projection Attack DMG", "Single-Instance DMG"] }],
   },
+  // #203 / #137: the main DPS outside the compare, from their KQM quick guides (fetched 2026-10-16).
+  Klee: {
+    // KQM's Normal Attack Spam, "her easiest combo": "N1 sEQ N3 E 5[N3]"; "This combo gets 5 additional Charged
+    // Attacks easily" (Explosive Sparks: passive 1). Jumpy Dumpty "bounces thrice" per throw, 2 throws (sE, E).
+    // Sparks 'n' Splash: 6 waves of 4 sparks (wiki). Her mines are left out: how many of the 8 hit one opponent isn't
+    // sourced.
+    combo: "N1 sEQ N3 E 5[N3]",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 7, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 5, type: CH },
+      { table: "skill", label: "Jumpy Dumpty DMG", count: 6, type: SK },
+      { table: "burst", label: "Sparks 'n' Splash DMG", count: "rate", type: BU },
+    ],
+    // Passive 1 (kit-overrides.json's updated text): a Spark Charged Attack, Boom-Boom Strike, deals 50% more; all 5 are.
+    buffs: [{ kind: "dmgBonus", from: "passive1", re: /Boom-Boom Strike, dealing (\d+)% increased DMG/, types: [CH] }],
+  },
+  Tighnari: {
+    // KQM: "E Q 3CS" (Charged Shots: Wreath Arrows; "Upon hit, the Wreath Arrow will create 4 Clusterbloom Arrows").
+    // His Burst fires 6 Tanglevine Shafts and a secondary wave (genshin-db: "fire 6 Tanglevine Shafts"; one each).
+    combo: "E Q 3CS",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Tanglevine Shaft DMG", count: 6, type: BU },
+      { table: "burst", label: "Secondary Tanglevine Shaft DMG", count: 6, type: BU },
+      { table: "normal", label: "Wreath Arrow DMG", count: 3, type: CH },
+      { table: "normal", label: "Clusterbloom Arrow DMG", count: 12, type: CH },
+    ],
+    buffs: [
+      // Passive 1: +50 EM for 4s after each Wreath Arrow: up through his Charged Shots.
+      { kind: "emBonus", from: "passive1", re: /Elemental Mastery is increased by (\d+)/ },
+      // Passive 2: +0.06% Charged Attack and Burst DMG per EM, up to 60%.
+      { kind: "dmgBonusPerEm", from: "passive2", re: /are increased by ([\d.]+)%/, max: /maximum DMG Bonus obtainable this way is (\d+)%/, types: [CH, BU], labels: ["Wreath Arrow DMG", "Clusterbloom Arrow DMG", "Tanglevine Shaft DMG", "Secondary Tanglevine Shaft DMG"] },
+    ],
+  },
+  Yoimiya: {
+    // KQM: "her entire Normal Attack string repeated 3 times" in Niwabi Fire-Dance (E), the highest-damage combo in
+    // most teams; her Burst "should only be used when it is available (typically every 2 or 3 rotations)": 0.4.
+    combo: "E 3[N5]",
+    hits: [
+      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG", "5-Hit DMG"].map((label) => ({ table: "normal", label, count: 3, type: N, ...(label === "1-Hit DMG" || label === "4-Hit DMG" ? { instances: 2 } : {}) })),
+      { table: "burst", label: "Skill DMG", count: 0.4, type: BU },
+    ],
+    buffs: [
+      { kind: "factor", table: "skill", label: "Blazing Arrow DMG", types: [N] },
+      // Passive 1: +2% Pyro DMG per Normal Attack hit, up to 10 stacks: ~8.5 stacks on average over the 3 strings.
+      { kind: "dmgBonus", value: 0.17, types: [N, BU], note: "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]" },
+    ],
+  },
+  Ganyu: {
+    // KQM quick guide, Freeze (Citlali): "Ganyu E > ... > Ganyu C¹ EQ 4[C]": 2 Skills, 1 Burst, 5 Frostflake Arrows.
+    // Trail of the Qilin deals its Skill DMG twice (KQM library: the dash "dealing AoE Cryo DMG"; the lotus "Blooms
+    // profusely when destroyed ... dealing AoE Cryo DMG"). Her Burst's Ice Shards are left out: of the 50 (wiki), how
+    // many hit one opponent isn't sourced.
+    combo: "E C EQ 4[C]",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 4, type: SK },
+      { table: "normal", label: "Frostflake Arrow DMG", count: 5, type: CH },
+      { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 5, type: CH },
+    ],
+    buffs: [
+      // Passive 1: +20% CRIT Rate for the Frostflake Arrows (and blooms) after the first: 4 of 5.
+      { kind: "critRate", from: "passive1", re: /increased by (\d+)% for/, share: 4 / 5, labels: ["Frostflake Arrow DMG", "Frostflake Arrow Bloom DMG"] },
+      // Passive 2: +20% Cryo DMG inside Celestial Shower: the 4 Charged Attacks after the Burst.
+      { kind: "dmgBonus", from: "passive2", re: /grants a (\d+)% Cryo DMG Bonus/, share: 4 / 5, types: [CH] },
+    ],
+  },
+  "Kamisato Ayato": {
+    // KQM quick guide, "Default combo (reactions)": "Q > Team > E N15 > Team > E N15"; "15 consecutive Shunsuiken
+    // attacks at C0" per Skill: 5 of each of the 3 Shunsuiken hits per Skill. One Water Illusion per Skill (it
+    // explodes near opponents or when its duration ends). His Burst's Bloomwater Blades are left out: of the 35 (wiki),
+    // how many hit one opponent isn't sourced.
+    combo: "Q E N15 E N15",
+    hits: [
+      ...["Shunsuiken 1-Hit DMG", "Shunsuiken 2-Hit DMG", "Shunsuiken 3-Hit DMG"].map((label) => ({ table: "skill", label, count: 10, type: N, tag: "namisen" })),
+      { table: "skill", label: "Water Illusion DMG", count: 2, type: SK },
+    ],
+    buffs: [
+      // Namisen: Max HP x the row per stack on each Shunsuiken hit. Passive 1 starts him at 2; each hit adds one, up
+      // to 4: 2, 3, then 4 for the other 13 of 15 hits, 3.8 on average.
+      { kind: "addPerStack", table: "skill", label: "Namisen DMG Bonus", stacks: 3.8, stat: "hp", hits: "namisen" },
+      // Burst: Normal Attack DMG Bonus in its field (18s): both Skills fall inside (Skill CD 12s, 6s state).
+      { kind: "dmgBonus", table: "burst", label: "Normal Attack DMG Bonus", types: [N] },
+    ],
+  },
+  Navia: {
+    // KQM quick guide: "Navia Q > cycle through teammates' abilities > Navia 2[E [combo]]", combo N3D N2 ("the
+    // default recommended combo"). Cannon Fire Support every 0.75s (wiki) for 12s: 16. Surging Blade: one per
+    // rotation, its 7s interval is longer than the time between her two Skills. Passive 1: +40% Normal Attack DMG
+    // for 4s after each Skill (Geo infusion). Without Crystallize she has no Crystal Shrapnel: 5 Rosula Shardshots,
+    // 120% (wiki table, 5 hits). Passive 2's ATK per Pyro/Electro/Cryo/Hydro member is left to the scorer.
+    combo: "Q 2[E N3D N2]",
+    hits: naviaHits,
+    buffs: [
+      { kind: "dmgBonus", from: "passive1", re: /will be increased by (\d+)%/, types: [N] },
+      { kind: "baseDmgMultiplier", value: 0.2, labels: ["Rosula Shardshot Base DMG"] },
+    ],
+    combos: [
+      {
+        // KQM: "Her second Skill and all later rotations should have 6 Crystal Shrapnel stacks": 11 Shardshots (wiki:
+        // "When all 11 Rosula Shardshots strike, 200%", point blank on one opponent), and the 3 stacks past 3 add 15%
+        // DMG each (also to the Surging Blade, wiki).
+        combo: "Q 2[E N3D N2]",
+        when: [{ reaction: "crystallize" }],
+        hits: naviaHits,
+        buffs: [
+          { kind: "dmgBonus", from: "passive1", re: /will be increased by (\d+)%/, types: [N] },
+          { kind: "baseDmgMultiplier", value: 1, labels: ["Rosula Shardshot Base DMG"] },
+          { kind: "dmgBonus", value: 0.45, types: [SK], note: "combat2: 15% per Crystal Shrapnel past 3, at 6" },
+        ],
+      },
+    ],
+  },
+  Yanfei: {
+    // KQM quick guide: opener "N1 Q N1C N1 E C", then "3[N3C]". Her Burst and Skill grant the most Scarlet Seals,
+    // and each Normal Attack adds one (3 max): every Charged Attack consumes 3. Passive 1: +5% Pyro DMG per Seal
+    // consumed for 6s: +15% on the 4 Charged Attacks after the first. Passive 2's extra hit on a CRIT Charged Attack is left out.
+    combo: "N1 Q N1C N1 E C 3[N3C]",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 3, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 3, type: N },
+      { table: "normal", label: "Charged Attack", pick: 3, count: 5, type: CH },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [
+      { kind: "dmgBonus", from: "passive1", re: /increase Yanfei's Pyro DMG Bonus by (\d+)%/, times: 3, share: 4 / 5, types: [CH] },
+      { kind: "dmgBonus", table: "burst", label: "Charged Attack DMG Bonus", types: [CH] },
+    ],
+  },
+  Cyno: {
+    // KQM quick guide, non-Thundering Fury: "E (N1) Q N2E 3[N5 N2E]" ((N1) optional, left out): his Skill before the
+    // Burst, then 4 Mortuary Rites; KQM: ideal combos use the Skill "during 3 Endseer stance windows", so 3 Judications
+    // (passive 1: +35% on that Mortuary Rite, "3 Duststalker Bolts" each: 9). Burst Normal Attacks: N2 + 3 N5 + 3 N2,
+    // 29 hit instances (3- and 4-Hit hit twice).
+    combo: "E Q N2E 3[N5 N2E]",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "skill", label: "Mortuary Rite DMG", count: 4, type: SK },
+      { table: "burst", label: "1-Hit DMG", count: 7, type: N },
+      { table: "burst", label: "2-Hit DMG", count: 7, type: N },
+      { table: "burst", label: "3-Hit DMG", count: 3, instances: 2, type: N },
+      { table: "burst", label: "4-Hit DMG", count: 3, instances: 2, type: N },
+      { table: "burst", label: "5-Hit DMG", count: 3, type: N },
+      { from: "passive1", re: /Duststalker Bolts that deal (\d+)% of Cyno's ATK/, count: 9, type: SK },
+      // Passive 2: DMG from his EM on those same hits, so no Aggravate or teammates' flat DMG of its own (addOn).
+      { from: "passive2", re: /Normal Attack DMG is increased by (\d+)% of his Elemental Mastery/, stat: "em", count: 29, type: N, addOn: true },
+      { from: "passive2", re: /Duststalker Bolt DMG .*? increased by (\d+)% of his Elemental Mastery/, stat: "em", count: 9, type: SK, addOn: true },
+    ],
+    buffs: [
+      { kind: "emBonus", table: "burst", label: "Elemental Mastery Bonus" },
+      // Judication's +35% on 3 of the 4 Mortuary Rites, averaged; no flat DMG lands on them, so as a multiplier.
+      { kind: "baseDmgMultiplier", value: 0.35 * 3 / 4, labels: ["Mortuary Rite DMG"] },
+    ],
+  },
+  Mualani: {
+    // KQM quick guide: "3[3-stacked bite]", "She uses 3 fully stacked Sharky's Bites": each a Sharky's Surging Bite
+    // (Normal Attack DMG) at 3 Wave Momentum stacks. Her Burst "if available" (Energy decides). On one opponent her
+    // missiles have no other marked target. Passive 2 (Burst DMG per party Nightsoul Burst) is left to the scorer.
+    combo: "E 3[N1]",
+    hits: [
+      { table: "skill", label: "Sharky's Bite Base DMG", count: 3, type: N, tag: "bite" },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "skill", label: "Wave Momentum DMG Bonus", stacks: 3, stat: "hp", hits: "bite" },
+      { kind: "addPerStack", table: "skill", label: "Sharky's Surging Bite Additional DMG Bonus", stacks: 1, stat: "hp", hits: "bite" },
+    ],
+  },
+  Noelle: {
+    // KQM quick guide: N3D is "Noelle's bread and butter combo"; its rotation for Linnea, Columbina and Illuga or
+    // Furina or Gorou: "Noelle EQ 5[N3D] N2" (strings vary by team, KQM). Burst: ATK from DEF.
+    combo: "EQ 5[N3D] N2",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Burst DMG", count: 1, type: BU },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 5, type: N },
+    ],
+    buffs: [{ kind: "atkFromDef", table: "burst", label: "ATK Bonus" }],
+  },
+  "Shikanoin Heizou": {
+    // KQM quick guide, C0 with Burst: "N1C Q (N1) E" ((N1) optional: "to fully stack Declension in the first
+    // rotation", left out); his Skill at 4 Declension stacks and Conviction ("When you possess 4 Declension stacks, the
+    // Conviction effect will be produced"). Windmuster Iris: one on a single opponent, only with an element to absorb
+    // (lands with Swirl). Passive 2's party EM is a buff for the others.
+    combo: "N1C Q E",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 1, type: N },
+      { table: "normal", label: "Charged Attack", count: 1, type: CH },
+      { table: "burst", label: "Fudou Style Vacuum Slugger DMG", count: 1, type: BU },
+      { table: "burst", label: "Windmuster Iris DMG", count: 1, type: BU, when: { reaction: "swirl" } },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK, tag: "heartstopper" },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "skill", label: "Declension DMG Bonus", stacks: 4, hits: "heartstopper" },
+      { kind: "addPerStack", table: "skill", label: "Conviction DMG Bonus", stacks: 1, hits: "heartstopper" },
+    ],
+  },
+  Gaming: {
+    // KQM quick guide, Vaporize default: Burst, then "seven Skill-plunge cycles"; "Man Chai is resummoned every time
+    // Gaming performs his enhanced Plunging Attack" above 50% HP, and KQM counts 4-6 enhanced plunges during the
+    // Burst state: 5 Man Chai Smashes. Passive 2: +20% Charmed Cloudstrider DMG at 50% HP or more (his own healing,
+    // passive 1, keeps him there).
+    combo: "Q 7[EP]",
+    hits: [
+      { table: "skill", label: "Plunging Attack: Charmed Cloudstrider DMG", count: 7, type: PL },
+      { table: "burst", label: "Suanni Man Chai Smash DMG", count: 5, type: BU },
+    ],
+    buffs: [{ kind: "dmgBonus", from: "passive2", re: /Charmed Cloudstrider will deal (\d+)% more DMG/, types: [PL] }],
+    combos: [
+      {
+        // KQM, Melt default: Burst, then "five to six Skill-plunge cycles": 5.5.
+        combo: "Q 5.5[EP]",
+        when: [{ reaction: "melt" }],
+        hits: [
+          { table: "skill", label: "Plunging Attack: Charmed Cloudstrider DMG", count: 5.5, type: PL },
+          { table: "burst", label: "Suanni Man Chai Smash DMG", count: 5, type: BU },
+        ],
+      },
+    ],
+  },
+  Diluc: {
+    // KQM quick guide: "Q N2E N2E N2E N2", "An easy and consistent combo for sustained damage": his Burst, 3 Searing
+    // Onslaughts and 4 N2 strings, all inside Dawn's Pyro Infusion (8s, +4s from passive 2, which adds 20% Pyro DMG
+    // while it lasts). Dawn's DoT is left out: KQM's library gives no tick count on one opponent.
+    combo: "Q N2E N2E N2E N2",
+    hits: [
+      { table: "burst", label: "Slashing DMG", count: 1, type: BU },
+      { table: "burst", label: "Explosion DMG", count: 1, type: BU },
+      { table: "skill", label: "1-Hit DMG", count: 1, type: SK },
+      { table: "skill", label: "2-Hit DMG", count: 1, type: SK },
+      { table: "skill", label: "3-Hit DMG", count: 1, type: SK },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+    ],
+    buffs: [{ kind: "dmgBonus", from: "passive2", re: /Diluc gains (\d+)% Pyro DMG Bonus/, types: [N, SK] }],
+  },
+  Keqing: {
+    // KQM quick guide, without 4pc Thundering Fury: "EQE 5[N1C] (N1)" ((N1) optional, left out): Lightning Stiletto,
+    // Burst (KQM library: Consecutive Slash "40.8% x 8"), Thunderclap Slash, then 5 N1C (her Charged Attack: "2 rapid
+    // sword strikes") in passive 1's Electro Infusion. Passive 2: +15% CRIT Rate for 8s from her Burst: every hit
+    // after it (KQM: the combo fits "an ~8s window").
+    combo: "EQE 5[N1C]",
+    hits: [
+      { table: "skill", label: "Lightning Stiletto DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Consecutive Slash DMG", count: 1, instances: 8, type: BU }, // the row is 40.8% x 8
+      { table: "burst", label: "Last Attack DMG", count: 1, type: BU },
+      { table: "skill", label: "Thunderclap Slash DMG", count: 1, instances: 2, type: SK }, // the row is x 2
+      { table: "normal", label: "1-Hit DMG", count: 5, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 5, instances: 2, type: CH },
+    ],
+    buffs: [
+      {
+        kind: "critRate",
+        from: "passive2",
+        re: /CRIT Rate is increased by (\d+)%/,
+        labels: ["Skill DMG", "Consecutive Slash DMG", "Last Attack DMG", "Thunderclap Slash DMG", "1-Hit DMG", "Charged Attack DMG"],
+      },
+    ],
+  },
+  Kaveh: {
+    // KQM Kaveh guide, combo (2), for C0-1: "Kaveh EQ N3D N3 E N3D N4 E (N2)" ((N2) optional, "can be omitted to save
+    // rotation length": left out): 3 Skills, his Burst, 13 Normal Attacks in its Dendro infusion. His Bloom DMG
+    // (Painted Dome's Dendro Core bonus) stays outside damage (#145); passive 2's EM only feeds those reactions.
+    combo: "EQ N3D N3 E N3D N4 E",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 3, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "4-Hit DMG", count: 1, type: N },
+    ],
+    buffs: [],
+  },
+  "Traveler (Hydro)": {
+    // KQM Hydro Traveler quick guide: "Hold Skill can be used to apply Hydro at range for up to 6s, firing up to 22
+    // Dewdrops", then the Torrent Surge at its end; "the Hold Skill effectively has a 16s interval between uses"; the
+    // Burst "typically every other rotation" (Energy decides here). Left out: Spiritbreath Thorn (no sourced count in a
+    // 6s Hold) and Suffusion's HP-based Dewdrop and Torrent Surge bonus (KQM doesn't say it is used).
+    combo: "hE Q",
+    hits: [
+      { table: "skill", label: "Dewdrop DMG", count: 22, type: SK },
+      { table: "skill", label: "Torrent Surge DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
@@ -1600,8 +2078,9 @@ function readCarry(id, spec) {
         ...(h.reacting !== undefined ? { reacting: h.reacting } : {}),
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
+        ...(h.addOn ? { addOn: true } : {}),
         ...(h.when ? { when: h.when } : {}),
-        ...(h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
+        ...(h.tag ? { tag: h.tag } : h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
     }
     return hits;
@@ -1615,14 +2094,17 @@ function readCarry(id, spec) {
       case "atkFromHp":
         return { kind: b.kind, value: raw(b.table, b.label), capOfBase: num(COMBAT[b.table], b.cap) / 100 };
       case "addPerStack": {
-        const stacks = typeof b.stacks === "string" ? tableValue(tableAttrs(b.table), b.stacks, id) : num(COMBAT[b.table], b.stacks);
-        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits, ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
+        const stacks = typeof b.stacks === "number" ? b.stacks : typeof b.stacks === "string" ? tableValue(tableAttrs(b.table), b.stacks, id) : num(COMBAT[b.table], b.stacks);
+        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits, ...(b.stat ? { stat: b.stat } : {}), ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
       }
       case "dmgBonus": {
-        const value = b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick));
+        // share: the part of those hits the buff covers (Ganyu's passive 2: the 4 Charged Attacks after her Burst).
+        const value = round((b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick))) * (b.times ?? 1) * (b.share ?? 1));
         const cap = typeof b.hitsCap === "number" ? b.hitsCap : b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
         return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}), ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
       }
+      case "critRate":
+        return { kind: b.kind, value: round((num(b.from, b.re) / 100) * (b.share ?? 1)), labels: b.labels };
       case "factor":
         return { kind: b.kind, value: raw(b.table, b.label), types: b.types };
       case "factorByReactions": {
@@ -1634,6 +2116,8 @@ function readCarry(id, spec) {
         const value = Math.min(num(b.from, b.max), num(b.from, b.per) * (b.hp * 100 - num(b.from, b.above))) / 100;
         return { kind: "dmgBonus", value: round(value), types: b.types, note: `${b.from} at ${b.hp * 100}% HP` };
       }
+      case "atkFromDef":
+        return { kind: b.kind, value: raw(b.table, b.label) };
       case "atkPct":
         return { kind: b.kind, value: (num(b.from, b.re) / 100) * (b.times ? num(b.from, b.times) : 1) };
       case "dmgBonusPerEnergy":
@@ -1655,7 +2139,7 @@ function readCarry(id, spec) {
       case "baseDmgMultiplier":
         return { kind: b.kind, value: round(b.value), labels: b.labels, ...(b.when ? { when: b.when } : {}) };
       case "emBonus":
-        return { kind: b.kind, value: num(b.from, b.re), ...(b.when ? { when: b.when } : {}) };
+        return { kind: b.kind, value: b.from ? num(b.from, b.re) : raw(b.table, b.label), ...(b.when ? { when: b.when } : {}) };
       default:
         throw new Error(`${id}: unknown carry buff ${b.kind}`);
     }

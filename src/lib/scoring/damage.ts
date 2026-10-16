@@ -19,15 +19,18 @@ interface CarryHit {
   tag?: string;
   lunar?: LunarReaction; // direct Lunar reaction DMG (#135)
   additive?: boolean; // a Reaction Additive Base DMG Bonus to a Lunar hit: added as is (Zibai's passive 1, #146)
+  addOn?: boolean; // more DMG on hits counted elsewhere (Cyno's passive 2): no Catalyze or teammates' flat DMG of its own
   when?: When; // the hit only lands with these
 }
 type When = { reaction?: Reaction; ascendantGleam?: boolean };
 export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
-  | { kind: "addPerStack"; value: number; stacks: number; tag: string; fightingSpirit?: boolean }
+  | { kind: "atkFromDef"; value: number }
+  | { kind: "addPerStack"; value: number; stacks: number; tag: string; stat?: "hp"; fightingSpirit?: boolean }
   | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number; fightingSpirit?: boolean }
   | { kind: "factor"; value: number; types: HitType[] }
+  | { kind: "critRate"; value: number; labels: string[] }
   | { kind: "factorByReactions"; values: number[]; types: HitType[]; reactions: Reaction[] }
   | { kind: "atkPct"; value: number }
   | { kind: "dmgBonusFromEr"; perPercent: number }
@@ -280,6 +283,7 @@ function computeCarryDamage(
   for (const b of kit.buffs) {
     if (b.kind === "atkFromHp") atk += Math.min(b.value * s.hp, b.capOfBase * s.baseAtk);
     if (b.kind === "atkPct") atk += b.value * s.baseAtk;
+    if (b.kind === "atkFromDef") atk += b.value * s.def; // Noelle's Burst
   }
   const instancesOf = (types: HitType[]) =>
     kit.hits.filter((h) => types.includes(h.type)).reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
@@ -322,14 +326,14 @@ function computeCarryDamage(
       else total += LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar));
       continue;
     }
-    perHit += catalyze * (h.instances ?? 1) * reactingShare(h);
+    if (!h.addOn) perHit += catalyze * (h.instances ?? 1) * reactingShare(h);
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
-    perHit += teamBuffs.flat * (h.instances ?? 1);
+    if (!h.addOn) perHit += teamBuffs.flat * (h.instances ?? 1);
     let bonus = s.dmgBonus;
     let factor = 1;
     for (const b of kit.buffs) {
-      if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * atk;
+      if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * (b.stat === "hp" ? s.hp : atk);
       if (b.kind === "flatAtk" && b.types.includes(h.type) && b.reactions.some((r) => active.includes(r)))
         perHit += Math.min(b.value * atk, b.cap) * (h.instances ?? 1); // per hit instance (Clorinde's Impale: 3)
       if (b.kind === "dmgBonus" && b.types.includes(h.type)) {
@@ -341,6 +345,9 @@ function computeCarryDamage(
       if (b.kind === "dmgBonusFromEr" && !c.stats) bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * em);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
+      // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
+      if (b.kind === "critRate" && b.labels.includes(h.label))
+        factor *= expectedCrit(c, teamBuffs.critRate + b.value) / expectedCrit(c, teamBuffs.critRate);
       if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
         const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction

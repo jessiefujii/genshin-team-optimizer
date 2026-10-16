@@ -652,10 +652,146 @@
         "hits": 6.5,
         "source": "KeqingMains Alhaitham quick guide, https://keqingmains.com/q/alhaitham-quickguide/ (pasted by Jessie 2026-10-11), ER assumptions: \"Rotations vary from 21–26s\", \"Alhaitham triggers 6–7 Projection Attacks per rotation\". The midpoint, to match his rotation length (rotations: 23.5s, the midpoint of the same range, #103); counted them all as 3-Mirror."
       }
+    },
+    "Kaedehara Kazuha": {
+      "burst: DoT": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kazuha_Slash, fetched 2026-10-16 (Gameplay Notes): \"The Autumn Whirlwind field deals DMG every 2 seconds for a total of 5 times.\""
+      },
+      "burst: Additional Elemental DMG": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kazuha_Slash, fetched 2026-10-16 (Gameplay Notes): the field's 5 hits (\"every 2 seconds for a total of 5 times\"), each with the absorbed element. Every hit taken as absorbed (estimate: the wiki doesn't say when absorption happens)."
+      }
+    },
+    "Sucrose": {
+      "burst: DoT": {
+        "hits": 3,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Forbidden_Creation_-_Isomer_75_/_Type_II, fetched 2026-10-16 (Gameplay Notes): \"The Elemental Burst has a total of three pulses.\""
+      },
+      "burst: Additional Elemental DMG": {
+        "hits": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Forbidden_Creation_-_Isomer_75_/_Type_II, fetched 2026-10-16 (Gameplay Notes): \"Elemental Absorption does not occur until after the first pulse\": 2 of the 3 pulses."
+      }
+    },
+    "Shenhe": {
+      "burst: DoT": {
+        "hits": 12,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Divine_Maiden's_Deliverance, fetched 2026-10-16 (Gameplay Notes): \"The DoT hits 12 times.\" (C0; C2 adds 6)"
+      }
+    },
+    "Sangonomiya Kokomi": {
+      "skill: Ripple DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kurage's_Oath, fetched 2026-10-16 (Gameplay Notes): \"The Bake-Kurage ticks every 2 seconds, for a total of 7 times before its 12s duration ends.\""
+      }
+    },
+    "Kuki Shinobu": {
+      "burst: Single Instance DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gyoei_Narukami_Kariyama_Rite, fetched 2026-10-16 (Gameplay Notes): \"7 instances of damage if she has more than 50% Max HP. 12 Instances of damage if she has 50% or less Max HP.\" (above 50%)"
+      }
+    },
+    "Zhongli": {
+      "skill: Stone Stele/Resonance DMG": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dominus_Lapidis, fetched 2026-10-16 (Gameplay Notes): \"From 2 s after creating the Stone Stele, it resonates with itself and nearby Geo Constructs every 2 seconds\": over the 12s Hold CD, 5 resonances per Hold. The 5 is worked out here, not a wiki number."
+      }
+    },
+    "Baizhu": {
+      "burst: Spiritvein DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Holistic_Revivification, fetched 2026-10-16 (Gameplay Notes): \"Throughout the whole duration of the Pulsing Clarity state, a total of 6 shields will be created\"; one Spiritvein strike per shield (estimate)."
+      }
+    },
+    "Diona": {
+      "burst: Continuous Field DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Signature_Mix, fetched 2026-10-16 (Gameplay Notes): \"Drunken Mist first activates 2s after casting and every 2s afterwards for a total of 6 activations dealing Cryo DMG\""
+      }
+    },
+    "Mona": {
+      "skill: DoT": {
+        "hits": 4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Mirror_Reflection_of_Doom, fetched 2026-10-16 (Gameplay Notes): \"It deals Hydro DMG every second (DoT) for a total of 4 times, followed by a final AoE Hydro DMG Explosion.\""
+      }
+    },
+    "Yaoyao": {
+      "skill: White Jade Radish DMG": {
+        "hits": 10,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Raphanus_Sky_Cluster, fetched 2026-10-16 (Gameplay Notes): \"Yuegui: Throwing Mode throws 1 radish every second for a total of 10 radishes over the full duration.\""
+      }
+    },
+    "Layla": {
+      "burst: Starlight Slug DMG": {
+        "hits": 8,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dream_of_the_Star-Stream_Shaker, fetched 2026-10-16 (Gameplay Notes): \"A Starlight Slug is fired once every 1.5 seconds. A total of 8 Starlight Slugs can be fired throughout this skill's duration.\""
+      }
+    },
+    "Barbara": {
+      "skill: Droplet DMG": {
+        "hits": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Let_the_Show_Begin%E2%99%AA, fetched 2026-10-16 (Gameplay Notes): \"This skill deals 2 instances of damage at the start of the skill.\""
+      }
+    },
+    "Charlotte": {
+      "burst: Kamera DMG": {
+        "hits": 8,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Still_Photo:_Comprehensive_Confirmation, fetched 2026-10-16 (Gameplay Notes): \"Newsflash Field's DMG and healing effects activate a total of 8 times.\""
+      }
+    },
+    "Kirara": {
+      "burst: Cat Grass Cardamom Explosion DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Secret_Art:_Surprise_Dispatch, fetched 2026-10-16 (Gameplay Notes): \"The Special Delivery Package generates 6 Cat Grass Cardamoms.\""
+      }
+    },
+    "Qiqi": {
+      "skill: Herald of Frost DMG": {
+        "hits": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Adeptus_Art:_Herald_of_Frost, fetched 2026-10-16 (Gameplay Notes): \"After its initial hit, Herald of Frost will deal damage 9 times over its duration\""
+      }
+    },
+    "Sayu": {
+      "burst: Muji-Muji Daruma DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yoohoo_Art:_Mujina_Flurry, fetched 2026-10-16 (Gameplay Notes): \"After performing the initial attack and heal upon skill activation, the Muji-Muji Daruma will attack or heal ... 7 more times (once per ~1.7 seconds)\"; all 7 taken as attacks (it attacks while nearby characters are above 70% HP; estimate)."
+      }
+    },
+    "Xinyan": {
+      "burst: Pyro DoT": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Riff_Revolution, fetched 2026-10-16 (Gameplay Notes): \"The DoT portion of Riff Revolution can hit up to 7 times\""
+      }
+    },
+    "Klee": {
+      "carry: Sparks 'n' Splash DMG": {
+        "hits": 24,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Sparks_'n'_Splash, fetched 2026-10-16 (Gameplay Notes): \"Sparks 'n' Splash can be triggered once every 1.8 seconds, resulting in 6 instances ... Each Sparks 'n' Splash sends 4 sparks\": 24 on one opponent."
+      }
     }
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Traveler (Hydro)": {
+      "seconds": 16,
+      "source": "KeqingMains Hydro Traveler quick guide, https://keqingmains.com/q/hydro-traveler-quickguide/, fetched 2026-10-16: \"the Hold Skill effectively has a 16s interval between uses\"."
+    },
+    "Mualani": {
+      "seconds": 16,
+      "source": "KeqingMains Mualani quick guide, https://keqingmains.com/q/mualani-quickguide/, fetched 2026-10-16: \"a typical Mualani rotation of ~16s\"."
+    },
+    "Noelle": {
+      "seconds": 23.5,
+      "source": "KeqingMains Noelle quick guide, https://keqingmains.com/q/noelle-quickguide/, fetched 2026-10-16: \"22-25s rotations with safe particle generation\" (midpoint)."
+    },
+    "Kamisato Ayato": {
+      "seconds": 25,
+      "source": "KeqingMains Ayato quick guide, https://keqingmains.com/q/ayato-quickguide/, fetched 2026-10-16: \"He usually casts two Elemental Skills per rotation, leading to ~24–26s rotations\" (midpoint). Left out: ~20s with 4pc Thundering Fury (an artifact set, not a team)."
+    },
+    "Navia": {
+      "seconds": 18,
+      "source": "KeqingMains Navia quick guide, https://keqingmains.com/q/navia-quickguide/, fetched 2026-10-16: she \"can shorten the rotation time to 16.5s\", but her Skill cooldown \"catches up after ~4 rotations\" and \"Navia then swaps to 18s rotations\"."
+    },
     "Flins": {
       "seconds": 17.5,
       "source": "KeqingMains Flins quick guide, https://keqingmains.com/q/flins-quickguide/, fetched 2026-10-13: \"Flins–Fischl teams usually run a 17-18s rotation\" (midpoint). Left out: 12s with 4pc Thundering Fury (an artifact set, not a team).",

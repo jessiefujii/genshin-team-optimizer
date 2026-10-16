@@ -63,10 +63,11 @@ describe("not built characters in the search", () => {
 describe("suggestBuilds", () => {
   const ids = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli", "Bennett", "Xiangling", "Kaedehara Kazuha", "Fischl"];
   const roster: ScoringCharacter[] = ids.map(get);
-  // Top 4: Xingqiu's best team here is #4 since Kazuha's DMG bonus also reaches Yelan's hits (#204).
+  // Top 5: Xingqiu's best team here is #5 since Zhongli, Kazuha and Bennett deal their own damage (#203) and
+  // Kazuha's DMG bonus reaches Yelan's hits (#204).
   const search = (r: ScoringCharacter[]) => {
-    const top = findBestTeams(r, { limit: 4 });
-    return { top, suggestions: suggestBuilds(r, top, { limit: 4 }) };
+    const top = findBestTeams(r, { limit: 5 });
+    return { top, suggestions: suggestBuilds(r, top, { limit: 5 }) };
   };
 
   test("nothing to suggest when nobody falls short", () => {
@@ -92,7 +93,7 @@ describe("suggestBuilds", () => {
   });
 
   test("a weak build is suggested only when fixing it would make the list", () => {
-    // Xingqiu's 100% ER costs his teams points; at benchmark they climb back into the top 4.
+    // Xingqiu's 100% ER costs his teams points; at benchmark they climb back into the top 5.
     const weak = roster.map((c) => (c.id === "Xingqiu" ? { ...c, stats: { ...benchmark, energyRecharge: 100 } } : c));
     const { top, suggestions } = search(weak);
     for (const s of suggestions) {

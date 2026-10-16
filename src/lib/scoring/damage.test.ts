@@ -197,6 +197,77 @@ describe("carry damage (#101)", () => {
     // ER only reaches her damage through the panel's DMG bonus, so more ER alone changes nothing.
     expect(carryDamage(moreEr)!.perSecond).toBeCloseTo(carryDamage(jessie)!.perSecond, 6);
   });
+
+  // Carry batch 2 (#203): stacks that scale on HP, CRIT Rate for some hits only, a combo for Crystallize teams.
+  test("Ayato's Namisen adds Max HP to each Shunsuiken hit: more HP alone raises his damage", () => {
+    const ayato = byId.get("Kamisato Ayato")!;
+    const stats = { atk: 1900, baseAtk: 900, hp: 20000, def: 800, critRate: 60, critDmg: 120, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    const more: ScoringCharacter = { ...ayato, stats: { ...stats, hp: 30000 } };
+    expect(carryDamage(more)!.perSecond).toBeGreaterThan(carryDamage({ ...ayato, stats })!.perSecond);
+  });
+
+  test("Ganyu's passive 1 crit only reaches her Frostflake Arrows, and is lost past 100% CRIT Rate", () => {
+    const ganyu = byId.get("Ganyu")!;
+    const stats = { atk: 2200, baseAtk: 950, hp: 15000, def: 700, critDmg: 200, energyRecharge: 110, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    const at = (critRate: number) => carryDamage({ ...ganyu, stats: { ...stats, critRate } })!.perSecond;
+    // From 90% to 100%, her arrows (already at 100% with the passive) gain nothing; only her Skill hits do.
+    expect(at(100) / at(90)).toBeGreaterThan(1);
+    expect(at(100) / at(90)).toBeLessThan(3 / 2.8);
+  });
+
+  test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {
+    const navia = byId.get("Navia")!;
+    expect(carryDamage(navia, ["crystallize"])!.perSecond).toBeGreaterThan(carryDamage(navia, [])!.perSecond * 1.2);
+  });
+
+  // Carry batch 3 (#203): DMG from EM on hits counted elsewhere, ATK from DEF.
+  test("Cyno's passive 2 DMG from EM adds no Aggravate of its own", () => {
+    const cyno = byId.get("Cyno")!;
+    const kitHits = (kit as unknown as { carries: Record<string, { hits: { addOn?: boolean; count: number; instances?: number }[] }> }).carries.Cyno.hits;
+    const instances = (h: { count: number; instances?: number }) => h.count * (h.instances ?? 1);
+    // Aggravate's flat DMG lands on his own hits only: 29 Burst Normal Attack instances, 9 bolts, 5 Skills.
+    expect(kitHits.filter((h) => !h.addOn).reduce((a, h) => a + instances(h), 0)).toBe(43);
+    expect(carryDamage(cyno, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(cyno, [])!.perSecond);
+  });
+
+  test("Noelle's Burst turns DEF into ATK: more DEF alone raises her damage", () => {
+    const noelle = byId.get("Noelle")!;
+    const stats = { atk: 1500, baseAtk: 750, hp: 15000, def: 2000, critRate: 60, critDmg: 120, energyRecharge: 140, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    expect(carryDamage({ ...noelle, stats: { ...stats, def: 2600 } })!.perSecond).toBeGreaterThan(carryDamage({ ...noelle, stats })!.perSecond);
+  });
+
+  test("Mualani's Surging Bites scale on Max HP", () => {
+    const mualani = byId.get("Mualani")!;
+    const stats = { atk: 1100, baseAtk: 650, hp: 35000, def: 700, critRate: 60, critDmg: 120, energyRecharge: 110, elementalMastery: 100, elementalDmgBonus: 46.6 };
+    const at = (hp: number) => carryDamage({ ...mualani, stats: { ...stats, hp } })!.perSecond;
+    expect(at(42000) / at(35000)).toBeCloseTo(1.2, 2); // every hit scales on HP alone
+  });
+
+  // Carry batch 4 (#203): a hit that needs a reaction, a combo for Melt.
+  test("Heizou's Windmuster Iris lands only with an element to Swirl", () => {
+    const heizou = byId.get("Shikanoin Heizou")!;
+    expect(carryDamage(heizou, ["swirl"])!.perSecond).toBeGreaterThan(carryDamage(heizou, [])!.perSecond);
+  });
+
+  test("Gaming plays fewer Skill plunges in Melt teams (KQM)", () => {
+    const gaming = byId.get("Gaming")!;
+    expect(carryDamage(gaming, ["melt"])!.combo).toBe("Q 5.5[EP]");
+    expect(carryDamage(gaming, ["vaporize"])!.combo).toBe("Q 7[EP]");
+  });
+
+  // Carry batch 5 (#203): rows that already hold their hit count are one hit with that many instances.
+  test("Keqing's Burst slashes are 8 instances of one row, each Aggravating", () => {
+    const hits = (kit as unknown as { carries: Record<string, { hits: { label: string; count: number; instances?: number; scaling: { atk: number } }[] }> }).carries.Keqing.hits;
+    const slash = hits.find((h) => h.label === "Consecutive Slash DMG")!;
+    expect([slash.count, slash.instances, slash.scaling.atk]).toEqual([1, 8, 3.264]); // 40.8% x 8
+    const keqing = byId.get("Keqing")!;
+    expect(carryDamage(keqing, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(keqing, [])!.perSecond);
+  });
+
+  test("Diluc's combo Vaporizes inside Dawn's infusion", () => {
+    const diluc = byId.get("Diluc")!;
+    expect(carryDamage(diluc, ["vaporize"])!.perSecond).toBeGreaterThan(carryDamage(diluc, [])!.perSecond * 1.3);
+  });
 });
 
 for (const [id, c] of Object.entries(carries)) {
