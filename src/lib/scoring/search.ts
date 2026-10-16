@@ -6,6 +6,17 @@ export interface SearchOptions extends ScoreOptions {
   exclude?: string[];
   requireAny?: string[]; // only teams with at least one of these (the build-suggestion search)
   limit?: number; // how many teams to return (default 20)
+  // One of `count` parts of the search, for searching in parallel (#215): the teams whose first open member is every
+  // count-th of the roster, starting at `index`. mergeTop of all the parts' results equals the whole search.
+  part?: { index: number; count: number };
+}
+
+// Higher score first; equal scores by member ids, so the parts merge into the same order as the whole search.
+const order = (a: ScoredTeam, b: ScoredTeam) => b.score - a.score || (a.members.join("|") < b.members.join("|") ? -1 : 1);
+
+// The best `limit` of several parts' results.
+export function mergeTop(parts: ScoredTeam[][], limit: number): ScoredTeam[] {
+  return parts.flat().sort(order).slice(0, limit);
 }
 
 const isTraveler = (c: ScoringCharacter) => c.id.startsWith("Traveler (");
@@ -37,21 +48,25 @@ export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions
   const consider = (team: ScoringCharacter[]) => {
     if (!validTeam(team) || (anyOf && !team.some((c) => anyOf.has(c.id)))) return;
     // Score first; build the breakdown only for teams that make the list.
-    if (top.length === limit && teamScore(team, options) <= top[top.length - 1].score) return;
+    // A tie with the last place still gets in when its ids sort first (order), as when the parts merge.
+    if (top.length === limit && teamScore(team, options) < top[top.length - 1].score) return;
     const scored = scoreTeam(team, options);
-    const at = top.findIndex((t) => scored.score > t.score);
+    const at = top.findIndex((t) => order(scored, t) < 0);
+    if (at === -1 && top.length === limit) return;
     top.splice(at === -1 ? top.length : at, 0, scored);
     if (top.length > limit) top.pop();
   };
 
+  const part = options.part ?? { index: 0, count: 1 };
   const pick = (start: number, chosen: ScoringCharacter[]) => {
     if (chosen.length === open) return consider([...fixed, ...chosen]);
     for (let i = start; i <= rest.length - (open - chosen.length); i++) {
+      if (chosen.length === 0 && i % part.count !== part.index) continue;
       chosen.push(rest[i]);
       pick(i + 1, chosen);
       chosen.pop();
     }
   };
-  pick(0, []);
+  if (open > 0 || part.index === 0) pick(0, []); // with every member fixed, the one team belongs to part 0
   return top;
 }
