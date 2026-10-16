@@ -1,5 +1,5 @@
 {
-  "median": 135514.8,
+  "median": 135009.8,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -116,7 +116,7 @@
         "Escoffier",
         "Shenhe"
       ],
-      "value": 161515.2
+      "value": 176629.2
     },
     "Hu Tao": {
       "team": [
@@ -143,7 +143,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 173822.8
+      "value": 158051
     },
     "Kaveh": {
       "team": [
@@ -224,7 +224,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 146124.8
+      "value": 160598.1
     },
     "Nefer": {
       "team": [
@@ -404,7 +404,7 @@
         "Yelan",
         "Xianyun"
       ],
-      "value": 139607
+      "value": 94504.9
     },
     "Yoimiya": {
       "team": [

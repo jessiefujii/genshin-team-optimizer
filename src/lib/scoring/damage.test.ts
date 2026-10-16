@@ -197,6 +197,28 @@ describe("carry damage (#101)", () => {
     // ER only reaches her damage through the panel's DMG bonus, so more ER alone changes nothing.
     expect(carryDamage(moreEr)!.perSecond).toBeCloseTo(carryDamage(jessie)!.perSecond, 6);
   });
+
+  // Carry batch 2 (#203): stacks that scale on HP, CRIT Rate for some hits only, a combo for Crystallize teams.
+  test("Ayato's Namisen adds Max HP to each Shunsuiken hit: more HP alone raises his damage", () => {
+    const ayato = byId.get("Kamisato Ayato")!;
+    const stats = { atk: 1900, baseAtk: 900, hp: 20000, def: 800, critRate: 60, critDmg: 120, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    const more: ScoringCharacter = { ...ayato, stats: { ...stats, hp: 30000 } };
+    expect(carryDamage(more)!.perSecond).toBeGreaterThan(carryDamage({ ...ayato, stats })!.perSecond);
+  });
+
+  test("Ganyu's passive 1 crit only reaches her Frostflake Arrows, and is lost past 100% CRIT Rate", () => {
+    const ganyu = byId.get("Ganyu")!;
+    const stats = { atk: 2200, baseAtk: 950, hp: 15000, def: 700, critDmg: 200, energyRecharge: 110, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    const at = (critRate: number) => carryDamage({ ...ganyu, stats: { ...stats, critRate } })!.perSecond;
+    // From 90% to 100%, her arrows (already at 100% with the passive) gain nothing; only her Skill hits do.
+    expect(at(100) / at(90)).toBeGreaterThan(1);
+    expect(at(100) / at(90)).toBeLessThan(3 / 2.8);
+  });
+
+  test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {
+    const navia = byId.get("Navia")!;
+    expect(carryDamage(navia, ["crystallize"])!.perSecond).toBeGreaterThan(carryDamage(navia, [])!.perSecond * 1.2);
+  });
 });
 
 for (const [id, c] of Object.entries(carries)) {

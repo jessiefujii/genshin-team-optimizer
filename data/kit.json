@@ -7146,6 +7146,350 @@
           "note": "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]"
         }
       ]
+    },
+    "Ganyu": {
+      "rotationSeconds": 15,
+      "combo": "E C EQ 4[C]",
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.244
+          },
+          "count": 4
+        },
+        {
+          "label": "Frostflake Arrow DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.176
+          },
+          "count": 5
+        },
+        {
+          "label": "Frostflake Arrow Bloom DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 3.6992
+          },
+          "count": 5
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "critRate",
+          "value": 0.16,
+          "labels": [
+            "Frostflake Arrow DMG",
+            "Frostflake Arrow Bloom DMG"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.16,
+          "types": [
+            "charged"
+          ]
+        }
+      ]
+    },
+    "Kamisato Ayato": {
+      "rotationSeconds": 25,
+      "combo": "Q E N15 E N15",
+      "hits": [
+        {
+          "label": "Shunsuiken 1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.9717
+          },
+          "count": 10,
+          "tag": "namisen"
+        },
+        {
+          "label": "Shunsuiken 2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.0823
+          },
+          "count": 10,
+          "tag": "namisen"
+        },
+        {
+          "label": "Shunsuiken 3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.1929
+          },
+          "count": 10,
+          "tag": "namisen"
+        },
+        {
+          "label": "Water Illusion DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.8644
+          },
+          "count": 2
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.010308,
+          "stacks": 3.8,
+          "tag": "namisen",
+          "stat": "hp"
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.19,
+          "types": [
+            "normal"
+          ]
+        }
+      ]
+    },
+    "Navia": {
+      "rotationSeconds": 18,
+      "combo": "Q 2[E N3D N2]",
+      "hits": [
+        {
+          "label": "Rosula Shardshot Base DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 6.7116
+          },
+          "count": 2
+        },
+        {
+          "label": "Surging Blade DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.612
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.718139
+          },
+          "count": 4
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.589306
+          },
+          "count": 4
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.922781
+          },
+          "count": 2
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.2784
+          },
+          "count": 1
+        },
+        {
+          "label": "Cannon Fire Support DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.73355
+          },
+          "count": 16
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.4,
+          "types": [
+            "normal"
+          ]
+        },
+        {
+          "kind": "baseDmgMultiplier",
+          "value": 0.2,
+          "labels": [
+            "Rosula Shardshot Base DMG"
+          ]
+        }
+      ],
+      "combos": [
+        {
+          "combo": "Q 2[E N3D N2]",
+          "when": [
+            {
+              "reaction": "crystallize"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Rosula Shardshot Base DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 6.7116
+              },
+              "count": 2
+            },
+            {
+              "label": "Surging Blade DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.612
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.718139
+              },
+              "count": 4
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.589306
+              },
+              "count": 4
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.922781
+              },
+              "count": 2
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.2784
+              },
+              "count": 1
+            },
+            {
+              "label": "Cannon Fire Support DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 0.73355
+              },
+              "count": 16
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "dmgBonus",
+              "value": 0.4,
+              "types": [
+                "normal"
+              ]
+            },
+            {
+              "kind": "baseDmgMultiplier",
+              "value": 1,
+              "labels": [
+                "Rosula Shardshot Base DMG"
+              ]
+            },
+            {
+              "kind": "dmgBonus",
+              "value": 0.45,
+              "types": [
+                "skill"
+              ],
+              "note": "combat2: 15% per Crystal Shrapnel past 3, at 6"
+            }
+          ]
+        }
+      ]
+    },
+    "Yanfei": {
+      "rotationSeconds": 20,
+      "combo": "N1 Q N1C N1 E C 3[N3C]",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.991807
+          },
+          "count": 6
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.886135
+          },
+          "count": 3
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.292218
+          },
+          "count": 3
+        },
+        {
+          "label": "Charged Attack",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.329964
+          },
+          "count": 5
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.8832
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 3.1008
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.12,
+          "types": [
+            "charged"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.518,
+          "types": [
+            "charged"
+          ]
+        }
+      ]
     }
   },
   "carriesTodo": [
@@ -7157,8 +7501,6 @@
     "Eula",
     "Freminet",
     "Gaming",
-    "Ganyu",
-    "Kamisato Ayato",
     "Kaveh",
     "Keqing",
     "Lan Yan",
@@ -7167,7 +7509,6 @@
     "Manekin",
     "Manekina",
     "Mualani",
-    "Navia",
     "Ningguang",
     "Noelle",
     "Razor",
@@ -7181,7 +7522,6 @@
     "Varka",
     "Vesna",
     "Wanderer",
-    "Yanfei",
     "Yumemizuki Mizuki"
   ]
 }

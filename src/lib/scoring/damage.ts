@@ -25,9 +25,10 @@ type When = { reaction?: Reaction; ascendantGleam?: boolean };
 export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
-  | { kind: "addPerStack"; value: number; stacks: number; tag: string; fightingSpirit?: boolean }
+  | { kind: "addPerStack"; value: number; stacks: number; tag: string; stat?: "hp"; fightingSpirit?: boolean }
   | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number; fightingSpirit?: boolean }
   | { kind: "factor"; value: number; types: HitType[] }
+  | { kind: "critRate"; value: number; labels: string[] }
   | { kind: "factorByReactions"; values: number[]; types: HitType[]; reactions: Reaction[] }
   | { kind: "atkPct"; value: number }
   | { kind: "dmgBonusFromEr"; perPercent: number }
@@ -329,7 +330,7 @@ function computeCarryDamage(
     let bonus = s.dmgBonus;
     let factor = 1;
     for (const b of kit.buffs) {
-      if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * atk;
+      if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * (b.stat === "hp" ? s.hp : atk);
       if (b.kind === "flatAtk" && b.types.includes(h.type) && b.reactions.some((r) => active.includes(r)))
         perHit += Math.min(b.value * atk, b.cap) * (h.instances ?? 1); // per hit instance (Clorinde's Impale: 3)
       if (b.kind === "dmgBonus" && b.types.includes(h.type)) {
@@ -341,6 +342,9 @@ function computeCarryDamage(
       if (b.kind === "dmgBonusFromEr" && !c.stats) bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * em);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
+      // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
+      if (b.kind === "critRate" && b.labels.includes(h.label))
+        factor *= expectedCrit(c, teamBuffs.critRate + b.value) / expectedCrit(c, teamBuffs.critRate);
       if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
         const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction

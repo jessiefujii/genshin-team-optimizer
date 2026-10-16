@@ -772,6 +772,14 @@
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Kamisato Ayato": {
+      "seconds": 25,
+      "source": "KeqingMains Ayato quick guide, https://keqingmains.com/q/ayato-quickguide/, fetched 2026-10-16: \"He usually casts two Elemental Skills per rotation, leading to ~24–26s rotations\" (midpoint). Left out: ~20s with 4pc Thundering Fury (an artifact set, not a team)."
+    },
+    "Navia": {
+      "seconds": 18,
+      "source": "KeqingMains Navia quick guide, https://keqingmains.com/q/navia-quickguide/, fetched 2026-10-16: she \"can shorten the rotation time to 16.5s\", but her Skill cooldown \"catches up after ~4 rotations\" and \"Navia then swaps to 18s rotations\"."
+    },
     "Flins": {
       "seconds": 17.5,
       "source": "KeqingMains Flins quick guide, https://keqingmains.com/q/flins-quickguide/, fetched 2026-10-13: \"Flins–Fischl teams usually run a 17-18s rotation\" (midpoint). Left out: 12s with 4pc Thundering Fury (an artifact set, not a team).",

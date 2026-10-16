@@ -1374,6 +1374,17 @@ function readSubDps(id, specs) {
 // Team-conditional effects (reactions, Nightsoul Bursts, Moonsign, teammates' elements) are left to the scorer, except
 // hits that only exist with them (`when`).
 const N = "normal", CH = "charged", PL = "plunge", SK = "skill", BU = "burst";
+// Navia's hits in "Q 2[E N3D N2]" (#203): 2 Gunbrella shots, 1 Surging Blade, the 2 Normal Attack strings, her Burst
+// and its Cannon Fire Support (every 0.75s for 12s, wiki). Her combos differ only in the Shardshots' buffs.
+const naviaHits = [
+  { table: "skill", label: "Rosula Shardshot Base DMG", count: 2, type: SK },
+  { table: "skill", label: "Surging Blade DMG", count: 1, type: SK },
+  { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+  { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+  { table: "normal", label: "3-Hit DMG", count: 2, type: N },
+  { table: "burst", label: "Skill DMG", count: 1, type: BU },
+  { table: "burst", label: "Cannon Fire Support DMG", count: 16, type: BU },
+];
 // Mavuika's combos (#114) differ only in their Flamestrider Charged Attacks: E, Q (Sunfell Slice), then Cyclic/Final.
 // These are her Melt and Vaporize combos, and Sunfell Slice reacts in them (#121, web research 2026-10-13: KQM's
 // Mavuika quick guide has the Burst hit melt/vaporize, about a third of her damage), so `reacting: 1`.
@@ -1785,6 +1796,88 @@ const CARRIES = {
       { kind: "dmgBonus", value: 0.17, types: [N, BU], note: "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]" },
     ],
   },
+  Ganyu: {
+    // KQM quick guide, Freeze (Citlali): "Ganyu E > ... > Ganyu C¹ EQ 4[C]": 2 Skills, 1 Burst, 5 Frostflake Arrows.
+    // Trail of the Qilin deals its Skill DMG twice (KQM library: the dash "dealing AoE Cryo DMG"; the lotus "Blooms
+    // profusely when destroyed ... dealing AoE Cryo DMG"). Her Burst's Ice Shards are left out: of the 50 (wiki), how
+    // many hit one opponent isn't sourced.
+    combo: "E C EQ 4[C]",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 4, type: SK },
+      { table: "normal", label: "Frostflake Arrow DMG", count: 5, type: CH },
+      { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 5, type: CH },
+    ],
+    buffs: [
+      // Passive 1: +20% CRIT Rate for the Frostflake Arrows (and blooms) after the first: 4 of 5.
+      { kind: "critRate", from: "passive1", re: /increased by (\d+)% for/, share: 4 / 5, labels: ["Frostflake Arrow DMG", "Frostflake Arrow Bloom DMG"] },
+      // Passive 2: +20% Cryo DMG inside Celestial Shower: the 4 Charged Attacks after the Burst.
+      { kind: "dmgBonus", from: "passive2", re: /grants a (\d+)% Cryo DMG Bonus/, share: 4 / 5, types: [CH] },
+    ],
+  },
+  "Kamisato Ayato": {
+    // KQM quick guide, "Default combo (reactions)": "Q > Team > E N15 > Team > E N15"; "15 consecutive Shunsuiken
+    // attacks at C0" per Skill: 5 of each of the 3 Shunsuiken hits per Skill. One Water Illusion per Skill (it
+    // explodes near opponents or when its duration ends). His Burst's Bloomwater Blades are left out: of the 35 (wiki),
+    // how many hit one opponent isn't sourced.
+    combo: "Q E N15 E N15",
+    hits: [
+      ...["Shunsuiken 1-Hit DMG", "Shunsuiken 2-Hit DMG", "Shunsuiken 3-Hit DMG"].map((label) => ({ table: "skill", label, count: 10, type: N, tag: "namisen" })),
+      { table: "skill", label: "Water Illusion DMG", count: 2, type: SK },
+    ],
+    buffs: [
+      // Namisen: Max HP x the row per stack on each Shunsuiken hit. Passive 1 starts him at 2; each hit adds one, up
+      // to 4: 2, 3, then 4 for the other 13 of 15 hits, 3.8 on average.
+      { kind: "addPerStack", table: "skill", label: "Namisen DMG Bonus", stacks: 3.8, stat: "hp", hits: "namisen" },
+      // Burst: Normal Attack DMG Bonus in its field (18s): both Skills fall inside (Skill CD 12s, 6s state).
+      { kind: "dmgBonus", table: "burst", label: "Normal Attack DMG Bonus", types: [N] },
+    ],
+  },
+  Navia: {
+    // KQM quick guide: "Navia Q > cycle through teammates' abilities > Navia 2[E [combo]]", combo N3D N2 ("the
+    // default recommended combo"). Cannon Fire Support every 0.75s (wiki) for 12s: 16. Surging Blade: one per
+    // rotation, its 7s interval is longer than the time between her two Skills. Passive 1: +40% Normal Attack DMG
+    // for 4s after each Skill (Geo infusion). Without Crystallize she has no Crystal Shrapnel: 5 Rosula Shardshots,
+    // 120% (wiki table, 5 hits). Passive 2's ATK per Pyro/Electro/Cryo/Hydro member is left to the scorer.
+    combo: "Q 2[E N3D N2]",
+    hits: naviaHits,
+    buffs: [
+      { kind: "dmgBonus", from: "passive1", re: /will be increased by (\d+)%/, types: [N] },
+      { kind: "baseDmgMultiplier", value: 0.2, labels: ["Rosula Shardshot Base DMG"] },
+    ],
+    combos: [
+      {
+        // KQM: "Her second Skill and all later rotations should have 6 Crystal Shrapnel stacks": 11 Shardshots (wiki:
+        // "When all 11 Rosula Shardshots strike, 200%", point blank on one opponent), and the 3 stacks past 3 add 15%
+        // DMG each (also to the Surging Blade, wiki).
+        combo: "Q 2[E N3D N2]",
+        when: [{ reaction: "crystallize" }],
+        hits: naviaHits,
+        buffs: [
+          { kind: "dmgBonus", from: "passive1", re: /will be increased by (\d+)%/, types: [N] },
+          { kind: "baseDmgMultiplier", value: 1, labels: ["Rosula Shardshot Base DMG"] },
+          { kind: "dmgBonus", value: 0.45, types: [SK], note: "combat2: 15% per Crystal Shrapnel past 3, at 6" },
+        ],
+      },
+    ],
+  },
+  Yanfei: {
+    // KQM quick guide: opener "N1 Q N1C N1 E C", then "3[N3C]". Her Burst and Skill grant the most Scarlet Seals,
+    // and each Normal Attack adds one (3 max): every Charged Attack consumes 3. Passive 1: +5% Pyro DMG per Seal
+    // consumed for 6s: +15% on the 4 Charged Attacks after the first. Passive 2's extra hit on a CRIT Charged Attack is left out.
+    combo: "N1 Q N1C N1 E C 3[N3C]",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 3, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 3, type: N },
+      { table: "normal", label: "Charged Attack", pick: 3, count: 5, type: CH },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [
+      { kind: "dmgBonus", from: "passive1", re: /increase Yanfei's Pyro DMG Bonus by (\d+)%/, times: 3, share: 4 / 5, types: [CH] },
+      { kind: "dmgBonus", table: "burst", label: "Charged Attack DMG Bonus", types: [CH] },
+    ],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
@@ -1824,7 +1917,7 @@ function readCarry(id, spec) {
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
         ...(h.when ? { when: h.when } : {}),
-        ...(h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
+        ...(h.tag ? { tag: h.tag } : h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
     }
     return hits;
@@ -1838,14 +1931,17 @@ function readCarry(id, spec) {
       case "atkFromHp":
         return { kind: b.kind, value: raw(b.table, b.label), capOfBase: num(COMBAT[b.table], b.cap) / 100 };
       case "addPerStack": {
-        const stacks = typeof b.stacks === "string" ? tableValue(tableAttrs(b.table), b.stacks, id) : num(COMBAT[b.table], b.stacks);
-        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits, ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
+        const stacks = typeof b.stacks === "number" ? b.stacks : typeof b.stacks === "string" ? tableValue(tableAttrs(b.table), b.stacks, id) : num(COMBAT[b.table], b.stacks);
+        return { kind: b.kind, value: raw(b.table, b.label, b.pick), stacks, tag: b.hits, ...(b.stat ? { stat: b.stat } : {}), ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
       }
       case "dmgBonus": {
-        const value = b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick));
+        // share: the part of those hits the buff covers (Ganyu's passive 2: the 4 Charged Attacks after her Burst).
+        const value = round((b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick))) * (b.times ?? 1) * (b.share ?? 1));
         const cap = typeof b.hitsCap === "number" ? b.hitsCap : b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
         return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}), ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
       }
+      case "critRate":
+        return { kind: b.kind, value: round((num(b.from, b.re) / 100) * (b.share ?? 1)), labels: b.labels };
       case "factor":
         return { kind: b.kind, value: raw(b.table, b.label), types: b.types };
       case "factorByReactions": {
