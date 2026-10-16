@@ -60,6 +60,7 @@ interface CarryCombo {
   when: ComboWhen[]; // alternatives
   hits: CarryHit[];
   buffs?: CarryBuff[]; // default: the carry's
+  goblet?: "Physical"; // default: the carry's (Freminet's Physical combo, #231)
 }
 interface CarryKit {
   rotationSeconds: number; // sourced default, else the Burst cooldown (#103)
@@ -215,7 +216,7 @@ function pickCombo(kit: CarryKit, c: ScoringCharacter, active: readonly Reaction
   const fits = teamFits(c, active, team);
   for (const k of kit.combos ?? []) {
     const w = k.when.find(fits);
-    if (w) return { kit: { ...kit, hits: k.hits, buffs: k.buffs ?? kit.buffs }, combo: k.combo, reaction: w.reaction };
+    if (w) return { kit: { ...kit, hits: k.hits, buffs: k.buffs ?? kit.buffs, goblet: k.goblet ?? kit.goblet }, combo: k.combo, reaction: w.reaction };
   }
   return { kit, combo: kit.combo, reaction: undefined };
 }
@@ -290,7 +291,7 @@ function computeCarryDamage(
   const skillOnly = usesFs && fightingSpirit(c, c, team) === 0; // Mavuika can't Burst: Skill only (#126)
   const picked = pickCombo(base, c, active, team);
   const { kit, combo, reaction } = skillOnly ? { ...picked, kit: base, combo: `${(base.combo ?? "").replace(" Q", "")} (Skill only: can't Burst)` } : picked;
-  const own = carryStats(c, base.goblet);
+  const own = carryStats(c, kit.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
   const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;

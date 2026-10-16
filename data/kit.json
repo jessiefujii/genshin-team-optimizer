@@ -8324,12 +8324,131 @@
           ]
         }
       ]
+    },
+    "Freminet": {
+      "rotationSeconds": 15,
+      "combo": "EQE 4[2E N1] 2E",
+      "hits": [
+        {
+          "label": "Upward Thrust DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.41168
+          },
+          "count": 6
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 5.4128
+          },
+          "count": 1
+        },
+        {
+          "label": "Level 0 Shattering Pressure DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.40816
+          },
+          "count": 6
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.547626
+          },
+          "count": 4,
+          "element": "Physical"
+        },
+        {
+          "label": "Frost DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.12172
+          },
+          "count": 4
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "baseDmgMultiplier",
+          "value": 1,
+          "labels": [
+            "Frost DMG"
+          ]
+        }
+      ],
+      "combos": [
+        {
+          "combo": "EQ N2E 3[EN2E N1]",
+          "when": [
+            {
+              "reaction": "superconduct"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Upward Thrust DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.41168
+              },
+              "count": 4
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 5.4128
+              },
+              "count": 1
+            },
+            {
+              "label": "Level 4 Shattering Pressure DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 4.13848
+              },
+              "count": 4,
+              "element": "Physical"
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.547626
+              },
+              "count": 7,
+              "element": "Physical"
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.482182
+              },
+              "count": 4,
+              "element": "Physical"
+            },
+            {
+              "label": "Frost DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.12172
+              },
+              "count": 11
+            }
+          ],
+          "goblet": "Physical"
+        }
+      ]
     }
   },
   "carriesTodo": [
     "Aloy",
     "Arataki Itto",
-    "Freminet",
     "Lohen",
     "Lyney",
     "Manekin",

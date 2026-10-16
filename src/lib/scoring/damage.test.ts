@@ -258,6 +258,16 @@ describe("carry damage (#101)", () => {
     expect(dps("Bennett", "Xingqiu", "Zhongli")).toBeGreaterThan(dps("Bennett", "Xiangling", "Zhongli"));
   });
 
+  test("Freminet plays his Physical combo in Superconduct teams, with a Physical goblet (#231)", () => {
+    const freminet = byId.get("Freminet")!;
+    expect(carryDamage(freminet, ["freeze"])!.combo).toBe("EQE 4[2E N1] 2E");
+    expect(carryDamage(freminet, ["superconduct"])!.combo).toBe("EQ N2E 3[EN2E N1]");
+    // An import's Physical DMG Bonus reaches the Physical combo's Level 4 Shattering Pressures and Normal Attacks.
+    const stats = { atk: 2000, baseAtk: 850, hp: 15000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 0 };
+    const at = (physicalDmgBonus: number) => carryDamage({ ...freminet, stats: { ...stats, physicalDmgBonus } }, ["superconduct"])!.perSecond;
+    expect(at(58.3)).toBeGreaterThan(at(0) * 1.3);
+  });
+
   test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {
     const navia = byId.get("Navia")!;
     expect(carryDamage(navia, ["crystallize"])!.perSecond).toBeGreaterThan(carryDamage(navia, [])!.perSecond * 1.2);
