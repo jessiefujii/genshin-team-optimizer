@@ -10,7 +10,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 const API = "https://genshin-impact.fandom.com/api.php";
 const tags = JSON.parse(readFileSync(new URL("../data/tags.json", import.meta.url), "utf8"));
-// Roles added on top of the wiki's by Jessie's decision (data/role-overrides.json, e.g. Traveler (Cryo) on-field).
+// Roles changed from the wiki's by Jessie's decision (data/role-overrides.json): `add` wiki roles (Traveler (Cryo)
+// on-field, #136), `drop` tags.json roles (Lan Yan not a main DPS, #216).
 const overrides = JSON.parse(readFileSync(new URL("../data/role-overrides.json", import.meta.url), "utf8")).characters;
 
 // The wiki page for a tags.json id: the same name ("Traveler (Anemo)" too).
@@ -52,7 +53,8 @@ for (const c of tags) {
   const on = roles.includes("On-Field");
   const off = roles.includes("Off-Field");
   const dps = roles.includes("DPS");
-  const want = [...(dps && on ? ["main-dps"] : []), ...(dps && off ? ["sub-dps"] : [])];
+  const dropped = overrides[c.id]?.drop ?? [];
+  const want = [...(dps && on ? ["main-dps"] : []), ...(dps && off ? ["sub-dps"] : [])].filter((r) => !dropped.includes(r));
   const dpsRole = (r) => r === "main-dps" || r === "sub-dps";
   const kept = c.roles.filter((r) => !dpsRole(r) || want.includes(r)); // keeps the existing order
   const nextRoles = [...want.filter((r) => !kept.includes(r)), ...kept];

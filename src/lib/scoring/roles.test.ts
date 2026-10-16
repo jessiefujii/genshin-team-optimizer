@@ -5,19 +5,20 @@ import overrides from "../../../data/role-overrides.json";
 import wiki from "../../../data/wiki-roles.json";
 
 const WIKI = (wiki as { characters: Record<string, { roles: string[] }> }).characters;
-// Roles added on top of the wiki's by Jessie's decision (Traveler (Cryo) on-field, #136).
-const ADDED = (overrides as { characters: Record<string, { add: string[] }> }).characters;
+// Roles changed from the wiki's by Jessie's decision: added (Traveler (Cryo) on-field, #136), dropped (Lan Yan's main-dps, #216).
+const OVERRIDES = (overrides as { characters: Record<string, { add?: string[]; drop?: string[] }> }).characters;
 
 describe("character roles (#105)", () => {
   test("DPS roles and field time match the wiki", () => {
     for (const c of tags) {
       if (!WIKI[c.id]) continue;
-      const roles = [...WIKI[c.id].roles, ...(ADDED[c.id]?.add ?? [])];
+      const roles = [...WIKI[c.id].roles, ...(OVERRIDES[c.id]?.add ?? [])];
+      const dropped = OVERRIDES[c.id]?.drop ?? [];
       const on = roles.includes("On-Field");
       const off = roles.includes("Off-Field");
       const dps = roles.includes("DPS");
-      expect(c.roles.includes("main-dps"), `${c.id} main-dps`).toBe(dps && on);
-      expect(c.roles.includes("sub-dps"), `${c.id} sub-dps`).toBe(dps && off);
+      expect(c.roles.includes("main-dps"), `${c.id} main-dps`).toBe(dps && on && !dropped.includes("main-dps"));
+      expect(c.roles.includes("sub-dps"), `${c.id} sub-dps`).toBe(dps && off && !dropped.includes("sub-dps"));
       expect(c.fieldTime, `${c.id} fieldTime`).toBe(on && off ? "flex" : on ? "on" : "off");
     }
   });
