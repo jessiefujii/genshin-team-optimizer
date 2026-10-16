@@ -172,7 +172,7 @@ function applicable(buff: KitBuff, carry: ScoringCharacter, carryReactions: read
   if (buff.steps) buff = { ...buff, value: stepValue(buff, team) };
   if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return null;
   if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return null;
-  if (buff.physical) return null; // the scorer has no Physical carries tagged as such
+  if (buff.physical) return null; // Physical hits are in damage (#222); Physical buffs from weapons and sets wait for #206
   return buff;
 }
 

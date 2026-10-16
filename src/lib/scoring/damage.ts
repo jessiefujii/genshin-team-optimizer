@@ -4,7 +4,7 @@
 import kitJson from "../../../data/kit.json";
 import { BENCHMARK } from "./benchmark";
 import { burstShare } from "./energy";
-import { FIGHTING_SPIRIT_LIMIT, NO_TEAM_BUFFS, fightingSpirit, type TeamBuffStats } from "./kit";
+import { FIGHTING_SPIRIT_LIMIT, NO_TEAM_BUFFS, fightingSpirit, teamBuffStats, type TeamBuffStats } from "./kit";
 import { mainReactionOf } from "./reactions";
 import type { Element, Reaction, ScoringCharacter } from "./types";
 
@@ -19,6 +19,11 @@ interface CarryHit {
   tag?: string;
   lunar?: LunarReaction; // direct Lunar reaction DMG (#135)
   additive?: boolean; // a Reaction Additive Base DMG Bonus to a Lunar hit: added as is (Zibai's passive 1, #146)
+  element?: Element | "Physical" | "teammates"; // the hit's own damage type when it isn't the carry's element (Eula's, #222)
+  // "teammates" (#233): the elements of the teammates of `byTeammates.elements` (Chasca's Shining Shells), split evenly
+  // over the types present. byTeammates adds to `count` by how many such teammates (members) and types (types) the
+  // team has, each a list indexed by that number (its last value past the end).
+  byTeammates?: { elements: Element[]; members?: number[]; types?: number[] };
   addOn?: boolean; // more DMG on hits counted elsewhere (Cyno's passive 2): no Catalyze or teammates' flat DMG of its own
   when?: When; // the hit only lands with these
 }
@@ -31,6 +36,7 @@ type CarryBuff =
   | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number; fightingSpirit?: boolean }
   | { kind: "factor"; value: number; types: HitType[] }
   | { kind: "critRate"; value: number; labels: string[] }
+  | { kind: "dmgBonusByTypes"; values: number[]; elements: Element[]; labels: string[] } // by teammates' types (#233)
   | { kind: "factorByReactions"; values: number[]; types: HitType[]; reactions: Reaction[] }
   | { kind: "atkPct"; value: number }
   | { kind: "dmgBonusFromEr"; perPercent: number }
@@ -63,6 +69,7 @@ interface CarryKit {
   buffs: CarryBuff[];
   combos?: CarryCombo[];
   missing?: string[];
+  goblet?: "Physical"; // a Physical DMG goblet and set on the benchmark build (#222); else the carry's element
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
 
@@ -83,7 +90,7 @@ export function modelsAscendantGleam(id: string): boolean {
 }
 
 // A carry's stats: their build's, else a benchmark carry built for the stat they scale on.
-function carryStats(c: ScoringCharacter) {
+function carryStats(c: ScoringCharacter, goblet?: "Physical") {
   const on = (stat: string) => !!c.scalesOn?.includes(stat as never);
   const b = BENCHMARK.carry;
   return {
@@ -93,7 +100,10 @@ function carryStats(c: ScoringCharacter) {
     def: c.stats?.def ?? (on("DEF") ? b.defBuilt : b.def),
     em: c.stats?.elementalMastery ?? (on("EM") ? b.emBuilt : BENCHMARK.carryEm),
     er: (c.stats?.energyRecharge ?? c.erTarget ?? 100) / 100,
-    dmgBonus: c.stats ? c.stats.elementalDmgBonus / 100 : BENCHMARK.carryDmgBonus,
+    dmgBonus: c.stats ? c.stats.elementalDmgBonus / 100 : goblet ? 0 : BENCHMARK.carryDmgBonus,
+    // Physical DMG Bonus (#222): an import's (Enka), else the benchmark's Physical goblet and set; builds saved before
+    // it was read have none until re-imported.
+    physicalDmgBonus: c.stats ? (c.stats.physicalDmgBonus ?? 0) / 100 : goblet ? BENCHMARK.carryPhysicalDmgBonus : 0,
   };
 }
 
@@ -277,7 +287,7 @@ function computeCarryDamage(
   const skillOnly = usesFs && fightingSpirit(c, c, team) === 0; // Mavuika can't Burst: Skill only (#126)
   const picked = pickCombo(base, c, active, team);
   const { kit, combo, reaction } = skillOnly ? { ...picked, kit: base, combo: `${(base.combo ?? "").replace(" Q", "")} (Skill only: can't Burst)` } : picked;
-  const own = carryStats(c);
+  const own = carryStats(c, base.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
   const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;
@@ -305,6 +315,22 @@ function computeCarryDamage(
   }
   const amp = amplifyGain(c, em, active, reaction ?? mainReactionOf(c));
   const catalyze = catalyzeDamage(c, em, active, reaction ?? mainReactionOf(c));
+  // A hit of another damage type (#222): its own DMG Bonus (Physical: the build's; another element: none of the carry's),
+  // the team buffs that reach that type (read as if it were the carry's element, so a Cryo-only buff skips Physical
+  // hits), and its own reactions (Physical hits don't react). ATK and CRIT buffs reach every hit alike.
+  const byType = new Map<string, { bonus: number; flat: number; amp: number; catalyze: number }>();
+  const typed = (el: Element | "Physical") => {
+    if (el === c.element) return { bonus: s.dmgBonus, flat: teamBuffs.flat, amp, catalyze };
+    let v = byType.get(el);
+    if (!v) {
+      const view = { ...c, element: el as Element };
+      const tb = teamBuffs === NO_TEAM_BUFFS ? NO_TEAM_BUFFS : teamBuffStats(view, c.reactions.filter((r) => active.includes(r)), team);
+      const r = reaction ?? mainReactionOf(c);
+      const own = el === "Physical" ? s.physicalDmgBonus : 0;
+      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, amp: amplifyGain(view, em, active, r), catalyze: catalyzeDamage(view, em, active, r) }));
+    }
+    return v;
+  };
   const stat = { atk, def: s.def, em };
   let lunarBase = 0;
   for (const b of buffs) if (b.kind === "lunarBaseBonus") lunarBase += Math.min(b.max, b.perPoint * stat[b.stat]);
@@ -316,23 +342,25 @@ function computeCarryDamage(
   const rotationSeconds = rotationFor(kit, c, active, team);
   // The share of rotations the team's Energy lets them Burst in (#37, energy.ts); 1 for a carry scored alone.
   const burstPart = burstShare(c, team, c, rotationSeconds);
-  let total = 0;
-  for (const h of kit.hits) {
-    if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
-    if (!lands(h)) continue;
-    const count = h.count * (h.type === "burst" ? burstPart : 1);
+  // Teammates of the elements a hit converts to (#233): how many there are, and how many element types.
+  const eligible = (els: readonly Element[]) => team.filter((m) => m.id !== c.id && els.includes(m.element));
+  const typesOf = (els: readonly Element[]) => [...new Set(eligible(els).map((m) => m.element))];
+  const at = (list: number[] | undefined, i: number) => (list?.length ? list[Math.min(i, list.length - 1)] : 0);
+  const teamCount = (h: CarryHit) =>
+    h.byTeammates ? at(h.byTeammates.members, eligible(h.byTeammates.elements).length) + at(h.byTeammates.types, typesOf(h.byTeammates.elements).length) : 0;
+  const hitTotal = (h: CarryHit, el: Element | "Physical", count: number) => {
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * em;
     perHit *= baseMultiplier(h);
     if (h.lunar) {
-      if (h.additive) total += perHit * count;
-      else total += LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar));
-      continue;
+      if (h.additive) return perHit * count;
+      return LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar));
     }
-    if (!h.addOn) perHit += catalyze * (h.instances ?? 1) * reactingShare(h);
+    const t = typed(el);
+    if (!h.addOn) perHit += t.catalyze * (h.instances ?? 1) * reactingShare(h);
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
-    if (!h.addOn) perHit += teamBuffs.flat * (h.instances ?? 1);
-    let bonus = s.dmgBonus;
+    if (!h.addOn) perHit += t.flat * (h.instances ?? 1);
+    let bonus = t.bonus;
     let factor = 1;
     for (const b of kit.buffs) {
       if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * (b.stat === "hp" ? s.hp : atk);
@@ -346,6 +374,7 @@ function computeCarryDamage(
       // already includes it (Jessie's Raiden: 108.8% = 46.6% goblet + 0.4 x 155.6 ER), so only the benchmark gets it (#161).
       if (b.kind === "dmgBonusFromEr" && !c.stats) bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * em);
+      if (b.kind === "dmgBonusByTypes" && b.labels.includes(h.label)) bonus += at([0, ...b.values], typesOf(b.elements).length);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
       // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
       if (b.kind === "critRate" && b.labels.includes(h.label))
@@ -355,7 +384,19 @@ function computeCarryDamage(
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
       }
     }
-    total += perHit * count * (1 + bonus) * factor * (1 + reactingShare(h) * amp);
+    return perHit * count * (1 + bonus) * factor * (1 + reactingShare(h) * t.amp);
+  };
+  let total = 0;
+  for (const h of kit.hits) {
+    if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
+    if (!lands(h)) continue;
+    const count = (h.count + teamCount(h)) * (h.type === "burst" ? burstPart : 1);
+    if (count <= 0) continue;
+    if (h.element !== "teammates") total += hitTotal(h, h.element ?? c.element, count);
+    else {
+      const types = typesOf(h.byTeammates?.elements ?? []);
+      for (const el of types) total += hitTotal(h, el, count / types.length);
+    }
   }
   // Masque of the Red Death: each Normal Attack hit adds ATK x ratio x Bond of Life %, and uses `use` of it.
   for (const b of kit.buffs) {

@@ -2058,6 +2058,47 @@ const CARRIES = {
     ],
     buffs: [],
   },
+  Eula: {
+    // #222. KQM quick guide: "tE Q N4 hE N4", "Eula's default Burst combo, granting her the highest number of Lightfall
+    // stacks (~13 without Attack SPD)". Her Normal Attacks and Lightfall Sword are Physical; Skill and Burst casts Cryo.
+    // Grimheart: Press gives 1, her Burst 1 (passive 2), so the Hold consumes 2: 2 Icewhirl Brands (Skill text: "Each
+    // consumed stack ... converted into an Icewhirl Brand") and passive 1's Shattered Lightfall Sword, "50% of the
+    // basic Physical DMG dealt by a Lightfall Sword" (half the base row, no stacks). Her Physical and Cryo RES shred
+    // stays outside damage (#204).
+    combo: "tE Q N4 hE N4",
+    goblet: "Physical",
+    hits: [
+      { table: "skill", label: "Press DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 2, type: N, element: "Physical" },
+      { table: "normal", label: "2-Hit DMG", count: 2, type: N, element: "Physical" },
+      { table: "normal", label: "3-Hit DMG", count: 2, instances: 2, type: N, element: "Physical" },
+      { table: "normal", label: "4-Hit DMG", count: 2, type: N, element: "Physical" },
+      { table: "skill", label: "Hold DMG", count: 1, type: SK },
+      { table: "skill", label: "Icewhirl Brand DMG", count: 2, type: SK },
+      { table: "burst", label: "Lightfall Sword Base DMG", count: 1, type: BU, element: "Physical", tag: "lightfall" },
+      { table: "burst", label: "Lightfall Sword Base DMG", count: 0.5, type: BU, element: "Physical" },
+    ],
+    buffs: [{ kind: "addPerStack", table: "burst", label: "DMG Per Stack", stacks: 13, hits: "lightfall" }],
+  },
+  Chasca: {
+    // #233. KQM quick guide, normal combo: "E C[6 6 6 6 4]" ("4 rounds of 6 Shells and one round of 3-4 Shells"): 28
+    // Shadowhunt Shells. Skill text: of the 4th, 5th and 6th Shells, "For each Pyro, Hydro, Cryo, or Electro character
+    // in the party, one Shadowhunt Shell will randomly be Converted into a Shining Shadowhunt Shell" of their element:
+    // 1 per such teammate per 6-Shell round (3 at most), 1 in the 4-Shell round (only its 4th Shell): 5/9/13 for 1/2/3
+    // teammates. Passive 1: by the number of their element types, a 33.3%/66.7%/100% chance per round that the 3rd Shell
+    // converts too (5 rounds: 1.67/3.33/5) and +15%/35%/65% Shining Shell DMG. The rest stay Anemo. Rotation: her Burst
+    // cooldown (KQM gives none). Passive 2's Burning Shadowhunt Shots (teammates' Nightsoul Bursts) are left out.
+    combo: "E C[6 6 6 6 4]",
+    hits: [
+      { table: "skill", label: "Resonance DMG", count: 1, type: SK },
+      { table: "skill", label: "Shadowhunt Shell DMG", count: 28, type: CH, byTeammates: { elements: ["Pyro", "Hydro", "Cryo", "Electro"], members: [0, -5, -9, -13], types: [0, -5 / 3, -10 / 3, -5] } },
+      { table: "skill", label: "Shining Shadowhunt Shell DMG", count: 0, type: CH, element: "teammates", byTeammates: { elements: ["Pyro", "Hydro", "Cryo", "Electro"], members: [0, 5, 9, 13], types: [0, 5 / 3, 10 / 3, 5] } },
+    ],
+    buffs: [
+      { kind: "dmgBonusByTypes", from: "passive1", re: /Shining Shadowhunt Shell by (\d+)%\/(\d+)%\/(\d+)%/, elements: ["Pyro", "Hydro", "Cryo", "Electro"], labels: ["Shining Shadowhunt Shell DMG"] },
+    ],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
@@ -2097,6 +2138,8 @@ function readCarry(id, spec) {
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
         ...(h.addOn ? { addOn: true } : {}),
+        ...(h.element ? { element: h.element } : {}),
+        ...(h.byTeammates ? { byTeammates: { elements: h.byTeammates.elements, ...(h.byTeammates.members ? { members: h.byTeammates.members.map(round) } : {}), ...(h.byTeammates.types ? { types: h.byTeammates.types.map(round) } : {}) } } : {}),
         ...(h.when ? { when: h.when } : {}),
         ...(h.tag ? { tag: h.tag } : h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
@@ -2120,6 +2163,11 @@ function readCarry(id, spec) {
         const value = round((b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick))) * (b.times ?? 1) * (b.share ?? 1));
         const cap = typeof b.hitsCap === "number" ? b.hitsCap : b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
         return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}), ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
+      }
+      case "dmgBonusByTypes": {
+        const m = text(b.from).match(b.re);
+        if (!m) throw new Error(`${id}: pattern ${b.re} not found in ${b.from}`);
+        return { kind: b.kind, values: m.slice(1).map((v) => Number(v) / 100), elements: b.elements, labels: b.labels };
       }
       case "critRate":
         return { kind: b.kind, value: round((num(b.from, b.re) / 100) * (b.share ?? 1)), labels: b.labels };
@@ -2181,6 +2229,7 @@ function readCarry(id, spec) {
     buffs,
     ...(combos.length ? { combos } : {}),
     ...(missing.length ? { missing } : {}),
+    ...(spec.goblet ? { goblet: spec.goblet } : {}),
   };
 }
 

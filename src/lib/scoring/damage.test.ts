@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
 import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam } from "./damage";
+import { NO_TEAM_BUFFS } from "./kit";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
 import type { Reaction, ScoringCharacter } from "./types";
@@ -221,6 +222,40 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(ganyu, ["freeze"])!.combo).toBe("E C EQ 4[C]");
     // Reverse Melt (x1.5) on her arrows outweighs the Freeze rotation's extra arrow and Skill.
     expect(carryDamage(ganyu, ["melt"])!.perSecond).toBeGreaterThan(carryDamage(ganyu, ["freeze"])!.perSecond);
+  });
+
+  // #222: hits of their own damage type.
+  test("Eula's Physical hits take Physical DMG Bonus, her Cryo hits Cryo DMG Bonus", () => {
+    const eula = byId.get("Eula")!;
+    const stats = { atk: 2400, baseAtk: 950, hp: 15000, def: 1000, critRate: 60, critDmg: 140, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 0 };
+    const at = (extra: object) => carryDamage({ ...eula, stats: { ...stats, ...extra } })!.perSecond;
+    const physical = at({ physicalDmgBonus: 58.3 }) - at({});
+    const cryo = at({ elementalDmgBonus: 46.6 }) - at({});
+    expect(cryo).toBeGreaterThan(0);
+    expect(physical).toBeGreaterThan(cryo * 2); // Lightfall Sword and her Normal Attacks are most of her damage
+  });
+
+  test("a buff for the carry's element skips hits of another type (#222)", () => {
+    const eula = byId.get("Eula")!;
+    // Flat DMG read for her element (Cryo) reaches her 5 Cryo hit instances only (Press, Burst cast, Hold, 2 Icewhirl
+    // Brands); her Physical hits read their own team buffs, none here. Benchmark: no Cryo DMG Bonus (Physical goblet).
+    const gain = carryDamage(eula, [], [eula], { ...NO_TEAM_BUFFS, flat: 1000 })!.perSecond - carryDamage(eula, [], [eula])!.perSecond;
+    expect(gain).toBeCloseTo((1000 * 5 * expectedCrit(eula)) / 20, 6);
+  });
+
+  // #233: hits that take teammates' elements, counted by the team.
+  test("Chasca's Shining Shells grow with her Pyro, Hydro, Cryo and Electro teammates", () => {
+    const dps = (...ids: string[]) => {
+      const team = ["Chasca", ...ids].map((id) => byId.get(id)!);
+      return carryDamage(team[0], [], team)!.perSecond;
+    };
+    const none = dps("Zhongli", "Nahida", "Chiori"); // no conversion: 28 Anemo Shells
+    const one = dps("Bennett", "Zhongli", "Nahida"); // 1 Pyro teammate
+    const three = dps("Bennett", "Xingqiu", "Fischl"); // 3 teammates of 3 types
+    expect(one).toBeGreaterThan(none);
+    expect(three).toBeGreaterThan(one);
+    // Two Pyro teammates convert as many Shells as two of different types, but one type: fewer for passive 1.
+    expect(dps("Bennett", "Xingqiu", "Zhongli")).toBeGreaterThan(dps("Bennett", "Xiangling", "Zhongli"));
   });
 
   test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {

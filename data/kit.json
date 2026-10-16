@@ -8105,13 +8105,204 @@
         }
       ],
       "buffs": []
+    },
+    "Eula": {
+      "rotationSeconds": 20,
+      "combo": "tE Q N4 hE N4",
+      "hits": [
+        {
+          "label": "Press DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.4888
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 4.1752
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.648572
+          },
+          "count": 2,
+          "element": "Physical"
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.718724
+          },
+          "count": 2,
+          "element": "Physical"
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.087022
+          },
+          "count": 2,
+          "instances": 2,
+          "element": "Physical"
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.069484
+          },
+          "count": 2,
+          "element": "Physical"
+        },
+        {
+          "label": "Hold DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 4.1752
+          },
+          "count": 1
+        },
+        {
+          "label": "Icewhirl Brand DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.632
+          },
+          "count": 2
+        },
+        {
+          "label": "Lightfall Sword Base DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 6.74344
+          },
+          "count": 1,
+          "element": "Physical",
+          "tag": "lightfall"
+        },
+        {
+          "label": "Lightfall Sword Base DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 6.74344
+          },
+          "count": 0.5,
+          "element": "Physical"
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 1.37776,
+          "stacks": 13,
+          "tag": "lightfall"
+        }
+      ],
+      "goblet": "Physical"
+    },
+    "Chasca": {
+      "rotationSeconds": 15,
+      "combo": "E C[6 6 6 6 4]",
+      "hits": [
+        {
+          "label": "Resonance DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.02
+          },
+          "count": 1
+        },
+        {
+          "label": "Shadowhunt Shell DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.8296
+          },
+          "count": 28,
+          "byTeammates": {
+            "elements": [
+              "Pyro",
+              "Hydro",
+              "Cryo",
+              "Electro"
+            ],
+            "members": [
+              0,
+              -5,
+              -9,
+              -13
+            ],
+            "types": [
+              0,
+              -1.666667,
+              -3.333333,
+              -5
+            ]
+          }
+        },
+        {
+          "label": "Shining Shadowhunt Shell DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.831724
+          },
+          "count": 0,
+          "element": "teammates",
+          "byTeammates": {
+            "elements": [
+              "Pyro",
+              "Hydro",
+              "Cryo",
+              "Electro"
+            ],
+            "members": [
+              0,
+              5,
+              9,
+              13
+            ],
+            "types": [
+              0,
+              1.666667,
+              3.333333,
+              5
+            ]
+          }
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonusByTypes",
+          "values": [
+            0.15,
+            0.35,
+            0.65
+          ],
+          "elements": [
+            "Pyro",
+            "Hydro",
+            "Cryo",
+            "Electro"
+          ],
+          "labels": [
+            "Shining Shadowhunt Shell DMG"
+          ]
+        }
+      ]
     }
   },
   "carriesTodo": [
     "Aloy",
     "Arataki Itto",
-    "Chasca",
-    "Eula",
     "Freminet",
     "Lohen",
     "Lyney",

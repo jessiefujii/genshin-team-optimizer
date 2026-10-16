@@ -1,5 +1,5 @@
 {
-  "median": 136288.8,
+  "median": 138179.1,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -42,9 +42,9 @@
         "Chasca",
         "Escoffier",
         "Furina",
-        "Shenhe"
+        "Bennett"
       ],
-      "value": 134789.7
+      "value": 142827.5
     },
     "Clorinde": {
       "team": [
@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 89835.1
+      "value": 80464
     },
     "Flins": {
       "team": [
