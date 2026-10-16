@@ -2,7 +2,7 @@
 // benchmark carry gains, instead of a tier list. The benchmark is a rough level 90 carry with a typical
 // build; it only has to rank buffs against each other, not predict real damage.
 import kitJson from "../../../data/kit.json";
-import type { Reaction } from "../../types/tags";
+import type { Element, Reaction } from "../../types/tags";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, resShredGain } from "./benchmark";
 import { canTrigger, reactionShare } from "./reactions";
 import type { ScoringCharacter } from "./types";
@@ -370,13 +370,18 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
 // One buffer's part, cached like kitBuffValue (per buffer and carry object, then team shape), not per team: the search
 // reads thousands of teams per carry.
 const statsCache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string, TeamBuffStats>>>();
-function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
-  const shape: TeamShape = {
+// What a buffer's conditions read from the team: its elements, Mavuika's Fighting Spirit, Ifa's and Furina's partners.
+function shapeOf(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): TeamShape {
+  return {
     elements: team.map((m) => m.element),
     fightingSpirit: fightingSpirit(s, carry, team),
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
   };
+}
+
+function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
+  const shape = shapeOf(s, carry, team);
   let byCarry = statsCache.get(s);
   if (!byCarry) statsCache.set(s, (byCarry = new WeakMap()));
   let byKey = byCarry.get(carry);
@@ -411,6 +416,65 @@ export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly 
     if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
     const part = bufferPart(s, carry, carryReactions, team);
     for (const k of Object.keys(out) as (keyof TeamBuffStats)[]) out[k] += part[k];
+  }
+  return out;
+}
+
+// Kit buffs that reach every party member's hits, not only the on-field character's (#204), hand-tagged from the
+// talent text. teamBuffStats gives the carry every buff; these also reach sub-DPS hits (memberBuffStats). The rest
+// stay on-field only (Bennett's field, Yelan's and Iansan's active-character buffs, Xianyun's plunges...). Not
+// tagged yet for want of a check, so on-field only for now: Alyosha, Nicole, Illuga, Prune, Sigewinne.
+const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?: Reaction[]; note: string }> = {
+  Faruzan: { kinds: ["dmgBonus"], note: "Prayerful Wind's Benefit: all nearby party members' Anemo DMG" },
+  Furina: { kinds: ["dmgBonus"], note: "Let the People Rejoice: all nearby party members' DMG, by Fanfare" },
+  "Kaedehara Kazuha": {
+    kinds: ["dmgBonusPerEm"],
+    elements: ["Pyro", "Hydro", "Electro", "Cryo"],
+    needs: ["swirl", "stellar-swirl"],
+    note: "Poetics of Fuubutsu: all party members' DMG of the element he swirls",
+  },
+  Lynette: { kinds: ["atkPct"], note: "Sophisticated Synergy: all party members' ATK" },
+  Mavuika: { kinds: ["dmgBonus"], note: "Kiongozi: all nearby party members' DMG, by Fighting Spirit" },
+  Mona: { kinds: ["dmgBonus"], note: "Illusory Bubble's Omen: opponents take more DMG from every hit" },
+  Rosaria: { kinds: ["critRate"], note: "Shadow Samaritan: CRIT Rate of all party members but Rosaria" },
+  Shenhe: { kinds: ["flatDmgFromAtk"], note: "Icy Quill: all party members' Cryo hits (the quills are shared: estimate)" },
+};
+
+// The party-wide kit buffs one member's hits get from their teammates (#204), as teamBuffStats gives the carry: same
+// values, conditions and uptimes. A buffer's buff on their own hits is left out (#98). `talent`: the hit's talent, for a
+// buff limited to some (appliesTo). Cached per team array object, like the scorer's other team readings.
+const memberCache = new WeakMap<readonly ScoringCharacter[], Map<string, TeamBuffStats>>();
+export function memberBuffStats(
+  m: ScoringCharacter,
+  carry: ScoringCharacter,
+  active: readonly Reaction[],
+  team: readonly ScoringCharacter[],
+  talent?: string,
+): TeamBuffStats {
+  let byKey = memberCache.get(team);
+  if (!byKey) memberCache.set(team, (byKey = new Map()));
+  const key = `${m.id}|${carry.id}|${active.join(",")}|${talent ?? ""}`;
+  const cached = byKey.get(key);
+  if (cached) return cached;
+  const out = { ...NO_TEAM_BUFFS };
+  byKey.set(key, out);
+  for (const s of team) {
+    const wide = PARTY_WIDE[s.id];
+    const entry = KIT[s.id];
+    if (s === m || !wide || !entry || entry.missing) continue;
+    if (wide.elements && !wide.elements.includes(m.element)) continue;
+    if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
+    const shape = shapeOf(s, carry, team);
+    const stats = bufferStats(s, entry.base, entry.buildFor);
+    const seen = new Set<string>(); // one buff per kind, as bufferPart
+    for (const b of entry.buffs) {
+      if (b.reactions || !wide.kinds.includes(b.kind) || seen.has(b.kind)) continue;
+      if (b.elements && !b.elements.includes(m.element)) continue;
+      if (b.teamOnly && !shape.elements.every((e) => b.teamOnly!.includes(e))) continue;
+      if (b.appliesTo && !(talent && b.appliesTo.includes(talent))) continue;
+      seen.add(b.kind);
+      addBuffStats(b.steps ? { ...b, value: stepValue(b, shape) } : b, stats, shape, b.uptime ?? 1, out);
+    }
   }
   return out;
 }
