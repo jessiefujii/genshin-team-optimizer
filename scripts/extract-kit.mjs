@@ -1972,6 +1972,46 @@ const CARRIES = {
       },
     ],
   },
+  Diluc: {
+    // KQM quick guide: "Q N2E N2E N2E N2", "An easy and consistent combo for sustained damage": his Burst, 3 Searing
+    // Onslaughts and 4 N2 strings, all inside Dawn's Pyro Infusion (8s, +4s from passive 2, which adds 20% Pyro DMG
+    // while it lasts). Dawn's DoT is left out: KQM's library gives no tick count on one opponent.
+    combo: "Q N2E N2E N2E N2",
+    hits: [
+      { table: "burst", label: "Slashing DMG", count: 1, type: BU },
+      { table: "burst", label: "Explosion DMG", count: 1, type: BU },
+      { table: "skill", label: "1-Hit DMG", count: 1, type: SK },
+      { table: "skill", label: "2-Hit DMG", count: 1, type: SK },
+      { table: "skill", label: "3-Hit DMG", count: 1, type: SK },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+    ],
+    buffs: [{ kind: "dmgBonus", from: "passive2", re: /Diluc gains (\d+)% Pyro DMG Bonus/, types: [N, SK] }],
+  },
+  Keqing: {
+    // KQM quick guide, without 4pc Thundering Fury: "EQE 5[N1C] (N1)" ((N1) optional, left out): Lightning Stiletto,
+    // Burst (KQM library: Consecutive Slash "40.8% x 8"), Thunderclap Slash, then 5 N1C (her Charged Attack: "2 rapid
+    // sword strikes") in passive 1's Electro Infusion. Passive 2: +15% CRIT Rate for 8s from her Burst: every hit
+    // after it (KQM: the combo fits "an ~8s window").
+    combo: "EQE 5[N1C]",
+    hits: [
+      { table: "skill", label: "Lightning Stiletto DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Consecutive Slash DMG", count: 1, instances: 8, type: BU }, // the row is 40.8% x 8
+      { table: "burst", label: "Last Attack DMG", count: 1, type: BU },
+      { table: "skill", label: "Thunderclap Slash DMG", count: 1, instances: 2, type: SK }, // the row is x 2
+      { table: "normal", label: "1-Hit DMG", count: 5, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 5, instances: 2, type: CH },
+    ],
+    buffs: [
+      {
+        kind: "critRate",
+        from: "passive2",
+        re: /CRIT Rate is increased by (\d+)%/,
+        labels: ["Skill DMG", "Consecutive Slash DMG", "Last Attack DMG", "Thunderclap Slash DMG", "1-Hit DMG", "Charged Attack DMG"],
+      },
+    ],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.

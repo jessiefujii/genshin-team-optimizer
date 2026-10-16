@@ -7815,17 +7815,166 @@
           ]
         }
       ]
+    },
+    "Diluc": {
+      "rotationSeconds": 12,
+      "combo": "Q N2E N2E N2E N2",
+      "hits": [
+        {
+          "label": "Slashing DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 3.468
+          },
+          "count": 1
+        },
+        {
+          "label": "Explosion DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 3.468
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.6048
+          },
+          "count": 1
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.6592
+          },
+          "count": 1
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.1896
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.64794
+          },
+          "count": 4
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.61002
+          },
+          "count": 4
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.2,
+          "types": [
+            "normal",
+            "skill"
+          ]
+        }
+      ]
+    },
+    "Keqing": {
+      "rotationSeconds": 12,
+      "combo": "EQE 5[N1C]",
+      "hits": [
+        {
+          "label": "Lightning Stiletto DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.8568
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.496
+          },
+          "count": 1
+        },
+        {
+          "label": "Consecutive Slash DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 3.264
+          },
+          "count": 1,
+          "instances": 8
+        },
+        {
+          "label": "Last Attack DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 3.2096
+          },
+          "count": 1
+        },
+        {
+          "label": "Thunderclap Slash DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.856
+          },
+          "count": 1,
+          "instances": 2
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.75366
+          },
+          "count": 5
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.99094
+          },
+          "count": 5,
+          "instances": 2
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "critRate",
+          "value": 0.15,
+          "labels": [
+            "Skill DMG",
+            "Consecutive Slash DMG",
+            "Last Attack DMG",
+            "Thunderclap Slash DMG",
+            "1-Hit DMG",
+            "Charged Attack DMG"
+          ]
+        }
+      ]
     }
   },
   "carriesTodo": [
     "Aloy",
     "Arataki Itto",
     "Chasca",
-    "Diluc",
     "Eula",
     "Freminet",
     "Kaveh",
-    "Keqing",
     "Lohen",
     "Lyney",
     "Manekin",

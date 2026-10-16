@@ -254,6 +254,20 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(gaming, ["melt"])!.combo).toBe("Q 5.5[EP]");
     expect(carryDamage(gaming, ["vaporize"])!.combo).toBe("Q 7[EP]");
   });
+
+  // Carry batch 5 (#203): rows that already hold their hit count are one hit with that many instances.
+  test("Keqing's Burst slashes are 8 instances of one row, each Aggravating", () => {
+    const hits = (kit as unknown as { carries: Record<string, { hits: { label: string; count: number; instances?: number; scaling: { atk: number } }[] }> }).carries.Keqing.hits;
+    const slash = hits.find((h) => h.label === "Consecutive Slash DMG")!;
+    expect([slash.count, slash.instances, slash.scaling.atk]).toEqual([1, 8, 3.264]); // 40.8% x 8
+    const keqing = byId.get("Keqing")!;
+    expect(carryDamage(keqing, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(keqing, [])!.perSecond);
+  });
+
+  test("Diluc's combo Vaporizes inside Dawn's infusion", () => {
+    const diluc = byId.get("Diluc")!;
+    expect(carryDamage(diluc, ["vaporize"])!.perSecond).toBeGreaterThan(carryDamage(diluc, [])!.perSecond * 1.3);
+  });
 });
 
 for (const [id, c] of Object.entries(carries)) {
