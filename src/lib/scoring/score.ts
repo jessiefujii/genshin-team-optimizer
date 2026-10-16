@@ -6,7 +6,7 @@ import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, teamBuffStats } from "./kit";
 import { amplifyGain, carryDamage, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
-import { BENCHMARK, critGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
+import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
 import subDpsBuildsJson from "../../../data/subdps-builds.json";
@@ -963,10 +963,13 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
       // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
       const crit = 1 + Math.min(stat.critRate + team.critRate, 1) * stat.critDmg;
+      // Teammates' RES and DEF shred on this hit (#204), as on the carry's: Lunar hits take RES only.
+      const res = 1 + resShredGain(team.resShred);
+      const def = 1 + defShredGain(Math.min(0.9, team.defShred));
       // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151), with
       // their own Moonsign Benediction Base DMG bonus (PR #155).
       const rate = hitsPerSecond(s, carry, ctx, m) * (s.talent === "burst" ? burstPart : 1);
-      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * rate * crit;
+      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * rate * crit * res;
       else {
         // Additive Base DMG Bonus from teammates (Shenhe's quills): per hit, before DMG Bonus and crit, as on the carry.
         const base = perHit + team.flat;
@@ -983,7 +986,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
           if (add > extra) [extra, best] = [add, r];
         }
         if (best && extra >= 0.01 * base) reacted.add(best); // named only when it adds at least 1% to the hit
-        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat) * crit;
+        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat) * crit * res * def;
       }
     }
     dps += lunarDps;

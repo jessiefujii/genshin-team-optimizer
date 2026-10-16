@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
 import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam } from "./damage";
 import { NO_TEAM_BUFFS } from "./kit";
+import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
 import type { Reaction, ScoringCharacter } from "./types";
@@ -239,8 +240,9 @@ describe("carry damage (#101)", () => {
     const eula = byId.get("Eula")!;
     // Flat DMG read for her element (Cryo) reaches her 5 Cryo hit instances only (Press, Burst cast, Hold, 2 Icewhirl
     // Brands); her Physical hits read their own team buffs, none here. Benchmark: no Cryo DMG Bonus (Physical goblet).
+    // The 2 Icewhirl Brands land under her own 24% Cryo RES shred (#204).
     const gain = carryDamage(eula, [], [eula], { ...NO_TEAM_BUFFS, flat: 1000 })!.perSecond - carryDamage(eula, [], [eula])!.perSecond;
-    expect(gain).toBeCloseTo((1000 * 5 * expectedCrit(eula)) / 20, 6);
+    expect(gain).toBeCloseTo((1000 * (3 + 2 * (1 + resShredGain(0.24))) * expectedCrit(eula)) / 20, 6);
   });
 
   // #233: hits that take teammates' elements, counted by the team.
@@ -266,6 +268,13 @@ describe("carry damage (#101)", () => {
     const stats = { atk: 2000, baseAtk: 850, hp: 15000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 0 };
     const at = (physicalDmgBonus: number) => carryDamage({ ...freminet, stats: { ...stats, physicalDmgBonus } }, ["superconduct"])!.perSecond;
     expect(at(58.3)).toBeGreaterThan(at(0) * 1.3);
+  });
+
+  test("Superconduct's 40% Physical RES shred reaches Eula's Physical hits (#204)", () => {
+    const eula = byId.get("Eula")!;
+    const physicalShare = carryDamage(eula, ["superconduct"])!.perSecond / carryDamage(eula, [])!.perSecond;
+    expect(physicalShare).toBeGreaterThan(1.1); // ~2/3 of her damage is Physical: x1.18
+    expect(physicalShare).toBeLessThan(1 + resShredGain(0.4)); // her Cryo hits don't get it
   });
 
   test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {

@@ -300,8 +300,7 @@ function computeKitBuffValue(
 // The team's kit buffs as stats added to the carry's own (#157), so carry damage can be read with them: flat
 // reaction damage (Aggravate, Spread, Clorinde's passive) is then weighed against buffed hits, not bare ones.
 // Same buffs, conditions, uptimes and reaction shares as kitBuffValue, and the same best-per-kind choice per buffer.
-// Left out, as they don't change how flat damage compares with a hit: RES and DEF shred (they scale every hit
-// alike), attack speed. Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
+// RES and DEF shred are in it too (#204): they scale the hits they reach. Left out: attack speed. Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
 // damage, which buffer points already score; inside this yardstick they'd raise Aggravate or Vaporize again (Nahida's
 // EM took Clorinde's Aggravate line from +170% to +212%). Weapon, set and constellation effects (effects.json)
 // aren't in kit.json.
@@ -311,14 +310,16 @@ export interface TeamBuffStats {
   dmgBonus: number;
   critRate: number;
   flat: number; // flat DMG per hit instance (Additive Base DMG Bonus: Shenhe, Yun Jin)
+  resShred: number; // enemy RES decrease on the hits it reaches (#204)
+  defShred: number; // enemy DEF decrease (#204)
 }
 
-export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0 };
+export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
 const IN_CARRY_DAMAGE = new Set([
   "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate",
-  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg",
+  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred",
 ]);
 
 function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
@@ -351,6 +352,13 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
       break;
     case "critRate":
       into.critRate += v * weight;
+      break;
+    // RES and DEF shred (#204): on the enemy, so on every hit of the element they cover (`applicable`); uptime-weighted.
+    case "resShred":
+      into.resShred += v * weight;
+      break;
+    case "defShred":
+      into.defShred += v * weight;
       break;
     case "flatDmgFromAtk":
       into.flat += cap(stats.atk * v) * weight;
@@ -461,7 +469,14 @@ export function memberBuffStats(
   for (const s of team) {
     const wide = PARTY_WIDE[s.id];
     const entry = KIT[s.id];
-    if (s === m || !wide || !entry || entry.missing) continue;
+    if (s === m || !entry || entry.missing) continue;
+    // RES and DEF shred are on the enemy: every member's hits of the element they cover get them (#204).
+    const shape0 = shapeOf(s, carry, team);
+    for (const kind of ["resShred", "defShred"] as const) {
+      const b = entry.buffs.find((x) => x.kind === kind && !x.reactions && (!x.elements || x.elements.includes(m.element)) && (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))));
+      if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor), shape0, b.uptime ?? 1, out);
+    }
+    if (!wide) continue;
     if (wide.elements && !wide.elements.includes(m.element)) continue;
     if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
     const shape = shapeOf(s, carry, team);

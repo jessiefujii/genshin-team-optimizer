@@ -2,7 +2,7 @@
 // damage against it. Like the rest of the benchmark it only has to rank teams, not predict real numbers: no enemy
 // RES/DEF (left out on both sides of the comparison), talent level 9, C0. Hits count at expected crit (#152).
 import kitJson from "../../../data/kit.json";
-import { BENCHMARK } from "./benchmark";
+import { BENCHMARK, defShredGain, resShredGain } from "./benchmark";
 import { burstShare } from "./energy";
 import { FIGHTING_SPIRIT_LIMIT, NO_TEAM_BUFFS, fightingSpirit, teamBuffStats, type TeamBuffStats } from "./kit";
 import { mainReactionOf } from "./reactions";
@@ -37,6 +37,7 @@ type CarryBuff =
   | { kind: "factor"; value: number; types: HitType[] }
   | { kind: "critRate"; value: number; labels: string[] }
   | { kind: "dmgBonusByTypes"; values: number[]; elements: Element[]; labels: string[] } // by teammates' types (#233)
+  | { kind: "resShred"; value: number; elements: (Element | "Physical")[]; labels: string[] } // their own (Eula's Skill, #204)
   | { kind: "factorByReactions"; values: number[]; types: HitType[]; reactions: Reaction[] }
   | { kind: "atkPct"; value: number }
   | { kind: "dmgBonusFromEr"; perPercent: number }
@@ -322,16 +323,20 @@ function computeCarryDamage(
   // A hit of another damage type (#222): its own DMG Bonus (Physical: the build's; another element: none of the carry's),
   // the team buffs that reach that type (read as if it were the carry's element, so a Cryo-only buff skips Physical
   // hits), and its own reactions (Physical hits don't react). ATK and CRIT buffs reach every hit alike.
-  const byType = new Map<string, { bonus: number; flat: number; amp: number; catalyze: number }>();
+  // RES and DEF shred (#204): teammates' on the hits of the type they cover, and Superconduct's 40% Physical RES
+  // (Genshin Impact Wiki, Superconduct, fetched 2026-10-16: "reduces the Physical RES of all enemies in the AoE by 40%
+  // for 12 seconds"; while the team has it, taken as up throughout).
+  const superconduct = active.includes("superconduct") ? 0.4 : 0;
+  const byType = new Map<string, { bonus: number; flat: number; amp: number; catalyze: number; res: number; def: number }>();
   const typed = (el: Element | "Physical") => {
-    if (el === c.element) return { bonus: s.dmgBonus, flat: teamBuffs.flat, amp, catalyze };
+    if (el === c.element) return { bonus: s.dmgBonus, flat: teamBuffs.flat, amp, catalyze, res: teamBuffs.resShred, def: teamBuffs.defShred };
     let v = byType.get(el);
     if (!v) {
       const view = { ...c, element: el as Element };
       const tb = teamBuffs === NO_TEAM_BUFFS ? NO_TEAM_BUFFS : teamBuffStats(view, c.reactions.filter((r) => active.includes(r)), team);
       const r = reaction ?? mainReactionOf(c);
       const own = el === "Physical" ? s.physicalDmgBonus : 0;
-      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, amp: amplifyGain(view, em, active, r), catalyze: catalyzeDamage(view, em, active, r) }));
+      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, amp: amplifyGain(view, em, active, r), catalyze: catalyzeDamage(view, em, active, r), res: tb.resShred + (el === "Physical" ? superconduct : 0), def: tb.defShred }));
     }
     return v;
   };
@@ -355,11 +360,16 @@ function computeCarryDamage(
   const hitTotal = (h: CarryHit, el: Element | "Physical", count: number) => {
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * em;
     perHit *= baseMultiplier(h);
-    if (h.lunar) {
-      if (h.additive) return perHit * count;
-      return LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar));
-    }
     const t = typed(el);
+    // Shred as a ratio to the unshredded enemy (benchmark.ts: 10% RES, level 100), so every baseline stays put. Lunar
+    // reaction DMG ignores DEF (wiki, Damage § Lunar: no DEF term) but not RES.
+    const ownShred = kit.buffs.reduce((a, b) => a + (b.kind === "resShred" && b.elements.includes(el) && b.labels.includes(h.label) ? b.value : 0), 0);
+    const resFactor = 1 + resShredGain(t.res + ownShred);
+    const defFactor = 1 + defShredGain(Math.min(0.9, t.def));
+    if (h.lunar) {
+      if (h.additive) return perHit * count * resFactor;
+      return LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar)) * resFactor;
+    }
     if (!h.addOn) perHit += t.catalyze * (h.instances ?? 1) * reactingShare(h);
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
@@ -388,7 +398,7 @@ function computeCarryDamage(
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
       }
     }
-    return perHit * count * (1 + bonus) * factor * (1 + reactingShare(h) * t.amp);
+    return perHit * count * (1 + bonus) * factor * (1 + reactingShare(h) * t.amp) * resFactor * defFactor;
   };
   let total = 0;
   for (const h of kit.hits) {
@@ -407,7 +417,7 @@ function computeCarryDamage(
     if (b.kind !== "masque") continue;
     const n = instancesOf(["normal"]);
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
-    total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp);
+    total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp) * (1 + resShredGain(teamBuffs.resShred)) * (1 + defShredGain(Math.min(0.9, teamBuffs.defShred)));
   }
   total *= expectedCrit(c, teamBuffs.critRate);
   return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [] };

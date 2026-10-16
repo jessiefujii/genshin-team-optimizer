@@ -273,10 +273,10 @@ describe("counted once (#204)", () => {
       const carry = team.find((m) => m.id === s.onField);
       if (!carry || !hasCarryKit(carry.id)) continue;
       const buffs = teamBuffStats(carry, carry.reactions.filter((r) => s.activeReactions.includes(r)), team);
-      if (buffs.atk + buffs.atkPct + buffs.dmgBonus + buffs.critRate + buffs.flat === 0) continue;
+      if (buffs.atk + buffs.atkPct + buffs.dmgBonus + buffs.critRate + buffs.flat + buffs.resShred + buffs.defShred === 0) continue;
       const without = carryDamage(carry, s.activeReactions, team)?.perSecond ?? 0;
       const withBuffs = carryDamage(carry, s.activeReactions, team, buffs)?.perSecond ?? 0;
-      if (buffs.dmgBonus + buffs.critRate + buffs.flat > 0) {
+      if (buffs.dmgBonus + buffs.critRate + buffs.flat + buffs.resShred + buffs.defShred > 0) {
         expect(withBuffs, `${carry.id} in ${names(team)}`).toBeGreaterThan(without);
         checked++;
       } else expect(withBuffs, `${carry.id} in ${names(team)}`).toBeGreaterThanOrEqual(without);
