@@ -7966,6 +7966,92 @@
           ]
         }
       ]
+    },
+    "Kaveh": {
+      "rotationSeconds": 20,
+      "combo": "EQ N3D N3 E N3D N4 E",
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.468
+          },
+          "count": 3
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.72
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.39969
+          },
+          "count": 4
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.279405
+          },
+          "count": 4
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.548052
+          },
+          "count": 4
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.886599
+          },
+          "count": 1
+        }
+      ],
+      "buffs": []
+    },
+    "Traveler (Hydro)": {
+      "rotationSeconds": 16,
+      "combo": "hE Q",
+      "hits": [
+        {
+          "label": "Dewdrop DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.5576
+          },
+          "count": 22
+        },
+        {
+          "label": "Torrent Surge DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.21776
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.731729
+          },
+          "count": 1
+        }
+      ],
+      "buffs": []
     }
   },
   "carriesTodo": [
@@ -7974,7 +8060,6 @@
     "Chasca",
     "Eula",
     "Freminet",
-    "Kaveh",
     "Lohen",
     "Lyney",
     "Manekin",
@@ -7985,7 +8070,6 @@
     "Sethos",
     "Tartaglia",
     "Traveler (Anemo)",
-    "Traveler (Hydro)",
     "Traveler (Cryo)",
     "Varka",
     "Vesna",

@@ -2012,6 +2012,34 @@ const CARRIES = {
       },
     ],
   },
+  Kaveh: {
+    // KQM Kaveh guide, combo (2), for C0-1: "Kaveh EQ N3D N3 E N3D N4 E (N2)" ((N2) optional, "can be omitted to save
+    // rotation length": left out): 3 Skills, his Burst, 13 Normal Attacks in its Dendro infusion. His Bloom DMG
+    // (Painted Dome's Dendro Core bonus) stays outside damage (#145); passive 2's EM only feeds those reactions.
+    combo: "EQ N3D N3 E N3D N4 E",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 3, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "4-Hit DMG", count: 1, type: N },
+    ],
+    buffs: [],
+  },
+  "Traveler (Hydro)": {
+    // KQM Hydro Traveler quick guide: "Hold Skill can be used to apply Hydro at range for up to 6s, firing up to 22
+    // Dewdrops", then the Torrent Surge at its end; "the Hold Skill effectively has a 16s interval between uses"; the
+    // Burst "typically every other rotation" (Energy decides here). Left out: Spiritbreath Thorn (no sourced count in a
+    // 6s Hold) and Suffusion's HP-based Dewdrop and Torrent Surge bonus (KQM doesn't say it is used).
+    combo: "hE Q",
+    hits: [
+      { table: "skill", label: "Dewdrop DMG", count: 22, type: SK },
+      { table: "skill", label: "Torrent Surge DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
