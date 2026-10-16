@@ -2109,6 +2109,41 @@ const CARRIES = {
       { kind: "dmgBonusByTypes", from: "passive1", re: /Shining Shadowhunt Shell by (\d+)%\/(\d+)%\/(\d+)%/, elements: ["Pyro", "Hydro", "Cryo", "Electro"], labels: ["Shining Shadowhunt Shell DMG"] },
     ],
   },
+  Freminet: {
+    // #231. KQM quick guide, Cryo Skill DPS: "EQE 4[2E N1] 2E" ("maximizes the number of Pressure Level 0 casts per
+    // rotation"): 6 Upward Thrusts, 6 Level 0 Shattering Pressures (Cryo), 4 Normal Attacks (Physical) and the frost
+    // each unleashes in Pers Timer (Cryo, Skill DMG; his Burst: "200% of their original DMG"). His main reaction is
+    // Freeze, so this is his default. Left out: Spiritbreath Thorns (one per 9s interval, no sourced count) and passive 2
+    // (+40% Shattering Pressure after a Shatter).
+    combo: "EQE 4[2E N1] 2E",
+    hits: [
+      { table: "skill", label: "Upward Thrust DMG", count: 6, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "skill", label: "Level 0 Shattering Pressure DMG", count: 6, type: SK },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N, element: "Physical" },
+      { table: "skill", label: "Frost DMG", count: 4, type: SK },
+    ],
+    buffs: [{ kind: "baseDmgMultiplier", value: 1, labels: ["Frost DMG"] }],
+    combos: [
+      {
+        // KQM, Physical Skill DPS: "EQ N2E 3[EN2E N1]" ("maximizes the number of Pressure Level 4 casts"; the last
+        // iteration "often only EN2E or EN3E": the notation as given). In his Burst each Normal Attack adds 2 Pressure
+        // Levels, so N2 reaches Level 4: 4 Thrusts, 4 Level 4 Shattering Pressures (Physical), 11 Normal Attacks and
+        // their frost. Superconduct teams; a Physical goblet on the benchmark build.
+        combo: "EQ N2E 3[EN2E N1]",
+        when: [{ reaction: "superconduct" }],
+        goblet: "Physical",
+        hits: [
+          { table: "skill", label: "Upward Thrust DMG", count: 4, type: SK },
+          { table: "burst", label: "Skill DMG", count: 1, type: BU },
+          { table: "skill", label: "Level 4 Shattering Pressure DMG", count: 4, type: SK, element: "Physical" },
+          { table: "normal", label: "1-Hit DMG", count: 7, type: N, element: "Physical" },
+          { table: "normal", label: "2-Hit DMG", count: 4, type: N, element: "Physical" },
+          { table: "skill", label: "Frost DMG", count: 11, type: SK },
+        ],
+      },
+    ],
+  },
 };
 
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
@@ -2225,7 +2260,7 @@ function readCarry(id, spec) {
   if (spec.combos && !spec.combo) throw new Error(`${id}: a carry with combos needs its default combo's notation (combo)`);
   const combos = (spec.combos ?? []).map((k) => {
     if (!k.combo || !k.when?.length) throw new Error(`${id}: each combo needs combo and when`);
-    return { combo: k.combo, when: k.when, hits: readHits(k.hits), ...(k.buffs ? { buffs: k.buffs.map(readBuff) } : {}) };
+    return { combo: k.combo, when: k.when, hits: readHits(k.hits), ...(k.buffs ? { buffs: k.buffs.map(readBuff) } : {}), ...(k.goblet ? { goblet: k.goblet } : {}) };
   });
   const rotation = OVERRIDES.rotations?.[id] ?? {};
   for (const t of rotation.teams ?? [])
