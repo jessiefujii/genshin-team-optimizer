@@ -794,6 +794,46 @@ function readStellar(id, spec) {
 //       Traveler's 0.15% per EM: { from: "passive2", re: /Razorgrass Blade by ([\d.]+)%/, stat: "em" }; written as
 //       `dmgBonusPerStat: { em: 0.0015 }` (DMG Bonus added per point) (#172)
 const SUBDPS = {
+  // Supports' own hits (#203, batch 1): every character gets a damage profile, whatever their role. Their Skill and
+  // Burst hits once per cooldown, from the talent tables; recurring hits whose interval isn't in the text (Kazuha's
+  // and Sucrose's Burst DoT, Shenhe's Burst DoT, Kokomi's Bake-Kurage, Zhongli's stele resonance, Kuki's Burst,
+  // Xianyun's Starwicker) wait for sourced rates (batch 2). A conditional hit (Xilonen's Follow-Up Beat) is left out.
+  Bennett: [
+    { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  "Kaedehara Kazuha": [
+    { talent: "skill", label: "Press Skill DMG", hits: 1, cd: "Press CD" },
+    { talent: "burst", label: "Slashing DMG", hits: 1, cd: "CD" },
+  ],
+  Zhongli: [
+    { talent: "skill", label: "Hold DMG", hits: 1, cd: "Hold CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Xianyun: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Driftcloud Wave DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Xilonen: [
+    { talent: "skill", label: "Rush DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Sucrose: [{ talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" }],
+  "Sangonomiya Kokomi": [{ talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" }],
+  "Kuki Shinobu": [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Grass Ring of Sanctification DMG", every: /every ([\d.]+)s/, duration: "Duration", cd: "CD" },
+  ],
+  Shenhe: [
+    { talent: "skill", label: "Press Skill DMG", hits: 1, cd: "Press CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  Faruzan: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Pressurized Collapse Vortex DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
   Aino: [
     { talent: "skill", label: "Stage 1 DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Stage 2 DMG", hits: 1, cd: "CD" },

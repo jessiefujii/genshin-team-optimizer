@@ -64,7 +64,7 @@ const built = all
 
 describe("coverage gate", () => {
   // #203 brings both to 0. Until then they may only shrink: a new character without a damage profile fails here.
-  const NO_DAMAGE_PROFILE = 71;
+  const NO_DAMAGE_PROFILE = 61;
   const MAIN_DPS_WITHOUT_CARRY_KIT = 35;
   const NO_PARTICLE_COUNT = 5;
   const NO_SUSTAIN_COVERAGE = 5;

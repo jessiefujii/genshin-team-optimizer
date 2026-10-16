@@ -1527,6 +1527,317 @@
     }
   },
   "subDps": {
+    "Bennett": {
+      "base": {
+        "hp": 12397,
+        "atk": 191,
+        "def": 771,
+        "ascension": {
+          "stat": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.2667
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Press DMG",
+          "scaling": {
+            "atk": 2.3392
+          },
+          "hits": 1,
+          "cd": 5
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 3.9576
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Kaedehara Kazuha": {
+      "base": {
+        "hp": 13348,
+        "atk": 297,
+        "def": 807,
+        "ascension": {
+          "stat": "FIGHT_PROP_ELEMENT_MASTERY",
+          "value": 115.2
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Press Skill DMG",
+          "scaling": {
+            "atk": 3.264
+          },
+          "hits": 1,
+          "cd": 6
+        },
+        {
+          "talent": "burst",
+          "label": "Slashing DMG",
+          "scaling": {
+            "atk": 4.4608
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Zhongli": {
+      "base": {
+        "hp": 14695,
+        "atk": 251,
+        "def": 738,
+        "ascension": {
+          "stat": "FIGHT_PROP_ROCK_ADD_HURT",
+          "value": 0.288
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Hold DMG",
+          "scaling": {
+            "atk": 1.36
+          },
+          "hits": 1,
+          "cd": 12
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 8.3468
+          },
+          "hits": 1,
+          "cd": 12
+        }
+      ]
+    },
+    "Xianyun": {
+      "base": {
+        "hp": 10409,
+        "atk": 335,
+        "def": 573,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.288
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 0.4216
+          },
+          "hits": 1,
+          "cd": 12
+        },
+        {
+          "talent": "skill",
+          "label": "Driftcloud Wave DMG",
+          "scaling": {
+            "atk": 1.972
+          },
+          "hits": 1,
+          "cd": 12
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.836
+          },
+          "hits": 1,
+          "cd": 18
+        }
+      ]
+    },
+    "Xilonen": {
+      "base": {
+        "hp": 12405,
+        "atk": 275,
+        "def": 930,
+        "ascension": {
+          "stat": "FIGHT_PROP_DEFENSE_PERCENT",
+          "value": 0.36
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Rush DMG",
+          "scaling": {
+            "def": 3.0464
+          },
+          "hits": 1,
+          "cd": 7
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "def": 4.78176
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Sucrose": {
+      "base": {
+        "hp": 9244,
+        "atk": 170,
+        "def": 703,
+        "ascension": {
+          "stat": "FIGHT_PROP_WIND_ADD_HURT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 3.5904
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Sangonomiya Kokomi": {
+      "base": {
+        "hp": 13471,
+        "atk": 234,
+        "def": 657,
+        "ascension": {
+          "stat": "FIGHT_PROP_WATER_ADD_HURT",
+          "value": 0.288
+        }
+      },
+      "sources": [
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "hp": 0.177072
+          },
+          "hits": 1,
+          "cd": 18
+        }
+      ]
+    },
+    "Kuki Shinobu": {
+      "base": {
+        "hp": 12289,
+        "atk": 212,
+        "def": 751,
+        "ascension": {
+          "stat": "FIGHT_PROP_HP_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.287104
+          },
+          "hits": 1,
+          "cd": 15
+        },
+        {
+          "talent": "skill",
+          "label": "Grass Ring of Sanctification DMG",
+          "scaling": {
+            "atk": 0.42908
+          },
+          "every": 1.5,
+          "duration": 12,
+          "cd": 15
+        }
+      ]
+    },
+    "Shenhe": {
+      "base": {
+        "hp": 12993,
+        "atk": 304,
+        "def": 830,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.288
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Press Skill DMG",
+          "scaling": {
+            "atk": 2.3664
+          },
+          "hits": 1,
+          "cd": 10
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.7136
+          },
+          "hits": 1,
+          "cd": 20
+        }
+      ]
+    },
+    "Faruzan": {
+      "base": {
+        "hp": 9570,
+        "atk": 196,
+        "def": 628,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 2.5296
+          },
+          "hits": 1,
+          "cd": 6
+        },
+        {
+          "talent": "skill",
+          "label": "Pressurized Collapse Vortex DMG",
+          "scaling": {
+            "atk": 1.836
+          },
+          "hits": 1,
+          "cd": 6
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 6.4192
+          },
+          "hits": 1,
+          "cd": 20
+        }
+      ]
+    },
     "Aino": {
       "base": {
         "hp": 11201,

@@ -358,7 +358,10 @@
       ],
       "buffSeconds": 12
     },
-    "notes": "Buff applies to whoever stands in the burst circle."
+    "notes": "Buff applies to whoever stands in the burst circle.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Candace",
@@ -978,7 +981,10 @@
         "Q"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Fischl",
@@ -1467,7 +1473,10 @@
         "Q"
       ],
       "buffSeconds": 8
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Kaeya",
@@ -1731,7 +1740,10 @@
         "E"
       ]
     },
-    "notes": "Common Hyperbloom trigger; build EM."
+    "notes": "Common Hyperbloom trigger; build EM.",
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Lan Yan",
@@ -2658,7 +2670,10 @@
         "E"
       ]
     },
-    "notes": "Off-field E jellyfish, or on-field with Q for N x10."
+    "notes": "Off-field E jellyfish, or on-field with Q for N x10.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Sayu",
@@ -2735,7 +2750,10 @@
         "hold E"
       ],
       "buffSeconds": 10
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Shikanoin Heizou",
@@ -2847,7 +2865,10 @@
         "Q"
       ],
       "buffSeconds": 8
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Tartaglia",
@@ -3377,7 +3398,10 @@
         "Q"
       ],
       "buffSeconds": 16
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Xiao",
@@ -3431,7 +3455,10 @@
         "Q"
       ],
       "buffSeconds": 15
-    }
+    },
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Xingqiu",
@@ -3709,7 +3736,10 @@
         "hold E"
       ],
       "buffSeconds": 20
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Zibai",
