@@ -366,17 +366,19 @@ describe("scoreTeam", () => {
         points: 0,
         reason: "Bennett buffs Hu Tao (~+24% damage, ~+24% of it in Hu Tao's damage)",
       });
-      expect(score("Hu Tao", "Bennett", "Xingqiu", "Yelan").damage.perSecond).toBeGreaterThan(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan").damage.perSecond);
+      // Against a teammate with no buff on her (Diona): Zhongli's RES shred is in her damage too now (#204).
+      expect(score("Hu Tao", "Bennett", "Xingqiu", "Yelan").damage.perSecond).toBeGreaterThan(score("Hu Tao", "Diona", "Xingqiu", "Yelan").damage.perSecond);
       // Diluc with no model: the same buff scores points (~+24% = 12, #68).
       expect(buffLine(score("Diluc (no model)", "Bennett", "Xingqiu", "Yelan"), "Bennett")?.points).toBe(12);
     });
 
     test("element buffs only count for that element", () => {
       expect(buffLine(score("Hu Tao", "Shenhe", "Xingqiu", "Zhongli"), "Shenhe")?.points).toBe(0);
-      // Ayaka: the Quills' flat DMG is in her damage; the Burst's Cryo RES shred (#177) isn't yet, so it scores points.
+      // Ayaka: the Quills' flat DMG and the Burst's Cryo RES shred (#177) are both in her damage (#204): 0 points.
       const shenhe = buffLine(score("Kamisato Ayaka", "Shenhe", "Furina", "Kaedehara Kazuha"), "Shenhe");
-      expect(shenhe?.points).toBeGreaterThan(0);
-      expect(shenhe?.reason).toMatch(/of it in Kamisato Ayaka's damage\)$/);
+      expect(shenhe?.points).toBe(0);
+      const [all, inDamage] = shenhe!.reason.match(/~\+\d+%/g)!;
+      expect(inDamage).toBe(all);
     });
 
     test("EM buffs need a reaction that uses EM", () => {
@@ -518,6 +520,12 @@ describe("sub-DPS (#96)", () => {
     expect(share("Neuvillette", "Furina", "Bennett", "Kaedehara Kazuha")).toBeGreaterThan(share("Neuvillette", "Furina", "Xiangling", "Kaedehara Kazuha"));
   });
 
+  test("teammates' RES shred reaches a sub-DPS's own hits (#204)", () => {
+    const own = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
+    // Zhongli's shield shreds every element's RES by 20%: Xingqiu's swords hit harder than beside Diona.
+    expect(own("Xingqiu", "Raiden Shogun", "Xingqiu", "Zhongli", "Bennett")).toBeGreaterThan(own("Xingqiu", "Raiden Shogun", "Xingqiu", "Diona", "Bennett"));
+  });
+
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
     const share = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.
@@ -641,7 +649,8 @@ describe("talent levels (#25)", () => {
     // For modeled Hu Tao, Furina's DMG bonus is in her damage (0 points); Zhongli's RES shred isn't yet (#202).
     const hutao = score("Hu Tao", "Furina", "Bennett", "Zhongli");
     expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 0, reason: "Furina buffs Hu Tao (~+32% damage, ~+32% of it in Hu Tao's damage)" });
-    expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(8);
+    // Zhongli's RES shred is in her damage too (#204).
+    expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(0);
   });
 
   test("Furina's Fanfare: averaged over her Burst, higher with another healer (#90)", () => {
@@ -658,10 +667,10 @@ describe("talent levels (#25)", () => {
     const buff = (id: string, ...ids: string[]) =>
       score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id))?.reason;
     // Escoffier's shred is 5/10/15/55% for 1/2/3/4 Hydro or Cryo members.
-    expect(buff("Escoffier", "Kamisato Ayaka", "Escoffier", "Furina", "Mona")).toBe("Escoffier buffs Kamisato Ayaka (~+36% damage)");
-    expect(buff("Escoffier", "Kamisato Ayaka", "Escoffier", "Furina", "Amber")).toBe("Escoffier buffs Kamisato Ayaka (~+14% damage)"); // 3 members: 15%
+    expect(kitPart(buff("Escoffier", "Kamisato Ayaka", "Escoffier", "Furina", "Mona"))).toBe("Escoffier buffs Kamisato Ayaka (~+36% damage)");
+    expect(kitPart(buff("Escoffier", "Kamisato Ayaka", "Escoffier", "Furina", "Amber"))).toBe("Escoffier buffs Kamisato Ayaka (~+14% damage)"); // 3 members: 15%
     // Chevreuse's shred needs every member to be Pyro or Electro.
-    expect(buff("Chevreuse", "Raiden Shogun", "Chevreuse", "Xiangling", "Bennett")).toBe("Chevreuse buffs Raiden Shogun (~+28% damage)");
+    expect(kitPart(buff("Chevreuse", "Raiden Shogun", "Chevreuse", "Xiangling", "Bennett"))).toBe("Chevreuse buffs Raiden Shogun (~+28% damage)");
     expect(buff("Chevreuse", "Raiden Shogun", "Chevreuse", "Xiangling", "Xingqiu")).toBe(
       "Chevreuse: their kit's buff doesn't apply to Raiden Shogun's damage",
     );
@@ -773,10 +782,12 @@ describe("talent levels (#25)", () => {
 
   test("Faruzan's buff reaches Xiao (#60)", () => {
     const s = score("Xiao", "Xianyun", "Faruzan", "Furina");
-    // Her DMG bonus is in his damage; her Anemo RES shred scores points until RES is in damage (#204).
+    // Her DMG bonus and her Anemo RES shred are both in his damage (#204): 0 points, the whole buff in damage.
     const faruzan = s.breakdown.find((l) => l.reason.startsWith("Faruzan buffs"));
-    expect(faruzan?.points).toBeGreaterThan(0);
+    expect(faruzan?.points).toBe(0);
     expect(faruzan?.reason).toMatch(/of it in Xiao's damage\)$/);
+    const [all, inDamage] = faruzan!.reason.match(/~\+\d+%/g)!;
+    expect(inDamage).toBe(all);
   });
 
   test("Electro enablers partner a Dendro carry's Spread (#61)", () => {

@@ -2073,8 +2073,7 @@ const CARRIES = {
     // stacks (~13 without Attack SPD)". Her Normal Attacks and Lightfall Sword are Physical; Skill and Burst casts Cryo.
     // Grimheart: Press gives 1, her Burst 1 (passive 2), so the Hold consumes 2: 2 Icewhirl Brands (Skill text: "Each
     // consumed stack ... converted into an Icewhirl Brand") and passive 1's Shattered Lightfall Sword, "50% of the
-    // basic Physical DMG dealt by a Lightfall Sword" (half the base row, no stacks). Her Physical and Cryo RES shred
-    // stays outside damage (#204).
+    // basic Physical DMG dealt by a Lightfall Sword" (half the base row, no stacks). Her own RES shred: buffs below.
     combo: "tE Q N4 hE N4",
     goblet: "Physical",
     hits: [
@@ -2089,7 +2088,13 @@ const CARRIES = {
       { table: "burst", label: "Lightfall Sword Base DMG", count: 1, type: BU, element: "Physical", tag: "lightfall" },
       { table: "burst", label: "Lightfall Sword Base DMG", count: 0.5, type: BU, element: "Physical" },
     ],
-    buffs: [{ kind: "addPerStack", table: "burst", label: "DMG Per Stack", stacks: 13, hits: "lightfall" }],
+    buffs: [
+      { kind: "addPerStack", table: "burst", label: "DMG Per Stack", stacks: 13, hits: "lightfall" },
+      // #204: her Hold Skill's Physical and Cryo RES Decrease (7s) on the hits after it: the Lightfall Sword explosions
+      // and the Icewhirl Brands. Her last N4 string shares its labels with the first, so it goes without (estimate low).
+      { kind: "resShred", table: "skill", label: "Physical RES Decrease", elements: ["Physical"], labels: ["Lightfall Sword Base DMG"] },
+      { kind: "resShred", table: "skill", label: "Cryo RES Decrease", elements: ["Cryo"], labels: ["Icewhirl Brand DMG"] },
+    ],
   },
   Chasca: {
     // #233. KQM quick guide, normal combo: "E C[6 6 6 6 4]" ("4 rounds of 6 Shells and one round of 3-4 Shells"): 28
@@ -2214,6 +2219,8 @@ function readCarry(id, spec) {
         if (!m) throw new Error(`${id}: pattern ${b.re} not found in ${b.from}`);
         return { kind: b.kind, values: m.slice(1).map((v) => Number(v) / 100), elements: b.elements, labels: b.labels };
       }
+      case "resShred":
+        return { kind: b.kind, value: raw(b.table, b.label), elements: b.elements, labels: b.labels };
       case "critRate":
         return { kind: b.kind, value: round((num(b.from, b.re) / 100) * (b.share ?? 1)), labels: b.labels };
       case "factor":
