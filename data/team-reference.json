@@ -1,5 +1,5 @@
 {
-  "median": 119477.7,
+  "median": 131357.5,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -26,7 +26,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 117153.2
+      "value": 131963.6
     },
     "Arlecchino": {
       "team": [
@@ -35,16 +35,16 @@
         "Yelan",
         "Xilonen"
       ],
-      "value": 128717.6
+      "value": 140956.8
     },
     "Chasca": {
       "team": [
         "Chasca",
         "Escoffier",
         "Furina",
-        "Citlali"
+        "Shenhe"
       ],
-      "value": 108076.6
+      "value": 127029.1
     },
     "Clorinde": {
       "team": [
@@ -53,7 +53,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 126726.5
+      "value": 135229.9
     },
     "Cyno": {
       "team": [
@@ -98,7 +98,7 @@
         "Escoffier",
         "Yae Miko"
       ],
-      "value": 154752
+      "value": 181363.1
     },
     "Gaming": {
       "team": [
@@ -114,9 +114,9 @@
         "Ganyu",
         "Furina",
         "Escoffier",
-        "Citlali"
+        "Shenhe"
       ],
-      "value": 126240.7
+      "value": 152215.9
     },
     "Hu Tao": {
       "team": [
@@ -134,7 +134,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 179368.8
+      "value": 206251.9
     },
     "Kamisato Ayato": {
       "team": [
@@ -143,7 +143,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 147779.8
+      "value": 173822.8
     },
     "Kaveh": {
       "team": [
@@ -152,7 +152,7 @@
         "Yelan",
         "Furina"
       ],
-      "value": 123332.4
+      "value": 135799.7
     },
     "Keqing": {
       "team": [
@@ -161,7 +161,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 119942.6
+      "value": 135105.6
     },
     "Kinich": {
       "team": [
@@ -170,7 +170,7 @@
         "Furina",
         "Bennett"
       ],
-      "value": 108309.2
+      "value": 115035.3
     },
     "Klee": {
       "team": [
@@ -188,7 +188,7 @@
         "Escoffier",
         "Furina"
       ],
-      "value": 144069.1
+      "value": 169067.2
     },
     "Lyney": {
       "team": [
@@ -206,7 +206,7 @@
         "Iansan",
         "Bennett"
       ],
-      "value": 128780.8
+      "value": 134624.4
     },
     "Mualani": {
       "team": [
@@ -215,7 +215,7 @@
         "Mavuika",
         "Xilonen"
       ],
-      "value": 77981.2
+      "value": 85461
     },
     "Navia": {
       "team": [
@@ -224,7 +224,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 119012.8
+      "value": 134058.3
     },
     "Nefer": {
       "team": [
@@ -233,7 +233,7 @@
         "Lauma",
         "Ineffa"
       ],
-      "value": 124171.4
+      "value": 132340.6
     },
     "Neuvillette": {
       "team": [
@@ -242,7 +242,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 154888.2
+      "value": 164930.7
     },
     "Ningguang": {
       "team": [
@@ -251,7 +251,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 94659.1
+      "value": 101107.8
     },
     "Noelle": {
       "team": [
@@ -260,7 +260,7 @@
         "Columbina",
         "Furina"
       ],
-      "value": 135915.9
+      "value": 153602.6
     },
     "Raiden Shogun": {
       "team": [
@@ -269,7 +269,7 @@
         "Yelan",
         "Xilonen"
       ],
-      "value": 114082.5
+      "value": 125484.2
     },
     "Razor": {
       "team": [
@@ -314,7 +314,7 @@
         "Escoffier",
         "Yelan"
       ],
-      "value": 171863.1
+      "value": 198746.2
     },
     "Tartaglia": {
       "team": [
@@ -386,7 +386,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 186278.9
+      "value": 213162
     },
     "Xiao": {
       "team": [
@@ -404,16 +404,16 @@
         "Yelan",
         "Xianyun"
       ],
-      "value": 119942.6
+      "value": 135105.6
     },
     "Yoimiya": {
       "team": [
         "Yoimiya",
         "Yelan",
-        "Ineffa",
-        "Bennett"
+        "Furina",
+        "Xilonen"
       ],
-      "value": 124272.9
+      "value": 139295
     },
     "Yumemizuki Mizuki": {
       "team": [
