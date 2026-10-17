@@ -789,7 +789,8 @@ function readStellar(id, spec) {
 //   has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
 //   (Jahoda's passive 1, #175).
 //   addScaling: a passive that adds a share of a stat to this hit's damage, read from its text, e.g.
-//       { from: "passive2", re: /increased by (\d+)% of Citlali's Elemental Mastery/, stat: "em" } (#172)
+//       { from: "passive2", re: /increased by (\d+)% of Citlali's Elemental Mastery/, stat: "em" } (#172); `times`: it adds
+//       to each of a "×N" row's instances (Lan Yan's Burst, #252)
 //   dmgBonusPer: a passive that raises this hit's DMG per point of a stat, read from its text, e.g. Dendro
 //       Traveler's 0.15% per EM: { from: "passive2", re: /Razorgrass Blade by ([\d.]+)%/, stat: "em" }; written as
 //       `dmgBonusPerStat: { em: 0.0015 }` (DMG Bonus added per point) (#172)
@@ -837,6 +838,20 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Grass Ring of Sanctification DMG", every: /every ([\d.]+)s/, duration: "Duration", cd: "CD" },
     { talent: "burst", label: "Single Instance DMG", hits: "rate", cd: "CD" },
+  ],
+  // Lan Yan off field (#252): her Skill's thrown Feathermoon Rings "deal three instances of Anemo DMG total, even if
+  // there is only one opponent" (Genshin Impact Wiki, Lan Yan, fetched 2026-10-18), her Burst's row is "×3", and
+  // passive 2 adds 309% / 774% of her EM to each. Left out: the 50% absorbed-element ring hits (passive 1).
+  "Lan Yan": [
+    { talent: "skill", label: "Feathermoon Ring DMG", hits: 3, cd: "CD", addScaling: [{ from: "passive2", re: /equal to (\d+)% and \d+% of Lan Yan's Elemental Mastery/, stat: "em" }] },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD", addScaling: [{ from: "passive2", re: /and (\d+)% of Lan Yan's Elemental Mastery respectively/, stat: "em", times: 3 }] },
+  ],
+  // Raiden off field (#252; Eula, national teams): her Skill's hit, then the Eye of Stormy Judgment's coordinated attack
+  // "every 0.9s per party" while the on-field character attacks, for its Duration; recast before it ends. Her Burst is
+  // her own field time, not counted here.
+  "Raiden Shogun": [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Coordinated ATK DMG", every: /one coordinated attack every ([\d.]+)s per party/, duration: "Duration", cd: "CD" },
   ],
   Shenhe: [
     { talent: "skill", label: "Press Skill DMG", hits: 1, cd: "Press CD" },
@@ -1316,7 +1331,7 @@ function readSubDps(id, specs) {
     };
     // `passive`: the whole hit is a passive's (Ineffa's Overclocking Circuit); `addScaling` adds to a talent hit's.
     const scaling = s.passive ? { [s.passive.stat]: passiveValue(s.passive) } : scalingOf(attrs, s.label, id);
-    for (const p of s.addScaling ?? []) scaling[p.stat] = round((scaling[p.stat] ?? 0) + passiveValue(p));
+    for (const p of s.addScaling ?? []) scaling[p.stat] = round((scaling[p.stat] ?? 0) + passiveValue(p) * (p.times ?? 1));
     const dmgBonusPerStat = s.dmgBonusPer ? Object.fromEntries(s.dmgBonusPer.map((p) => [p.stat, round(passiveValue(p))])) : undefined;
     sources.push({
       talent: s.talent,
