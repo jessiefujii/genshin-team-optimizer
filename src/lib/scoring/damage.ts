@@ -162,7 +162,7 @@ const LEVEL_MULTIPLIER_90 = 1446.85;
 // second (Damage Sequence: Swirl 2 per 0.5s, Overloaded 1 per 0.5s, Superconduct 2 per 0.5s). Superconduct 1.5 (wiki
 // Superconduct). Electro-Charged 2.0 (wiki Electro-Charged): one tick per second while the target holds both auras, each
 // tick 0.4U of each (score.ts reads its ticks from the aura budget, at most 1 per second in all). Freeze counts only
-// through crit and Crystallize under survival (Jessie, 2026-10-18); Burning comes later.
+// through crit and Crystallize under survival (Jessie, 2026-10-18).
 export const TRANSFORMATIVE: Partial<Record<Reaction, { coefficient: number; perSecond: number }>> = {
   swirl: { coefficient: 0.6, perSecond: 4 },
   overloaded: { coefficient: 2.75, perSecond: 2 },
@@ -173,6 +173,8 @@ export const TRANSFORMATIVE: Partial<Record<Reaction, { coefficient: number; per
   bloom: { coefficient: 2, perSecond: 4 },
   hyperbloom: { coefficient: 3, perSecond: 4 },
   burgeon: { coefficient: 3, perSecond: 4 },
+  // Burning 0.25 (wiki Burning), a tick every 0.25s (KQM; score.ts reads its uptime from the aura budget).
+  burning: { coefficient: 0.25, perSecond: 4 },
 };
 export const transformativeHit = (r: Reaction, em: number, bonus = 0) =>
   (TRANSFORMATIVE[r]?.coefficient ?? 0) * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000) + bonus);
