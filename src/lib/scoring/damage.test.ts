@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam } from "./damage";
+import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction } from "./damage";
 import { NO_TEAM_BUFFS } from "./kit";
 import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
@@ -165,6 +165,14 @@ describe("carry damage (#101)", () => {
       for (const id of ["Zibai", "Flins", "Nefer"]) expect(modelsAscendantGleam(id), id).toBe(true);
       expect(modelsAscendantGleam("Neuvillette")).toBe(false);
       expect(modelsAscendantGleam("Bennett")).toBe(false);
+    });
+
+    test("modelsReaction: a Lunar reaction the carry's Lunar hits or buffs need is in their damage (#200, #205)", () => {
+      const models = (id: string, r: Reaction) => modelsReaction(byId.get(id)!, r);
+      expect(models("Nefer", "lunar-bloom")).toBe(true); // Phantasm Performance needs Verdant Dew
+      expect(models("Flins", "lunar-charged")).toBe(true); // Thunderous Symphony Additional DMG needs thunderclouds
+      // Zibai's Lunar hits land with any team; what the team's Lunar-Crystallize gives her isn't modeled yet.
+      expect(models("Zibai", "lunar-crystallize")).toBe(false);
     });
   });
 
