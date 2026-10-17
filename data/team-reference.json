@@ -1,5 +1,5 @@
 {
-  "median": 143414.7,
+  "median": 140799,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -89,7 +89,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 158364.4
+      "value": 128437.3
     },
     "Freminet": {
       "team": [
@@ -231,9 +231,9 @@
         "Nefer",
         "Furina",
         "Lauma",
-        "Kuki Shinobu"
+        "Ineffa"
       ],
-      "value": 132975.1
+      "value": 119106.6
     },
     "Neuvillette": {
       "team": [
@@ -431,7 +431,7 @@
         "Columbina",
         "Furina"
       ],
-      "value": 177308.7
+      "value": 174378
     }
   }
 }
