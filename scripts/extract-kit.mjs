@@ -122,6 +122,22 @@ const SPEC = {
   Escoffier: { from: "passive2", values: [{ kind: "resShred", re: /by (\d+)%\/(\d+)%\/(\d+)%\/(\d+)% for/, unit: "Hydro/Cryo RES by the number of Hydro or Cryo members (1-4)", percent: true, elements: ["Hydro", "Cryo"], steps: { count: "members", of: ["Hydro", "Cryo"] } }], duration: /% for (\d+)s/ },
   Ineffa: { from: "passive2", values: [{ kind: "emFromAtk", re: /Elemental Mastery by (\d+)% of Ineffa's ATK/, unit: "of Ineffa's ATK as EM", percent: true }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
   "Kaedehara Kazuha": { from: "passive2", values: [{ kind: "dmgBonusPerEm", re: /a ([\d.]+)% Elemental DMG Bonus/, unit: "swirled-element DMG % per point of Kazuha's EM", percent: true }], duration: /for (\d+)s/ },
+  // Painted Dome: "All Dendro Cores created by all your own party members through Bloom and Lunar-Bloom reactions will deal
+  // additional DMG when they burst", while Kaveh stays on field (#256).
+  Kaveh: {
+    talent: "burst",
+    values: [
+      {
+        kind: "reactionBonus",
+        label: "Dendro Core Burst DMG Bonus",
+        unit: "Dendro Core (Bloom) DMG % during Painted Dome",
+        reactions: ["bloom"],
+        whileOnField: true,
+      },
+    ],
+    duration: "Duration",
+    cd: "CD",
+  },
   Linnea: {
     from: ["passive1", "passive2"],
     values: [
@@ -133,6 +149,31 @@ const SPEC = {
   Lynette: { from: "passive1", values: [{ kind: "atkPct", re: /(\d+)%\/(\d+)%\/(\d+)%\/(\d+)% respectively/, unit: "ATK % by the number of element types (1-4)", percent: true, steps: { count: "elementTypes" } }], duration: /Within (\d+)s/, cd: { talent: "skill", label: "CD" } },
   Mavuika: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase obtainable this way is (\d+)%/, unit: "active character DMG % at 200 Fighting Spirit (0.2% per point)", percent: true, condition: "fightingSpirit" }], duration: /lasts (\d+)s/, cd: { talent: "burst", label: "CD" } },
   Nahida: { from: "passive1", values: [{ kind: "emFromTopEm", re: /increased by (\d+)% of the Elemental Mastery of the party member with the highest/, unit: "of the party's highest EM", percent: true }] },
+  // Bountiful Cores (passive 1: an all-Dendro/Hydro team, Golden Chalice's Bounty for 30s per Skill) deal more with her
+  // Max HP above 30,000 (passive 2); "Bountiful Core DMG is considered DMG dealt by Dendro Cores produced by Bloom" (#256).
+  Nilou: {
+    from: ["passive2", "passive1"],
+    values: [
+      {
+        kind: "reactionBonus",
+        re: /Bountiful Cores created by characters affected by Golden Chalice's Bounty to increase by (\d+)%/,
+        unit: "Bountiful Core (Bloom) DMG % per 1,000 of Nilou's Max HP above 30,000, in an all-Dendro/Hydro team",
+        percent: true,
+        perHp: 1000,
+        hpAbove: /Every 1,000 points of Nilou's Max HP above ([\d,]+)/,
+        maxText: /achieved this way is (\d+)%/,
+        reactions: ["bloom"],
+        teamOnly: ["Dendro", "Hydro"],
+      },
+      // Golden Chalice's Bounty: the party is hit by Dendro attacks (its own Bountiful Cores) all through it.
+      {
+        kind: "em",
+        re: /increase the Elemental Mastery of all nearby characters by (\d+)/,
+        unit: "EM while hit by Dendro attacks, in an all-Dendro/Hydro team",
+        teamOnly: ["Dendro", "Hydro"],
+      },
+    ],
+  },
   // Rescue Essentials points = Nightsoul points the party holds, up to the max in the text (#76).
   Ifa: {
     from: "passive1",
@@ -176,6 +217,7 @@ const limits = (v) => ({
   ...(v.physical ? { physical: true } : {}),
   ...(v.condition ? { condition: v.condition } : {}),
   ...(v.teamOnly ? { teamOnly: v.teamOnly } : {}),
+  ...(v.whileOnField ? { whileOnField: true } : {}),
 });
 
 // Reads a table label's first parameter at TALENT_LEVEL.
@@ -250,11 +292,14 @@ function readBuffs(id, spec) {
       ? { max: num(spec.points.max), own: tableValue(talents[COMBAT[spec.points.own.talent]].attributes, spec.points.own.label, id) }
       : null;
     const excess = spec.excessAtk ? { threshold: num(spec.excessAtk.threshold), max: num(spec.excessAtk.max) / 100 } : null;
+    // A perHp value that starts above some HP, with its cap in the text (Nilou's "above 30,000" ... "400%", #256).
+    const above = v.hpAbove ? { threshold: num(v.hpAbove), ...(v.maxText ? { max: num(v.maxText) / 100 } : {}) } : null;
     return {
       kind: v.kind,
       value: steps ? steps.values[steps.values.length - 1] : round((Number(m[1]) / (v.percent ? 100 : 1)) * (v.scale ?? 1)),
       ...(points ? { points } : {}),
       ...(excess ? { threshold: excess.threshold, max: excess.max } : {}),
+      ...(above ?? {}),
       ...(steps ? { steps } : {}),
       ...(v.max ? { max: v.max } : {}),
       ...(v.perHp ? { perHp: v.perHp } : {}),
@@ -2317,7 +2362,8 @@ function readCarry(id, spec) {
 }
 
 const tags = require("../data/tags.json");
-const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0);
+// Buffers, and anyone else with a SPEC entry: a kit bonus to the team's reaction damage (Nilou, Kaveh: #256).
+const buffers = tags.filter((c) => (c.roles.includes("buffer") && (c.buffs ?? []).length > 0) || SPEC[c.id]);
 const characters = {};
 for (const c of buffers) {
   const db = genshindb.characters(c.id);

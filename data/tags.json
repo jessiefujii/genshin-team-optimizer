@@ -2404,6 +2404,22 @@
     "scalesOn": [
       "HP"
     ],
+    "buffs": [
+      {
+        "stat": "Bountiful Core DMG (HP-based)",
+        "scope": "team",
+        "reactions": [
+          "bloom"
+        ],
+        "talent": "passive"
+      },
+      {
+        "stat": "EM from Golden Chalice's Bounty",
+        "scope": "team",
+        "affects": "EM",
+        "talent": "passive"
+      }
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
