@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction } from "./damage";
+import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite } from "./damage";
 import { NO_TEAM_BUFFS } from "./kit";
 import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
@@ -173,6 +173,16 @@ describe("carry damage (#101)", () => {
       expect(models("Flins", "lunar-charged")).toBe(true); // Thunderous Symphony Additional DMG needs thunderclouds
       // Zibai's Lunar hits land with any team; what the team's Lunar-Crystallize gives her isn't modeled yet.
       expect(models("Zibai", "lunar-crystallize")).toBe(false);
+    });
+
+    test("Klee's Boom-Boom Strikes and Boom Badges need Secret Rite (#241)", () => {
+      // Fischl (Hexerei) gives Secret Rite, Zhongli doesn't: 5 Strikes at 150% of 1.5x a Charged Attack, ~+65%.
+      const rite = dps(["Klee", "Fischl", "Bennett", "Xingqiu"], []);
+      const none = dps(["Klee", "Zhongli", "Bennett", "Xingqiu"], []);
+      expect(rite / none).toBeGreaterThan(1.5);
+      expect(rite / none).toBeLessThan(1.8);
+      expect(modelsSecretRite("Klee")).toBe(true);
+      expect(modelsSecretRite("Varka")).toBe(false);
     });
   });
 

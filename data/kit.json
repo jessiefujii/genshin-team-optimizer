@@ -6945,6 +6945,20 @@
     },
     "Klee": {
       "rotationSeconds": 15,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Chevreuse"
+                ]
+              ]
+            }
+          ],
+          "seconds": 17
+        }
+      ],
       "combo": "N1 sEQ N3 E 5[N3]",
       "hits": [
         {
@@ -6977,7 +6991,10 @@
           "scaling": {
             "atk": 2.67512
           },
-          "count": 5
+          "count": 5,
+          "when": {
+            "secretRite": true
+          }
         },
         {
           "label": "Jumpy Dumpty DMG",
@@ -6985,7 +7002,7 @@
           "scaling": {
             "atk": 1.6184
           },
-          "count": 6
+          "count": 3
         },
         {
           "label": "Sparks 'n' Splash DMG",
@@ -7003,6 +7020,16 @@
           "types": [
             "charged"
           ]
+        },
+        {
+          "kind": "factor",
+          "value": 1.5,
+          "types": [
+            "charged"
+          ],
+          "when": {
+            "secretRite": true
+          }
         }
       ]
     },

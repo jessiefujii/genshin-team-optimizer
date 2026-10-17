@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, teamBuffStats } from "./kit";
-import { amplifyGain, carryDamage, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, passiveEnabler, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, modelsSecretRite, passiveEnabler, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -535,15 +535,18 @@ function partyValueGain(v: PartyValue, m: ScoringCharacter, carry: ScoringCharac
 
 // Hexerei: Secret Rite (#63). With 2+ Hexerei members, each Hexerei member's "Hexerei: Secret Rite" text turns
 // on (data/kit.json, from the Witch's Eve Rite passives in data/kit-overrides.json). A Hexerei carry's own kit
-// upgrade (Klee, Lohen, Razor, Varka) counts as ownSecretRite; a member's party buff (Albedo, Sucrose, Fischl,
-// Venti, Durin, Nicole, Prune) counts by the damage it adds to the carry. Some only reach Hexerei members (Albedo's
-// Silver Isotoma, Sucrose's Large Wind Spirit, Nicole's Arcane Projections), so a Hexerei carry gets more.
+// upgrade (Lohen, Razor, Varka) counts as ownSecretRite; when their damage model has it (Klee: damage.ts
+// modelsSecretRite) it is in their damage, so the line has 0 points (#241). A member's party buff (Albedo, Sucrose,
+// Fischl, Venti, Durin, Nicole, Prune) counts by the damage it adds to the carry. Some only reach Hexerei members
+// (Albedo's Silver Isotoma, Sucrose's Large Wind Spirit, Nicole's Arcane Projections), so a Hexerei carry gets more.
 function secretRiteLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   if (!carry) return;
   const hexerei = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("hexerei"));
   if (hexerei.length < 2) return;
   if (hexerei.includes(carry) && SECRET_RITE[carry.id]?.target === "self") {
-    out.add("Hexerei", POINTS.ownSecretRite, () => `Secret Rite enhances ${carry.id}'s kit`);
+    const modeled = modelsSecretRite(carry.id);
+    const points = modeled ? 0 : POINTS.ownSecretRite;
+    out.add("Hexerei", points, () => `Secret Rite enhances ${carry.id}'s kit${modeled ? " (in their damage)" : ""}`);
   }
   const dealt = carry.reactions.filter((r) => ctx.active.includes(r));
   for (const m of hexerei) {
