@@ -197,11 +197,14 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   // own damage in team damage (transformativeLines, #205); the flat points below are for the rest (a carry not modeled
   // yet, or a reaction the damage model doesn't cover yet, like Freeze or Electro-Charged).
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
+  // A reaction that deals its own damage (Swirl, Overloaded...) leaves the flat points only when that damage counts too:
+  // Heizou's Swirl hit is in his damage, but in a Dendro team his Swirls' own damage isn't yet (#253).
   const transformative = carryActive.filter((r) => transformativeModeled(ctx, carry, r));
-  const modeled = [...reactionDamageLine(ctx, carry, out), ...transformative];
+  const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
+  const modeled = [...kitModeled, ...transformative];
   const flat = carryActive.filter((r) => !modeled.includes(r));
-  const mainModeled =
-    main !== undefined && main !== "none" && (modelsReaction(carry, main) || transformativeModeled(ctx, carry, main));
+  const mainIn = (r: Reaction) => (TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r));
+  const mainModeled = main !== undefined && main !== "none" && mainIn(main);
   if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
     out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
   }

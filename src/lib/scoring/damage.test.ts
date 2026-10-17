@@ -167,12 +167,18 @@ describe("carry damage (#101)", () => {
       expect(modelsAscendantGleam("Bennett")).toBe(false);
     });
 
-    test("modelsReaction: a Lunar reaction the carry's Lunar hits or buffs need is in their damage (#200, #205)", () => {
+    test("modelsReaction: a reaction the carry's combos, hits or buffs need is in their damage (#200, #205)", () => {
       const models = (id: string, r: Reaction) => modelsReaction(byId.get(id)!, r);
       expect(models("Nefer", "lunar-bloom")).toBe(true); // Phantasm Performance needs Verdant Dew
       expect(models("Flins", "lunar-charged")).toBe(true); // Thunderous Symphony Additional DMG needs thunderclouds
       // Zibai's Lunar hits land with any team; what the team's Lunar-Crystallize gives her isn't modeled yet.
       expect(models("Zibai", "lunar-crystallize")).toBe(false);
+      // Any reaction a combo, hit or buff needs (#205): Navia's shards, Freminet's and Wriothesley's combos.
+      expect(models("Navia", "crystallize")).toBe(true);
+      expect(models("Freminet", "superconduct")).toBe(true);
+      expect(models("Wriothesley", "stellar-conduct")).toBe(true);
+      expect(models("Shikanoin Heizou", "swirl")).toBe(true);
+      expect(models("Navia", "swirl")).toBe(false);
     });
 
     test("Klee's Boom-Boom Strikes and Boom Badges need Secret Rite (#241)", () => {
