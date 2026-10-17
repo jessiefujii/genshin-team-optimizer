@@ -901,6 +901,23 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
     addPair("superconduct", "Electro", "Cryo", 0.8, true);
     addPair("superconduct", "Cryo", "Electro", 0.8, true);
   }
+  // Reactions that use auras too (#253). Bloom: Dendro on Hydro (2x) or Hydro on Dendro (0.5x), each makes a Dendro Core
+  // (wiki Bloom; transformativeLines pops them), none with Lunar-Bloom in the team, which takes the same auras. Quicken:
+  // Dendro and Electro (1x); no damage of its own (Spread and Aggravate add to hits and don't consume it: wiki Quicken),
+  // and it is taken as used up like a trigger, though the Quicken aura lasts (estimate). Crystallize: Geo on any aura
+  // (0.5x), at most once a second on a target (wiki Crystallize); its shields count under survival (#208), not here.
+  const anyActive = (rs: Reaction[]) => rs.some((r) => ctx.active.includes(r));
+  if (anyActive(["bloom", "hyperbloom", "burgeon", "lunar-bloom"])) {
+    addPair("bloom", "Dendro", "Hydro", 0.8 / 2, true);
+    addPair("bloom", "Hydro", "Dendro", 0.8 / 0.5, true);
+  }
+  if (anyActive(["quicken", "aggravate", "spread"])) {
+    addPair("quicken", "Dendro", "Electro", 0.8, true);
+    addPair("quicken", "Electro", "Dendro", 0.8, true);
+  }
+  if (anyActive(["crystallize", "lunar-crystallize"])) {
+    for (const aura of SWIRLABLE) addPair("crystallize", "Geo", aura, 0.8 / 0.5, true);
+  }
   for (let i = 0; i < 12; i++) {
     for (const p of pairs) {
       const on = pairs.filter((q) => q.aura === p.aura);
@@ -917,21 +934,22 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
       const used = mine.reduce((s, p) => s + p.reactions, 0);
       const left = (full.get(t) ?? 0) > 0 ? Math.max(0, apps.get(t) ?? 0) / full.get(t)! : 0;
       const firing = [...new Set(mine.flatMap((p) => p.members))];
-      const cap = firing.reduce((s, m) => s + appsBy(m), 0) * left;
+      const supply = firing.reduce((s, m) => s + appsBy(m), 0) * left;
+      const cap = t === "Geo" ? Math.min(CRYSTALLIZE_PER_SECOND, supply) : supply;
       if (used > cap) for (const p of mine) p.reactions *= cap / used;
     }
   }
-  const transformative: { m: ScoringCharacter; r: Reaction; aura: Element; perSecond: number }[] = [];
+  const transformative: Trigger[] = [];
   for (const p of pairs) {
     const share = Math.min(1, p.reactions / p.asked);
     for (const m of p.members) {
-      if (TRANSFORMATIVE[p.r]) {
-        const perSecond = share * appsBy(m);
+      if (AMPLIFYING[p.r]) {
+        if (!out.has(m)) out.set(m, new Map());
+        out.get(m)!.set(p.r, share);
+      } else if (TRANSFORMATIVE[p.r] && !(p.r === "bloom" && ctx.active.includes("lunar-bloom"))) {
+        const perSecond = share * appsBy(m); // Bloom: the Dendro Cores this member makes
         if (perSecond > 0) transformative.push({ m, r: p.r, aura: p.aura, perSecond });
-        continue;
       }
-      if (!out.has(m)) out.set(m, new Map());
-      out.get(m)!.set(p.r, share);
     }
   }
   // Electro-Charged (#205): not a trigger on an aura but a state while the target holds both, ticking once a second;
@@ -949,22 +967,22 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
       transformative.push({ m, r: "electrocharged", aura: "Electro", perSecond: (ticks * appsBy(m)) / all });
     }
   }
-  return { subs: out, carry: carryShare, transformative };
+  return { subs: out, carry: carryShare, transformative, appsOf };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
-// Elements the Dendro reactions use up, which the aura budget doesn't model yet (#253): Bloom-type reactions take Hydro,
-// Quicken-type Electro, Burning Pyro. A transformative reaction on one of them isn't counted while such a reaction is
-// active (its applications would read as free: Electro-Charged at Cyno's EM in a Hyperbloom team), and keeps its flat
-// points; Swirl skips those auras.
-const DENDRO_TAKES: Partial<Record<Reaction, Element>> = {
-  bloom: "Hydro", hyperbloom: "Hydro", burgeon: "Hydro", "lunar-bloom": "Hydro",
-  quicken: "Electro", aggravate: "Electro", spread: "Electro", burning: "Pyro",
-};
+// Elements a Dendro reaction uses up that the aura budget doesn't model yet: Burning's Pyro (no sourced rate for how fast
+// it burns its Dendro). A transformative reaction on Pyro isn't counted while Burning is active (its applications would
+// read as free), and keeps its flat points; Swirl skips Pyro. Bloom- and Quicken-type reactions are in the budget (#253).
+const DENDRO_TAKES: Partial<Record<Reaction, Element>> = { burning: "Pyro" };
+const CRYSTALLIZE_PER_SECOND = 1;
 // A converter turns these into their Lunar or Stellar form (Moonsign Benediction, Stellar Jubilee): with the converted
 // reaction in the team, the base one doesn't happen. Stellar Swirl is the Cryo Swirl only (reactions.ts: Anemo + Cryo).
 const CONVERTED: Partial<Record<Reaction, Reaction>> = {
   electrocharged: "lunar-charged",
   superconduct: "stellar-conduct",
+  bloom: "lunar-bloom",
+  hyperbloom: "lunar-bloom", // no Dendro Cores to pop
+  burgeon: "lunar-bloom",
 };
 const convertedAway = (ctx: TeamContext, r: Reaction) => !!CONVERTED[r] && ctx.active.includes(CONVERTED[r]!);
 const swirlAuras = (ctx: TeamContext, taken: Set<Element>) =>
@@ -975,6 +993,9 @@ const DAMAGE_ELEMENT: Partial<Record<Reaction, Element>> = {
   overloaded: "Pyro",
   superconduct: "Cryo",
   electrocharged: "Electro",
+  bloom: "Dendro",
+  hyperbloom: "Dendro",
+  burgeon: "Dendro",
 };
 // Transformative reaction damage (#205): Overloaded, Swirl, Superconduct and Electro-Charged, a separate damage instance
 // per reaction each member triggers (or Electro-Charged tick credited to them) in the aura budget, at that member's EM
@@ -983,9 +1004,30 @@ const DAMAGE_ELEMENT: Partial<Record<Reaction, Element>> = {
 // member (Damage Sequence). Added to team damage like a sub-DPS's hits;
 // the flat reaction points for these reactions are gone (carryLines). Not yet: Reaction Bonus from sets (VV, Crimson
 // Witch: #206) and kits, the swirled element's further reactions, team EM buffs.
+type Trigger = { m: ScoringCharacter; r: Reaction; aura: Element; perSecond: number };
+// Dendro Cores (#253): the cores the Bloom pairs make each second are popped by Electro (Hyperbloom) and Pyro (Burgeon)
+// applications, at the popper's EM ("their damage scale with the stats of the party responsible for applying Pyro or
+// Electro": wiki Bloom), as many as there are cores; the rest explode as Bloom at their maker's EM. Popping takes no
+// aura: the attack hits the core as well as the enemy (estimate).
+function withCores(ctx: TeamContext, triggers: Trigger[], appsOf: Map<ScoringCharacter, number>): Trigger[] {
+  const cores = triggers.filter((t) => t.r === "bloom");
+  const made = cores.reduce((s, t) => s + t.perSecond, 0);
+  if (made === 0) return triggers;
+  const rest = triggers.filter((t) => t.r !== "bloom");
+  const popping = ([["hyperbloom", "Electro"], ["burgeon", "Pyro"]] as const).filter(([r]) => ctx.active.includes(r));
+  const applying = (e: Element) => ctx.members.filter((m) => m.element === e && (appsOf.get(m) ?? 0) > 0);
+  const poppers = popping.flatMap(([r, e]) => applying(e).map((m) => ({ m, r })));
+  const rate = poppers.reduce((s, p) => s + appsOf.get(p.m)!, 0);
+  const popped = Math.min(made, rate);
+  for (const p of poppers) rest.push({ m: p.m, r: p.r, aura: "Dendro", perSecond: (popped * appsOf.get(p.m)!) / rate });
+  if (made > popped) for (const c of cores) rest.push({ ...c, perSecond: (c.perSecond * (made - popped)) / made });
+  return rest;
+}
+
 function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): number {
   if (!carry) return 0;
-  const triggers = auraBudget(ctx, carry).transformative;
+  const budget = auraBudget(ctx, carry);
+  const triggers = withCores(ctx, budget.transformative, budget.appsOf);
   const carryReactions = carry.reactions.filter((r) => ctx.active.includes(r));
   const shreds = new Map<Element, number>();
   const shredOn = (element: Element) => {
