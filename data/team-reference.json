@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 89672.1
+      "value": 91930.3
     },
     "Flins": {
       "team": [
@@ -96,9 +96,9 @@
         "Freminet",
         "Furina",
         "Escoffier",
-        "Yae Miko"
+        "Shenhe"
       ],
-      "value": 181365.9
+      "value": 179807
     },
     "Gaming": {
       "team": [
@@ -251,7 +251,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 126283.1
+      "value": 133662.3
     },
     "Noelle": {
       "team": [
@@ -269,7 +269,7 @@
         "Yelan",
         "Xilonen"
       ],
-      "value": 144241.6
+      "value": 143836.2
     },
     "Razor": {
       "team": [
@@ -305,7 +305,7 @@
         "Kuki Shinobu",
         "Traveler (Dendro)"
       ],
-      "value": 54916.4
+      "value": 60880.2
     },
     "Skirk": {
       "team": [
@@ -350,7 +350,7 @@
         "Furina",
         "Xianyun"
       ],
-      "value": 145449.2
+      "value": 145720.3
     },
     "Varka": {
       "team": [
@@ -368,16 +368,16 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 97583.3
+      "value": 101251.8
     },
     "Wanderer": {
       "team": [
         "Wanderer",
-        "Faruzan",
-        "Bennett",
-        "Furina"
+        "Fischl",
+        "Yae Miko",
+        "Baizhu"
       ],
-      "value": 85746.4
+      "value": 87640.5
     },
     "Wriothesley": {
       "team": [
@@ -420,9 +420,9 @@
         "Yumemizuki Mizuki",
         "Ineffa",
         "Columbina",
-        "Xilonen"
+        "Durin"
       ],
-      "value": 102911.9
+      "value": 116596.7
     },
     "Zibai": {
       "team": [

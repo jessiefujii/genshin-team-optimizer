@@ -197,9 +197,11 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   // own damage in team damage (transformativeLines, #205); the flat points below are for the rest (a carry not modeled
   // yet, or a reaction the damage model doesn't cover yet, like Freeze or Electro-Charged).
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
-  const modeled = [...reactionDamageLine(ctx, carry, out), ...carryActive.filter((r) => TRANSFORMATIVE[r])];
+  const transformative = carryActive.filter((r) => transformativeModeled(ctx, carry, r));
+  const modeled = [...reactionDamageLine(ctx, carry, out), ...transformative];
   const flat = carryActive.filter((r) => !modeled.includes(r));
-  const mainModeled = main !== undefined && main !== "none" && (modelsReaction(carry, main) || !!TRANSFORMATIVE[main]);
+  const mainModeled =
+    main !== undefined && main !== "none" && (modelsReaction(carry, main) || transformativeModeled(ctx, carry, main));
   if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
     out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
   }
@@ -882,11 +884,20 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
     addPair(r, a, b, perAuraOf(r, a), false);
     addPair(r, b, a, perAuraOf(r, b), false);
   }
-  if (ctx.active.includes("overloaded")) {
+  const taken = takenByDendro(ctx);
+  const free = (r: Reaction) =>
+    ctx.active.includes(r) && !convertedAway(ctx, r) && !reactionElements(r).some((e) => taken.has(e));
+  if (free("overloaded")) {
     addPair("overloaded", "Pyro", "Electro", 0.8, true);
     addPair("overloaded", "Electro", "Pyro", 0.8, true);
   }
-  if (ctx.active.includes("swirl")) for (const aura of SWIRLABLE) addPair("swirl", "Anemo", aura, 0.8 / 0.5, true);
+  if (ctx.active.includes("swirl")) {
+    for (const aura of swirlAuras(ctx, taken)) addPair("swirl", "Anemo", aura, 0.8 / 0.5, true);
+  }
+  if (free("superconduct")) {
+    addPair("superconduct", "Electro", "Cryo", 0.8, true);
+    addPair("superconduct", "Cryo", "Electro", 0.8, true);
+  }
   for (let i = 0; i < 12; i++) {
     for (const p of pairs) {
       const on = pairs.filter((q) => q.aura === p.aura);
@@ -920,13 +931,53 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
       out.get(m)!.set(p.r, share);
     }
   }
+  // Electro-Charged (#205): not a trigger on an aura but a state while the target holds both, ticking once a second;
+  // each tick takes 0.4U of each aura, so one 1U application (0.8U after the Aura Tax) feeds 2 ticks. From the Hydro and
+  // Electro applications the pairs above left (reactions with Electro come first on an Electro-Charged target: wiki),
+  // credited to their appliers by share. Not with Lunar-Charged in the team: the converter turns it into that (CONVERTED).
+  if (free("electrocharged")) {
+    const spent = (e: Element) =>
+      pairs.reduce((s, p) => s + (p.trigger === e ? p.reactions : 0) + (p.aura === e ? p.reactions / p.perAura : 0), 0);
+    const leftOf = (e: Element) => Math.max(0, (apps.get(e) ?? 0) - spent(e));
+    const ticks = Math.min(1, 2 * leftOf("Hydro"), 2 * leftOf("Electro"));
+    const appliers = ctx.members.filter((m) => (m.element === "Hydro" || m.element === "Electro") && appsBy(m) > 0);
+    const all = appliers.reduce((s, m) => s + appsBy(m), 0);
+    for (const m of ticks > 0 ? appliers : []) {
+      transformative.push({ m, r: "electrocharged", aura: "Electro", perSecond: (ticks * appsBy(m)) / all });
+    }
+  }
   return { subs: out, carry: carryShare, transformative };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
-// Transformative reaction damage (#205): Overloaded and Swirl, a separate damage instance per reaction each member
-// triggers in the aura budget, at that member's EM (the carry's from their combo, a sub-DPS's from their build or
-// benchmark), with teammates' RES shred on the reaction's element (Overloaded is Pyro, Swirl the swirled aura's). At
-// most TRANSFORMATIVE's instances per second per member (Damage Sequence). Added to team damage like a sub-DPS's hits;
+// Elements the Dendro reactions use up, which the aura budget doesn't model yet (#253): Bloom-type reactions take Hydro,
+// Quicken-type Electro, Burning Pyro. A transformative reaction on one of them isn't counted while such a reaction is
+// active (its applications would read as free: Electro-Charged at Cyno's EM in a Hyperbloom team), and keeps its flat
+// points; Swirl skips those auras.
+const DENDRO_TAKES: Partial<Record<Reaction, Element>> = {
+  bloom: "Hydro", hyperbloom: "Hydro", burgeon: "Hydro", "lunar-bloom": "Hydro",
+  quicken: "Electro", aggravate: "Electro", spread: "Electro", burning: "Pyro",
+};
+// A converter turns these into their Lunar or Stellar form (Moonsign Benediction, Stellar Jubilee): with the converted
+// reaction in the team, the base one doesn't happen. Stellar Swirl is the Cryo Swirl only (reactions.ts: Anemo + Cryo).
+const CONVERTED: Partial<Record<Reaction, Reaction>> = {
+  electrocharged: "lunar-charged",
+  superconduct: "stellar-conduct",
+};
+const convertedAway = (ctx: TeamContext, r: Reaction) => !!CONVERTED[r] && ctx.active.includes(CONVERTED[r]!);
+const swirlAuras = (ctx: TeamContext, taken: Set<Element>) =>
+  SWIRLABLE.filter((e) => !taken.has(e) && !(e === "Cryo" && ctx.active.includes("stellar-swirl")));
+const takenByDendro = (ctx: TeamContext) =>
+  new Set(ctx.active.map((r) => DENDRO_TAKES[r]).filter((e): e is Element => !!e));
+const DAMAGE_ELEMENT: Partial<Record<Reaction, Element>> = {
+  overloaded: "Pyro",
+  superconduct: "Cryo",
+  electrocharged: "Electro",
+};
+// Transformative reaction damage (#205): Overloaded, Swirl, Superconduct and Electro-Charged, a separate damage instance
+// per reaction each member triggers (or Electro-Charged tick credited to them) in the aura budget, at that member's EM
+// (the carry's from their combo, a sub-DPS's from their build or benchmark), with teammates' RES shred on the
+// reaction's element (DAMAGE_ELEMENT; Swirl the swirled aura's). At most TRANSFORMATIVE's instances per second per
+// member (Damage Sequence). Added to team damage like a sub-DPS's hits;
 // the flat reaction points for these reactions are gone (carryLines). Not yet: Reaction Bonus from sets (VV, Crimson
 // Witch: #206) and kits, the swirled element's further reactions, team EM buffs.
 function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): number {
@@ -951,7 +1002,7 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
       const em = m === carry ? (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry))?.em ?? 0) : (subDpsStats(m)?.em ?? 0);
       let d = 0;
       for (const t of own) {
-        const element = r === "overloaded" ? "Pyro" : t.aura;
+        const element = DAMAGE_ELEMENT[r] ?? t.aura; // Swirl: the swirled aura's
         d += t.perSecond * capped * transformativeHit(r, em) * (1 + shredOn(element));
       }
       dps += d;
@@ -961,6 +1012,21 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     total += dps;
   }
   return total;
+}
+
+// Whether a transformative reaction's damage is in team damage for this team (#205), so its flat points go: some member
+// applies each of its elements in the aura budget (Swirl: Anemo and an aura element). Not when an applier isn't modeled
+// (Raiden off field has no sub-DPS entry, #252), or a Dendro reaction uses one of its elements (DENDRO_TAKES, #253): the
+// flat points stay as the stand-in. A reaction a converter turns into its Lunar or Stellar form (CONVERTED) doesn't
+// happen, so it scores nothing either way.
+function transformativeModeled(ctx: TeamContext, carry: ScoringCharacter, r: Reaction): boolean {
+  if (!TRANSFORMATIVE[r]) return false;
+  if (convertedAway(ctx, r)) return true;
+  const taken = takenByDendro(ctx);
+  const applies = (e: Element) =>
+    !taken.has(e) && ctx.members.some((m) => m.element === e && applicationsPerSecond(m, carry, ctx) > 0);
+  if (r === "swirl") return applies("Anemo") && swirlAuras(ctx, taken).some(applies);
+  return reactionElements(r).every(applies);
 }
 
 function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {

@@ -117,14 +117,19 @@ describe("scoreTeam", () => {
     expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
       { rule: "Reactions", points: 0, reason: "Overloaded: ~1202 damage per second (Bennett ~0.1/s, Chevreuse ~0.1/s)" },
+      { rule: "Reactions", points: 0, reason: "Electrocharged: ~4334 damage per second (Clorinde ~0.4/s, Furina ~0.6/s)" },
     ]);
     expect(reactions("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
       { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+54% to Clorinde's damage, on top of the passive" },
-      { rule: "Reactions", points: 0, reason: "Swirl: ~2381 damage per second (Kaedehara Kazuha ~0.5/s)" },
+      // No Swirl damage: its only aura, Electro, goes to Quicken, which the aura budget doesn't model yet (#253).
     ]);
-    // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze.
-    expect(reactions("Wriothesley", "Sandrone", "Fischl", "Furina").map((l) => l.reason)).toEqual(["Freeze: Wriothesley + Furina"]);
+    // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze. Fischl's and Furina's
+    // Electro-Charged deals its own damage (#205); no Superconduct, which Sandrone turns into Stellar-Conduct.
+    expect(reactions("Wriothesley", "Sandrone", "Fischl", "Furina").map((l) => l.reason)).toEqual([
+      "Freeze: Wriothesley + Furina",
+      "Electrocharged: ~2327 damage per second (Fischl ~0.2/s, Furina ~0.5/s)",
+    ]);
   });
 
   test("sub-DPS add their own damage per second to the team, whatever the carry's reactions (#134, #202)", () => {
