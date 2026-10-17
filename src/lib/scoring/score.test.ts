@@ -700,8 +700,8 @@ describe("talent levels (#25)", () => {
     const buff = (id: string, ...ids: string[]) =>
       score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id))?.reason;
     // Ifa alone holds ~40 Rescue Essentials points (half his 80): 60% Swirl DMG, on the ~0.25 of a Swirl
-    // carry's damage that Swirl hits are (#87).
-    expect(buff("Ifa", "Varka", "Ifa", "Durin", "Bennett")).toBe("Ifa buffs Varka (~+9% damage)");
+    // carry's damage that Swirl hits are (#87); it counts in the Swirl damage itself (#256), not as buffer points.
+    expect(buff("Ifa", "Varka", "Ifa", "Durin", "Bennett")).toBe("Ifa buffs Varka (~+9% damage, ~+9% of it in Varka's damage)");
     // Lunar-Charged gets only 0.2% per point.
     expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+4% damage)");
     // Prune: 0.025% per ATK point above 2,000; without a build she is assumed at 3,000 ATK.

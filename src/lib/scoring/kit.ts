@@ -4,7 +4,7 @@
 import kitJson from "../../../data/kit.json";
 import type { Element, Reaction } from "../../types/tags";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, resShredGain } from "./benchmark";
-import { canTrigger, reactionShare } from "./reactions";
+import { canTrigger, reactionShare, TRANSFORMATIVE } from "./reactions";
 import type { ScoringCharacter } from "./types";
 
 export interface KitBuff {
@@ -20,7 +20,8 @@ export interface KitBuff {
   maxFanfare?: number; // fanfare: Furina's Fanfare cap
   drainFloor?: number; // fanfare: her Salon Members only drain characters above this share of HP
   points?: { max: number; own: number }; // rescueEssentials: the cap, and Ifa's own Nightsoul points from his Skill
-  threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts
+  threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts; a perHp reactionBonus: HP above this (Nilou)
+  whileOnField?: boolean; // only while this member is the on-field carry (Kaveh's Painted Dome, #256)
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
   unit: string;
@@ -146,6 +147,13 @@ interface TeamShape {
 // 40 each (their pools vary by kit).
 const rescueEssentials = (p: { max: number; own: number }, team: TeamShape) => Math.min(p.max, p.own / 2 + 40 * team.nightsoulOthers);
 
+// A reactionBonus's value: flat, or per `perHp` of the member's Max HP above `threshold` (Baizhu; Nilou above 30,000),
+// capped at `max`. Ifa's Rescue Essentials scaling is applied by the caller.
+function reactionBonusValue(buff: KitBuff, stats: ReturnType<typeof bufferStats>): number {
+  const v = buff.perHp ? (buff.value * Math.max(0, stats.hp - (buff.threshold ?? 0))) / buff.perHp : buff.value;
+  return buff.max === undefined ? v : Math.min(v, buff.max);
+}
+
 // Furina's Fanfare (#90): 1 point per 1% of Max HP any party member gains or loses during her Burst, cleared when
 // it ends. Her Salon Members drain HP only down to drainFloor, so without another healer each member gives at most
 // (1 - floor) x 100 points; with one, healing adds the rest, up to the max. It builds up during the Burst: assumed
@@ -201,7 +209,7 @@ function gain(raw: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scorin
       return dmg(buff.value * stats.em);
     case "reactionBonus":
       if (buff.condition === "rescueEssentials") return dmg(buff.value * rescueEssentials(buff.points!, team));
-      return dmg(cap(buff.perHp ? (buff.value * stats.hp) / buff.perHp : buff.value));
+      return dmg(reactionBonusValue(buff, stats));
     case "dmgBonusFromExcessAtk":
       return dmg(cap(buff.value * Math.max(0, stats.atk - buff.threshold!)));
     case "resShred":
@@ -255,7 +263,9 @@ export function kitBuffValue(
   carry: ScoringCharacter,
   carryReactions: readonly Reaction[],
   team: readonly ScoringCharacter[],
-  outsideDamage = false,
+  // true: leave out what is already in damage (the carry's modeled damage, and reaction damage); "reactions": only the
+  // bonuses to reactions that deal their own damage, which transformativeLines adds there for any carry (#256).
+  outsideDamage: boolean | "reactions" = false,
 ): KitBuffValue | null {
   let byCarry = cache.get(s);
   if (!byCarry) cache.set(s, (byCarry = new WeakMap()));
@@ -279,14 +289,15 @@ function computeKitBuffValue(
   carry: ScoringCharacter,
   carryReactions: readonly Reaction[],
   team: TeamShape,
-  outsideDamage: boolean,
+  outsideDamage: boolean | "reactions",
 ): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
   const stats = bufferStats(s, entry.base, entry.buildFor);
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
-    if (outsideDamage && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
+    if (outsideDamage === true && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
+    if (outsideDamage && b.reactions?.every((r) => TRANSFORMATIVE[r as Reaction])) continue;
     // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
     const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions) : 1;
     const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share;
@@ -492,4 +503,38 @@ export function memberBuffStats(
     }
   }
   return out;
+}
+
+// The team's kit bonuses to a transformative reaction's own damage (#256), for score.ts transformativeLines: Reaction
+// Bonus (Baizhu per 1,000 Max HP, Nilou per 1,000 above 30,000 in an all-Dendro/Hydro team, Kaveh's Painted Dome while
+// he is on field, Ifa per Rescue Essentials point) and Reaction Additive Base DMG Bonus from EM (Lauma's), each times
+// its uptime. Buffer points leave them out (kitBuffValue outsideDamage).
+export function reactionBonusesFor(
+  r: Reaction,
+  carry: ScoringCharacter,
+  team: readonly ScoringCharacter[],
+): { bonus: number; additive: number } {
+  let bonus = 0;
+  let additive = 0;
+  const elements = team.map((m) => m.element);
+  const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0 };
+  for (const m of team) {
+    const entry = KIT[m.id];
+    if (!entry || entry.missing) continue;
+    const stats = bufferStats(m, entry.base, entry.buildFor);
+    for (const b of entry.buffs) {
+      if (!b.reactions?.includes(r)) continue;
+      if (b.teamOnly && !elements.every((e) => b.teamOnly!.includes(e))) continue;
+      if (b.whileOnField && m !== carry) continue;
+      const up = b.uptime ?? 1;
+      if (b.kind === "reactionBonus") {
+        const others = team.filter((x) => x !== m && x.families?.includes("nightsoul")).length;
+        const essentials = () => rescueEssentials(b.points!, { ...shape, nightsoulOthers: others });
+        const points = b.condition === "rescueEssentials" ? essentials() : 1;
+        bonus += up * reactionBonusValue(b, stats) * points;
+      }
+      if (b.kind === "flatDmgFromEm") additive += up * b.value * stats.em;
+    }
+  }
+  return { bonus, additive };
 }

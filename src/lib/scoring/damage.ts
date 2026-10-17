@@ -5,7 +5,8 @@ import kitJson from "../../../data/kit.json";
 import { BENCHMARK, defShredGain, resShredGain } from "./benchmark";
 import { burstShare } from "./energy";
 import { FIGHTING_SPIRIT_LIMIT, NO_TEAM_BUFFS, fightingSpirit, teamBuffStats, type TeamBuffStats } from "./kit";
-import { mainReactionOf } from "./reactions";
+import { mainReactionOf, TRANSFORMATIVE } from "./reactions";
+export { TRANSFORMATIVE };
 import type { Element, Reaction, ScoringCharacter } from "./types";
 
 type HitType = "normal" | "charged" | "plunge" | "skill" | "burst";
@@ -163,21 +164,10 @@ const LEVEL_MULTIPLIER_90 = 1446.85;
 // Superconduct). Electro-Charged 2.0 (wiki Electro-Charged): one tick per second while the target holds both auras, each
 // tick 0.4U of each (score.ts reads its ticks from the aura budget, at most 1 per second in all). Freeze counts only
 // through crit and Crystallize under survival (Jessie, 2026-10-18).
-export const TRANSFORMATIVE: Partial<Record<Reaction, { coefficient: number; perSecond: number }>> = {
-  swirl: { coefficient: 0.6, perSecond: 4 },
-  overloaded: { coefficient: 2.75, perSecond: 2 },
-  superconduct: { coefficient: 1.5, perSecond: 4 },
-  electrocharged: { coefficient: 2, perSecond: 1 },
-  // Bloom 2.0, Hyperbloom and Burgeon 3.0 (wiki Bloom § Damage: "2 instances of DMG from each Bloom-related reaction per
-  // source every 0.5 seconds"); score.ts reads Dendro Cores from the aura budget (#253).
-  bloom: { coefficient: 2, perSecond: 4 },
-  hyperbloom: { coefficient: 3, perSecond: 4 },
-  burgeon: { coefficient: 3, perSecond: 4 },
-  // Burning 0.25 (wiki Burning), a tick every 0.25s (KQM; score.ts reads its uptime from the aura budget).
-  burning: { coefficient: 0.25, perSecond: 4 },
-};
-export const transformativeHit = (r: Reaction, em: number, bonus = 0) =>
-  (TRANSFORMATIVE[r]?.coefficient ?? 0) * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000) + bonus);
+// `additive`: Reaction Additive Base DMG Bonus (Lauma's), added after that, before RES (wiki, same section; #256).
+// TRANSFORMATIVE (the coefficients and caps) lives in reactions.ts, so kit.ts can read it (#256).
+export const transformativeHit = (r: Reaction, em: number, bonus = 0, additive = 0) =>
+  (TRANSFORMATIVE[r]?.coefficient ?? 0) * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000) + bonus) + additive;
 
 export function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
   if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;

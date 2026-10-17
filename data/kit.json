@@ -483,6 +483,28 @@
         }
       ]
     },
+    "Kaveh": {
+      "base": {
+        "hp": 11962,
+        "atk": 234,
+        "def": 751
+      },
+      "buffs": [
+        {
+          "kind": "reactionBonus",
+          "value": 0.467296,
+          "reactions": [
+            "bloom"
+          ],
+          "whileOnField": true,
+          "unit": "Dendro Core (Bloom) DMG % during Painted Dome",
+          "source": "burst talent \"Dendro Core Burst DMG Bonus\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        }
+      ]
+    },
     "Kujou Sara": {
       "base": {
         "hp": 9570,
@@ -703,6 +725,47 @@
           "duration": 20,
           "cd": 16,
           "uptime": 1
+        }
+      ]
+    },
+    "Nilou": {
+      "base": {
+        "hp": 15185,
+        "atk": 230,
+        "def": 729
+      },
+      "buffs": [
+        {
+          "kind": "reactionBonus",
+          "value": 0.09,
+          "threshold": 30000,
+          "max": 4,
+          "perHp": 1000,
+          "reactions": [
+            "bloom"
+          ],
+          "teamOnly": [
+            "Dendro",
+            "Hydro"
+          ],
+          "unit": "Bountiful Core (Bloom) DMG % per 1,000 of Nilou's Max HP above 30,000, in an all-Dendro/Hydro team",
+          "source": "passive2: \"Bountiful Cores created by characters affected by Golden Chalice's Bounty to increase by 9%\"",
+          "duration": null,
+          "cd": null,
+          "uptime": null
+        },
+        {
+          "kind": "em",
+          "value": 100,
+          "teamOnly": [
+            "Dendro",
+            "Hydro"
+          ],
+          "unit": "EM while hit by Dendro attacks, in an all-Dendro/Hydro team",
+          "source": "passive1: \"increase the Elemental Mastery of all nearby characters by 100\"",
+          "duration": null,
+          "cd": null,
+          "uptime": null
         }
       ]
     },

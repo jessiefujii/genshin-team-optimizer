@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, teamBuffStats } from "./kit";
+import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats } from "./kit";
 import { amplifyGain, carryDamage, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
@@ -257,7 +257,8 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
       );
       continue;
     }
-    const outside = kit && inDamage ? kitBuffValue(s, carry, carryActive, ctx.members, true)! : kit;
+    // Bonuses to reactions that deal their own damage count there (transformativeLines, #256), for any carry.
+    const outside = kit ? kitBuffValue(s, carry, carryActive, ctx.members, inDamage ? true : "reactions")! : kit;
     const base = outside ? (POINTS.buffer * outside.gain) / GAIN_FOR_POINTS : POINTS.buffer;
     const counted = kit && outside && kit.gain - outside.gain >= 0.005 ? `, ~+${Math.round((kit.gain - outside.gain) * 100)}% of it in ${carry.id}'s damage` : "";
     const est = kit ? `~+${Math.round(kit.gain * 100)}% damage${counted}` : "";
@@ -1038,6 +1039,7 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   for (const r of Object.keys(TRANSFORMATIVE) as Reaction[]) {
     const mine = triggers.filter((t) => t.r === r);
     if (mine.length === 0) continue;
+    const { bonus, additive } = reactionBonusesFor(r, carry, ctx.members); // the team's kits' (#256)
     let dps = 0;
     const by: string[] = [];
     for (const m of new Set(mine.map((t) => t.m))) {
@@ -1048,7 +1050,7 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
       let d = 0;
       for (const t of own) {
         const element = DAMAGE_ELEMENT[r] ?? t.aura; // Swirl: the swirled aura's
-        d += t.perSecond * capped * transformativeHit(r, em) * (1 + shredOn(element));
+        d += t.perSecond * capped * transformativeHit(r, em, bonus, additive) * (1 + shredOn(element));
       }
       dps += d;
       by.push(`${m.id} ~${(rate * capped).toFixed(1)}/s`);
