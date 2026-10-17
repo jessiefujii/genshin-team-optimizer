@@ -1840,6 +1840,71 @@
         }
       ]
     },
+    "Lan Yan": {
+      "base": {
+        "hp": 9244,
+        "atk": 251,
+        "def": 580,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Feathermoon Ring DMG",
+          "scaling": {
+            "atk": 1.636352,
+            "em": 3.09
+          },
+          "hits": 3,
+          "cd": 16
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 12.294264,
+            "em": 23.22
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Raiden Shogun": {
+      "base": {
+        "hp": 12907,
+        "atk": 337,
+        "def": 789,
+        "ascension": {
+          "stat": "FIGHT_PROP_CHARGE_EFFICIENCY",
+          "value": 0.32
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 1.9924
+          },
+          "hits": 1,
+          "cd": 10
+        },
+        {
+          "talent": "skill",
+          "label": "Coordinated ATK DMG",
+          "scaling": {
+            "atk": 0.714
+          },
+          "every": 0.9,
+          "duration": 25,
+          "cd": 10
+        }
+      ]
+    },
     "Shenhe": {
       "base": {
         "hp": 12993,
