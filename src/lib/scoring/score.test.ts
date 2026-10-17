@@ -107,6 +107,15 @@ describe("scoreTeam", () => {
     expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+54% to Gaming's damage");
   });
 
+  test("Dendro Cores: Electro pops them into Hyperbloom, none with a Lunar-Bloom converter (#253)", () => {
+    const reasons = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions").map((l) => l.reason);
+    const hyper = reasons("Alhaitham", "Xingqiu", "Kuki Shinobu", "Nahida");
+    expect(hyper.some((r) => r.startsWith("Hyperbloom:") && r.includes("Kuki Shinobu"))).toBe(true);
+    expect(hyper.some((r) => r.startsWith("Bloom:"))).toBe(true); // the cores no Electro reached
+    // Nefer's team turns Bloom into Lunar-Bloom: no cores.
+    expect(reasons("Nefer", "Furina", "Lauma", "Ineffa").some((r) => /^(Bloom|Hyperbloom|Burgeon):/.test(r))).toBe(false);
+  });
+
   test("a modeled carry's reactions are inside their damage, with a 0-point line saying what they add (#134, #202)", () => {
     const reactions = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions");
     expect(reactions("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toEqual([
@@ -122,7 +131,8 @@ describe("scoreTeam", () => {
     expect(reactions("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
       { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+54% to Clorinde's damage, on top of the passive" },
-      // No Swirl damage: its only aura, Electro, goes to Quicken, which the aura budget doesn't model yet (#253).
+      // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
+      { rule: "Reactions", points: 0, reason: "Swirl: ~2381 damage per second (Kaedehara Kazuha ~0.5/s)" },
     ]);
     // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze. Fischl's and Furina's
     // Electro-Charged deals its own damage (#205); no Superconduct, which Sandrone turns into Stellar-Conduct.

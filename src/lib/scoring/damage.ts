@@ -162,12 +162,17 @@ const LEVEL_MULTIPLIER_90 = 1446.85;
 // second (Damage Sequence: Swirl 2 per 0.5s, Overloaded 1 per 0.5s, Superconduct 2 per 0.5s). Superconduct 1.5 (wiki
 // Superconduct). Electro-Charged 2.0 (wiki Electro-Charged): one tick per second while the target holds both auras, each
 // tick 0.4U of each (score.ts reads its ticks from the aura budget, at most 1 per second in all). Freeze counts only
-// through crit and Crystallize under survival (Jessie, 2026-10-18); Burning and the Bloom family come later.
+// through crit and Crystallize under survival (Jessie, 2026-10-18); Burning comes later.
 export const TRANSFORMATIVE: Partial<Record<Reaction, { coefficient: number; perSecond: number }>> = {
   swirl: { coefficient: 0.6, perSecond: 4 },
   overloaded: { coefficient: 2.75, perSecond: 2 },
   superconduct: { coefficient: 1.5, perSecond: 4 },
   electrocharged: { coefficient: 2, perSecond: 1 },
+  // Bloom 2.0, Hyperbloom and Burgeon 3.0 (wiki Bloom § Damage: "2 instances of DMG from each Bloom-related reaction per
+  // source every 0.5 seconds"); score.ts reads Dendro Cores from the aura budget (#253).
+  bloom: { coefficient: 2, perSecond: 4 },
+  hyperbloom: { coefficient: 3, perSecond: 4 },
+  burgeon: { coefficient: 3, perSecond: 4 },
 };
 export const transformativeHit = (r: Reaction, em: number, bonus = 0) =>
   (TRANSFORMATIVE[r]?.coefficient ?? 0) * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000) + bonus);
