@@ -180,21 +180,22 @@ export function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly
 }
 // Whether the carry's modeled damage changes with reaction `r` (#134): their main reaction or a combo's when it
 // amplifies (Vaporize, Melt) or catalyzes (Spread, Aggravate) their element, or a kit buff that needs it (Clorinde's
-// Dark-Shattering Flame, Neuvillette's passive 1), or a Lunar reaction their direct Lunar hits or buffs need (Nefer's
-// Phantasm Performance needs Lunar-Bloom, Flins' Thunderous Symphony Additional DMG needs thunderclouds; #200, #205).
-// Not Zibai's Lunar-Crystallize: her Lunar hits land with any team, and what the team's reaction gives her (Phase Shift
-// Radiance, Moondrift Harmony) isn't modeled. Other reactions (Freeze, Overloaded, Swirl...) aren't modeled yet.
+// Dark-Shattering Flame, Neuvillette's passive 1), or any reaction a combo is picked for or a hit or buff needs (#205):
+// Nefer's Phantasm Performance needs Lunar-Bloom and Flins' Thunderous Symphony Additional DMG thunderclouds (#200);
+// Navia's Crystallize shards, Freminet's Superconduct combo, Wriothesley's Stellar-Conduct combo, Heizou's Swirl hit.
+// What the reaction does for them is then in their damage, so their flat reaction points go. Not Zibai's Lunar-Crystallize:
+// her Lunar hits land with any team, and what the team's reaction gives her (Phase Shift Radiance, Moondrift Harmony)
+// isn't modeled (#248). The reaction's own damage, when it deals any, is score.ts transformativeLines'.
 export function modelsReaction(c: ScoringCharacter, r: Reaction): boolean {
   const kit = CARRIES[c.id];
   if (!kit) return false;
   const own = r === mainReactionOf(c) || (kit.combos ?? []).some((k) => k.when.some((w) => w.reaction === r));
   if (own && (AMPLIFY[r]?.[c.element] || CATALYZE[r]?.element === c.element)) return true;
-  if (r in LUNAR_COEFFICIENT) {
-    const needs = (w?: When) => w?.reaction === r;
-    const needed = (k: Pick<CarryKit, "hits"> & { buffs?: CarryBuff[] }) =>
-      k.hits.some((h) => h.lunar && needs(h.when)) || (k.buffs ?? []).some((b) => "when" in b && needs(b.when));
-    if ([kit, ...(kit.combos ?? [])].some(needed)) return true;
-  }
+  if ((kit.combos ?? []).some((k) => k.when.some((w) => w.reaction === r))) return true;
+  const needs = (w?: When) => w?.reaction === r;
+  const needed = (k: Pick<CarryKit, "hits"> & { buffs?: CarryBuff[] }) =>
+    k.hits.some((h) => needs(h.when)) || (k.buffs ?? []).some((b) => "when" in b && needs(b.when));
+  if ([kit, ...(kit.combos ?? [])].some(needed)) return true;
   const buffs = [...kit.buffs, ...(kit.combos ?? []).flatMap((k) => k.buffs ?? [])];
   return buffs.some((b) => (b.kind === "flatAtk" || b.kind === "factorByReactions") && b.reactions.includes(r));
 }
