@@ -887,15 +887,13 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
     addPair(r, a, b, perAuraOf(r, a), false);
     addPair(r, b, a, perAuraOf(r, b), false);
   }
-  const taken = takenByDendro(ctx);
-  const free = (r: Reaction) =>
-    ctx.active.includes(r) && !convertedAway(ctx, r) && !reactionElements(r).some((e) => taken.has(e));
+  const free = (r: Reaction) => ctx.active.includes(r) && !convertedAway(ctx, r);
   if (free("overloaded")) {
     addPair("overloaded", "Pyro", "Electro", 0.8, true);
     addPair("overloaded", "Electro", "Pyro", 0.8, true);
   }
   if (ctx.active.includes("swirl")) {
-    for (const aura of swirlAuras(ctx, taken)) addPair("swirl", "Anemo", aura, 0.8 / 0.5, true);
+    for (const aura of swirlAuras(ctx)) addPair("swirl", "Anemo", aura, 0.8 / 0.5, true);
   }
   if (free("superconduct")) {
     addPair("superconduct", "Electro", "Cryo", 0.8, true);
@@ -956,24 +954,28 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   // each tick takes 0.4U of each aura, so one 1U application (0.8U after the Aura Tax) feeds 2 ticks. From the Hydro and
   // Electro applications the pairs above left (reactions with Electro come first on an Electro-Charged target: wiki),
   // credited to their appliers by share. Not with Lunar-Charged in the team: the converter turns it into that (CONVERTED).
-  if (free("electrocharged")) {
-    const spent = (e: Element) =>
-      pairs.reduce((s, p) => s + (p.trigger === e ? p.reactions : 0) + (p.aura === e ? p.reactions / p.perAura : 0), 0);
-    const leftOf = (e: Element) => Math.max(0, (apps.get(e) ?? 0) - spent(e));
-    const ticks = Math.min(1, 2 * leftOf("Hydro"), 2 * leftOf("Electro"));
-    const appliers = ctx.members.filter((m) => (m.element === "Hydro" || m.element === "Electro") && appsBy(m) > 0);
+  const spent = (e: Element) =>
+    pairs.reduce((s, p) => s + (p.trigger === e ? p.reactions : 0) + (p.aura === e ? p.reactions / p.perAura : 0), 0);
+  const leftOf = (e: Element) => Math.max(0, (apps.get(e) ?? 0) - spent(e));
+  // A state's ticks, credited to the appliers of its elements by share of applications.
+  const credit = (r: Reaction, aura: Element, elements: Element[], ticks: number) => {
+    const appliers = ctx.members.filter((m) => elements.includes(m.element) && appsBy(m) > 0);
     const all = appliers.reduce((s, m) => s + appsBy(m), 0);
-    for (const m of ticks > 0 ? appliers : []) {
-      transformative.push({ m, r: "electrocharged", aura: "Electro", perSecond: (ticks * appsBy(m)) / all });
-    }
+    for (const m of ticks > 0 ? appliers : []) transformative.push({ m, r, aura, perSecond: (ticks * appsBy(m)) / all });
+  };
+  if (free("electrocharged")) {
+    credit("electrocharged", "Electro", ["Hydro", "Electro"], Math.min(1, 2 * leftOf("Hydro"), 2 * leftOf("Electro")));
+  }
+  // Burning (#205): a state too. It ticks every 0.25s (KQM, pasted by Jessie 2026-10-18), owned by whoever last refreshed
+  // it with Dendro or Pyro, and while it lasts the Dendro aura is used at max(0.4, 2x its natural decay) U/s, 0.4 for a
+  // normal aura (wiki Elemental Gauge Theory/Advanced Mechanics § Burning): one 1U application (0.8U) keeps it 2s. Up as
+  // long as the Dendro the pairs above left can feed it, with a Pyro applier to light it; refreshes don't use Pyro.
+  if (free("burning") && (apps.get("Pyro") ?? 0) > 0) {
+    credit("burning", "Pyro", ["Pyro", "Dendro"], 4 * Math.min(1, 2 * leftOf("Dendro")));
   }
   return { subs: out, carry: carryShare, transformative, appsOf };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
-// Elements a Dendro reaction uses up that the aura budget doesn't model yet: Burning's Pyro (no sourced rate for how fast
-// it burns its Dendro). A transformative reaction on Pyro isn't counted while Burning is active (its applications would
-// read as free), and keeps its flat points; Swirl skips Pyro. Bloom- and Quicken-type reactions are in the budget (#253).
-const DENDRO_TAKES: Partial<Record<Reaction, Element>> = { burning: "Pyro" };
 const CRYSTALLIZE_PER_SECOND = 1;
 // A converter turns these into their Lunar or Stellar form (Moonsign Benediction, Stellar Jubilee): with the converted
 // reaction in the team, the base one doesn't happen. Stellar Swirl is the Cryo Swirl only (reactions.ts: Anemo + Cryo).
@@ -985,10 +987,7 @@ const CONVERTED: Partial<Record<Reaction, Reaction>> = {
   burgeon: "lunar-bloom",
 };
 const convertedAway = (ctx: TeamContext, r: Reaction) => !!CONVERTED[r] && ctx.active.includes(CONVERTED[r]!);
-const swirlAuras = (ctx: TeamContext, taken: Set<Element>) =>
-  SWIRLABLE.filter((e) => !taken.has(e) && !(e === "Cryo" && ctx.active.includes("stellar-swirl")));
-const takenByDendro = (ctx: TeamContext) =>
-  new Set(ctx.active.map((r) => DENDRO_TAKES[r]).filter((e): e is Element => !!e));
+const swirlAuras = (ctx: TeamContext) => SWIRLABLE.filter((e) => !(e === "Cryo" && ctx.active.includes("stellar-swirl")));
 const DAMAGE_ELEMENT: Partial<Record<Reaction, Element>> = {
   overloaded: "Pyro",
   superconduct: "Cryo",
@@ -996,6 +995,7 @@ const DAMAGE_ELEMENT: Partial<Record<Reaction, Element>> = {
   bloom: "Dendro",
   hyperbloom: "Dendro",
   burgeon: "Dendro",
+  burning: "Pyro",
 };
 // Transformative reaction damage (#205): Overloaded, Swirl, Superconduct and Electro-Charged, a separate damage instance
 // per reaction each member triggers (or Electro-Charged tick credited to them) in the aura budget, at that member's EM
@@ -1061,16 +1061,13 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
 
 // Whether a transformative reaction's damage is in team damage for this team (#205), so its flat points go: some member
 // applies each of its elements in the aura budget (Swirl: Anemo and an aura element). Not when an applier isn't modeled
-// (Raiden off field has no sub-DPS entry, #252), or a Dendro reaction uses one of its elements (DENDRO_TAKES, #253): the
-// flat points stay as the stand-in. A reaction a converter turns into its Lunar or Stellar form (CONVERTED) doesn't
-// happen, so it scores nothing either way.
+// (Raiden off field has no sub-DPS entry, #252): the flat points stay as the stand-in. A reaction a converter turns into
+// its Lunar or Stellar form (CONVERTED) doesn't happen, so it scores nothing either way.
 function transformativeModeled(ctx: TeamContext, carry: ScoringCharacter, r: Reaction): boolean {
   if (!TRANSFORMATIVE[r]) return false;
   if (convertedAway(ctx, r)) return true;
-  const taken = takenByDendro(ctx);
-  const applies = (e: Element) =>
-    !taken.has(e) && ctx.members.some((m) => m.element === e && applicationsPerSecond(m, carry, ctx) > 0);
-  if (r === "swirl") return applies("Anemo") && swirlAuras(ctx, taken).some(applies);
+  const applies = (e: Element) => ctx.members.some((m) => m.element === e && applicationsPerSecond(m, carry, ctx) > 0);
+  if (r === "swirl") return applies("Anemo") && swirlAuras(ctx).some(applies);
   return reactionElements(r).every(applies);
 }
 
