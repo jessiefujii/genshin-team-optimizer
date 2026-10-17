@@ -113,13 +113,15 @@ describe("scoreTeam", () => {
       { rule: "Reactions", points: 0, reason: "Vaporize adds ~+54% to Hu Tao's damage" },
     ]);
     // Clorinde's Dark-Shattering Flame needs any Electro-related reaction (#141): its own line, at full value with
-    // Overloaded alone; Aggravate then adds only what it adds on top.
+    // Overloaded alone; Aggravate then adds only what it adds on top. Overloaded's own damage is a 0-point line too (#205).
     expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
+      { rule: "Reactions", points: 0, reason: "Overloaded: ~1202 damage per second (Bennett ~0.1/s, Chevreuse ~0.1/s)" },
     ]);
     expect(reactions("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
       { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+54% to Clorinde's damage, on top of the passive" },
+      { rule: "Reactions", points: 0, reason: "Swirl: ~2381 damage per second (Kaedehara Kazuha ~0.5/s)" },
     ]);
     // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze.
     expect(reactions("Wriothesley", "Sandrone", "Fischl", "Furina").map((l) => l.reason)).toEqual(["Freeze: Wriothesley + Furina"]);
@@ -177,9 +179,11 @@ describe("scoreTeam", () => {
 
   test("a hypercarry is not penalized for a team without reactions (#49)", () => {
     const s = score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli");
-    // Only his passive 1 counts, by the damage it adds (#134): Swirl and Crystallize stacks.
+    // His passive 1 counts by the damage it adds (#134): Swirl and Crystallize stacks; Kazuha's Swirls by their own
+    // damage (#205). No flat points either way.
     expect(s.breakdown.filter((l) => l.rule === "Reactions")).toEqual([
       { rule: "Reactions", points: 0, reason: "Swirl, Crystallize add ~+19% to Neuvillette's damage" },
+      { rule: "Reactions", points: 0, reason: "Swirl: ~2778 damage per second (Kaedehara Kazuha ~0.5/s)" },
     ]);
   });
 
@@ -268,9 +272,10 @@ describe("scoreTeam", () => {
   test("Hexerei: Secret Rite scores what it turns on for this team (#63)", () => {
     const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Hexerei");
     const reasons = (...ids: string[]) => lines(...ids).map((l) => l.reason);
-    // Varka's own kit upgrade, plus Venti's +50% DMG after the carry's own Swirl.
-    expect(reasons("Varka", "Venti", "Klee", "Durin")).toContain("Secret Rite enhances Varka's kit");
-    expect(reasons("Varka", "Venti", "Klee", "Durin").some((r) => r.startsWith("Secret Rite: Venti gives Varka"))).toBe(true);
+    // Varka's own kit upgrade, plus Venti's +50% DMG after the carry's own Swirl (Bennett's Pyro to swirl; with Klee
+    // instead, Klee carries since Swirl scores as damage, #205).
+    expect(reasons("Varka", "Venti", "Bennett", "Durin")).toContain("Secret Rite enhances Varka's kit");
+    expect(reasons("Varka", "Venti", "Bennett", "Durin").some((r) => r.startsWith("Secret Rite: Venti gives Varka"))).toBe(true);
     // One Hexerei member: no Secret Rite.
     expect(lines("Varka", "Kaedehara Kazuha", "Bennett", "Xiangling")).toEqual([]);
     // Albedo's Silver Isotoma bonus only reaches Hexerei members, so a Hexerei carry gets more from him.

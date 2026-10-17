@@ -14,10 +14,10 @@
       "team": [
         "Aloy",
         "Bennett",
-        "Jean",
-        "Rosaria"
+        "Kaedehara Kazuha",
+        "Xiangling"
       ],
-      "value": 82561.4
+      "value": 81681.9
     },
     "Arataki Itto": {
       "team": [
@@ -44,7 +44,7 @@
         "Furina",
         "Shenhe"
       ],
-      "value": 157445.1
+      "value": 143762.7
     },
     "Clorinde": {
       "team": [
@@ -197,7 +197,7 @@
         "Kaedehara Kazuha",
         "Zhongli"
       ],
-      "value": 70678.4
+      "value": 76923.3
     },
     "Mavuika": {
       "team": [
@@ -305,7 +305,7 @@
         "Kuki Shinobu",
         "Traveler (Dendro)"
       ],
-      "value": 60880.2
+      "value": 54916.4
     },
     "Skirk": {
       "team": [
@@ -350,7 +350,7 @@
         "Furina",
         "Xianyun"
       ],
-      "value": 144953.5
+      "value": 145449.2
     },
     "Varka": {
       "team": [
@@ -359,7 +359,7 @@
         "Vodyanitsa",
         "Furina"
       ],
-      "value": 119549.3
+      "value": 112290.9
     },
     "Vesna": {
       "team": [
@@ -368,7 +368,7 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 101251.8
+      "value": 97583.3
     },
     "Wanderer": {
       "team": [
@@ -377,7 +377,7 @@
         "Bennett",
         "Furina"
       ],
-      "value": 92338.2
+      "value": 85746.4
     },
     "Wriothesley": {
       "team": [
@@ -395,7 +395,7 @@
         "Xianyun",
         "Furina"
       ],
-      "value": 117780.9
+      "value": 119939.9
     },
     "Yanfei": {
       "team": [
@@ -404,7 +404,7 @@
         "Yelan",
         "Xianyun"
       ],
-      "value": 94499.8
+      "value": 94904.4
     },
     "Yoimiya": {
       "team": [
@@ -420,9 +420,9 @@
         "Yumemizuki Mizuki",
         "Ineffa",
         "Columbina",
-        "Durin"
+        "Xilonen"
       ],
-      "value": 117119.5
+      "value": 102911.9
     },
     "Zibai": {
       "team": [
