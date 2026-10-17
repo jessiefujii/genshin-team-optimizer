@@ -1,5 +1,6 @@
-// Jessie's best owned team, Zibai Premium, should be #1 or close (#127): the quick check after a scoring change (design
-// doc Phase 4: every PR runs npm test and reads the reference diff; this takes seconds (6 s on 697dc76), the full compares ~40 min).
+// Jessie's best owned team, Zibai Premium, should be #1 or close (#127): the quick check after a scoring change
+// (design doc Phase 4: every PR runs npm test and reads the reference diff; this takes seconds, 6 s on 697dc76, the
+// full compares ~40 min).
 // Kept out of `npm test`: it is a report to read, not a pass/fail check. Run with `npm run roster` (also in `npm run meta`).
 import { expect, test } from "vitest";
 import jessieRoster from "../../../data/test-rosters/jessie.json";
