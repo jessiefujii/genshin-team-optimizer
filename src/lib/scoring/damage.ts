@@ -27,14 +27,15 @@ interface CarryHit {
   addOn?: boolean; // more DMG on hits counted elsewhere (Cyno's passive 2): no Catalyze or teammates' flat DMG of its own
   when?: When; // the hit only lands with these
 }
-type When = { reaction?: Reaction; ascendantGleam?: boolean };
+// secretRite: two Hexerei members (Klee's Boom-Boom Strikes from her third Normal Attack, #241).
+type When = { reaction?: Reaction; ascendantGleam?: boolean; secretRite?: boolean };
 export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
   | { kind: "atkFromDef"; value: number }
   | { kind: "addPerStack"; value: number; stacks: number; tag: string; stat?: "hp"; fightingSpirit?: boolean }
   | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number; fightingSpirit?: boolean }
-  | { kind: "factor"; value: number; types: HitType[] }
+  | { kind: "factor"; value: number; types: HitType[]; when?: When }
   | { kind: "critRate"; value: number; labels: string[] }
   | { kind: "dmgBonusByTypes"; values: number[]; elements: Element[]; labels: string[] } // by teammates' types (#233)
   | { kind: "resShred"; value: number; elements: (Element | "Physical")[]; labels: string[] } // their own (Eula's Skill, #204)
@@ -83,11 +84,21 @@ export const hasCarryKit = (id: string) => id in CARRIES && !CARRIES[id].missing
 // hit, Flins' passive 1, Nefer's Veil of Falsehood). For these carries the scorer counts the upgrade by the damage it
 // adds (carryDamage with vs without Ascendant Gleam) instead of the flat "enhances X's kit" line (#150).
 export function modelsAscendantGleam(id: string): boolean {
+  return modelsWhen(id, "ascendantGleam");
+}
+
+// Whether the carry's damage model has their own Secret Rite upgrade (Klee's Boom-Boom Strikes and Boom Badges): the
+// scorer then reads it as inside the damage, not as flat "enhances X's kit" points on top (#241).
+export function modelsSecretRite(id: string): boolean {
+  return modelsWhen(id, "secretRite");
+}
+
+function modelsWhen(id: string, flag: "ascendantGleam" | "secretRite"): boolean {
   const kit = CARRIES[id];
   if (!kit) return false;
   const all = [kit, ...(kit.combos ?? [])];
   return all.some(
-    (k) => k.hits.some((h) => h.when?.ascendantGleam) || (k.buffs ?? []).some((b) => "when" in b && b.when?.ascendantGleam),
+    (k) => k.hits.some((h) => h.when?.[flag]) || (k.buffs ?? []).some((b) => "when" in b && b.when?.[flag]),
   );
 }
 
@@ -306,7 +317,12 @@ function computeCarryDamage(
     kit.hits.filter((h) => types.includes(h.type)).reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
   // Ascendant Gleam: two Moonsign members (each Moonsign Benediction raises the party's Moonsign by a level).
   const gleam = !noGleam && team.filter((m) => m.families?.includes("moonsign")).length >= 2;
-  const fits = (w?: When) => !w || ((!w.reaction || active.includes(w.reaction)) && (!w.ascendantGleam || gleam));
+  // Secret Rite: two Hexerei members, read from their families like Moonsign above (the scorer's Witch's Homework
+  // option, score.ts familiesOf, doesn't reach the damage model).
+  const secretRite = team.filter((m) => m.families?.includes("hexerei")).length >= 2;
+  const fits = (w?: When) =>
+    !w ||
+    ((!w.reaction || active.includes(w.reaction)) && (!w.ascendantGleam || gleam) && (!w.secretRite || secretRite));
   const lands = (h: CarryHit) => fits(h.when);
   const buffs = kit.buffs.filter((b) => !("when" in b) || fits(b.when));
   // EM from ATK (Flins' passive 2), with or without a build: Enka's panel EM doesn't include it (#149: Jessie's Flins
@@ -376,7 +392,7 @@ function computeCarryDamage(
     if (!h.addOn) perHit += t.flat * (h.instances ?? 1);
     let bonus = t.bonus;
     let factor = 1;
-    for (const b of kit.buffs) {
+    for (const b of buffs) {
       if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * (b.stat === "hp" ? s.hp : atk);
       if (b.kind === "flatAtk" && b.types.includes(h.type) && b.reactions.some((r) => active.includes(r)))
         perHit += Math.min(b.value * atk, b.cap) * (h.instances ?? 1); // per hit instance (Clorinde's Impale: 3)

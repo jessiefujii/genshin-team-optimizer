@@ -772,6 +772,24 @@
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Klee": {
+      "source": "KeqingMains Klee quick guide, https://keqingmains.com/q/klee-quickguide/, fetched 2026-10-17. No default stated: Burst cooldown.",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Chevreuse"
+                ]
+              ]
+            }
+          ],
+          "seconds": 17,
+          "source": "same guide, Klee Overload (Klee, Chevreuse/Bennett, Fischl/Durin, Pyro/Electro): \"Overload teams with 16-18s rotations require R4+ Sacrificial Bow\" (midpoint). Chevreuse only: Bennett and Fischl also share a Furina team."
+        }
+      ]
+    },
     "Traveler (Hydro)": {
       "seconds": 16,
       "source": "KeqingMains Hydro Traveler quick guide, https://keqingmains.com/q/hydro-traveler-quickguide/, fetched 2026-10-16: \"the Hold Skill effectively has a 16s interval between uses\"."

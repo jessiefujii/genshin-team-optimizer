@@ -1351,7 +1351,7 @@ function readSubDps(id, specs) {
 //     for buffs added per hit; default 1), count "rate" (kit-overrides.json hitRates, keyed "carry: <label>"),
 //     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
 //     its flat estimate for hits without it), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
-//     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true })
+//     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
 //   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
 //   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
@@ -1360,13 +1360,14 @@ function readSubDps(id, specs) {
 //   elements (exact number of teammates of that element) }. Picking a combo by whether its Energy needs are met
 //   waits on particle energy (#37).
 //   buffs: the carry's own buffs during those hits:
-//     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types), addPerStack (+ATK multiplier per stack per hit
-//     instance: Raiden's Resolve, Mavuika's Fighting Spirit), dmgBonusFromEr (Raiden), masque (Arlecchino),
-//     flatAtk (+ATK multiplier x stacks per hit, capped, while one of `reactions` is active: Clorinde),
-//     emFromAtk (EM from a share of ATK, capped: Flins), lunarBaseBonus (their Moonsign Benediction's Base DMG bonus
-//     to their Lunar reaction per point of a stat, capped: it also applies to their own direct Lunar hits, #135),
-//     lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar reaction: Flins), baseDmgMultiplier
-//     (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction, ascendantGleam }) gates it like a hit's.
+//     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types; a table value, or from + re: a % of the DMG),
+//     addPerStack (+ATK multiplier per stack per hit instance: Raiden's Resolve, Mavuika's Fighting Spirit),
+//     dmgBonusFromEr (Raiden), masque (Arlecchino), flatAtk (+ATK multiplier x stacks per hit, capped, while one of
+//     `reactions` is active: Clorinde), emFromAtk (EM from a share of ATK, capped: Flins), lunarBaseBonus (their
+//     Moonsign Benediction's Base DMG bonus to their Lunar reaction per point of a stat, capped: it also applies to
+//     their own direct Lunar hits, #135), lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar
+//     reaction: Flins), baseDmgMultiplier (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction,
+//     ascendantGleam, secretRite }) gates it like a hit's.
 //   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
 //   missing: parts of the rotation not modeled yet, so the damage is too low (none left since #135)
 // The rotation lasts as long as a sourced length (data/kit-overrides.json `rotations`, #103: a default, plus lengths
@@ -1749,20 +1750,27 @@ const CARRIES = {
   // #203 / #137: the main DPS outside the compare, from their KQM quick guides (fetched 2026-10-16).
   Klee: {
     // KQM's Normal Attack Spam, "her easiest combo": "N1 sEQ N3 E 5[N3]"; "This combo gets 5 additional Charged
-    // Attacks easily" (Explosive Sparks: passive 1). Jumpy Dumpty "bounces thrice" per throw, 2 throws (sE, E).
-    // Sparks 'n' Splash: 6 waves of 4 sparks (wiki). Her mines are left out: how many of the 8 hit one opponent isn't
-    // sourced.
+    // Attacks easily": the Boom-Boom Strikes her third Normal Attack unleashes at Secret Rite (passive 1's Hexerei
+    // text), so they need it (#241). Jumpy Dumpty "bounces thrice" per throw, one throw: the guide's sE is cancelled by
+    // the Burst before it is released ("her cooldown is not triggered until her Skill is fully released ... cancel her
+    // Skill using her Burst"; "Klee generally only uses her Skill once in a rotation"). Sparks 'n' Splash: 6 waves of 4
+    // sparks (wiki). Her mines are left out: how many of the 8 hit one opponent isn't sourced.
     combo: "N1 sEQ N3 E 5[N3]",
     hits: [
       { table: "normal", label: "1-Hit DMG", count: 7, type: N },
       { table: "normal", label: "2-Hit DMG", count: 6, type: N },
       { table: "normal", label: "3-Hit DMG", count: 6, type: N },
-      { table: "normal", label: "Charged Attack DMG", count: 5, type: CH },
-      { table: "skill", label: "Jumpy Dumpty DMG", count: 6, type: SK },
+      { table: "normal", label: "Charged Attack DMG", count: 5, type: CH, when: { secretRite: true } },
+      { table: "skill", label: "Jumpy Dumpty DMG", count: 3, type: SK },
       { table: "burst", label: "Sparks 'n' Splash DMG", count: "rate", type: BU },
     ],
     // Passive 1 (kit-overrides.json's updated text): a Spark Charged Attack, Boom-Boom Strike, deals 50% more; all 5 are.
-    buffs: [{ kind: "dmgBonus", from: "passive1", re: /Boom-Boom Strike, dealing (\d+)% increased DMG/, types: [CH] }],
+    // Passive 4 at Secret Rite: 3 Boom Badges (her Normal Attack, Skill and Burst all land within 20s of the Strikes in
+    // this combo) make them deal 150% of their DMG.
+    buffs: [
+      { kind: "dmgBonus", from: "passive1", re: /Boom-Boom Strike, dealing (\d+)% increased DMG/, types: [CH] },
+      { kind: "factor", from: "passive4", re: /Boom-Boom Strike deals [\d.]+%\/[\d.]+%\/([\d.]+)% of its original DMG/, types: [CH], when: { secretRite: true } },
+    ],
   },
   Tighnari: {
     // KQM: "E Q 3CS" (Charged Shots: Wreath Arrows; "Upon hit, the Wreath Arrow will create 4 Clusterbloom Arrows").
@@ -2224,7 +2232,7 @@ function readCarry(id, spec) {
       case "critRate":
         return { kind: b.kind, value: round((num(b.from, b.re) / 100) * (b.share ?? 1)), labels: b.labels };
       case "factor":
-        return { kind: b.kind, value: raw(b.table, b.label), types: b.types };
+        return { kind: b.kind, value: b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label), types: b.types, ...(b.when ? { when: b.when } : {}) };
       case "factorByReactions": {
         const m = text(b.from).match(b.re);
         if (!m) throw new Error(`${id}: pattern ${b.re} not found in ${b.from}`);
