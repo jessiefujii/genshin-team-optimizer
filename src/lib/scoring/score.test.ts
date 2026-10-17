@@ -192,10 +192,10 @@ describe("scoreTeam", () => {
 
   test("Ascendant Gleam scores what it unlocks for this team (#63)", () => {
     const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Moonsign");
-    // Two Moonsign members (Aino, Ineffa) reach Ascendant Gleam: Flins's own kit upgrade counts, by the damage it adds
-    // (his thundercloud hit and passive 1's +20%), since his damage model has it (#150).
+    // Two Moonsign members (Aino, Ineffa) reach Ascendant Gleam: Flins's own kit upgrade (his thundercloud hit and
+    // passive 1's +20%) is in his damage model (#150), so the line says what it adds with 0 points, not twice (#245).
     expect(lines("Flins", "Aino", "Ineffa", "Xilonen")).toEqual([
-      { rule: "Moonsign", points: 24, reason: "Ascendant Gleam adds ~+48% to Flins's damage" },
+      { rule: "Moonsign", points: 0, reason: "Ascendant Gleam adds ~+48% to Flins's damage" },
     ]);
     // One Moonsign member is only Nascent Gleam.
     expect(lines("Flins", "Bennett", "Xingqiu", "Xilonen")).toEqual([]);

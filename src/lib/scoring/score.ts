@@ -432,16 +432,15 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   const moonsign = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("moonsign"));
   if (moonsign.length < 2) return;
   // The carry's own upgrade. When their damage model has it (damage.ts modelsAscendantGleam: Zibai, Flins, Nefer), it
-  // counts once, by the damage it adds (with vs without Ascendant Gleam, +20% = buffer points), and the flat line
-  // drops (#150). Upgrades not modeled yet keep the flat points.
+  // is inside the carry's damage (carryDamagePerSecond reads it with Gleam on), so the line says what it adds with 0
+  // points (#245: as points it counted twice, Flins +35). Upgrades not modeled yet keep the flat points.
   if (moonsign.includes(carry) && GLEAM[carry.id]?.target === "self") {
     const share = carryAmpShare(ctx, carry);
     const withGleam = modelsAscendantGleam(carry.id) ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, share) : null;
     const without = withGleam ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, true, share) : null;
     if (withGleam && without && withGleam.missing.length === 0 && without.perSecond > 0) {
       const gain = withGleam.perSecond / without.perSecond - 1;
-      const points = gainPoints(gain, POINTS.buffer);
-      if (points > 0) out.add("Moonsign", points, () => `Ascendant Gleam adds ~+${Math.round(gain * 100)}% to ${carry.id}'s damage`);
+      if (gain > 0) out.add("Moonsign", 0, () => `Ascendant Gleam adds ~+${Math.round(gain * 100)}% to ${carry.id}'s damage`);
     } else {
       out.add("Moonsign", POINTS.ownAscendantGleam, () => `Ascendant Gleam enhances ${carry.id}'s kit`);
     }
