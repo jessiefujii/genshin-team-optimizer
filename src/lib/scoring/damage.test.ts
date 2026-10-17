@@ -171,8 +171,8 @@ describe("carry damage (#101)", () => {
       const models = (id: string, r: Reaction) => modelsReaction(byId.get(id)!, r);
       expect(models("Nefer", "lunar-bloom")).toBe(true); // Phantasm Performance needs Verdant Dew
       expect(models("Flins", "lunar-charged")).toBe(true); // Thunderous Symphony Additional DMG needs thunderclouds
-      // Zibai's Lunar hits land with any team; what the team's Lunar-Crystallize gives her isn't modeled yet.
-      expect(models("Zibai", "lunar-crystallize")).toBe(false);
+      // Zibai's Lunar hits land with any team, but 2 of her 4 Strides need the team's Lunar-Crystallize (#248).
+      expect(models("Zibai", "lunar-crystallize")).toBe(true);
       // Any reaction a combo, hit or buff needs (#205): Navia's shards, Freminet's and Wriothesley's combos.
       expect(models("Navia", "crystallize")).toBe(true);
       expect(models("Freminet", "superconduct")).toBe(true);

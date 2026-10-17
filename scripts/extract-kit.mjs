@@ -1589,8 +1589,16 @@ const CARRIES = {
       { table: "skill", label: "Lunar Phase Shift 1-Hit DMG", count: 4, type: N },
       ...[2, 3, 4].map((n) => ({ table: "skill", label: `Lunar Phase Shift ${n}-Hit DMG`, count: 3, type: N })),
       { table: "skill", label: "Lunar Phase Shift 4-Hit Additional DMG", count: 3, type: N, lunar: "lunar-crystallize", when: { ascendantGleam: true } },
-      { table: "skill", label: "Spirit Steed's Stride 1-Hit DMG", count: 4, type: SK },
-      { table: "skill", label: "Spirit Steed's Stride 2-Hit DMG", count: 4, type: SK, lunar: "lunar-crystallize" },
+      // 4 Strides need the team's Lunar-Crystallize at Ascendant Gleam (#248): KeqingMains' Zibai quick guide (fetched
+      // 2026-10-18): "It allows her to gain 35 Phase Shift Radiance between each special Skill use", and "If this effect
+      // cannot be triggered, the use of her special Skill will be severely delayed". Without it, ~2 (estimate): the wiki's
+      // 10 Radiance a second in Lunar Phase Shift and 5 per Normal Attack hit (once per 0.5s) over KQM's ~11s combo give
+      // ~175 Radiance, 2 Strides at 70; with the 35 between Strides, ~280, her 4. Moondrift Harmony refreshing passive 1
+      // isn't counted (no sourced rate).
+      ...[{}, { when: { reaction: "lunar-crystallize", ascendantGleam: true } }].flatMap((w) => [
+        { table: "skill", label: "Spirit Steed's Stride 1-Hit DMG", count: 2, type: SK, ...w },
+        { table: "skill", label: "Spirit Steed's Stride 2-Hit DMG", count: 2, type: SK, lunar: "lunar-crystallize", ...w },
+      ]),
       { from: "passive1", re: /increased by (\d+)% of Zibai's DEF/, stat: "def", count: 1, type: SK, lunar: "lunar-crystallize", additive: true }, // the first Stride, within 4s of the Skill
       { table: "burst", label: "Skill 1-Hit DMG", count: 1, type: BU },
       { table: "burst", label: "Skill 2-Hit DMG", count: 1, type: BU, lunar: "lunar-crystallize" },

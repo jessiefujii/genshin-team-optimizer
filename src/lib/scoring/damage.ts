@@ -190,9 +190,9 @@ export function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly
 // Dark-Shattering Flame, Neuvillette's passive 1), or any reaction a combo is picked for or a hit or buff needs (#205):
 // Nefer's Phantasm Performance needs Lunar-Bloom and Flins' Thunderous Symphony Additional DMG thunderclouds (#200);
 // Navia's Crystallize shards, Freminet's Superconduct combo, Wriothesley's Stellar-Conduct combo, Heizou's Swirl hit.
-// What the reaction does for them is then in their damage, so their flat reaction points go. Not Zibai's Lunar-Crystallize:
-// her Lunar hits land with any team, and what the team's reaction gives her (Phase Shift Radiance, Moondrift Harmony)
-// isn't modeled (#248). The reaction's own damage, when it deals any, is score.ts transformativeLines'.
+// What the reaction does for them is then in their damage, so their flat reaction points go. Zibai's Lunar-Crystallize
+// too: 2 of her 4 Strides need the team's Phase Shift Radiance from it (#248). The reaction's own damage, when it deals
+// any, is score.ts transformativeLines'.
 export function modelsReaction(c: ScoringCharacter, r: Reaction): boolean {
   const kit = CARRIES[c.id];
   if (!kit) return false;

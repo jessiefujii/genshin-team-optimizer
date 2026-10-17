@@ -6188,7 +6188,7 @@
           "scaling": {
             "def": 2.932976
           },
-          "count": 4
+          "count": 2
         },
         {
           "label": "Spirit Steed's Stride 2-Hit DMG",
@@ -6196,8 +6196,33 @@
           "scaling": {
             "def": 2.396456
           },
-          "count": 4,
+          "count": 2,
           "lunar": "lunar-crystallize"
+        },
+        {
+          "label": "Spirit Steed's Stride 1-Hit DMG",
+          "type": "skill",
+          "scaling": {
+            "def": 2.932976
+          },
+          "count": 2,
+          "when": {
+            "reaction": "lunar-crystallize",
+            "ascendantGleam": true
+          }
+        },
+        {
+          "label": "Spirit Steed's Stride 2-Hit DMG",
+          "type": "skill",
+          "scaling": {
+            "def": 2.396456
+          },
+          "count": 2,
+          "lunar": "lunar-crystallize",
+          "when": {
+            "reaction": "lunar-crystallize",
+            "ascendantGleam": true
+          }
         },
         {
           "label": "passive1 bonus",
