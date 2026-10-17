@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, teamBuffStats } from "./kit";
-import { amplifyGain, carryDamage, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, modelsSecretRite, passiveEnabler, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -193,12 +193,13 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
 
   const main = mainReactionOf(carry);
   const partnersFor = (r: Reaction) => supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r));
-  // Reactions the carry's modeled damage covers score by the damage they add (#134); the flat points below are for
-  // the rest (a carry not modeled yet, or a reaction the damage model doesn't cover yet, like Freeze or Lunar).
+  // Reactions the carry's modeled damage covers score by the damage they add (#134), and Overloaded and Swirl by their
+  // own damage in team damage (transformativeLines, #205); the flat points below are for the rest (a carry not modeled
+  // yet, or a reaction the damage model doesn't cover yet, like Freeze or Electro-Charged).
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
-  const modeled = reactionDamageLine(ctx, carry, out);
+  const modeled = [...reactionDamageLine(ctx, carry, out), ...carryActive.filter((r) => TRANSFORMATIVE[r])];
   const flat = carryActive.filter((r) => !modeled.includes(r));
-  const mainModeled = main !== undefined && main !== "none" && modelsReaction(carry, main);
+  const mainModeled = main !== undefined && main !== "none" && (modelsReaction(carry, main) || !!TRANSFORMATIVE[main]);
   if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
     out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
   }
@@ -815,7 +816,7 @@ function auraShares(ctx: TeamContext, carry: ScoringCharacter): Map<ScoringChara
 function carryAmpShare(ctx: TeamContext, carry: ScoringCharacter): number {
   return auraBudget(ctx, carry).carry;
 }
-const budgetCache = new WeakMap<TeamContext, Map<ScoringCharacter, { subs: Map<ScoringCharacter, Map<Reaction, number>>; carry: number }>>();
+const budgetCache = new WeakMap<TeamContext, Map<ScoringCharacter, ReturnType<typeof computeAuraBudget>>>();
 function auraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   let byCarry = budgetCache.get(ctx);
   if (!byCarry) budgetCache.set(ctx, (byCarry = new Map()));
@@ -825,7 +826,10 @@ function auraBudget(ctx: TeamContext, carry: ScoringCharacter) {
 function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   const out = new Map<ScoringCharacter, Map<Reaction, number>>();
   const apps = new Map<Element, number>();
-  for (const x of ctx.members) apps.set(x.element, (apps.get(x.element) ?? 0) + applicationsPerSecond(x, carry, ctx));
+  // Each member's applications per second, read once (the rounds below ask for them many times).
+  const appsOf = new Map(ctx.members.map((x) => [x, applicationsPerSecond(x, carry, ctx)]));
+  const appsBy = (x: ScoringCharacter) => appsOf.get(x)!;
+  for (const x of ctx.members) apps.set(x.element, (apps.get(x.element) ?? 0) + appsBy(x));
   const full = new Map(apps);
   const perAuraOf = (r: Reaction, trigger: Element) => 0.8 / (trigger === AMPLIFYING[r] ? 2 : 0.5);
   const active = (Object.keys(AMPLIFYING) as Reaction[]).filter((r) => ctx.active.includes(r));
@@ -839,7 +843,7 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
     const r = own.reaction as Reaction;
     const [a, b] = reactionElements(r);
     const aura = carry.element === a ? b : a;
-    const demand = Math.min(own.reactingPerSecond, applicationsPerSecond(carry, carry, ctx));
+    const demand = Math.min(own.reactingPerSecond, appsBy(carry));
     if (demand > 0) {
       const perAura = perAuraOf(r, carry.element);
       const reactions = Math.min(demand, (apps.get(aura) ?? 0) * perAura);
@@ -848,18 +852,41 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
       apps.set(carry.element, (apps.get(carry.element) ?? 0) - reactions);
     }
   }
-  // Each (trigger, aura) pair of sub-DPS asks for its applying hits, as many as its element has left; when an aura falls
-  // short, the pairs on it get the same fraction of what they asked. Damped rounds settle it.
-  const pairs: { r: Reaction; trigger: Element; aura: Element; perAura: number; subs: ScoringCharacter[]; asked: number; demand: number; reactions: number }[] = [];
+  // Each (trigger, aura) pair asks for its applying hits, as many as its element has left; when an aura falls short, the
+  // pairs on it get the same fraction of what they asked. Damped rounds settle it. Vaporize and Melt pairs are the
+  // sub-DPS' (the carry's own came first, above); Overloaded and Swirl pairs (#205) take the carry's applications too,
+  // since their damage is a separate instance, not a multiplier on the carry's hits. Overloaded: Pyro on Electro or
+  // Electro on Pyro, 1x unit modifier; Swirl: Anemo on any aura element, 0.5x (Genshin Impact Wiki, Elemental Gauge
+  // Theory, fetched 2026-10-18).
+  type Pair = {
+    r: Reaction;
+    trigger: Element;
+    aura: Element;
+    perAura: number;
+    members: ScoringCharacter[];
+    asked: number;
+    demand: number;
+    reactions: number;
+  };
+  const pairs: Pair[] = [];
+  const addPair = (r: Reaction, trigger: Element, aura: Element, perAura: number, withCarry: boolean) => {
+    const fires = (m: ScoringCharacter) => (m === carry ? withCarry : !!SUB_DPS[m.id]);
+    const members = ctx.members.filter((m) => m.element === trigger && fires(m));
+    const asked = members.reduce((s, m) => s + appsBy(m), 0);
+    const left = (full.get(trigger) ?? 0) > 0 ? Math.max(0, apps.get(trigger) ?? 0) / full.get(trigger)! : 0;
+    if (asked === 0 || !(full.get(aura) ?? 0)) return;
+    pairs.push({ r, trigger, aura, perAura, members, asked, demand: asked * left, reactions: 0 });
+  };
   for (const r of active) {
     const [a, b] = reactionElements(r);
-    for (const trigger of [a, b]) {
-      const subs = ctx.members.filter((m) => m !== carry && m.element === trigger && SUB_DPS[m.id]);
-      const asked = subs.reduce((s, m) => s + applicationsPerSecond(m, carry, ctx), 0);
-      const left = (full.get(trigger) ?? 0) > 0 ? Math.max(0, apps.get(trigger) ?? 0) / full.get(trigger)! : 0;
-      if (asked > 0) pairs.push({ r, trigger, aura: trigger === a ? b : a, perAura: perAuraOf(r, trigger), subs, asked, demand: asked * left, reactions: 0 });
-    }
+    addPair(r, a, b, perAuraOf(r, a), false);
+    addPair(r, b, a, perAuraOf(r, b), false);
   }
+  if (ctx.active.includes("overloaded")) {
+    addPair("overloaded", "Pyro", "Electro", 0.8, true);
+    addPair("overloaded", "Electro", "Pyro", 0.8, true);
+  }
+  if (ctx.active.includes("swirl")) for (const aura of SWIRLABLE) addPair("swirl", "Anemo", aura, 0.8 / 0.5, true);
   for (let i = 0; i < 12; i++) {
     for (const p of pairs) {
       const on = pairs.filter((q) => q.aura === p.aura);
@@ -869,16 +896,73 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
       const scale = needed > 0 ? Math.min(1, laid / needed) : 0;
       p.reactions = (p.reactions + p.demand * scale) / 2;
     }
+    // An application reacts once (#205): a trigger element in several pairs (Pyro vaporizing Hydro and overloading
+    // Electro, Anemo swirling two auras) splits its applications between them.
+    for (const t of new Set(pairs.map((p) => p.trigger))) {
+      const mine = pairs.filter((p) => p.trigger === t);
+      const used = mine.reduce((s, p) => s + p.reactions, 0);
+      const left = (full.get(t) ?? 0) > 0 ? Math.max(0, apps.get(t) ?? 0) / full.get(t)! : 0;
+      const firing = [...new Set(mine.flatMap((p) => p.members))];
+      const cap = firing.reduce((s, m) => s + appsBy(m), 0) * left;
+      if (used > cap) for (const p of mine) p.reactions *= cap / used;
+    }
   }
+  const transformative: { m: ScoringCharacter; r: Reaction; aura: Element; perSecond: number }[] = [];
   for (const p of pairs) {
     const share = Math.min(1, p.reactions / p.asked);
-    for (const m of p.subs) {
+    for (const m of p.members) {
+      if (TRANSFORMATIVE[p.r]) {
+        const perSecond = share * appsBy(m);
+        if (perSecond > 0) transformative.push({ m, r: p.r, aura: p.aura, perSecond });
+        continue;
+      }
       if (!out.has(m)) out.set(m, new Map());
       out.get(m)!.set(p.r, share);
     }
   }
-  return { subs: out, carry: carryShare };
+  return { subs: out, carry: carryShare, transformative };
 }
+const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
+// Transformative reaction damage (#205): Overloaded and Swirl, a separate damage instance per reaction each member
+// triggers in the aura budget, at that member's EM (the carry's from their combo, a sub-DPS's from their build or
+// benchmark), with teammates' RES shred on the reaction's element (Overloaded is Pyro, Swirl the swirled aura's). At
+// most TRANSFORMATIVE's instances per second per member (Damage Sequence). Added to team damage like a sub-DPS's hits;
+// the flat reaction points for these reactions are gone (carryLines). Not yet: Reaction Bonus from sets (VV, Crimson
+// Witch: #206) and kits, the swirled element's further reactions, team EM buffs.
+function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): number {
+  if (!carry) return 0;
+  const triggers = auraBudget(ctx, carry).transformative;
+  const carryReactions = carry.reactions.filter((r) => ctx.active.includes(r));
+  const shreds = new Map<Element, number>();
+  const shredOn = (element: Element) => {
+    if (!shreds.has(element)) shreds.set(element, resShredGain(teamBuffStats({ ...carry, element }, carryReactions, ctx.members).resShred));
+    return shreds.get(element)!;
+  };
+  let total = 0;
+  for (const r of Object.keys(TRANSFORMATIVE) as Reaction[]) {
+    const mine = triggers.filter((t) => t.r === r);
+    if (mine.length === 0) continue;
+    let dps = 0;
+    const by: string[] = [];
+    for (const m of new Set(mine.map((t) => t.m))) {
+      const own = mine.filter((t) => t.m === m);
+      const rate = own.reduce((s, t) => s + t.perSecond, 0);
+      const capped = Math.min(1, TRANSFORMATIVE[r]!.perSecond / rate);
+      const em = m === carry ? (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry))?.em ?? 0) : (subDpsStats(m)?.em ?? 0);
+      let d = 0;
+      for (const t of own) {
+        const element = r === "overloaded" ? "Pyro" : t.aura;
+        d += t.perSecond * capped * transformativeHit(r, em) * (1 + shredOn(element));
+      }
+      dps += d;
+      by.push(`${m.id} ~${(rate * capped).toFixed(1)}/s`);
+    }
+    if (dps >= 1) out.add("Reactions", 0, () => `${label(r)}: ~${Math.round(dps)} damage per second (${by.join(", ")})`);
+    total += dps;
+  }
+  return total;
+}
+
 function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
   return SUB_DPS_REACTIONS.filter((r) => {
     if (!ctx.active.includes(r)) return false;
@@ -1161,6 +1245,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     nightsoulBurstLines(ctx, carry, out);
     stellarLines(ctx, carry, out);
     const sub = subDpsLines(ctx, carry, out);
+    const reacted = transformativeLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);
@@ -1168,7 +1253,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     energyLines(ctx, carry, out);
     // No carry: the generic benchmark hit stands in for whoever is on field; the -30 line marks the missing carry.
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
-    const dps = own + sub.dps;
+    const dps = own + sub.dps + reacted;
     const value = dps * factorOf(out);
     if (!best || value > best.value) best = { carry, lead: sub.lead, out, dps, value };
   }

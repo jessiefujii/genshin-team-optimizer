@@ -155,6 +155,19 @@ const CATALYZE: Partial<Record<Reaction, { element: Element; coefficient: number
   aggravate: { element: "Electro", coefficient: 1.15 },
 };
 const LEVEL_MULTIPLIER_90 = 1446.85;
+// Transformative reaction DMG (#205; Genshin Impact Wiki, Damage § Transformative Reaction Damage, fetched 2026-10-18):
+// coefficient x the level 90 Level Multiplier x (1 + 16 x EM / (EM + 2000) + Reaction Bonus), then the target's RES;
+// no DEF, no crit, no DMG Bonus, and only the triggering member's EM counts. Swirl 0.6 (868.11 at level 90, wiki
+// Swirl), Overloaded 2.75 (3978.85, wiki Overloaded). `perSecond`: the most instances one attacker deals a target per
+// second (Damage Sequence: Swirl 2 per 0.5s, Overloaded 1 per 0.5s). Freeze counts only through crit and Crystallize
+// under survival (Jessie, 2026-10-18); Electro-Charged, Superconduct, Burning and the Bloom family come later.
+export const TRANSFORMATIVE: Partial<Record<Reaction, { coefficient: number; perSecond: number }>> = {
+  swirl: { coefficient: 0.6, perSecond: 4 },
+  overloaded: { coefficient: 2.75, perSecond: 2 },
+};
+export const transformativeHit = (r: Reaction, em: number, bonus = 0) =>
+  (TRANSFORMATIVE[r]?.coefficient ?? 0) * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000) + bonus);
+
 export function catalyzeDamage(c: ScoringCharacter, em: number, active: readonly Reaction[], reaction: Reaction | "none" | undefined): number {
   if (!reaction || reaction === "none" || !active.includes(reaction)) return 0;
   const r = CATALYZE[reaction];
@@ -247,6 +260,7 @@ export interface CarryDamage {
   combo?: string; // the combo picked for this team, when the carry has several (#114)
   rotationSeconds: number;
   missing: string[]; // hits left out for lack of a source
+  em: number; // the carry's EM in this combo (kit EM buffs included), for the reactions they trigger (score.ts, #205)
 }
 
 // The carry's hits per second in this team's combo and rotation, and how many of them react (each hit's reacting
@@ -445,5 +459,5 @@ function computeCarryDamage(
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp) * (1 + resShredGain(teamBuffs.resShred)) * (1 + defShredGain(Math.min(0.9, teamBuffs.defShred)));
   }
   total *= expectedCrit(c, teamBuffs.critRate);
-  return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [] };
+  return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [], em };
 }
