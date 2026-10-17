@@ -34,6 +34,14 @@ describe("carry damage (#101)", () => {
     expect(seconds("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toBe(15); // unsourced: Burst cooldown
   });
 
+  test("Hu Tao's passive 2 needs no teammate healing her; Furina in Ousia doesn't (#2)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const dps = (...ids: string[]) => carryDamage(byId.get("Hu Tao")!, ["vaporize"], team("Hu Tao", ...ids))!.perSecond;
+    const shield = dps("Xingqiu", "Yelan", "Zhongli");
+    expect(dps("Xingqiu", "Yelan", "Bennett")).toBeLessThan(shield * 0.9); // +33% Pyro DMG off
+    expect(dps("Xingqiu", "Furina", "Zhongli")).toBeCloseTo(dps("Xingqiu", "Yelan", "Zhongli"), 0);
+  });
+
   test("the main reaction only counts when the team can trigger it (Vaporize for Hu Tao)", () => {
     const huTao = byId.get("Hu Tao")!;
     expect(carryDamage(huTao, ["vaporize"])!.perSecond).toBeGreaterThan(carryDamage(huTao, [])!.perSecond * 1.3);

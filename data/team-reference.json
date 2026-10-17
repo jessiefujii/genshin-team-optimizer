@@ -1,5 +1,5 @@
 {
-  "median": 143175.2,
+  "median": 141211.1,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -31,11 +31,11 @@
     "Arlecchino": {
       "team": [
         "Arlecchino",
-        "Furina",
         "Yelan",
-        "Xilonen"
+        "Bennett",
+        "Lan Yan"
       ],
-      "value": 161039
+      "value": 129016.8
     },
     "Chasca": {
       "team": [
