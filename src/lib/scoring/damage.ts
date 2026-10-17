@@ -159,11 +159,15 @@ const LEVEL_MULTIPLIER_90 = 1446.85;
 // coefficient x the level 90 Level Multiplier x (1 + 16 x EM / (EM + 2000) + Reaction Bonus), then the target's RES;
 // no DEF, no crit, no DMG Bonus, and only the triggering member's EM counts. Swirl 0.6 (868.11 at level 90, wiki
 // Swirl), Overloaded 2.75 (3978.85, wiki Overloaded). `perSecond`: the most instances one attacker deals a target per
-// second (Damage Sequence: Swirl 2 per 0.5s, Overloaded 1 per 0.5s). Freeze counts only through crit and Crystallize
-// under survival (Jessie, 2026-10-18); Electro-Charged, Superconduct, Burning and the Bloom family come later.
+// second (Damage Sequence: Swirl 2 per 0.5s, Overloaded 1 per 0.5s, Superconduct 2 per 0.5s). Superconduct 1.5 (wiki
+// Superconduct). Electro-Charged 2.0 (wiki Electro-Charged): one tick per second while the target holds both auras, each
+// tick 0.4U of each (score.ts reads its ticks from the aura budget, at most 1 per second in all). Freeze counts only
+// through crit and Crystallize under survival (Jessie, 2026-10-18); Burning and the Bloom family come later.
 export const TRANSFORMATIVE: Partial<Record<Reaction, { coefficient: number; perSecond: number }>> = {
   swirl: { coefficient: 0.6, perSecond: 4 },
   overloaded: { coefficient: 2.75, perSecond: 2 },
+  superconduct: { coefficient: 1.5, perSecond: 4 },
+  electrocharged: { coefficient: 2, perSecond: 1 },
 };
 export const transformativeHit = (r: Reaction, em: number, bonus = 0) =>
   (TRANSFORMATIVE[r]?.coefficient ?? 0) * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000) + bonus);
