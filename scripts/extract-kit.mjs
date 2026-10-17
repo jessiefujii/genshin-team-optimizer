@@ -1427,7 +1427,7 @@ function readSubDps(id, specs) {
 //     Moonsign Benediction's Base DMG bonus to their Lunar reaction per point of a stat, capped: it also applies to
 //     their own direct Lunar hits, #135), lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar
 //     reaction: Flins), baseDmgMultiplier (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction,
-//     ascendantGleam, secretRite }) gates it like a hit's.
+//     ascendantGleam, secretRite, noHealer }) gates it like a hit's.
 //   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
 //   missing: parts of the rotation not modeled yet, so the damage is too low (none left since #135)
 // The rotation lasts as long as a sourced length (data/kit-overrides.json `rotations`, #103: a default, plus lengths
@@ -1469,8 +1469,17 @@ const CARRIES = {
     ],
     buffs: [
       { kind: "atkFromHp", table: "skill", label: "ATK Increase", cap: /cannot exceed (\d+)% of Hu Tao's Base ATK/ },
-      // Passive 2: +33% Pyro DMG at 50% HP or less; KQM: keep her "below 50% HP to maximize her damage".
-      { kind: "dmgBonus", from: "passive2", re: /Pyro DMG Bonus is increased by (\d+)%/, types: [N, CH, PL, SK, BU] },
+      // Passive 2: +33% Pyro DMG at 50% HP or less. KeqingMains' Hu Tao quick guide (fetched 2026-10-18): "Hu Tao should
+      // be kept at below 50% HP to maximize her damage, making it tricky to use healers with her", and "she can still deal
+      // a large amount of damage without this Passive active": off with a teammate who heals her (#2; Bennett's Burst
+      // heals below 70% HP, so it counts).
+      {
+        kind: "dmgBonus",
+        from: "passive2",
+        re: /Pyro DMG Bonus is increased by (\d+)%/,
+        types: [N, CH, PL, SK, BU],
+        when: { noHealer: true },
+      },
     ],
   },
   "Raiden Shogun": {
@@ -2288,7 +2297,15 @@ function readCarry(id, spec) {
         // share: the part of those hits the buff covers (Ganyu's passive 2: the 4 Charged Attacks after her Burst).
         const value = round((b.value ?? (b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label, b.pick))) * (b.times ?? 1) * (b.share ?? 1));
         const cap = typeof b.hitsCap === "number" ? b.hitsCap : b.hitsCap ? num(COMBAT[b.table], b.hitsCap) : undefined;
-        return { kind: b.kind, value, types: b.types, ...(cap ? { hitsCap: cap } : {}), ...(b.note ? { note: b.note } : {}), ...(b.fightingSpirit ? { fightingSpirit: true } : {}) };
+        return {
+          kind: b.kind,
+          value,
+          types: b.types,
+          ...(cap ? { hitsCap: cap } : {}),
+          ...(b.note ? { note: b.note } : {}),
+          ...(b.fightingSpirit ? { fightingSpirit: true } : {}),
+          ...(b.when ? { when: b.when } : {}),
+        };
       }
       case "dmgBonusByTypes": {
         const m = text(b.from).match(b.re);

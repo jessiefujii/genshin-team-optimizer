@@ -192,6 +192,14 @@ describe("scoreTeam", () => {
     expect(melt.breakdown.some((l) => l.reason.includes("not possible"))).toBe(false);
   });
 
+  test("only shields count for Arlecchino's survivability: she can't be healed in combat (#2)", () => {
+    const survival = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
+    expect(survival("Arlecchino", "Bennett", "Chevreuse", "Fischl")).toMatchObject({ points: -10, reason: "No shielder (Arlecchino can't be healed)" });
+    expect(survival("Arlecchino", "Bennett", "Yelan", "Zhongli").reason).toBe("Zhongli shield ~100% of the rotation");
+    // Other carries still count healers.
+    expect(survival("Hu Tao", "Xingqiu", "Bennett", "Zhongli").reason).toBe("Bennett, Zhongli heal or shield ~100% of the rotation");
+  });
+
   test("a hypercarry is not penalized for a team without reactions (#49)", () => {
     const s = score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli");
     // His passive 1 counts by the damage it adds (#134): Swirl and Crystallize stacks; Kazuha's Swirls by their own

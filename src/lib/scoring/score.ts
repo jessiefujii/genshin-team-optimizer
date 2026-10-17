@@ -379,17 +379,6 @@ function teamLines(ctx: TeamContext, out: Sink) {
     if (n >= 2 && !(el in STAT_RESONANCE)) out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
   }
 
-  // Scored by coverage (#177): the share of the rotation a shield or healing over time is up (kit.json `sustain`,
-  // duration / cooldown from the talent tables), across members as 1 - product(1 - coverage). Full coverage is the
-  // flat `survivability` points the tag used to give. A member whose coverage can't be read (no duration in the kit:
-  // Jean, Beidou...) or whose role comes from an effect counts as full, as before.
-  const sustainers = members.filter((m) => hasRole(m, "healer") || hasRole(m, "shielder"));
-  if (sustainers.length) {
-    const coverage = 1 - sustainers.reduce((a, m) => a * (1 - (SUSTAIN[m.id]?.coverage ?? 1)), 1);
-    const names = sustainers.map((m) => m.id).join(", ");
-    out.add("Survivability", Math.round(POINTS.survivability * coverage), () => `${names} heal or shield ~${Math.round(coverage * 100)}% of the rotation`);
-  } else out.add("Survivability", POINTS.noSurvivability, () => "No healer or shielder");
-
   const anemo = members.filter((m) => m.element === "Anemo");
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   if (anemo.length >= 2 && !swirlActive) {
@@ -400,6 +389,28 @@ function teamLines(ctx: TeamContext, out: Sink) {
 // Resonances that raise one stat only help a carry who uses it (#51, #59): Fervent Flames +25% ATK,
 // Soothing Water +25% HP, Sprawling Greenery +EM.
 const STAT_RESONANCE: Partial<Record<Element, "ATK" | "HP" | "EM">> = { Pyro: "ATK", Hydro: "HP", Dendro: "EM" };
+
+// Scored by coverage (#177): the share of the rotation a shield or healing over time is up (kit.json `sustain`,
+// duration / cooldown from the talent tables), across members as 1 - product(1 - coverage). Full coverage is the
+// flat `survivability` points the tag used to give. A member whose coverage can't be read (no duration in the kit:
+// Jean, Beidou...) or whose role comes from an effect counts as full, as before. Per carry (#2): Arlecchino "cannot
+// utilize any form of healing apart from the heal granted by her Burst cast while in combat" and "cannot rely on healers
+// for survivability" (KeqingMains' Arlecchino quick guide, fetched 2026-10-18), so only shields count for her.
+const SHIELDS_ONLY = new Set(["Arlecchino"]);
+function survivabilityLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
+  const heals = !carry || !SHIELDS_ONLY.has(carry.id);
+  const sustainers = ctx.members.filter((m) => hasRole(m, "shielder") || (heals && hasRole(m, "healer")));
+  if (sustainers.length) {
+    const coverage = 1 - sustainers.reduce((a, m) => a * (1 - (SUSTAIN[m.id]?.coverage ?? 1)), 1);
+    const names = sustainers.map((m) => m.id).join(", ");
+    const verb = heals ? "heal or shield" : "shield";
+    const reason = () => `${names} ${verb} ~${Math.round(coverage * 100)}% of the rotation`;
+    out.add("Survivability", Math.round(POINTS.survivability * coverage), reason);
+  } else {
+    const reason = () => (heals ? "No healer or shielder" : `No shielder (${carry!.id} can't be healed)`);
+    out.add("Survivability", POINTS.noSurvivability, reason);
+  }
+}
 
 function carryResonanceLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   for (const [el, stat] of Object.entries(STAT_RESONANCE) as [Element, "ATK" | "HP" | "EM"][]) {
@@ -1350,6 +1361,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     if (carry) carryTalentLine(carry, out);
     out.addAll(shared);
     carryResonanceLines(ctx, carry, out);
+    survivabilityLines(ctx, carry, out);
     ascendantGleamLines(ctx, carry, out);
     secretRiteLines(ctx, carry, out);
     nightsoulBurstLines(ctx, carry, out);
