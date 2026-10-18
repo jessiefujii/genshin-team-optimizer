@@ -786,6 +786,10 @@
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Aloy": {
+      "seconds": 13.35,
+      "source": "KeqingMains Aloy freeze calc (\"Aloy Weapon Calcs\", linked from https://keqingmains.com/aloy/; sheet 1tqQ3ZXky1vrSElLZPgi_qM94q9pX2eGbZpPXOasfjbc, \"Aloy freeze\" tab), fetched 2026-10-18: \"Rotation Duration\" 13.35 (C19) for \"7 N3RR 1 E 1 Q\"."
+    },
     "Tartaglia": {
       "seconds": 25.5,
       "source": "KeqingMains Tartaglia guide, https://keqingmains.com/tartaglia/, fetched 2026-10-18: \"The downtime results in 24–27s rotations when executed properly\" (midpoint)."

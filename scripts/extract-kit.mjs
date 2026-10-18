@@ -2139,6 +2139,30 @@ const CARRIES = {
     ],
     buffs: [],
   },
+  Aloy: {
+    // KQM's Aloy freeze calc (#232; "Aloy Weapon Calcs" by Greyhound#7836, linked from https://keqingmains.com/aloy/;
+    // sheet 1tqQ3ZXky1vrSElLZPgi_qM94q9pX2eGbZpPXOasfjbc, "Aloy freeze" tab, fetched 2026-10-18): "Rotation" (C4) "7 N3RR
+    // 1 E 1 Q"; "NA count" 7, "E count" 1, "Q count" 1 (C64-C67). The sheet doesn't spell out "N3RR"; its "NA string" is
+    // 236.80% at 88 frames (C234-C235) = her level-9 N1 (35.52% + 39.96%) + N2 (72.52%) + N3 (88.80%), "Infused? TRUE"
+    // (C88): an N3 string in Rushing Ice. "E" 641.92% (C240) = Freeze Bomb 301.92% + 5 Chillwater Bomblets x 68%; "Q"
+    // 610.64% (C243). 7 x 88 + 67 + 118 frames = 13.35 s, its "Rotation Duration" (C19). Its NA DMG% bonus 64.58% (C109)
+    // = Rushing Ice's 45.33% + 19.25%, passive 2's 3.5%/s ramp to 35% averaged (0.55 of the cap); ATK% 16% (C105) is
+    // passive 1.
+    combo: "E Q 7[N3]",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 7, type: N, instances: 2 },
+      { table: "normal", label: "2-Hit DMG", count: 7, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 7, type: N },
+      { table: "skill", label: "Freeze Bomb DMG", count: 1, type: SK },
+      { table: "skill", label: "Chillwater Bomblet DMG", count: 5, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [
+      { kind: "dmgBonus", table: "skill", label: "Rushing Ice Normal Attack DMG Bonus", types: [N] },
+      { kind: "dmgBonus", from: "passive2", re: /maximum Cryo DMG Bonus increase of (\d+)%/, share: 0.55, types: [N] },
+      { kind: "atkPct", from: "passive1", re: /her ATK is increased by (\d+)%/ },
+    ],
+  },
   Noelle: {
     // KQM quick guide: N3D is "Noelle's bread and butter combo"; its rotation for Linnea, Columbina and Illuga or
     // Furina or Gorou: "Noelle EQ 5[N3D] N2" (strings vary by team, KQM). Burst: ATK from DEF.
