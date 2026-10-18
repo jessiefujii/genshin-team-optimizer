@@ -6013,6 +6013,69 @@
         }
       ]
     },
+    "Wanderer": {
+      "rotationSeconds": 20,
+      "combo": "E C 5[N2C] N2 (Q)",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.26242
+          },
+          "count": 6
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.19448
+          },
+          "count": 6
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.24536
+          },
+          "count": 6
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.6184
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 12.512
+          },
+          "count": 0.5,
+          "instances": 5
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "factor",
+          "value": 1.511525,
+          "types": [
+            "normal"
+          ]
+        },
+        {
+          "kind": "factor",
+          "value": 1.40922,
+          "types": [
+            "charged"
+          ]
+        }
+      ]
+    },
     "Varesa": {
       "rotationSeconds": 18,
       "hits": [
@@ -8823,7 +8886,6 @@
     "Traveler (Cryo)",
     "Varka",
     "Vesna",
-    "Wanderer",
     "Yumemizuki Mizuki"
   ]
 }

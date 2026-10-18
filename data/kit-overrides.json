@@ -786,6 +786,10 @@
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Wanderer": {
+      "seconds": 20,
+      "source": "KeqingMains Wanderer calcs, linked as \"Calcs Here\" from https://keqingmains.com/wanderer/ (sheet 1e2e5ITnHVbT8tyJBqgfO89BWbPX5HcDxMdUm98ECZ0M, Calculator tab), fetched 2026-10-18: \"Rotation Length 20.00\"."
+    },
     "Klee": {
       "source": "KeqingMains Klee quick guide, https://keqingmains.com/q/klee-quickguide/, fetched 2026-10-17. No default stated: Burst cooldown.",
       "teams": [
