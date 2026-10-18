@@ -2000,12 +2000,15 @@ const CARRIES = {
   "Kamisato Ayato": {
     // KQM quick guide, "Default combo (reactions)": "Q > Team > E N15 > Team > E N15"; "15 consecutive Shunsuiken
     // attacks at C0" per Skill: 5 of each of the 3 Shunsuiken hits per Skill. One Water Illusion per Skill (it
-    // explodes near opponents or when its duration ends). His Burst's Bloomwater Blades are left out: of the 35 (wiki),
-    // how many hit one opponent isn't sourced.
+    // explodes near opponents or when its duration ends). His Burst's Bloomwater Blades: of the 35 (wiki), 20 hit one
+    // opponent in KQM's Ayato calcs (#225; "Ayato Mastersheet" from https://keqingmains.com/ayato/, "Weapon Calcs -
+    // Unbuffed" sheet 1bDvtLPH4DzakGYufAyfgm9UvgE4K-4C-a4xmMNWFL3o, Template tab, fetched 2026-10-18: "Bloomwater Blade
+    // DMG" x 20 instances in its two-Skill rotation).
     combo: "Q E N15 E N15",
     hits: [
       ...["Shunsuiken 1-Hit DMG", "Shunsuiken 2-Hit DMG", "Shunsuiken 3-Hit DMG"].map((label) => ({ table: "skill", label, count: 10, type: N, tag: "namisen" })),
       { table: "skill", label: "Water Illusion DMG", count: 2, type: SK },
+      { table: "burst", label: "Bloomwater Blade DMG", count: 20, type: BU },
     ],
     buffs: [
       // Namisen: Max HP x the row per stack on each Shunsuiken hit. Passive 1 starts him at 2; each hit adds one, up
@@ -2168,10 +2171,12 @@ const CARRIES = {
   Diluc: {
     // KQM quick guide: "Q N2E N2E N2E N2", "An easy and consistent combo for sustained damage": his Burst, 3 Searing
     // Onslaughts and 4 N2 strings, all inside Dawn's Pyro Infusion (8s, +4s from passive 2, which adds 20% Pyro DMG
-    // while it lasts). Dawn's DoT is left out: KQM's library gives no tick count on one opponent.
+    // while it lasts). Dawn's DoT (#225): the quick guide, "On larger enemies that cannot be pushed back, you will usually
+    // only get 2-3 instances of DoT" (midpoint 2.5; https://keqingmains.com/q/diluc-quickguide/, fetched 2026-10-18).
     combo: "Q N2E N2E N2E N2",
     hits: [
       { table: "burst", label: "Slashing DMG", count: 1, type: BU },
+      { table: "burst", label: "DoT", count: 2.5, type: BU },
       { table: "burst", label: "Explosion DMG", count: 1, type: BU },
       { table: "skill", label: "1-Hit DMG", count: 1, type: SK },
       { table: "skill", label: "2-Hit DMG", count: 1, type: SK },
