@@ -1200,7 +1200,9 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     total += dps;
     const withReactions = reacted.size ? `, with ${[...reacted].map(label).join(", ")}` : "";
     if (dps >= 1) out.add("Sub-DPS", 0, () => `${m.id}'s own hits: ~${Math.round(dps)} damage per second${withReactions}`);
-    if (dps > carryDps && (!lead || dps > lead.dps)) lead = { m, dps };
+    // Only a main DPS takes the team over (Mavuika, a flex DPS): a support's hits never make them its main DPS (#266:
+    // Escoffier out-damaged a carry with no damage model yet).
+    if (m.roles.includes("main-dps") && dps > carryDps && (!lead || dps > lead.dps)) lead = { m, dps };
   }
   if (lead) {
     const { m, dps } = lead;

@@ -542,6 +542,15 @@ describe("sub-DPS (#96)", () => {
     expect(yelan("Hu Tao", "Yelan", "Furina", "Xingqiu")).toBeGreaterThan(yelan("Hu Tao", "Yelan", "Zhongli", "Xingqiu"));
   });
 
+  test("a support who out-damages the carry is not named main DPS (#266)", () => {
+    // Tartaglia has no damage model yet (#232): Escoffier's own hits out-damage him. Before #266 she was named main DPS
+    // beside every carry without a model (Wanderer, Itto, Lyney, Anemo Traveler...).
+    const s = score("Tartaglia", "Escoffier", "Durin", "Zhongli");
+    expect(s.onField).toBe("Tartaglia");
+    expect(s.mainDps).toBe("Tartaglia");
+    expect(s.breakdown.some((l) => l.reason.includes("out-damages"))).toBe(false);
+  });
+
   test("Furina's Salon bonus needs another healer to keep members above 50% HP (#130)", () => {
     const share = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Furina"))?.reason);
     // Same carry and supports' elements; Bennett heals, Xiangling doesn't.
