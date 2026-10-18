@@ -700,7 +700,8 @@ describe("talent levels (#25)", () => {
     expect(buffLine(score("Diluc (no model)", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(8);
     // For modeled Hu Tao, Furina's DMG bonus is in her damage (0 points); Zhongli's RES shred isn't yet (#202).
     const hutao = score("Hu Tao", "Furina", "Bennett", "Zhongli");
-    expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 0, reason: "Furina buffs Hu Tao (~+32% damage, ~+32% of it in Hu Tao's damage)" });
+    // Her Burst is a little short of Energy in Hu Tao's rotation, so a little less (#207).
+    expect(buffLine(hutao, "Furina")).toEqual({ rule: "Buffs", points: 0, reason: "Furina buffs Hu Tao (~+31% damage, ~+31% of it in Hu Tao's damage)" });
     // Zhongli's RES shred is in her damage too (#204).
     expect(buffLine(score("Hu Tao", "Zhongli", "Xingqiu", "Yelan"), "Zhongli")?.points).toBe(0);
   });
@@ -726,6 +727,24 @@ describe("talent levels (#25)", () => {
     expect(buff("Chevreuse", "Raiden Shogun", "Chevreuse", "Xiangling", "Xingqiu")).toBe(
       "Chevreuse: their kit's buff doesn't apply to Raiden Shogun's damage",
     );
+  });
+
+  test("a Burst short of Energy funds its buffs less often (#207)", () => {
+    const stats = (er: number): CharacterStats => ({
+      atk: 900, hp: 20000, def: 800, critRate: 20, critDmg: 60, energyRecharge: er, elementalMastery: 0, elementalDmgBonus: 0,
+    });
+    const read = (er: number) => {
+      const s = scoreTeam(team("Klee", "Bennett", "Fischl", "Chevreuse").map((c) => (c.id === "Bennett" ? { ...c, stats: stats(er) } : c)));
+      const line = s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith("Bennett"))!.reason;
+      return { line, gain: Number(line.match(/~\+(\d+)% damage/)![1]), dps: s.damage.perSecond };
+    };
+    // Bennett's ATK buff is from his Burst: at 100% ER he Bursts in only part of the rotations, at 250% in all.
+    const starved = read(100);
+    const funded = read(250);
+    expect(starved.gain).toBeLessThan(funded.gain);
+    expect(starved.dps).toBeLessThan(funded.dps);
+    expect(starved.line).toMatch(/Burst in ~\d+% of rotations/);
+    expect(funded.line).not.toMatch(/Burst in/);
   });
 
   test("Ifa's and Prune's buffs come from their kit values (#76)", () => {
