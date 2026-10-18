@@ -1613,6 +1613,27 @@ const CARRIES = {
       },
     ],
   },
+  Wanderer: {
+    // KeqingMains' Wanderer calcs (#223), linked as "Calcs Here" from the full guide (https://keqingmains.com/wanderer/;
+    // sheet 1e2e5ITnHVbT8tyJBqgfO89BWbPX5HcDxMdUm98ECZ0M, Calculator tab, fetched 2026-10-18): a 20s rotation of Burst,
+    // E, CA, 5[N1 N2 CA], N1 N2 (his N2C chain, "Repeat until the end of Wanderer's airtime"): 6 N1, 6 N2, 6 Charged
+    // Attacks per Windfavored state. The guide: Burst "every other rotation" at C0, so half a Burst. Left out: the 4 wind
+    // arrows of a Descent (passive 2, "Gale x4" in the sheet: chance-based, and the wiki gives no attack type) and his
+    // passive 1 buffs from the element his Skill touches (Pyro ATK +30% in the sheet), which depend on the team.
+    combo: "E C 5[N2C] N2 (Q)",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 6, type: CH },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "Skill DMG", count: 0.5, type: BU, instances: 5 },
+    ],
+    buffs: [
+      // Windfavored: "Kuugo: Fushoudan DMG" / "Kuugo: Toufukai DMG" are a % of Normal / Charged Attack DMG.
+      { kind: "factor", table: "skill", label: "Kuugo: Fushoudan DMG", types: [N] },
+      { kind: "factor", table: "skill", label: "Kuugo: Toufukai DMG", types: [CH] },
+    ],
+  },
   Varesa: {
     // KeqingMains' "most basic and consistent full combo at C0" (pasted by Jessie 2026-10-12):
     // ECP (sQ) ECP ECP (sQ) ECP ECP (sQ) CP CP. E = Skill (Rush), C = the Charged Attack it unlocks, P = plunge,
