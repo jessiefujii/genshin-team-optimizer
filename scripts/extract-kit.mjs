@@ -822,7 +822,7 @@ function readStellar(id, spec) {
 //   whenReaction: it only fires while the team triggers that reaction (Ineffa's Overclocking Circuit: thunderclouds)
 //   pickOne: only one source of this group fires per use; the scorer picks by the team's reactions (Columbina's
 //       Gravity Interference: the Lunar reaction that built the most Gravity)
-//   (per character, SUBDPS_LUNAR_BASE below) lunarBaseBonus: { stat, perPoint, max, reactions }: their own Moonsign
+//   (per character, LUNAR_CONVERTERS below) lunarBaseBonus: { stat, perPoint, max, reactions }: their own Moonsign
 //       Benediction's Base DMG bonus to their direct Lunar hits of those reactions
 //   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
 //       names the source; `label` still keys its hit rate and table values)
@@ -2437,18 +2437,27 @@ const carriesTodo = tags.filter((c) => c.roles.includes("main-dps") && !CARRIES[
 for (const c of tags.filter((c) => c.roles.includes("sub-dps") && c.fieldTime === "off")) {
   if (!SUBDPS[c.id]) throw new Error(`${c.id} is an off-field sub-DPS in tags.json but has no SUBDPS entry`);
 }
-// A sub-DPS's own Moonsign Benediction Base DMG bonus to their direct Lunar hits (Jessie, 2026-10-12, PR #155), read
-// like a carry's lunarBaseBonus: per `per` points of `stat`, capped. Teammates' bonuses to them stay with #88.
-// Columbina's is for every Lunar reaction "inflicted by party members", so her own hits too.
-const SUBDPS_LUNAR_BASE = {
-  Ineffa: {
-    from: "passive3",
-    re: /every 100 ATK that Ineffa has increasing Lunar-Charged's Base DMG by ([\d.]+)%/,
-    per: 100,
-    stat: "atk",
-    max: /maximum of (\d+)%/,
-    reactions: ["lunar-charged"],
-  },
+// Moonsign Benediction's Lunar Reaction Base DMG Bonus (#88): each converter raises the Base DMG of the party's Lunar
+// reactions by their own stat, "per `per` points of `stat`", capped. Genshin Impact Wiki, Damage § Reaction Base DMG
+// Bonus (fetched 2026-10-18) lists exactly these seven; its formula has one "(1 + % Reaction Base DMG Bonus)" term, so
+// several converters' bonuses add. kit.json `lunarBase`; a converter's own direct Lunar hits read theirs too
+// (subDps lunarBaseBonus, PR #155; carries: their CARRIES lunarBaseBonus buff).
+const benediction = (id, stat, reaction) => ({
+  from: "passive3",
+  re: new RegExp(`every ${{ atk: "100 ATK", def: "100 DEF", em: "point of Elemental Mastery" }[stat]} that ${id} has increasing ${reaction}'s Base DMG by ([\\d.]+)%`),
+  per: stat === "em" ? 1 : 100,
+  stat,
+  max: /maximum of (\d+)%/,
+  reactions: [reaction.toLowerCase()],
+});
+const LUNAR_CONVERTERS = {
+  Flins: benediction("Flins", "atk", "Lunar-Charged"),
+  Ineffa: benediction("Ineffa", "atk", "Lunar-Charged"),
+  Lauma: benediction("Lauma", "em", "Lunar-Bloom"),
+  Nefer: benediction("Nefer", "em", "Lunar-Bloom"),
+  Linnea: benediction("Linnea", "def", "Lunar-Crystallize"),
+  Zibai: benediction("Zibai", "def", "Lunar-Crystallize"),
+  // "Lunar Reaction DMG inflicted by party members gain a Base DMG increase", her own hits included.
   Columbina: {
     from: "passive3",
     re: /For every 1,000 points of Max HP, the Base DMG of Lunar reactions is increased by ([\d.]+)%/,
@@ -2458,6 +2467,16 @@ const SUBDPS_LUNAR_BASE = {
     reactions: ["lunar-charged", "lunar-bloom", "lunar-crystallize"],
   },
 };
+const lunarBase = {};
+for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
+  const text = genshindb.talents(id)[b.from].description.replace(/\s+/g, " ");
+  const read = (re) => {
+    const m = text.match(re);
+    if (!m) throw new Error(`${id}: pattern ${re} not found in ${b.from}`);
+    return Number(m[1]);
+  };
+  lunarBase[id] = { stat: b.stat, perPoint: round(read(b.re) / 100 / b.per), max: read(b.max) / 100, reactions: b.reactions };
+}
 // Level 90 base HP/ATK/DEF (character only), for a sub-DPS's benchmark build when the player has none (#158), and the
 // level 90 ascension stat (#166: genshin-db substatType and its value; EM is flat, the rest are fractions).
 // genshin-db matches names loosely, so the name is checked; the Traveler's base stats are Lumine's.
@@ -2472,15 +2491,7 @@ function baseStatsOf(id) {
 const subDps = {};
 for (const [id, spec] of Object.entries(SUBDPS)) {
   subDps[id] = { base: baseStatsOf(id), ...readSubDps(id, spec) };
-  const b = SUBDPS_LUNAR_BASE[id];
-  if (!b) continue;
-  const text = genshindb.talents(id)[b.from].description.replace(/\s+/g, " ");
-  const read = (re) => {
-    const m = text.match(re);
-    if (!m) throw new Error(`${id}: pattern ${re} not found in ${b.from}`);
-    return Number(m[1]);
-  };
-  subDps[id].lunarBaseBonus = { stat: b.stat, perPoint: round(read(b.re) / 100 / b.per), max: read(b.max) / 100, reactions: b.reactions };
+  if (lunarBase[id]) subDps[id].lunarBaseBonus = lunarBase[id];
 }
 
 // Every Stellar member needs a STELLAR entry, so a new one (or new Radiance text) can't be missed.
@@ -2620,6 +2631,7 @@ writeFileSync(
       },
       fightingSpirit,
       stellar,
+      lunarBase,
       subDps,
       sustain,
       carries,

@@ -108,7 +108,7 @@ function modelsWhen(id: string, flag: "ascendantGleam" | "secretRite"): boolean 
 }
 
 // A carry's stats: their build's, else a benchmark carry built for the stat they scale on.
-function carryStats(c: ScoringCharacter, goblet?: "Physical") {
+export function carryStats(c: ScoringCharacter, goblet?: "Physical") {
   const on = (stat: string) => !!c.scalesOn?.includes(stat as never);
   const b = BENCHMARK.carry;
   return {
@@ -414,7 +414,9 @@ function computeCarryDamage(
     const defFactor = 1 + defShredGain(Math.min(0.9, t.def));
     if (h.lunar) {
       if (h.additive) return perHit * count * resFactor;
-      return LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + lunarBase) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar)) * resFactor;
+      // Teammates' Base DMG bonuses add to the carry's own (#88: one "% Reaction Base DMG Bonus" term).
+      const base = lunarBase + (teamBuffs.lunarBase?.[h.lunar] ?? 0);
+      return LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + base) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar)) * resFactor;
     }
     if (!h.addOn) perHit += t.catalyze * (h.instances ?? 1) * reactingShare(h);
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit

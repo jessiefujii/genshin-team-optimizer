@@ -1589,6 +1589,66 @@
       "source": "passive4: \"Radiance: Stellar Swirl: When Yumemizuki Mizuki deals to an opponent the above enhanced AoE Anemo DMG, she will also deal an additional instance of Anemo DMG at 1,000% of her Elemental Mastery.\""
     }
   },
+  "lunarBase": {
+    "Flins": {
+      "stat": "atk",
+      "perPoint": 0.00007,
+      "max": 0.14,
+      "reactions": [
+        "lunar-charged"
+      ]
+    },
+    "Ineffa": {
+      "stat": "atk",
+      "perPoint": 0.00007,
+      "max": 0.14,
+      "reactions": [
+        "lunar-charged"
+      ]
+    },
+    "Lauma": {
+      "stat": "em",
+      "perPoint": 0.000175,
+      "max": 0.14,
+      "reactions": [
+        "lunar-bloom"
+      ]
+    },
+    "Nefer": {
+      "stat": "em",
+      "perPoint": 0.000175,
+      "max": 0.14,
+      "reactions": [
+        "lunar-bloom"
+      ]
+    },
+    "Linnea": {
+      "stat": "def",
+      "perPoint": 0.00007,
+      "max": 0.14,
+      "reactions": [
+        "lunar-crystallize"
+      ]
+    },
+    "Zibai": {
+      "stat": "def",
+      "perPoint": 0.00007,
+      "max": 0.14,
+      "reactions": [
+        "lunar-crystallize"
+      ]
+    },
+    "Columbina": {
+      "stat": "hp",
+      "perPoint": 0.000002,
+      "max": 0.07,
+      "reactions": [
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ]
+    }
+  },
   "subDps": {
     "Bennett": {
       "base": {
@@ -4098,7 +4158,15 @@
           "cd": 12,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lauma, fetched 2026-10-10: \"The Frostgrove Sanctuary will follow the active character, dealing a single instance of AoE Dendro DMG to opponents within the array every 2s.\""
         }
-      ]
+      ],
+      "lunarBaseBonus": {
+        "stat": "em",
+        "perPoint": 0.000175,
+        "max": 0.14,
+        "reactions": [
+          "lunar-bloom"
+        ]
+      }
     },
     "Linnea": {
       "base": {
@@ -4122,7 +4190,15 @@
           "cd": 18,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Linnea, fetched 2026-10-10: \"In Super Power Form, she will use Pound-Pound Pummeler every ~2 seconds\""
         }
-      ]
+      ],
+      "lunarBaseBonus": {
+        "stat": "def",
+        "perPoint": 0.00007,
+        "max": 0.14,
+        "reactions": [
+          "lunar-crystallize"
+        ]
+      }
     },
     "Lisa": {
       "base": {
