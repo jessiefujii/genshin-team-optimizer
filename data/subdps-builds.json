@@ -63,6 +63,7 @@
     "Sigewinne": { "priority": [["hpPct"], ["critRate", "critDmg"]], "quote": "ER% (until requirement) > HP% > CRIT", "source": "https://keqingmains.com/q/sigewinne-quickguide/" },
     "Sucrose": { "priority": [["em"], ["critRate"]], "quote": "EM > ER > CRIT Rate (Favonius)", "source": "https://keqingmains.com/q/sucrose-quickguide/" },
     "Thoma": { "priority": [["hpPct"], ["critRate"], ["hp"]], "quote": "Shield Support: ER (until requirements are met) > HP% > CRIT Rate (if using Favonius) > Flat HP", "source": "https://keqingmains.com/q/thoma-quickguide/" },
+    "Traveler (Anemo)": { "priority": [["em"], ["atkPct"], ["critRate", "critDmg"], ["atk"]], "quote": "ER% > EM > ATK% > CRIT Rate = CRIT DMG > ATK (KQM full guide; no quick guide)", "source": "https://keqingmains.com/anemo-traveler/" },
     "Traveler (Cryo)": { "priority": [], "fallback": true, "quote": "No KQM stat priority (checked 2026-10-13): no quick guide (404) and the KQM library page has no artifact section, so PR #163's split applies (#165)", "source": "https://library.keqingmains.com/characters/cryo/traveler-cryo" },
     "Traveler (Dendro)": { "priority": [["em"], ["critRate", "critDmg"], ["atkPct"]], "quote": "ER > EM1 > CRIT > EM2 ≥ ATK% > EM3", "source": "https://keqingmains.com/q/dendro-traveler-quickguide/" },
     "Traveler (Electro)": { "priority": [["critRate"], ["critDmg"], ["em"], ["atkPct"]], "quote": "ER% >>> CRIT Rate ≥ CRIT DMG > EM > ATK% (KQM full guide; no quick guide)", "source": "https://keqingmains.com/electro-traveler/" },
