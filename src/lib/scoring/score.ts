@@ -697,6 +697,8 @@ interface SubDpsSource {
   // Other rates for teams that fit: the first whose `when` matches replaces hits/every/duration (Jahoda, #175).
   alternatives?: { when: { topElement?: Element }; hits?: number; every?: number; duration?: number }[];
   dmgBonusPerStat?: Partial<Record<ScaleStat, number>>; // DMG Bonus per point of a stat (Dendro Traveler, #172)
+  // More DMG on the first `stacks` hits per use, by a share of a stat, capped (Durin's Primordial Fusion, #195).
+  boost?: { stacks: number; perPoint: number; stat: ScaleStat; max: number };
   icd?: "none" | { reset: number; every: number | "first" }; // elemental application ICD (#190); default standard
   pickOne?: string; // one source of the group per use, picked by the team's reactions
   talent?: string; // the talent the hit is from: "burst" hits need the Burst's Energy (#37)
@@ -1235,7 +1237,12 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
           if (add > extra) [extra, best] = [add, r];
         }
         if (best && extra >= 0.01 * base) reacted.add(best); // named only when it adds at least 1% to the hit
-        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat) * crit * res * def;
+        // A passive's boost on the first `stacks` hits of each use (Durin's Primordial Fusion, #195): their share of the
+        // use's hits, times the boost from the member's stat, capped.
+        const b = s.boost;
+        const hitsPerUse = (s.hits ?? 1) * (s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1);
+        const boost = b ? 1 + Math.min(1, b.stacks / hitsPerUse) * Math.min(b.max, b.perPoint * stat[b.stat]) : 1;
+        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat) * crit * res * def * boost;
       }
     }
     dps += lunarDps;

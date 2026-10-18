@@ -569,6 +569,21 @@ describe("sub-DPS (#96)", () => {
     expect(share("Neuvillette", "Furina", "Bennett", "Kaedehara Kazuha")).toBeGreaterThan(share("Neuvillette", "Furina", "Xiangling", "Kaedehara Kazuha"));
   });
 
+  test("Durin's Primordial Fusion boosts 10 dragon hits per Burst by his ATK, up to 75% (#195)", () => {
+    const stats = (atk: number): CharacterStats => ({
+      atk, hp: 15000, def: 800, critRate: 50, critDmg: 100, energyRecharge: 200, elementalMastery: 0, elementalDmgBonus: 46.6,
+    });
+    // Navia's Geo team: no Vaporize or Melt on his hits, so they grow with ATK alone.
+    const durin = (atk: number) =>
+      dps(scoreTeam(team("Navia", "Durin", "Zhongli", "Xilonen").map((c) => (c.id === "Durin" ? { ...c, stats: stats(atk) } : c)))
+        .breakdown.find((l) => l.reason.startsWith("Durin's own hits"))?.reason);
+    // 3% per 100 ATK: +45% at 1,500, capped at +75% from 2,500. Twice the ATK is more than twice the damage (the boost
+    // grows too), but at most by the boost's growth on 10 of the 18 dragon hits.
+    const ratio = durin(3000) / durin(1500);
+    expect(ratio).toBeGreaterThan(2.05);
+    expect(ratio).toBeLessThan((2 * (1 + (10 / 18) * 0.75)) / (1 + (10 / 18) * 0.45));
+  });
+
   test("teammates' RES shred reaches a sub-DPS's own hits (#204)", () => {
     const own = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Zhongli's shield shreds every element's RES by 20%: Xingqiu's swords hit harder than beside Diona.

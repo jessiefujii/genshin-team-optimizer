@@ -3735,6 +3735,12 @@
           "scaling": {
             "atk": 1.60888
           },
+          "boost": {
+            "stacks": 10,
+            "perPoint": 0.0003,
+            "stat": "atk",
+            "max": 0.75
+          },
           "every": 1,
           "duration": 20,
           "cd": 18,

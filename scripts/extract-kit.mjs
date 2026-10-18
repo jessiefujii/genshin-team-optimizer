@@ -839,6 +839,9 @@ function readStellar(id, spec) {
 //   dmgBonusPer: a passive that raises this hit's DMG per point of a stat, read from its text, e.g. Dendro
 //       Traveler's 0.15% per EM: { from: "passive2", re: /Razorgrass Blade by ([\d.]+)%/, stat: "em" }; written as
 //       `dmgBonusPerStat: { em: 0.0015 }` (DMG Bonus added per point) (#172)
+//   boost: a passive that raises the DMG of a limited number of this source's hits per use by a share of a stat, capped
+//       (Durin's Primordial Fusion, #195): { from, stacks, re, per, stat, max }, regexes into its text; written as
+//       `boost: { stacks, perPoint, stat, max }`
 const SUBDPS = {
   // Supports' own hits (#203): every character gets a damage profile, whatever their role. Their Skill and Burst hits,
   // from the talent tables; recurring hits at rates from the wiki's Gameplay Notes (kit-overrides.json hitRates).
@@ -1130,7 +1133,16 @@ const SUBDPS = {
   Durin: [
     { talent: "skill", label: "Transmutation: Confirmation of Purity DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Principle of Purity: As the Light Shifts DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Dragon of White Flame DMG", every: "rate", duration: "Dragon of White Flame Duration", cd: "CD" },
+    // Passive 2 (#195): each Burst gives 10 Primordial Fusion stacks; a dragon hit uses one for "3% of the original DMG
+    // for every 100 ATK", up to 75%: 10 of the ~18 hits per Burst.
+    {
+      talent: "burst",
+      label: "Dragon of White Flame DMG",
+      every: "rate",
+      duration: "Dragon of White Flame Duration",
+      cd: "CD",
+      boost: { from: "passive2", stacks: /gains (\d+) stacks of Primordial Fusion/, re: /by ([\d.]+)% of the original DMG for every 100 ATK/, per: 100, stat: "atk", max: /maximum of (\d+)% additional DMG/ },
+    },
   ],
   Emilie: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "Skill CD" },
@@ -1387,11 +1399,18 @@ function readSubDps(id, specs) {
     const scaling = s.passive ? { [s.passive.stat]: passiveValue(s.passive) } : scalingOf(attrs, s.label, id);
     for (const p of s.addScaling ?? []) scaling[p.stat] = round((scaling[p.stat] ?? 0) + passiveValue(p) * (p.times ?? 1));
     const dmgBonusPerStat = s.dmgBonusPer ? Object.fromEntries(s.dmgBonusPer.map((p) => [p.stat, round(passiveValue(p))])) : undefined;
+    const boost = s.boost && {
+      stacks: passiveValue({ from: s.boost.from, re: s.boost.stacks }) * 100,
+      perPoint: round(passiveValue(s.boost) / s.boost.per),
+      stat: s.boost.stat,
+      max: passiveValue({ from: s.boost.from, re: s.boost.max }),
+    };
     sources.push({
       talent: s.talent,
       label: s.name ?? s.label,
       scaling,
       ...(dmgBonusPerStat ? { dmgBonusPerStat } : {}),
+      ...(boost ? { boost } : {}),
       ...(s.hits !== undefined ? { hits: value(s.hits, "hits") } : {}),
       ...(every !== undefined ? { every, duration: value(s.duration, "duration") } : {}),
       ...(s.onCarryNormal ? { onCarryNormal: true } : {}),
