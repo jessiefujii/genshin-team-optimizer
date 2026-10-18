@@ -1748,6 +1748,26 @@
       ]
     }
   },
+  "sets": {
+    "Blizzard Strayer": [
+      {
+        "kind": "critRate",
+        "value": 0.2,
+        "when": {
+          "aura": "Cryo"
+        },
+        "source": "4pc: \"affected by Cryo, their CRIT Rate is increased by 20%\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.2,
+        "when": {
+          "reaction": "freeze"
+        },
+        "source": "4pc: \"If the opponent is Frozen, CRIT Rate is increased by an additional 20%\""
+      }
+    ]
+  },
   "subDps": {
     "Bennett": {
       "base": {

@@ -83,6 +83,26 @@ interface CarryKit {
   radianceInDamage?: boolean; // their own Radiance upgrade is in their hits (Mizuki, #235)
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
+// 4pc set bonuses to the wearer's own damage (#206, extract-kit SETS): Blizzard Strayer's CRIT Rate for now.
+type SetBuff = { kind: "critRate"; value: number; when: { aura?: Element; reaction?: Reaction } };
+const SETS = (kitJson as unknown as { sets: Record<string, SetBuff[]> }).sets;
+// The carry's own 4pc CRIT Rate in this team: "an opponent affected by Cryo" when a member applies Cryo (the carry
+// included), "Frozen" when the team triggers Freeze; each taken as up on every hit (estimate: in Freeze teams the
+// enemy is kept Cryo-affected or Frozen).
+export function setCritRate(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): number {
+  let rate = 0;
+  for (const { set, pieces } of c.sets ?? []) {
+    if (pieces < 4) continue;
+    for (const b of SETS[set] ?? []) {
+      const fits = (!b.when.aura || team.some((m) => m.element === b.when.aura)) && (!b.when.reaction || active.includes(b.when.reaction));
+      if (b.kind === "critRate" && fits) rate += b.value;
+    }
+  }
+  return rate;
+}
+// Whether the carry's Freeze is in their damage through a set's CRIT Rate (#205: Freeze scores only through crit).
+export const freezeInDamage = (c: ScoringCharacter) =>
+  (c.sets ?? []).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.when.reaction === "freeze"));
 
 // Whether the carry's damage is modeled: a kit with no unsourced (missing) hit. The scorer reads a carry with one as not
 // modeled (modeledCarryDps), so this does too: model checks then treat them alike (#227).
@@ -340,6 +360,8 @@ function computeCarryDamage(
   const skillOnly = usesFs && fightingSpirit(c, c, team) === 0; // Mavuika can't Burst: Skill only (#126)
   const picked = pickCombo(base, c, active, team);
   const { kit, combo, reaction } = skillOnly ? { ...picked, kit: base, combo: `${(base.combo ?? "").replace(" Q", "")} (Skill only: can't Burst)` } : picked;
+  // Teammates' CRIT Rate buffs (#157) and the carry's own 4pc set's (#206).
+  const critRate = teamBuffs.critRate + setCritRate(c, active, team);
   const own = carryStats(c, kit.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
@@ -450,7 +472,7 @@ function computeCarryDamage(
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
       // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
       if (b.kind === "critRate" && b.labels.includes(h.label))
-        factor *= expectedCrit(c, teamBuffs.critRate + b.value) / expectedCrit(c, teamBuffs.critRate);
+        factor *= expectedCrit(c, critRate + b.value) / expectedCrit(c, critRate);
       if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
         const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
@@ -477,6 +499,6 @@ function computeCarryDamage(
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp) * (1 + resShredGain(teamBuffs.resShred)) * (1 + defShredGain(Math.min(0.9, teamBuffs.defShred)));
   }
-  total *= expectedCrit(c, teamBuffs.critRate);
+  total *= expectedCrit(c, critRate);
   return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [], em };
 }

@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryStats, freezeInDamage, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -217,10 +217,14 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   // Heizou's Swirl hit is in his damage, but in a Dendro team his Swirls' own damage isn't yet (#253).
   const transformative = carryActive.filter((r) => transformativeModeled(ctx, carry, r));
   const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
-  const modeled = [...kitModeled, ...transformative];
+  // Freeze scores only through crit (#205): with a 4pc set whose CRIT Rate needs it (Blizzard Strayer, #206) it is in the
+  // carry's damage; without one, the flat points stay until benchmark builds get a set.
+  const frozen = carryActive.includes("freeze") && freezeInDamage(carry);
+  if (frozen) out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents`);
+  const modeled = [...kitModeled, ...transformative, ...(frozen ? ["freeze" as Reaction] : [])];
   const flat = carryActive.filter((r) => !modeled.includes(r));
   const mainIn = (r: Reaction) =>
-    TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r);
+    TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r) || (r === "freeze" && frozen);
   const mainModeled = main !== undefined && main !== "none" && mainIn(main);
   if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
     out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
