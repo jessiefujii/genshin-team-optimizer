@@ -606,6 +606,35 @@ describe("sub-DPS (#96)", () => {
     expect(read("Ineffa", 2000).lunar).toBeGreaterThan(read("Ineffa", 1000).lunar);
   });
 
+  test("Stellar Swirl deals damage; Mizuki's and Vesna's Radiance is in their damage (#235)", () => {
+    const ids = ["Yumemizuki Mizuki", "Odette", "Traveler (Cryo)", "Faruzan"];
+    const s = score(...ids);
+    // Each Stellar Swirl's Anemo hit and its vortex's explosion, as 0-point Reactions lines in team damage.
+    const stellar = s.breakdown.filter((l) => l.rule === "Reactions" && /^Stellar-swirl (Anemo hits|Stellar Vortex)/.test(l.reason));
+    expect(stellar.map((l) => l.reason.split(":")[0])).toEqual(["Stellar-swirl Anemo hits", "Stellar-swirl Stellar Vortex Lv. 2"]);
+    expect(stellar.every((l) => l.points === 0 && dps(l.reason) > 0)).toBe(true);
+    // Her Radiance hits are in her damage: no flat points for them; without her Witch's Revelation they're gone.
+    const radiance = (t: ReturnType<typeof scoreTeam>) => t.breakdown.find((l) => l.rule === "Stellar" && l.reason.startsWith("Radiance"));
+    expect(radiance(s)?.points).toBe(0);
+    expect(scoreTeam(team(...ids), { revelationUnlocked: [] }).damage.perSecond).toBeLessThan(s.damage.perSecond);
+    expect(radiance(score("Vesna", "Odette", "Vodyanitsa", "Traveler (Cryo)"))?.points).toBe(0);
+  });
+
+  test("indirect Lunar damage: thunderclouds and Moondrift Harmony, not Lunar-Bloom (#145)", () => {
+    const indirect = (...ids: string[]) => {
+      const line = score(...ids).breakdown.find((l) => l.rule === "Reactions" && /thunderclouds|Moondrift Harmony/.test(l.reason));
+      return line ? { points: line.points, dps: dps(line.reason), rate: Number(line.reason.match(/~([\d.]+)\/s\)/)![1]) } : null;
+    };
+    // Thunderclouds strike every 2s at most, scored as damage (0 points); Moondrift Harmony every third Lunar-Crystallize.
+    const charged = indirect("Flins", "Ineffa", "Columbina", "Aino")!;
+    expect(charged.points).toBe(0);
+    expect(charged.dps).toBeGreaterThan(0);
+    expect(charged.rate).toBeLessThanOrEqual(0.5);
+    expect(indirect("Zibai", "Columbina", "Illuga", "Linnea")?.dps).toBeGreaterThan(0);
+    // Lunar-Bloom has no indirect damage (wiki Damage § Indirect).
+    expect(indirect("Nefer", "Lauma", "Columbina", "Furina")).toBeNull();
+  });
+
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
     const share = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.

@@ -22,6 +22,7 @@ export interface KitBuff {
   points?: { max: number; own: number }; // rescueEssentials: the cap, and Ifa's own Nightsoul points from his Skill
   threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts; a perHp reactionBonus: HP above this (Nilou)
   whileOnField?: boolean; // only while this member is the on-field carry (Kaveh's Painted Dome, #256)
+  perEm?: number; // a reactionBonus per this many points of the buffer's EM (Mizuki, #235)
   burst?: boolean; // comes from the Burst (or a passive it triggers): up only in the rotations its Energy funds (#207)
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
@@ -32,7 +33,9 @@ export interface KitBuff {
 
 interface KitCharacter {
   base: { hp: number; atk: number; def: number } | null;
-  buildFor?: { atk?: number }; // stats to assume without a build, for a buffer built for their buff (Prune)
+  // stats to assume without a build, for a buffer built for their buff (Prune); em "built": the EM-built carry
+  // benchmark's (Mizuki, #235)
+  buildFor?: { atk?: number; em?: number | "built" };
   buffs: KitBuff[];
   missing?: string;
 }
@@ -130,7 +133,7 @@ function bufferStats(s: ScoringCharacter, base: KitCharacter["base"], buildFor: 
     atk: s.stats?.atk ?? buildFor?.atk ?? b.atk,
     hp: s.stats?.hp ?? b.hp,
     def: s.stats?.def ?? b.def,
-    em: s.stats?.elementalMastery ?? b.em,
+    em: s.stats?.elementalMastery ?? (buildFor?.em === "built" ? BENCHMARK.carry.emBuilt : buildFor?.em) ?? b.em,
   };
 }
 
@@ -151,7 +154,11 @@ const rescueEssentials = (p: { max: number; own: number }, team: TeamShape) => M
 // A reactionBonus's value: flat, or per `perHp` of the member's Max HP above `threshold` (Baizhu; Nilou above 30,000),
 // capped at `max`. Ifa's Rescue Essentials scaling is applied by the caller.
 function reactionBonusValue(buff: KitBuff, stats: ReturnType<typeof bufferStats>): number {
-  const v = buff.perHp ? (buff.value * Math.max(0, stats.hp - (buff.threshold ?? 0))) / buff.perHp : buff.value;
+  const v = buff.perHp
+    ? (buff.value * Math.max(0, stats.hp - (buff.threshold ?? 0))) / buff.perHp
+    : buff.perEm
+      ? (buff.value * stats.em) / buff.perEm
+      : buff.value;
   return buff.max === undefined ? v : Math.min(v, buff.max);
 }
 

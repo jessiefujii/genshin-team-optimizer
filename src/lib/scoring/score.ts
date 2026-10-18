@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryStats, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -219,7 +219,8 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
   const modeled = [...kitModeled, ...transformative];
   const flat = carryActive.filter((r) => !modeled.includes(r));
-  const mainIn = (r: Reaction) => (TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r));
+  const mainIn = (r: Reaction) =>
+    TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r);
   const mainModeled = main !== undefined && main !== "none" && mainIn(main);
   if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
     out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
@@ -630,7 +631,9 @@ function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
   const own = stellar.includes(carry) ? STELLAR[carry.id] : undefined;
   const on = own?.radiance.filter((r) => ctx.active.includes(r)) ?? [];
   if (own?.target === "self" && on.length > 0) {
-    out.add("Stellar", POINTS.ownRadiance, () => `Radiance: ${on.map(label).join(", ")} enhances ${carry.id}'s kit`);
+    // In the carry's damage when their model has it (Mizuki, #235): said with 0 points, as for Ascendant Gleam (#245).
+    const inDamage = modelsRadiance(carry.id);
+    out.add("Stellar", inDamage ? 0 : POINTS.ownRadiance, () => `Radiance: ${on.map(label).join(", ")} enhances ${carry.id}'s kit${inDamage ? " (in their damage)" : ""}`);
   }
   const dealt = carry.reactions.filter((r) => ctx.active.includes(r));
   for (const m of stellar) {
@@ -710,7 +713,7 @@ interface SubDpsSource {
 }
 // lunarBaseBonus: their own Moonsign Benediction's Base DMG bonus to their direct Lunar hits (PR #155); teammates' add
 // to it (teammatesLunarBase, #88).
-type SubDpsLunarBase = { stat: "atk" | "hp" | "def" | "em"; perPoint: number; max: number; reactions: LunarReaction[] };
+type SubDpsLunarBase = { stat: "atk" | "hp" | "def" | "em"; perPoint: number; max: number; reactions: Reaction[] };
 // base: level 90 character base stats from genshin-db, for the benchmark build (#158).
 type SubDpsEntry = { base: SubDpsBase | null; sources: SubDpsSource[]; missing?: string[]; lunarBaseBonus?: SubDpsLunarBase };
 const SUB_DPS = kitJson.subDps as Record<string, SubDpsEntry>;
@@ -720,7 +723,8 @@ const SUB_DPS = kitJson.subDps as Record<string, SubDpsEntry>;
 // so converters' bonuses add. A converter's stat: their build, else their sub-DPS benchmark, else a carry's (Flins,
 // Zibai, Nefer). Their own bonus to their own hits is already in (subDps lunarBaseBonus, the carry's kit buff).
 const LUNAR_BASE = kitJson.lunarBase as Record<string, SubDpsLunarBase>;
-function teammatesLunarBase(r: LunarReaction, members: readonly ScoringCharacter[], self: ScoringCharacter): number {
+// Stellar converters too (Odette, Sandrone, Vesna, Cryo Traveler; #235): kit.json lunarBase holds both families.
+function teammatesLunarBase(r: Reaction, members: readonly ScoringCharacter[], self?: ScoringCharacter): number {
   let sum = 0;
   for (const m of members) {
     const b = LUNAR_BASE[m.id];
@@ -730,7 +734,8 @@ function teammatesLunarBase(r: LunarReaction, members: readonly ScoringCharacter
   }
   return sum;
 }
-const LUNAR_REACTIONS: LunarReaction[] = ["lunar-charged", "lunar-bloom", "lunar-crystallize"];
+// With Stellar Swirl: the converters' Base DMG bonus reaches direct Stellar Swirl hits too (Mizuki's, #235).
+const LUNAR_REACTIONS: LunarReaction[] = ["lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-swirl"];
 // The share of rotations each member's Burst is funded with this carry (#37, energy.ts), for the buffs from it (#207):
 // the same reading their Burst damage uses (subDpsLines, carry damage's burstShare).
 function burstSharesFor(ctx: TeamContext, carry: ScoringCharacter): BurstShares {
@@ -984,6 +989,8 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
     addPair("quicken", "Dendro", "Electro", 0.8, true);
     addPair("quicken", "Electro", "Dendro", 0.8, true);
   }
+  // Stellar Swirl (#235): Anemo on Cryo, like Swirl (0.5x), replacing the Cryo Swirl (swirlAuras).
+  if (ctx.active.includes("stellar-swirl")) addPair("stellar-swirl", "Anemo", "Cryo", 0.8 / 0.5, true);
   if (anyActive(["crystallize", "lunar-crystallize"])) {
     for (const aura of SWIRLABLE) addPair("crystallize", "Geo", aura, 0.8 / 0.5, true);
   }
@@ -1044,7 +1051,34 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   if (free("burning") && (apps.get("Pyro") ?? 0) > 0) {
     credit("burning", "Pyro", ["Pyro", "Dendro"], 4 * Math.min(1, 2 * leftOf("Dendro")));
   }
-  return { subs: out, carry: carryShare, transformative, appsOf };
+  // Indirect Lunar damage (#145): Lunar-Charged thunderclouds strike "every 2s" while the target is Wet and affected by
+  // Electro, each strike taking "0.4 GU of both the Wet and Electro auras" (wiki Lunar-Charged § Damage, fetched
+  // 2026-10-18), so from the Hydro and Electro the pairs above left, like Electro-Charged's ticks; with a converter
+  // Electro-Charged doesn't happen (CONVERTED). Lunar-Crystallize: "every third Lunar-Crystallize reaction will cause
+  // Moondrifts to resonate and initiate Moondrift Harmony" (wiki Lunar-Crystallize): a third of the Geo-on-Hydro pairs.
+  // Lunar-Bloom has no indirect damage (wiki Damage § Indirect).
+  const indirect: Indirect[] = [];
+  if (ctx.active.includes("lunar-charged")) {
+    const perSecond = Math.min(0.5, 2 * leftOf("Hydro"), 2 * leftOf("Electro"));
+    indirect.push({ r: "lunar-charged", what: "thunderclouds", perSecond, coefficient: LUNAR_COEFFICIENT["lunar-charged"], element: "Electro" });
+  }
+  if (ctx.active.includes("lunar-crystallize")) {
+    const hydro = pairs.filter((p) => p.r === "crystallize" && p.aura === "Hydro").reduce((s, p) => s + p.reactions, 0);
+    indirect.push({ r: "lunar-crystallize", what: "Moondrift Harmony", perSecond: hydro / 3, coefficient: LUNAR_COEFFICIENT["lunar-crystallize"], element: "Geo" });
+  }
+  // Stellar Swirl (#235; wiki Stellar Swirl § Damage, fetched 2026-10-18): each trigger deals "an instance of Anemo DMG"
+  // (coefficient 0.75, wiki Damage § Indirect) and makes a Lv. 1 Stellar Vortex that "lasts for 3s" and explodes as
+  // Cryo (2); "After triggering Stellar Swirl for the third time, the Vortex will level up to Lv. 2" (3), and "three
+  // more times" explode it at once. So a vortex takes the triggers of its 3s, 1 + 3 x rate, at most 6: worked out here
+  // from those rules (estimate), one explosion per that many triggers.
+  const stellar = pairs.filter((p) => p.r === "stellar-swirl").reduce((s, p) => s + p.reactions, 0);
+  if (stellar > 0) {
+    const perVortex = Math.min(6, 1 + 3 * stellar);
+    const lv2 = perVortex >= 3;
+    indirect.push({ r: "stellar-swirl", what: "Anemo hits", perSecond: stellar, coefficient: 0.75, element: "Anemo" });
+    indirect.push({ r: "stellar-swirl", what: `Stellar Vortex Lv. ${lv2 ? 2 : 1}`, perSecond: stellar / perVortex, coefficient: lv2 ? 3 : 2, element: "Cryo" });
+  }
+  return { subs: out, carry: carryShare, transformative, appsOf, indirect };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
 const CRYSTALLIZE_PER_SECOND = 1;
@@ -1128,15 +1162,43 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     if (dps >= 1) out.add("Reactions", 0, () => `${label(r)}: ~${Math.round(dps)} damage per second (${by.join(", ")})`);
     total += dps;
   }
+  // Indirect Lunar damage (#145; Jessie, 2026-10-12: in the Reactions line by damage added, for the team that triggers
+  // it). Genshin Impact Wiki, Damage § Indirect (fetched 2026-10-18): each member who applied the reaction's elements
+  // gets "Base Reaction Coefficient x Level Multiplier x (1 + % Reaction Base DMG Bonus) x (1 + % EM Bonus + % Reaction
+  // Bonus) x RES x CRIT", at their own EM and crit; the hit is "Highest x 0.6 + 2nd x 0.3 + 3rd x 0.05 + 4th x 0.05".
+  // Base DMG Bonus: every converter's (#88); Reaction Bonus: the team's kits' (Columbina, Ifa; #256).
+  for (const { r, what, perSecond, coefficient, element } of budget.indirect) {
+    const els = reactionElements(r);
+    const contributors = ctx.members.filter((m) => els.includes(m.element) && (budget.appsOf.get(m) ?? 0) > 0);
+    if (perSecond <= 0 || contributors.length === 0) continue;
+    const { bonus } = reactionBonusesFor(r, carry, ctx.members, burstSharesFor(ctx, carry));
+    const base = 1 + teammatesLunarBase(r, ctx.members);
+    const res = 1 + shredOn(element);
+    const individual = contributors
+      .map((m) => {
+        const s = subDpsStats(m);
+        const em = m === carry ? (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry))?.em ?? 0) : (s?.em ?? carryStats(m).em);
+        const crit = m !== carry && s ? 1 + Math.min(s.critRate, 1) * s.critDmg : expectedCrit(m);
+        return coefficient * LEVEL_MULTIPLIER_90 * base * (1 + lunarEmBonus(em) + bonus) * res * crit;
+      })
+      .sort((a, b) => b - a);
+    const dps = perSecond * individual.reduce((sum, d, i) => sum + d * INDIRECT_WEIGHTS[i], 0);
+    if (dps >= 1) out.add("Reactions", 0, () => `${label(r)} ${what}: ~${Math.round(dps)} damage per second (~${perSecond.toFixed(1)}/s)`);
+    total += dps;
+  }
   return total;
 }
+const INDIRECT_WEIGHTS = [0.6, 0.3, 0.05, 0.05];
+// Lunar and Stellar reactions with damage of their own besides the members' direct hits (#145, #235).
+const INDIRECT_LUNAR = new Set<Reaction>(["lunar-charged", "lunar-crystallize", "stellar-swirl"]);
+type Indirect = { r: Reaction; what: string; perSecond: number; coefficient: number; element: Element };
 
 // Whether a transformative reaction's damage is in team damage for this team (#205), so its flat points go: some member
 // applies each of its elements in the aura budget (Swirl: Anemo and an aura element). Not when an applier isn't modeled
 // (Raiden off field has no sub-DPS entry, #252): the flat points stay as the stand-in. A reaction a converter turns into
 // its Lunar or Stellar form (CONVERTED) doesn't happen, so it scores nothing either way.
 function transformativeModeled(ctx: TeamContext, carry: ScoringCharacter, r: Reaction): boolean {
-  if (!TRANSFORMATIVE[r]) return false;
+  if (!TRANSFORMATIVE[r] && !INDIRECT_LUNAR.has(r)) return false;
   if (convertedAway(ctx, r)) return true;
   const applies = (e: Element) => ctx.members.some((m) => m.element === e && applicationsPerSecond(m, carry, ctx) > 0);
   if (r === "swirl") return applies("Anemo") && swirlAuras(ctx).some(applies);
