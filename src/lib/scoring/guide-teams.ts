@@ -3,8 +3,8 @@
 // comprehensive list", "inclusion does not reflect power level"), so every team is listed and the reference keeps the
 // best. A slash in a guide ("Fischl/Durin") is one team per option; teams with a placeholder slot ("Flex", "Pyro")
 // are left out, and repeats dropped. A guide's constellation (C2 Sara) is scored at C0 like everyone. Fetched
-// 2026-10-15; the sources are on #210. No guide team: Lan Yan (KQM gives her support roles only), Traveler (Hydro)
-// (KQM: support), Traveler (Anemo) (no KQM guide), Manekin and Manekina (no talent data).
+// 2026-10-15; the sources are on #210. No guide team: Traveler (Hydro) (KQM: support), Manekin and Manekina (no talent
+// data). Lan Yan (#216) and Traveler (Anemo) (#236) are no longer main DPS.
 type Team = [string, string, string, string];
 
 export interface GuideCarry {
