@@ -7690,6 +7690,14 @@
             "atk": 1.8644
           },
           "count": 2
+        },
+        {
+          "label": "Bloomwater Blade DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.129752
+          },
+          "count": 20
         }
       ],
       "buffs": [
@@ -8311,6 +8319,14 @@
             "atk": 3.468
           },
           "count": 1
+        },
+        {
+          "label": "DoT",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.02
+          },
+          "count": 2.5
         },
         {
           "label": "Explosion DMG",
