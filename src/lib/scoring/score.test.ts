@@ -542,6 +542,14 @@ describe("sub-DPS (#96)", () => {
     expect(yelan("Hu Tao", "Yelan", "Furina", "Xingqiu")).toBeGreaterThan(yelan("Hu Tao", "Yelan", "Zhongli", "Xingqiu"));
   });
 
+  test("a support who out-damages the carry is not named main DPS (#266)", () => {
+    // Anemo Traveler has no damage model yet (#236): Escoffier's own hits out-damage the stand-in.
+    const s = score("Traveler (Anemo)", "Escoffier", "Durin", "Zhongli");
+    expect(s.onField).toBe("Traveler (Anemo)");
+    expect(s.mainDps).toBe("Traveler (Anemo)");
+    expect(s.breakdown.some((l) => l.reason.includes("out-damages"))).toBe(false);
+  });
+
   test("Furina's Salon bonus needs another healer to keep members above 50% HP (#130)", () => {
     const share = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Furina"))?.reason);
     // Same carry and supports' elements; Bennett heals, Xiangling doesn't.
