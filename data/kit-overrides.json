@@ -794,6 +794,10 @@
       "seconds": 15,
       "source": "KeqingMains Mizuki quick guide, https://keqingmains.com/q/mizuki-quickguide/, fetched 2026-10-18: one Skill per rotation (sample rotations \"Mizuki E (Q)\"), Burst \"every other rotation\"; its ER calculator (sheet 13p-qXUhZqw3HNuhTsszj7iAzqoQB2jpgcRYzUzpHu_4) has \"Rotation length 30\" with 2 Mizuki Skills per Burst and a 15s Skill cooldown: 15s per rotation."
     },
+    "Arataki Itto": {
+      "seconds": 22,
+      "source": "KeqingMains Itto Mastersheet (linked from https://keqingmains.com/q/itto-quickguide/; sheet 1mLqhh2OROZ1TItzkvSeEoGIbwsqahXJJ-fD6kS1wlfA, Itto tab), fetched 2026-10-18: its combo's rotation is 22 s (\"Total damage 618415.96 | 28109.82 dps\"). The quick guide's \"on-field combo lasts about 16s\" is his field time, not the rotation."
+    },
     "Wanderer": {
       "seconds": 20,
       "source": "KeqingMains Wanderer calcs, linked as \"Calcs Here\" from https://keqingmains.com/wanderer/ (sheet 1e2e5ITnHVbT8tyJBqgfO89BWbPX5HcDxMdUm98ECZ0M, Calculator tab), fetched 2026-10-18: \"Rotation Length 20.00\"."
