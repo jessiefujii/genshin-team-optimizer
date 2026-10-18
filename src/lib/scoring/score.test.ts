@@ -15,9 +15,10 @@ import type { ScoringCharacter } from "./types";
 
 const all = loadScoringCharacters();
 const byId = new Map(all.map((c) => [c.id, c]));
-// Diluc and Keqing with no damage model (#203 models them): the flat-point paths for carries not modeled yet (reaction
-// partners, buffer points) are tested on these copies. Same tags; only the id differs, so no carry kit.
-for (const id of ["Diluc", "Keqing"]) byId.set(`${id} (no model)`, { ...byId.get(id)!, id: `${id} (no model)` });
+// Diluc, Keqing and Tartaglia with no damage model (#203, #232 model them): the flat-point paths for carries not
+// modeled yet (reaction partners, buffer points) are tested on these copies. Same tags; only the id differs, so no
+// carry kit.
+for (const id of ["Diluc", "Keqing", "Tartaglia"]) byId.set(`${id} (no model)`, { ...byId.get(id)!, id: `${id} (no model)` });
 const team = (...ids: string[]) =>
   ids.map((id) => {
     const c = byId.get(id);
@@ -66,7 +67,7 @@ describe("scoreTeam", () => {
     expect(bad.breakdown.some((l) => l.reason.includes("also wants field time"))).toBe(true);
   });
 
-  // The flat reaction points only apply to carries whose damage isn't modeled yet (Yoimiya, Tartaglia, Keqing):
+  // The flat reaction points only apply to carries whose damage isn't modeled yet (the "(no model)" copies):
   // a modeled carry's reactions score by the damage they add (#134).
   test("double Hydro gets credit for the second Hydro support", () => {
     const double = score("Diluc (no model)", "Xingqiu", "Yelan", "Zhongli");
@@ -78,9 +79,9 @@ describe("scoreTeam", () => {
     const vape = diluc.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
     expect(vape?.reason).toBe("Vaporize: Diluc (no model) + Furina, Xingqiu");
 
-    const childe = score("Tartaglia", "Bennett", "Furina", "Xiangling");
+    const childe = score("Tartaglia (no model)", "Bennett", "Furina", "Xiangling");
     expect(childe.breakdown.find((l) => l.reason.startsWith("Vaporize:"))?.reason).toBe(
-      "Vaporize: Tartaglia + Bennett, Xiangling",
+      "Vaporize: Tartaglia (no model) + Bennett, Xiangling",
     );
   });
 
@@ -574,11 +575,11 @@ describe("sub-DPS (#96)", () => {
   });
 
   test("a support who out-damages the carry is not named main DPS (#266)", () => {
-    // Tartaglia has no damage model yet (#232): Escoffier's own hits out-damage him. Before #266 she was named main DPS
-    // beside every carry without a model (Wanderer, Itto, Lyney, Anemo Traveler...).
-    const s = score("Tartaglia", "Escoffier", "Durin", "Zhongli");
-    expect(s.onField).toBe("Tartaglia");
-    expect(s.mainDps).toBe("Tartaglia");
+    // A carry with no damage model: Escoffier's own hits out-damage him. Before #266 she was named main DPS beside every
+    // carry without a model (Wanderer, Itto, Lyney, Anemo Traveler...).
+    const s = score("Tartaglia (no model)", "Escoffier", "Durin", "Zhongli");
+    expect(s.onField).toBe("Tartaglia (no model)");
+    expect(s.mainDps).toBe("Tartaglia (no model)");
     expect(s.breakdown.some((l) => l.reason.includes("out-damages"))).toBe(false);
   });
 
