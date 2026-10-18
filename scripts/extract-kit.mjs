@@ -2103,6 +2103,24 @@ const CARRIES = {
       { kind: "addPerStack", table: "skill", label: "Sharky's Surging Bite Additional DMG Bonus", stacks: 1, stat: "hp", hits: "bite" },
     ],
   },
+  "Arataki Itto": {
+    // KQM's Itto Mastersheet (#229; linked from https://keqingmains.com/q/itto-quickguide/, sheet
+    // 1mLqhh2OROZ1TItzkvSeEoGIbwsqahXJJ-fD6kS1wlfA, Itto and Combos tabs, fetched 2026-10-18): default combo "C0 0PS
+    // Ceiling", na1 e na2 na3 c3f n4 c4f E f, all in his Burst. Its hit counts, buffed plus snapshotted parts: n1 2, n2 2,
+    // n3 2, n4 1, ca 7, cf 3, e 2. Burst: ATK from DEF; passive 2 adds 35% DEF to every Kesagiri slash (ca and cf).
+    combo: "Q N1 E N2 N3 C3F N4 C4F E F",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 2, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 2, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 2, type: N },
+      { table: "normal", label: "4-Hit DMG", count: 1, type: N },
+      { table: "normal", label: "Arataki Kesagiri Combo Slash DMG", count: 7, type: CH },
+      { table: "normal", label: "Arataki Kesagiri Final Slash DMG", count: 3, type: CH },
+      { from: "passive2", re: /increased by (\d+)% of Arataki Itto's DEF/, stat: "def", count: 10, type: CH, addOn: true },
+      { table: "skill", label: "Skill DMG", count: 2, type: SK },
+    ],
+    buffs: [{ kind: "atkFromDef", table: "burst", label: "ATK Bonus" }],
+  },
   Noelle: {
     // KQM quick guide: N3D is "Noelle's bread and butter combo"; its rotation for Linnea, Columbina and Illuga or
     // Furina or Gorou: "Noelle EQ 5[N3D] N2" (strings vary by team, KQM). Burst: ATK from DEF.

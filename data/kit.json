@@ -8099,6 +8099,83 @@
         }
       ]
     },
+    "Arataki Itto": {
+      "rotationSeconds": 22,
+      "combo": "Q N1 E N2 N3 C3F N4 C4F E F",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.455654
+          },
+          "count": 2
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.40304
+          },
+          "count": 2
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.683648
+          },
+          "count": 2
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.153666
+          },
+          "count": 1
+        },
+        {
+          "label": "Arataki Kesagiri Combo Slash DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 1.6748
+          },
+          "count": 7
+        },
+        {
+          "label": "Arataki Kesagiri Final Slash DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 3.5076
+          },
+          "count": 3
+        },
+        {
+          "label": "passive2 bonus",
+          "type": "charged",
+          "scaling": {
+            "def": 0.35
+          },
+          "count": 10,
+          "addOn": true
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 5.2224
+          },
+          "count": 2
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "atkFromDef",
+          "value": 0.9792
+        }
+      ]
+    },
     "Noelle": {
       "rotationSeconds": 23.5,
       "combo": "EQ 5[N3D] N2",
@@ -8889,7 +8966,6 @@
   },
   "carriesTodo": [
     "Aloy",
-    "Arataki Itto",
     "Lohen",
     "Lyney",
     "Manekin",
