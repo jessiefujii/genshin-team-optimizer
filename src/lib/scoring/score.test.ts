@@ -543,10 +543,11 @@ describe("sub-DPS (#96)", () => {
   });
 
   test("a support who out-damages the carry is not named main DPS (#266)", () => {
-    // Anemo Traveler has no damage model yet (#236): Escoffier's own hits out-damage the stand-in.
-    const s = score("Traveler (Anemo)", "Escoffier", "Durin", "Zhongli");
-    expect(s.onField).toBe("Traveler (Anemo)");
-    expect(s.mainDps).toBe("Traveler (Anemo)");
+    // Tartaglia has no damage model yet (#232): Escoffier's own hits out-damage him. Before #266 she was named main DPS
+    // beside every carry without a model (Wanderer, Itto, Lyney, Anemo Traveler...).
+    const s = score("Tartaglia", "Escoffier", "Durin", "Zhongli");
+    expect(s.onField).toBe("Tartaglia");
+    expect(s.mainDps).toBe("Tartaglia");
     expect(s.breakdown.some((l) => l.reason.includes("out-damages"))).toBe(false);
   });
 
