@@ -61,6 +61,7 @@ interface ComboWhen {
   reaction?: Reaction;
   members?: string[][];
   elements?: Partial<Record<Element, number>>;
+  radiance?: boolean; // the carry's own Stellar family is active (Witch's Revelation done, #124)
 }
 interface CarryCombo {
   combo: string;
@@ -239,7 +240,8 @@ function teamFits(c: ScoringCharacter, active: readonly Reaction[], team: readon
   return (w: ComboWhen) =>
     (!w.reaction || active.includes(w.reaction)) &&
     (w.members ?? []).every((ids) => mates.some((m) => ids.includes(m.id))) &&
-    Object.entries(w.elements ?? {}).every(([e, n]) => mates.filter((m) => m.element === e).length === n);
+    Object.entries(w.elements ?? {}).every(([e, n]) => mates.filter((m) => m.element === e).length === n) &&
+    (!w.radiance || !!c.families?.includes("stellar"));
 }
 // The rotation's length (#103): a sourced length for a team that fits (kit.json rotationTeams, first match), else
 // the carry's sourced default, else their Burst cooldown (both in rotationSeconds).
@@ -346,8 +348,8 @@ function computeCarryDamage(
     kit.hits.filter((h) => types.includes(h.type)).reduce((a, h) => a + h.count * (h.instances ?? 1), 0);
   // Ascendant Gleam: two Moonsign members (each Moonsign Benediction raises the party's Moonsign by a level).
   const gleam = !noGleam && team.filter((m) => m.families?.includes("moonsign")).length >= 2;
-  // Secret Rite: two Hexerei members, read from their families like Moonsign above (the scorer's Witch's Homework
-  // option, score.ts familiesOf, doesn't reach the damage model).
+  // Secret Rite: two Hexerei members, read from their families like Moonsign above (the scorer hands in members whose
+  // families its Witch's Homework and Revelation options left locked are taken out: score.ts questView, #124).
   const secretRite = team.filter((m) => m.families?.includes("hexerei")).length >= 2;
   const fits = (w?: When) =>
     !w ||

@@ -1426,7 +1426,8 @@ function readSubDps(id, specs) {
 //   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
 //   when they differ from the default's) and when: a list of alternatives, each { reaction (one of the team's active
 //   reactions; amplifying ones then multiply this combo's hits), members (a list of id lists: a teammate from each),
-//   elements (exact number of teammates of that element) }. Picking a combo by whether its Energy needs are met
+//   elements (exact number of teammates of that element), radiance (their own Stellar family is active: Witch's
+//   Revelation done, #124) }. Picking a combo by whether its Energy needs are met
 //   waits on particle energy (#37).
 //   buffs: the carry's own buffs during those hits:
 //     atkFromHp (Hu Tao), atkPct, dmgBonus (types), factor (types; a table value, or from + re: a % of the DMG),
@@ -1548,7 +1549,8 @@ const CARRIES = {
         // passive 1: Luster: Vaulting Fist has no 50% DMG bonus, so that buff is left out. The Stellar-Conduct DMG
         // the Radiance adds (60%/80% of the 3rd/5th hits, 100% of Luster) is the scorer's Stellar line, not here.
         combo: "E 3[N5CD] N2",
-        when: [{ reaction: "stellar-conduct" }],
+        // His Radiance needs his Witch's Revelation (#124): `radiance`, his own Stellar family active.
+        when: [{ reaction: "stellar-conduct", radiance: true }],
         hits: [
           ...["1-Hit DMG", "2-Hit DMG"].map((label) => ({ table: "normal", label, count: 4, type: N })),
           { table: "normal", label: "3-Hit DMG", count: 3, type: N },
