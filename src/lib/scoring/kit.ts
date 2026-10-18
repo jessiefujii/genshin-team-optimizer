@@ -22,6 +22,7 @@ export interface KitBuff {
   points?: { max: number; own: number }; // rescueEssentials: the cap, and Ifa's own Nightsoul points from his Skill
   threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts; a perHp reactionBonus: HP above this (Nilou)
   whileOnField?: boolean; // only while this member is the on-field carry (Kaveh's Painted Dome, #256)
+  burst?: boolean; // comes from the Burst (or a passive it triggers): up only in the rotations its Energy funds (#207)
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
   unit: string;
@@ -258,6 +259,8 @@ const cache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string
 
 // `outsideDamage`: only the buffs a modeled carry's damage doesn't already read through teamBuffStats (#202): EM,
 // Reaction Bonus, RES and DEF shred, attack speed, and buffs for some reactions only.
+// `burst`: the share of rotations the buffer's Burst is funded in this team (#207, energy.ts); their `burst` buffs
+// count that share of the time, like the Burst's own damage.
 export function kitBuffValue(
   s: ScoringCharacter,
   carry: ScoringCharacter,
@@ -266,6 +269,7 @@ export function kitBuffValue(
   // true: leave out what is already in damage (the carry's modeled damage, and reaction damage); "reactions": only the
   // bonuses to reactions that deal their own damage, which transformativeLines adds there for any carry (#256).
   outsideDamage: boolean | "reactions" = false,
+  burst = 1,
 ): KitBuffValue | null {
   let byCarry = cache.get(s);
   if (!byCarry) cache.set(s, (byCarry = new WeakMap()));
@@ -277,9 +281,9 @@ export function kitBuffValue(
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
   };
-  const key = `${outsideDamage}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
+  const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
-  const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage);
+  const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage, burst);
   byReactions.set(key, value);
   return value;
 }
@@ -290,6 +294,7 @@ function computeKitBuffValue(
   carryReactions: readonly Reaction[],
   team: TeamShape,
   outsideDamage: boolean | "reactions",
+  burst: number,
 ): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
@@ -300,7 +305,7 @@ function computeKitBuffValue(
     if (outsideDamage && b.reactions?.every((r) => TRANSFORMATIVE[r as Reaction])) continue;
     // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
     const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions) : 1;
-    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share;
+    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share * (b.burst ? burst : 1);
     best.set(b.kind, Math.max(best.get(b.kind) ?? 0, g));
   }
   let total = 1;
@@ -326,9 +331,13 @@ export interface TeamBuffStats {
   // Teammates' Moonsign Benediction Base DMG bonus to the carry's direct Lunar hits, by reaction (#88; score.ts
   // teammatesLunarBase). Set by the scorer beside these sums, so teamBuffStats leaves it out.
   lunarBase?: Partial<Record<Reaction, number>>;
+  // Each member's funded Burst share (#207), for buffs from their Burst; set by the scorer, like lunarBase.
+  burstShares?: BurstShares;
 }
+// The share of rotations each member's Burst is funded in this team (#207, energy.ts energyNeeds); 1 when missing.
+export type BurstShares = ReadonlyMap<ScoringCharacter, number>;
 
-type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase">;
+type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares">;
 export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
@@ -403,13 +412,13 @@ function shapeOf(s: ScoringCharacter, carry: ScoringCharacter, team: readonly Sc
   };
 }
 
-function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
+function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[], burst: number): TeamBuffStats {
   const shape = shapeOf(s, carry, team);
   let byCarry = statsCache.get(s);
   if (!byCarry) statsCache.set(s, (byCarry = new WeakMap()));
   let byKey = byCarry.get(carry);
   if (!byKey) byCarry.set(carry, (byKey = new Map()));
-  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
+  const key = `${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
   const cached = byKey.get(key);
   if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
@@ -423,7 +432,7 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
     if (b.reactions) continue;
     const buff = applicable(b, carry, carryReactions, shape);
     if (!buff) continue;
-    const weight = b.uptime ?? 1;
+    const weight = (b.uptime ?? 1) * (b.burst ? burst : 1);
     const g = gain(b, stats, carry, carryReactions, shape) * weight;
     if (g > (best.get(b.kind)?.g ?? 0)) best.set(b.kind, { buff, weight, g });
   }
@@ -432,12 +441,12 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
   return out;
 }
 
-export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
+export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[], shares?: BurstShares): TeamBuffStats {
   const out = { ...NO_TEAM_BUFFS };
   for (const s of team) {
     const entry = KIT[s.id];
     if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
-    const part = bufferPart(s, carry, carryReactions, team);
+    const part = bufferPart(s, carry, carryReactions, team, shares?.get(s) ?? 1);
     for (const k of Object.keys(NO_TEAM_BUFFS) as NumericBuff[]) out[k] += part[k];
   }
   return out;
@@ -473,10 +482,11 @@ export function memberBuffStats(
   active: readonly Reaction[],
   team: readonly ScoringCharacter[],
   talent?: string,
+  shares?: BurstShares,
 ): TeamBuffStats {
   let byKey = memberCache.get(team);
   if (!byKey) memberCache.set(team, (byKey = new Map()));
-  const key = `${m.id}|${carry.id}|${active.join(",")}|${talent ?? ""}`;
+  const key = `${m.id}|${carry.id}|${active.join(",")}|${talent ?? ""}|${shares ? "funded" : ""}`;
   const cached = byKey.get(key);
   if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
@@ -489,7 +499,8 @@ export function memberBuffStats(
     const shape0 = shapeOf(s, carry, team);
     for (const kind of ["resShred", "defShred"] as const) {
       const b = entry.buffs.find((x) => x.kind === kind && !x.reactions && (!x.elements || x.elements.includes(m.element)) && (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))));
-      if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor), shape0, b.uptime ?? 1, out);
+      const funded = b?.burst ? (shares?.get(s) ?? 1) : 1;
+      if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor), shape0, (b.uptime ?? 1) * funded, out);
     }
     if (!wide) continue;
     if (wide.elements && !wide.elements.includes(m.element)) continue;
@@ -503,7 +514,7 @@ export function memberBuffStats(
       if (b.teamOnly && !shape.elements.every((e) => b.teamOnly!.includes(e))) continue;
       if (b.appliesTo && !(talent && b.appliesTo.includes(talent))) continue;
       seen.add(b.kind);
-      addBuffStats(b.steps ? { ...b, value: stepValue(b, shape) } : b, stats, shape, b.uptime ?? 1, out);
+      addBuffStats(b.steps ? { ...b, value: stepValue(b, shape) } : b, stats, shape, (b.uptime ?? 1) * (b.burst ? (shares?.get(s) ?? 1) : 1), out);
     }
   }
   return out;
@@ -517,6 +528,7 @@ export function reactionBonusesFor(
   r: Reaction,
   carry: ScoringCharacter,
   team: readonly ScoringCharacter[],
+  shares?: BurstShares,
 ): { bonus: number; additive: number } {
   let bonus = 0;
   let additive = 0;
@@ -530,7 +542,7 @@ export function reactionBonusesFor(
       if (!b.reactions?.includes(r)) continue;
       if (b.teamOnly && !elements.every((e) => b.teamOnly!.includes(e))) continue;
       if (b.whileOnField && m !== carry) continue;
-      const up = b.uptime ?? 1;
+      const up = (b.uptime ?? 1) * (b.burst ? (shares?.get(m) ?? 1) : 1);
       if (b.kind === "reactionBonus") {
         const others = team.filter((x) => x !== m && x.families?.includes("nightsoul")).length;
         const essentials = () => rescueEssentials(b.points!, { ...shape, nightsoulOthers: others });

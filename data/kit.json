@@ -17,7 +17,8 @@
           "source": "passive2: \"Elemental Mastery of nearby party members by 125\"",
           "duration": 10,
           "cd": 12,
-          "uptime": 0.833333
+          "uptime": 0.833333,
+          "burst": true
         }
       ]
     },
@@ -108,7 +109,8 @@
           "source": "burst talent \"ATK Bonus Ratio\", level 9",
           "duration": 12,
           "cd": 15,
-          "uptime": 0.8
+          "uptime": 0.8,
+          "burst": true
         }
       ]
     },
@@ -129,7 +131,8 @@
           "source": "burst talent \"DMG Bonus\", level 9",
           "duration": 9,
           "cd": 15,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "burst": true
         }
       ]
     },
@@ -200,7 +203,8 @@
           "source": "burst talent \"Lunar Reaction DMG Bonus\", level 9",
           "duration": 20,
           "cd": 15,
-          "uptime": 1
+          "uptime": 1,
+          "burst": true
         }
       ]
     },
@@ -221,7 +225,8 @@
           "source": "passive2: \"up to a maximum of 20%\"",
           "duration": null,
           "cd": null,
-          "uptime": null
+          "uptime": null,
+          "burst": true
         }
       ]
     },
@@ -277,7 +282,8 @@
           "source": "burst talent \"Anemo DMG Bonus\", level 9",
           "duration": 12,
           "cd": 20,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "burst": true
         },
         {
           "kind": "resShred",
@@ -289,7 +295,8 @@
           "source": "burst talent \"Anemo RES Decrease\", level 9",
           "duration": 12,
           "cd": 20,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "burst": true
         }
       ]
     },
@@ -310,7 +317,8 @@
           "source": "burst talent \"Fanfare to DMG Increase Conversion Ratio\" x \"Maximum Fanfare\", level 9",
           "duration": 18,
           "cd": 15,
-          "uptime": 1
+          "uptime": 1,
+          "burst": true
         }
       ]
     },
@@ -361,7 +369,8 @@
           "source": "burst talent \"Max ATK Bonus\", level 9",
           "duration": 12,
           "cd": 18,
-          "uptime": 0.666667
+          "uptime": 0.666667,
+          "burst": true
         }
       ]
     },
@@ -443,7 +452,8 @@
           "source": "burst talent \"Geo DMG Bonus\", level 9",
           "duration": 20,
           "cd": 15,
-          "uptime": 1
+          "uptime": 1,
+          "burst": true
         }
       ]
     },
@@ -461,7 +471,8 @@
           "source": "passive2: \"Elemental Mastery by 6% of Ineffa's ATK\"",
           "duration": 20,
           "cd": 15,
-          "uptime": 1
+          "uptime": 1,
+          "burst": true
         }
       ]
     },
@@ -501,7 +512,8 @@
           "source": "burst talent \"Dendro Core Burst DMG Bonus\", level 9",
           "duration": 12,
           "cd": 20,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "burst": true
         }
       ]
     },
@@ -542,7 +554,8 @@
           "source": "burst talent \"Bloom, Hyperbloom, and Burgeon DMG Increase\", level 9",
           "duration": 15,
           "cd": 15,
-          "uptime": 1
+          "uptime": 1,
+          "burst": true
         },
         {
           "kind": "flatDmgFromEm",
@@ -554,7 +567,8 @@
           "source": "burst talent \"Lunar-Bloom DMG Increase\", level 9",
           "duration": 15,
           "cd": 15,
-          "uptime": 1
+          "uptime": 1,
+          "burst": true
         }
       ]
     },
@@ -602,7 +616,8 @@
           "source": "passive2: \"DEF decreased by 15%\"",
           "duration": 10,
           "cd": null,
-          "uptime": null
+          "uptime": null,
+          "burst": true
         }
       ]
     },
@@ -629,7 +644,8 @@
           "source": "passive1: \"8%/12%/16%/20% respectively\"",
           "duration": 10,
           "cd": 12,
-          "uptime": 0.833333
+          "uptime": 0.833333,
+          "burst": true
         }
       ]
     },
@@ -648,7 +664,8 @@
           "source": "passive2: \"maximum increase obtainable this way is 40%\"",
           "duration": 20,
           "cd": 18,
-          "uptime": 1
+          "uptime": 1,
+          "burst": true
         }
       ]
     },
@@ -687,7 +704,8 @@
           "source": "burst talent \"DMG Bonus\", level 9",
           "duration": 5,
           "cd": 15,
-          "uptime": 0.333333
+          "uptime": 0.333333,
+          "burst": true
         }
       ]
     },
@@ -705,7 +723,8 @@
           "source": "passive1: \"increased by 25% of the Elemental Mastery of the party member with the highest\"",
           "duration": null,
           "cd": null,
-          "uptime": null
+          "uptime": null,
+          "burst": true
         }
       ]
     },
@@ -806,7 +825,8 @@
           "source": "passive2: \"cannot exceed 15%\"",
           "duration": 10,
           "cd": 15,
-          "uptime": 0.666667
+          "uptime": 0.666667,
+          "burst": true
         }
       ]
     },
@@ -839,7 +859,8 @@
           "source": "burst talent \"RES Decrease\", level 9",
           "duration": 12,
           "cd": 20,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "burst": true
         }
       ]
     },
@@ -922,7 +943,8 @@
           "source": "passive2: \"increased by 200% of Xianyun's ATK\"",
           "duration": null,
           "cd": null,
-          "uptime": null
+          "uptime": null,
+          "burst": true
         }
       ]
     },
@@ -977,7 +999,8 @@
           "source": "passive2: \"maximum increase to DMG dealt is 50%\"",
           "duration": null,
           "cd": null,
-          "uptime": null
+          "uptime": null,
+          "burst": true
         }
       ]
     },
@@ -998,7 +1021,8 @@
           "source": "burst talent \"DMG Increase\", level 9",
           "duration": 12,
           "cd": 15,
-          "uptime": 0.8
+          "uptime": 0.8,
+          "burst": true
         }
       ]
     },

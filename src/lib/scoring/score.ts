@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats } from "./kit";
+import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
 import { amplifyGain, carryDamage, carryStats, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
@@ -86,6 +86,7 @@ interface TeamContext {
   active: Reaction[];
   options: ScoreOptions;
   carryDps: Map<ScoringCharacter, number>; // carryDamagePerSecond, once per carry and team
+  burstShares: Map<ScoringCharacter, BurstShares>; // burstSharesFor, once per carry and team
 }
 
 const NO_FAMILIES: Family[] = [];
@@ -128,7 +129,7 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
   const converted = new Set<Reaction>();
   for (const m of members) for (const r of m.converts ?? []) converted.add(r);
   const active = listed.filter((r) => canTrigger(r, elements, converted));
-  return { members, elements, active, options, carryDps: new Map() };
+  return { members, elements, active, options, carryDps: new Map(), burstShares: new Map() };
 }
 
 // A support only partners a reaction if it brings an element the carry lacks (Bennett is not a Vaporize partner for Hu Tao).
@@ -261,7 +262,8 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     const talent = fit?.talent;
     const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
     // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
-    const kit = kitBuffValue(s, carry, carryActive, ctx.members);
+    const burst = burstSharesFor(ctx, carry).get(s) ?? 1;
+    const kit = kitBuffValue(s, carry, carryActive, ctx.members, false, burst);
     if (kit && kit.gain <= 0) {
       // Mavuika under the 100 Fighting Spirit her Burst needs: say so, not "doesn't apply" (#126).
       const fs = s.id === "Mavuika" && fightingSpirit(s, carry, ctx.members) === 0 ? fightingSpiritBuilt(s, carry, ctx.members) : null;
@@ -273,11 +275,13 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
       continue;
     }
     // Bonuses to reactions that deal their own damage count there (transformativeLines, #256), for any carry.
-    const outside = kit ? kitBuffValue(s, carry, carryActive, ctx.members, inDamage ? true : "reactions")! : kit;
+    const outside = kit ? kitBuffValue(s, carry, carryActive, ctx.members, inDamage ? true : "reactions", burst)! : kit;
     const base = outside ? (POINTS.buffer * outside.gain) / GAIN_FOR_POINTS : POINTS.buffer;
     const counted = kit && outside && kit.gain - outside.gain >= 0.005 ? `, ~+${Math.round((kit.gain - outside.gain) * 100)}% of it in ${carry.id}'s damage` : "";
     const est = kit ? `~+${Math.round(kit.gain * 100)}% damage${counted}` : "";
-    const detail = [est, level === undefined ? "" : `${talent} level ${level}`].filter(Boolean).join(", ");
+    // A Burst short of Energy funds its buffs less often (#207): say so when it's noticeable (under 95%).
+    const starved = burst < 0.95 && KIT_BUFFS[s.id]?.buffs.some((b) => b.burst) ? `Burst in ~${Math.round(burst * 100)}% of rotations` : "";
+    const detail = [est, level === undefined ? "" : `${talent} level ${level}`, starved].filter(Boolean).join(", ");
     fitting.push({
       id: s.id,
       points: Math.round(base * talentFactor(level)),
@@ -453,7 +457,7 @@ const GLEAM = kitJson.ascendantGleam as Record<string, GleamEntry>;
 const SUSTAIN = kitJson.sustain as Record<string, { coverage: number | null; missing?: string }>;
 const KIT_BUFFS = kitJson.characters as Record<
   string,
-  { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number }[] }
+  { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number; burst?: boolean }[] }
 >;
 
 // Moonsign: Ascendant Gleam (#63). Each Moonsign member's "Moonsign Benediction" raises the party's Moonsign by
@@ -727,14 +731,26 @@ function teammatesLunarBase(r: LunarReaction, members: readonly ScoringCharacter
   return sum;
 }
 const LUNAR_REACTIONS: LunarReaction[] = ["lunar-charged", "lunar-bloom", "lunar-crystallize"];
-// The carry's team buffs (#157), with teammates' Lunar Base DMG bonuses (#88).
+// The share of rotations each member's Burst is funded with this carry (#37, energy.ts), for the buffs from it (#207):
+// the same reading their Burst damage uses (subDpsLines, carry damage's burstShare).
+function burstSharesFor(ctx: TeamContext, carry: ScoringCharacter): BurstShares {
+  let shares = ctx.burstShares.get(carry);
+  if (!shares) {
+    const needs = energyNeeds(ctx.members, carry, carryRotationSeconds(carry, ctx.active, ctx.members));
+    ctx.burstShares.set(carry, (shares = new Map([...needs].map(([m, n]) => [m, n.share]))));
+  }
+  return shares;
+}
+
+// The carry's team buffs (#157), with teammates' Lunar Base DMG bonuses (#88) and funded Burst shares (#207).
 function carryTeamBuffs(carry: ScoringCharacter, ctx: TeamContext): TeamBuffStats {
   const lunarBase: Partial<Record<Reaction, number>> = {};
   for (const r of LUNAR_REACTIONS) {
     const v = teammatesLunarBase(r, ctx.members, carry);
     if (v > 0) lunarBase[r] = v;
   }
-  return { ...teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members), lunarBase };
+  const burstShares = burstSharesFor(ctx, carry);
+  return { ...teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members, burstShares), lunarBase, burstShares };
 }
 
 // Each sub-DPS's KQM stat priority for the benchmark build's substats (#164/#165).
@@ -1086,14 +1102,14 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   const carryReactions = carry.reactions.filter((r) => ctx.active.includes(r));
   const shreds = new Map<Element, number>();
   const shredOn = (element: Element) => {
-    if (!shreds.has(element)) shreds.set(element, resShredGain(teamBuffStats({ ...carry, element }, carryReactions, ctx.members).resShred));
+    if (!shreds.has(element)) shreds.set(element, resShredGain(teamBuffStats({ ...carry, element }, carryReactions, ctx.members, burstSharesFor(ctx, carry)).resShred));
     return shreds.get(element)!;
   };
   let total = 0;
   for (const r of Object.keys(TRANSFORMATIVE) as Reaction[]) {
     const mine = triggers.filter((t) => t.r === r);
     if (mine.length === 0) continue;
-    const { bonus, additive } = reactionBonusesFor(r, carry, ctx.members); // the team's kits' (#256)
+    const { bonus, additive } = reactionBonusesFor(r, carry, ctx.members, burstSharesFor(ctx, carry)); // the team's kits' (#256)
     let dps = 0;
     const by: string[] = [];
     for (const m of new Set(mine.map((t) => t.m))) {
@@ -1209,7 +1225,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     for (const s of entry.sources) {
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
       // Teammates' party-wide kit buffs on this hit (#204, kit.ts memberBuffStats): ATK, DMG Bonus, CRIT Rate, flat DMG.
-      const team = memberBuffStats(m, carry, ctx.active, ctx.members, s.talent);
+      const team = memberBuffStats(m, carry, ctx.active, ctx.members, s.talent, burstSharesFor(ctx, carry));
       const atk = stat.atk + team.atk + team.atkPct * baseAtk;
       const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
       // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
