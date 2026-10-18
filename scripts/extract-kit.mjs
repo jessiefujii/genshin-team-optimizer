@@ -1692,7 +1692,7 @@ const CARRIES = {
   // Action "after she has used Windborne Sword at the highest level 3 times": Lv. 1, Lv. 2, Lv. 3 x3. Each Normal and
   // Charged Attack also summons a wind pinion. With Stellar Swirl in the team (Radiance), "DMG dealt by the Spirit Blades
   // become Anemo DMG that is considered Stellar Swirl reaction DMG": their Stellar Swirl rows, direct (wiki Damage §
-  // Direct). Rotation: her 18s Skill cooldown, one Skill per rotation (no source gives a length: estimate). Left out:
+  // Direct). Rotation: 18.48s, measured in a HoYoLAB test (kit-overrides.json rotations). Left out:
   // passive 2's ATK/EM by teammates' elements.
   Vesna: {
     radianceInDamage: true, // her Radiance: Stellar Swirl Spirit Blades are in her damage (#235)

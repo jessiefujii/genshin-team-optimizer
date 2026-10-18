@@ -787,8 +787,8 @@
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
     "Vesna": {
-      "seconds": 18,
-      "source": "Estimate (#235): her Skill cooldown, 18s (wiki The Art of Victory), one Skill per rotation (GameWith's combo, https://gamewith.net/genshin-impact/article/show/76472, fetched 2026-10-18); no guide gives a length."
+      "seconds": 18.48,
+      "source": "HoYoLAB C0 Vesna performance test (Vesna, Odette, Faruzan, Vodyanitsa), https://www.hoyolab.com/article/46785086, fetched 2026-10-18: \"Rotation time: 18.48 seconds\" for one full team rotation. (Its Vesna string is E twice, Q, E, 2[N1C], E, 2[N1C], E: four Windborne Swords; the spec keeps GameWith's five, which the wiki's three Lv. 3 casts allow.)"
     },
     "Yumemizuki Mizuki": {
       "seconds": 15,
