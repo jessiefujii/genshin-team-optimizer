@@ -2121,6 +2121,24 @@ const CARRIES = {
     ],
     buffs: [{ kind: "atkFromDef", table: "burst", label: "ATK Bonus" }],
   },
+  Tartaglia: {
+    // KQM's full guide (#232; https://keqingmains.com/tartaglia/, fetched 2026-10-18): its calc rotation "Q E + 3[mN2C]
+    // 2[mN3C] (%Riptide Slash)"; the Weapon Calcs it links (sheet 1gPXar-_tcy2glyjLp0d8Rnr_qaXLEI1OLI79SU2d0bg,
+    // Information tab, "Buffs per hit") list the hits: ranged Q, Stance Change, mN1 x5, mN2 x5, mN3 x2, melee Charged
+    // Attack x5 (CA1 + CA2 each) and Riptide Slash x4. Melee Normal and Charged Attacks are Normal / Charged Attack DMG;
+    // Riptide Slash and the Stance Change are Skill DMG.
+    combo: "Q E 3[mN2C] 2[mN3C]",
+    hits: [
+      { table: "burst", label: "Skill DMG: Ranged", count: 1, type: BU },
+      { table: "skill", label: "Stance Change DMG", count: 1, type: SK },
+      { table: "skill", label: "1-Hit DMG", count: 5, type: N },
+      { table: "skill", label: "2-Hit DMG", count: 5, type: N },
+      { table: "skill", label: "3-Hit DMG", count: 2, type: N },
+      { table: "skill", label: "Charged Attack DMG", count: 5, type: CH, instances: 2 },
+      { table: "skill", label: "Riptide Slash", count: 4, type: SK },
+    ],
+    buffs: [],
+  },
   Noelle: {
     // KQM quick guide: N3D is "Noelle's bread and butter combo"; its rotation for Linnea, Columbina and Illuga or
     // Furina or Gorou: "Noelle EQ 5[N3D] N2" (strings vary by team, KQM). Burst: ATK from DEF.
