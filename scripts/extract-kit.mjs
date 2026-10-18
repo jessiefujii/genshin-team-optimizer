@@ -233,6 +233,33 @@ function tableValue(attrs, label, id) {
 const round = (n) => (n === null || n === undefined ? n : Math.round(n * 1e6) / 1e6); // 6 places: Prune is 0.025% per ATK point
 const uptime = (duration, cd) => (duration && cd ? round(Math.min(1, duration / cd)) : null);
 
+// Passive buffs that only come from the Burst (#207): their text names it (checked below), so a starved Burst funds
+// them for the same share of rotations as its damage (energy.ts). Not here: buffs from the Skill too (Sucrose,
+// Escoffier), from the Skill alone (Nilou, Sigewinne, Xinyan, Citlali) or from reactions (Kazuha).
+const BURST_PASSIVES = {
+  Albedo: "passive2", // "Using Rite of Progeniture: Tectonic Tide increases the Elemental Mastery"
+  Dahlia: "passive2", // "the Favonian Favor effect of the Elemental Burst"
+  Ineffa: "passive2", // "When using the Elemental Burst"
+  Lisa: "passive2", // "Opponents hit by Lightning Rose"
+  Lynette: "passive1", // "Within 10s after using Magic Trick: Astonishing Shift"
+  Mavuika: "passive2", // "After using her Elemental Burst"
+  Nahida: "passive1", // "When unleashing Illusory Heart"
+  Rosaria: "passive2", // "Casting Rites of Termination"
+  Xianyun: "passive2", // "the Starwicker created by Stars Gather at Dusk"
+  Yelan: "passive2", // "So long as an Exquisite Throw is in play" (Depth-Clarion Dice)
+};
+// Whether a buff from this talent needs the Burst: the Burst itself, or a passive above whose text names it.
+function fromBurst(id, from, talents) {
+  if (from === "burst") return true;
+  if (BURST_PASSIVES[id] !== from) return false;
+  const text = talents[from].description.replace(/\s+/g, " ");
+  const burst = talents.combat3.name;
+  if (!text.includes("Elemental Burst") && !text.includes(burst) && !(id === "Yelan" && text.includes("Exquisite Throw"))) {
+    throw new Error(`${id}: ${from} doesn't name the Burst (${burst}): ${text}`);
+  }
+  return true;
+}
+
 // spec.also: more specs for the same buffer, from other talents (Shenhe's Burst RES shred, #177).
 function readBuffs(id, spec) {
   if (spec.also) return [...readBuffs(id, { ...spec, also: undefined }), ...spec.also.flatMap((s) => readBuffs(id, s))];
@@ -261,6 +288,7 @@ function readBuffs(id, spec) {
       duration,
       cd,
       uptime: uptime(duration, cd),
+      ...(fromBurst(id, spec.talent, talents) ? { burst: true } : {}),
     }));
   }
   const froms = [spec.from].flat();
@@ -309,6 +337,7 @@ function readBuffs(id, spec) {
       duration,
       cd,
       uptime: uptime(duration, cd),
+      ...(fromBurst(id, from, talents) ? { burst: true } : {}),
     };
   });
 }
