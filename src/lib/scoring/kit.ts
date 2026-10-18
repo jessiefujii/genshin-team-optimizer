@@ -323,8 +323,12 @@ export interface TeamBuffStats {
   flat: number; // flat DMG per hit instance (Additive Base DMG Bonus: Shenhe, Yun Jin)
   resShred: number; // enemy RES decrease on the hits it reaches (#204)
   defShred: number; // enemy DEF decrease (#204)
+  // Teammates' Moonsign Benediction Base DMG bonus to the carry's direct Lunar hits, by reaction (#88; score.ts
+  // teammatesLunarBase). Set by the scorer beside these sums, so teamBuffStats leaves it out.
+  lunarBase?: Partial<Record<Reaction, number>>;
 }
 
+type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase">;
 export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
@@ -434,7 +438,7 @@ export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly 
     const entry = KIT[s.id];
     if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
     const part = bufferPart(s, carry, carryReactions, team);
-    for (const k of Object.keys(out) as (keyof TeamBuffStats)[]) out[k] += part[k];
+    for (const k of Object.keys(NO_TEAM_BUFFS) as NumericBuff[]) out[k] += part[k];
   }
   return out;
 }

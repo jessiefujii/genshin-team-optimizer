@@ -563,6 +563,21 @@ describe("sub-DPS (#96)", () => {
     expect(own("Xingqiu", "Raiden Shogun", "Xingqiu", "Zhongli", "Bennett")).toBeGreaterThan(own("Xingqiu", "Raiden Shogun", "Xingqiu", "Diona", "Bennett"));
   });
 
+  test("teammates' Moonsign Benediction Base DMG bonus reaches every Lunar hit (#88)", () => {
+    const stats = (atk: number): CharacterStats => ({
+      atk, hp: 15000, def: 800, critRate: 50, critDmg: 100, energyRecharge: 150, elementalMastery: 100, elementalDmgBonus: 30,
+    });
+    // Flins' and Ineffa's bonuses grow 0.7% per 100 ATK, up to 14% at 2,000. Nothing else of theirs reaches the other's
+    // or Columbina's Lunar-Charged hits (EM buffs aren't in carry damage), so only the Base DMG bonus moves them.
+    const read = (who: string, atk: number) => {
+      const s = scoreTeam(team("Flins", "Ineffa", "Columbina", "Aino").map((c) => (c.id === who ? { ...c, stats: stats(atk) } : c)));
+      const line = (re: RegExp) => s.breakdown.find((l) => re.test(l.reason))?.reason;
+      return { columbina: dps(line(/^Columbina's own hits/)), lunar: Number(line(/^Lunar-charged adds/)?.match(/~\+(\d+)%/)?.[1]) };
+    };
+    expect(read("Flins", 2000).columbina).toBeGreaterThan(read("Flins", 1000).columbina);
+    expect(read("Ineffa", 2000).lunar).toBeGreaterThan(read("Ineffa", 1000).lunar);
+  });
+
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
     const share = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.

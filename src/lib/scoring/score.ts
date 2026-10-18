@@ -4,8 +4,8 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats } from "./kit";
-import { amplifyGain, carryDamage, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats } from "./kit";
+import { amplifyGain, carryDamage, carryStats, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -687,12 +687,38 @@ interface SubDpsSource {
   talent?: string; // the talent the hit is from: "burst" hits need the Burst's Energy (#37)
   cd: number;
 }
-// lunarBaseBonus: their own Moonsign Benediction's Base DMG bonus to their direct Lunar hits (PR #155; Ineffa,
-// Columbina). Teammates' bonuses to them stay with #88.
+// lunarBaseBonus: their own Moonsign Benediction's Base DMG bonus to their direct Lunar hits (PR #155); teammates' add
+// to it (teammatesLunarBase, #88).
 type SubDpsLunarBase = { stat: "atk" | "hp" | "def" | "em"; perPoint: number; max: number; reactions: LunarReaction[] };
 // base: level 90 character base stats from genshin-db, for the benchmark build (#158).
 type SubDpsEntry = { base: SubDpsBase | null; sources: SubDpsSource[]; missing?: string[]; lunarBaseBonus?: SubDpsLunarBase };
 const SUB_DPS = kitJson.subDps as Record<string, SubDpsEntry>;
+
+// Moonsign Benediction (#88): every Lunar converter in the party raises the Base DMG of their Lunar reactions by their
+// own stat, capped (kit.json lunarBase, from passive 3). The wiki's formula has one "% Reaction Base DMG Bonus" term,
+// so converters' bonuses add. A converter's stat: their build, else their sub-DPS benchmark, else a carry's (Flins,
+// Zibai, Nefer). Their own bonus to their own hits is already in (subDps lunarBaseBonus, the carry's kit buff).
+const LUNAR_BASE = kitJson.lunarBase as Record<string, SubDpsLunarBase>;
+function teammatesLunarBase(r: LunarReaction, members: readonly ScoringCharacter[], self: ScoringCharacter): number {
+  let sum = 0;
+  for (const m of members) {
+    const b = LUNAR_BASE[m.id];
+    if (m === self || !b?.reactions.includes(r)) continue;
+    const stats = subDpsStats(m) ?? carryStats(m);
+    sum += Math.min(b.max, b.perPoint * stats[b.stat]);
+  }
+  return sum;
+}
+const LUNAR_REACTIONS: LunarReaction[] = ["lunar-charged", "lunar-bloom", "lunar-crystallize"];
+// The carry's team buffs (#157), with teammates' Lunar Base DMG bonuses (#88).
+function carryTeamBuffs(carry: ScoringCharacter, ctx: TeamContext): TeamBuffStats {
+  const lunarBase: Partial<Record<Reaction, number>> = {};
+  for (const r of LUNAR_REACTIONS) {
+    const v = teammatesLunarBase(r, ctx.members, carry);
+    if (v > 0) lunarBase[r] = v;
+  }
+  return { ...teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members), lunarBase };
+}
 
 // Each sub-DPS's KQM stat priority for the benchmark build's substats (#164/#165).
 const SUB_DPS_BUILDS = (subDpsBuildsJson as unknown as { characters: Record<string, SubDpsPriority & { quote: string }> }).characters;
@@ -1108,7 +1134,7 @@ function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = 
 function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink): Reaction[] {
   const covered = ctx.active.filter((r) => modelsReaction(carry, r));
   if (covered.length === 0) return covered;
-  const buffs = teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members);
+  const buffs = carryTeamBuffs(carry, ctx);
   const withReactions = modeledCarryDps(carry, ctx, true, buffs);
   let without = modeledCarryDps(carry, ctx, false, buffs);
   if (withReactions === null || without === null) return [];
@@ -1159,7 +1185,8 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     // Burst hits only in the rotations the team's Energy funds (#37).
     const burstPart = needs.get(m)?.share ?? 1;
     const own = entry.lunarBaseBonus;
-    const lunarBase = (r: LunarReaction) => (own && own.reactions.includes(r) ? Math.min(own.max, own.perPoint * stat[own.stat]) : 0);
+    const lunarBase = (r: LunarReaction) =>
+      (own && own.reactions.includes(r) ? Math.min(own.max, own.perPoint * stat[own.stat]) : 0) + teammatesLunarBase(r, ctx.members, m);
     const reactions = subDpsReactions(m, ctx);
     const reacted = new Set<Reaction>();
     for (const s of entry.sources) {
@@ -1217,7 +1244,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
 function carryDamagePerSecond(carry: ScoringCharacter, ctx: TeamContext): number {
   const known = ctx.carryDps.get(carry);
   if (known !== undefined) return known;
-  const buffs = teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members);
+  const buffs = carryTeamBuffs(carry, ctx);
   const own = modeledCarryDps(carry, ctx, true, buffs);
   const generic = BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond * expectedCrit(carry);
   const level = carry.keyTalent && carry.talents?.[carry.keyTalent];
