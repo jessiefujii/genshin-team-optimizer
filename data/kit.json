@@ -8661,6 +8661,70 @@
         }
       ]
     },
+    "Tartaglia": {
+      "rotationSeconds": 25.5,
+      "combo": "Q E 3[mN2C] 2[mN3C]",
+      "hits": [
+        {
+          "label": "Skill DMG: Ranged",
+          "type": "burst",
+          "scaling": {
+            "atk": 6.4328
+          },
+          "count": 1
+        },
+        {
+          "label": "Stance Change DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.224
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.71416
+          },
+          "count": 5
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.76472
+          },
+          "count": 5
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.0349
+          },
+          "count": 2
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.42846
+          },
+          "count": 5,
+          "instances": 2
+        },
+        {
+          "label": "Riptide Slash",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.106
+          },
+          "count": 4
+        }
+      ],
+      "buffs": []
+    },
     "Noelle": {
       "rotationSeconds": 23.5,
       "combo": "EQ 5[N3D] N2",
@@ -9459,7 +9523,6 @@
     "Razor",
     "Sandrone",
     "Sethos",
-    "Tartaglia",
     "Traveler (Cryo)",
     "Varka"
   ]
