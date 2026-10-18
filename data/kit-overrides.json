@@ -394,6 +394,20 @@
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Aino, fetched 2026-10-10: \"Water balls are fired every 1.5 seconds and up to 9 can be fired during the skill's duration.\""
       }
     },
+    "Traveler (Anemo)": {
+      "skill: Initial Cutting DMG": {
+        "hits": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Palm_Vortex, fetched 2026-10-18 (Gameplay Notes): \"When the skill button is held, Initial Cutting DMG ticks 2 times (at 0.35s and 0.5s)\"; KQM's guide (https://keqingmains.com/anemo-traveler/) plays \"a quick 3-hit Skill\": these 2 ticks and the Storm."
+      },
+      "burst: Tornado DMG": {
+        "hits": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gust_Surge, fetched 2026-10-18 (Gameplay Notes): \"Tornado DMG and Additional Elemental DMG can strike up to 9 times: once every 0.5 seconds from 2 to 6 seconds after activating Gust Surge.\""
+      },
+      "burst: Additional Elemental DMG": {
+        "hits": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gust_Surge, fetched 2026-10-18 (Gameplay Notes): \"Tornado DMG and Additional Elemental DMG can strike up to 9 times: once every 0.5 seconds from 2 to 6 seconds after activating Gust Surge.\" Every hit taken as absorbed, as Kazuha's (estimate)."
+      }
+    },
     "Citlali": {
       "skill: Frostfall Storm DMG": {
         "hits": 6,

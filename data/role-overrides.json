@@ -7,6 +7,15 @@
       ],
       "why": "Jessie, 2026-10-12 (#136): also a main DPS. Guides play them on-field for Stellar-Conduct (bittopup 2026-08-14: 'On-field Conduct DPS / off-field Swirl sub-DPS'); Game8 7.1 ranks them SS Main DPS. The wiki lists only Off-Field DPS."
     },
+    "Traveler (Anemo)": {
+      "add": [
+        "Off-Field"
+      ],
+      "drop": [
+        "main-dps"
+      ],
+      "why": "Jessie, 2026-10-18 (#236): not a main DPS. No guide plays them as the on-field carry (no KQM quick guide, no genshin-builds teams page, checked 2026-10-16/18), so no sourced combo; the wiki's On-Field + DPS only made them main-dps. Kept as an off-field Swirl/grouping sub-DPS (flex field time, like Lan Yan)."
+    },
     "Lan Yan": {
       "drop": [
         "main-dps"

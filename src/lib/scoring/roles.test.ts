@@ -5,7 +5,8 @@ import overrides from "../../../data/role-overrides.json";
 import wiki from "../../../data/wiki-roles.json";
 
 const WIKI = (wiki as { characters: Record<string, { roles: string[] }> }).characters;
-// Roles changed from the wiki's by Jessie's decision: added (Traveler (Cryo) on-field, #136), dropped (Lan Yan's main-dps, #216).
+// Roles changed from the wiki's by Jessie's decision: added (Traveler (Cryo) on-field, #136), dropped (Lan Yan's main-dps, #216;
+// Traveler (Anemo)'s, now an off-field sub-DPS, #236).
 const OVERRIDES = (overrides as { characters: Record<string, { add?: string[]; drop?: string[] }> }).characters;
 
 describe("character roles (#105)", () => {

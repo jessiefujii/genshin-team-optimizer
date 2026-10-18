@@ -3030,9 +3030,9 @@
   {
     "id": "Traveler (Anemo)",
     "roles": [
-      "main-dps"
+      "sub-dps"
     ],
-    "fieldTime": "on",
+    "fieldTime": "flex",
     "reactions": [
       "swirl"
     ],

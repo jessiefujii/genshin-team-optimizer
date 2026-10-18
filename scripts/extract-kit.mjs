@@ -875,6 +875,15 @@ const SUBDPS = {
     { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
     { talent: "burst", label: "Additional Elemental DMG", hits: "rate", cd: "CD" },
   ],
+  // Quickswap, as KQM's guide plays them (#236): "a quick 3-hit Skill for damage and Elemental Particles every 8
+  // seconds" (the Hold's 2 Initial Cutting ticks, then the Storm on release; its CD is the 8s Max Charging CD), and
+  // the Burst.
+  "Traveler (Anemo)": [
+    { talent: "skill", label: "Initial Cutting DMG", hits: "rate", cd: "Max Charging CD" },
+    { talent: "skill", label: "Initial Storm DMG", hits: 1, cd: "Max Charging CD" },
+    { talent: "burst", label: "Tornado DMG", hits: "rate", cd: "CD" },
+    { talent: "burst", label: "Additional Elemental DMG", hits: "rate", cd: "CD" },
+  ],
   "Sangonomiya Kokomi": [
     { talent: "skill", label: "Ripple DMG", hits: "rate", cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },

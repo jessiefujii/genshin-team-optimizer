@@ -1829,6 +1829,58 @@
         }
       ]
     },
+    "Traveler (Anemo)": {
+      "base": {
+        "hp": 10875,
+        "atk": 212,
+        "def": 683,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Initial Cutting DMG",
+          "scaling": {
+            "atk": 0.204
+          },
+          "hits": 2,
+          "cd": 8,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Palm_Vortex, fetched 2026-10-18 (Gameplay Notes): \"When the skill button is held, Initial Cutting DMG ticks 2 times (at 0.35s and 0.5s)\"; KQM's guide (https://keqingmains.com/anemo-traveler/) plays \"a quick 3-hit Skill\": these 2 ticks and the Storm."
+        },
+        {
+          "talent": "skill",
+          "label": "Initial Storm DMG",
+          "scaling": {
+            "atk": 2.992
+          },
+          "hits": 1,
+          "cd": 8
+        },
+        {
+          "talent": "burst",
+          "label": "Tornado DMG",
+          "scaling": {
+            "atk": 1.3736
+          },
+          "hits": 9,
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gust_Surge, fetched 2026-10-18 (Gameplay Notes): \"Tornado DMG and Additional Elemental DMG can strike up to 9 times: once every 0.5 seconds from 2 to 6 seconds after activating Gust Surge.\""
+        },
+        {
+          "talent": "burst",
+          "label": "Additional Elemental DMG",
+          "scaling": {
+            "atk": 0.4216
+          },
+          "hits": 9,
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gust_Surge, fetched 2026-10-18 (Gameplay Notes): \"Tornado DMG and Additional Elemental DMG can strike up to 9 times: once every 0.5 seconds from 2 to 6 seconds after activating Gust Surge.\" Every hit taken as absorbed, as Kazuha's (estimate)."
+        }
+      ]
+    },
     "Sangonomiya Kokomi": {
       "base": {
         "hp": 13471,
@@ -8661,7 +8713,6 @@
     "Sandrone",
     "Sethos",
     "Tartaglia",
-    "Traveler (Anemo)",
     "Traveler (Cryo)",
     "Varka",
     "Vesna",
