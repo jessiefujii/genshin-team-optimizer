@@ -786,6 +786,14 @@
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Vesna": {
+      "seconds": 18,
+      "source": "Estimate (#235): her Skill cooldown, 18s (wiki The Art of Victory), one Skill per rotation (GameWith's combo, https://gamewith.net/genshin-impact/article/show/76472, fetched 2026-10-18); no guide gives a length."
+    },
+    "Yumemizuki Mizuki": {
+      "seconds": 15,
+      "source": "KeqingMains Mizuki quick guide, https://keqingmains.com/q/mizuki-quickguide/, fetched 2026-10-18: one Skill per rotation (sample rotations \"Mizuki E (Q)\"), Burst \"every other rotation\"; its ER calculator (sheet 13p-qXUhZqw3HNuhTsszj7iAzqoQB2jpgcRYzUzpHu_4) has \"Rotation length 30\" with 2 Mizuki Skills per Burst and a 15s Skill cooldown: 15s per rotation."
+    },
     "Wanderer": {
       "seconds": 20,
       "source": "KeqingMains Wanderer calcs, linked as \"Calcs Here\" from https://keqingmains.com/wanderer/ (sheet 1e2e5ITnHVbT8tyJBqgfO89BWbPX5HcDxMdUm98ECZ0M, Calculator tab), fetched 2026-10-18: \"Rotation Length 20.00\"."

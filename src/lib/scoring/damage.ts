@@ -34,7 +34,8 @@ type When = { reaction?: Reaction; ascendantGleam?: boolean; secretRite?: boolea
 // A teammate whose heals reach the on-field character in play (#2): a tagged healer, but not Furina: her damage profile
 // plays her in Ousia, where her Salon Members drain HP; only Pneuma's Singer of Many Waters heals.
 export const healsInPlay = (m: ScoringCharacter) => m.roles.includes("healer") && m.id !== "Furina";
-export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize";
+// Direct Lunar hits, and direct Stellar Swirl hits by the same formula (wiki Damage § Direct; Mizuki, #235).
+export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize" | "stellar-swirl";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
   | { kind: "atkFromDef"; value: number }
@@ -52,7 +53,7 @@ type CarryBuff =
   | { kind: "flatAtk"; value: number; cap: number; types: HitType[]; reactions: Reaction[] }
   | { kind: "emFromAtk"; value: number; max: number }
   | { kind: "lunarBaseBonus"; stat: "atk" | "def" | "em"; perPoint: number; max: number }
-  | { kind: "lunarReactionBonus"; value: number; reaction: LunarReaction; when?: When }
+  | { kind: "lunarReactionBonus"; value: number; reaction: LunarReaction; perEm?: number; when?: When }
   | { kind: "baseDmgMultiplier"; value: number; labels: string[]; when?: When }
   | { kind: "emBonus"; value: number; when?: When };
 // When a combo fits a team (#114): one of the team's active reactions, a teammate from each `members` list, and
@@ -79,6 +80,7 @@ interface CarryKit {
   combos?: CarryCombo[];
   missing?: string[];
   goblet?: "Physical"; // a Physical DMG goblet and set on the benchmark build (#222); else the carry's element
+  radianceInDamage?: boolean; // their own Radiance upgrade is in their hits (Mizuki, #235)
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
 
@@ -98,6 +100,10 @@ export function modelsAscendantGleam(id: string): boolean {
 export function modelsSecretRite(id: string): boolean {
   return modelsWhen(id, "secretRite");
 }
+
+// Whether the carry's damage model has their own Stellar Radiance upgrade (Mizuki's Radiance hits, #235): then no flat
+// "enhances X's kit" points for it. Wriothesley's Radiance combo isn't: the Stellar-Conduct DMG it adds isn't in it.
+export const modelsRadiance = (id: string) => !!CARRIES[id]?.radianceInDamage;
 
 function modelsWhen(id: string, flag: "ascendantGleam" | "secretRite"): boolean {
   const kit = CARRIES[id];
@@ -226,7 +232,7 @@ export function passiveEnabler(c: ScoringCharacter, active: readonly Reaction[])
 // x (1 + 6 x EM / (EM + 2000) + Reaction Bonus) + Reaction Additive Base DMG Bonus). It has no DMG Bonus term: Elemental and other DMG % bonuses don't apply (KeqingMains' Flins
 // guide: Lunar-Charged "does not scale with Electro DMG"). Indirect Lunar DMG (thunderclouds, Moondrifts) is the
 // team's reaction, not the carry's hits: left to the scorer.
-export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6 };
+export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6, "stellar-swirl": 1 };
 export const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
 // One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151).
 export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0) =>
@@ -392,7 +398,9 @@ function computeCarryDamage(
   let lunarBase = 0;
   for (const b of buffs) if (b.kind === "lunarBaseBonus") lunarBase += Math.min(b.max, b.perPoint * stat[b.stat]);
   // Reaction DMG Bonus to direct Lunar hits (Flins' passive 1, #147): added to the EM bonus, as in the wiki formula.
-  const lunarBonus = (r: LunarReaction) => buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? b.value : 0), 0);
+  // `perEm`: per that many points of the carry's EM (Mizuki's Skill, #235).
+  const lunarBonus = (r: LunarReaction) =>
+    buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? (b.perEm ? (b.value * em) / b.perEm : b.value) : 0), 0);
   // Base DMG Multiplier by hit label (Nefer's Veil of Falsehood, #148): multiplies the hit's base, Lunar or not.
   const baseMultiplier = (h: CarryHit) =>
     buffs.reduce((a, b) => a * (b.kind === "baseDmgMultiplier" && b.labels.includes(h.label) ? 1 + b.value : 1), 1);

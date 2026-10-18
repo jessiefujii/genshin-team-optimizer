@@ -1004,6 +1004,46 @@
         }
       ]
     },
+    "Yumemizuki Mizuki": {
+      "base": {
+        "hp": 12736,
+        "atk": 215,
+        "def": 757
+      },
+      "buildFor": {
+        "em": "built"
+      },
+      "buffs": [
+        {
+          "kind": "reactionBonus",
+          "value": 0.42,
+          "reactions": [
+            "swirl"
+          ],
+          "whileOnField": true,
+          "perEm": 100,
+          "unit": "Swirl DMG % per 100 of Mizuki's EM",
+          "source": "skill talent \"Elemental Mastery-Based Swirl DMG Increase\", level 9",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667
+        },
+        {
+          "kind": "reactionBonus",
+          "value": 0.042,
+          "reactions": [
+            "stellar-swirl"
+          ],
+          "whileOnField": true,
+          "perEm": 100,
+          "unit": "Stellar Swirl DMG % per 100 of Mizuki's EM",
+          "source": "skill talent \"Elemental Mastery-Based Stellar Swirl DMG Increase\", level 9",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667
+        }
+      ]
+    },
     "Yun Jin": {
       "base": {
         "hp": 10657,
@@ -1670,6 +1710,41 @@
         "lunar-charged",
         "lunar-bloom",
         "lunar-crystallize"
+      ]
+    },
+    "Odette": {
+      "stat": "atk",
+      "perPoint": 0.00007,
+      "max": 0.14,
+      "reactions": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ]
+    },
+    "Sandrone": {
+      "stat": "atk",
+      "perPoint": 0.00007,
+      "max": 0.14,
+      "reactions": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ]
+    },
+    "Traveler (Cryo)": {
+      "stat": "atk",
+      "perPoint": 0.000035,
+      "max": 0.07,
+      "reactions": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ]
+    },
+    "Vesna": {
+      "stat": "atk",
+      "perPoint": 0.00007,
+      "max": 0.14,
+      "reactions": [
+        "stellar-swirl"
       ]
     }
   },
@@ -6013,6 +6088,396 @@
         }
       ]
     },
+    "Yumemizuki Mizuki": {
+      "rotationSeconds": 15,
+      "combo": "E (Q)",
+      "radianceInDamage": true,
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.981648
+          },
+          "count": 1
+        },
+        {
+          "label": "Continuous Attack DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.763504
+          },
+          "count": 7
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.59936
+          },
+          "count": 0.5
+        }
+      ],
+      "buffs": [],
+      "combos": [
+        {
+          "combo": "E (Q), Stellar Swirl, Witch's Revelation",
+          "when": [
+            {
+              "reaction": "stellar-swirl",
+              "radiance": true
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.981648
+              },
+              "count": 1
+            },
+            {
+              "label": "Continuous Attack DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.763504
+              },
+              "count": 13
+            },
+            {
+              "label": "passive4 bonus",
+              "type": "skill",
+              "scaling": {
+                "em": 10
+              },
+              "count": 4,
+              "addOn": true
+            },
+            {
+              "label": "passive4 bonus",
+              "type": "skill",
+              "scaling": {
+                "em": 10
+              },
+              "count": 4,
+              "lunar": "stellar-swirl"
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.59936
+              },
+              "count": 0.5
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "emBonus",
+              "value": 100
+            },
+            {
+              "kind": "lunarReactionBonus",
+              "value": 0.042,
+              "reaction": "stellar-swirl",
+              "perEm": 100
+            }
+          ]
+        },
+        {
+          "combo": "E (Q), Swirl, Witch's Revelation",
+          "when": [
+            {
+              "reaction": "swirl",
+              "radiance": true
+            },
+            {
+              "reaction": "stellar-swirl",
+              "radiance": true
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.981648
+              },
+              "count": 1
+            },
+            {
+              "label": "Continuous Attack DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.763504
+              },
+              "count": 13
+            },
+            {
+              "label": "passive4 bonus",
+              "type": "skill",
+              "scaling": {
+                "em": 10
+              },
+              "count": 4,
+              "addOn": true
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.59936
+              },
+              "count": 0.5
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "emBonus",
+              "value": 100
+            }
+          ]
+        },
+        {
+          "combo": "E (Q), Swirl",
+          "when": [
+            {
+              "reaction": "swirl"
+            },
+            {
+              "reaction": "stellar-swirl"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.981648
+              },
+              "count": 1
+            },
+            {
+              "label": "Continuous Attack DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.763504
+              },
+              "count": 13
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.59936
+              },
+              "count": 0.5
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "emBonus",
+              "value": 100
+            }
+          ]
+        }
+      ]
+    },
+    "Vesna": {
+      "rotationSeconds": 18,
+      "combo": "E N1C 2sE Q sE N1C 2sE",
+      "radianceInDamage": true,
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.68
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.7426
+          },
+          "count": 2
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.44426
+          },
+          "count": 2
+        },
+        {
+          "label": "Wind Pinion DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.1768
+          },
+          "count": 4
+        },
+        {
+          "label": "Windborne Sword Lv. 1 DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.68
+          },
+          "count": 1
+        },
+        {
+          "label": "Windborne Sword Lv. 2 DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.02
+          },
+          "count": 1
+        },
+        {
+          "label": "Windborne Sword Lv. 2 Spirit Blade DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.904
+          },
+          "count": 1
+        },
+        {
+          "label": "Windborne Sword Lv. 3 Spirit Blade DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.0464
+          },
+          "count": 3,
+          "instances": 4
+        },
+        {
+          "label": "Windborne Sword Lv. 3 Spirit Blade Final Hit DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.6656
+          },
+          "count": 3
+        },
+        {
+          "label": "Spirit Blade DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 4.4744
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [],
+      "combos": [
+        {
+          "combo": "E N1C 2sE Q sE N1C 2sE, Radiance: Stellar Swirl",
+          "when": [
+            {
+              "reaction": "stellar-swirl"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.68
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.7426
+              },
+              "count": 2
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.44426
+              },
+              "count": 2
+            },
+            {
+              "label": "Wind Pinion DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.1768
+              },
+              "count": 4
+            },
+            {
+              "label": "Windborne Sword Lv. 1 DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.68
+              },
+              "count": 1
+            },
+            {
+              "label": "Windborne Sword Lv. 2 DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.02
+              },
+              "count": 1
+            },
+            {
+              "label": "Windborne Sword Lv. 2 Spirit Blade Stellar Swirl DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.904
+              },
+              "count": 1,
+              "lunar": "stellar-swirl"
+            },
+            {
+              "label": "Windborne Sword Lv. 3 Spirit Blade Stellar Swirl DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 3.0464
+              },
+              "count": 3,
+              "instances": 4,
+              "lunar": "stellar-swirl"
+            },
+            {
+              "label": "Windborne Sword Lv. 3 Spirit Blade Final Hit Stellar Swirl DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.6656
+              },
+              "count": 3,
+              "lunar": "stellar-swirl"
+            },
+            {
+              "label": "Spirit Blade Stellar Swirl DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 4.4744
+              },
+              "count": 1,
+              "lunar": "stellar-swirl"
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "lunarBaseBonus",
+              "stat": "atk",
+              "perPoint": 0.00007,
+              "max": 0.14
+            }
+          ]
+        }
+      ]
+    },
     "Wanderer": {
       "rotationSeconds": 20,
       "combo": "E C 5[N2C] N2 (Q)",
@@ -8884,8 +9349,6 @@
     "Sethos",
     "Tartaglia",
     "Traveler (Cryo)",
-    "Varka",
-    "Vesna",
-    "Yumemizuki Mizuki"
+    "Varka"
   ]
 }
