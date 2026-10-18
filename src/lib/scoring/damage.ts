@@ -160,7 +160,7 @@ const CATALYZE: Partial<Record<Reaction, { element: Element; coefficient: number
   spread: { element: "Dendro", coefficient: 1.25 },
   aggravate: { element: "Electro", coefficient: 1.15 },
 };
-const LEVEL_MULTIPLIER_90 = 1446.85;
+export const LEVEL_MULTIPLIER_90 = 1446.85;
 // Transformative reaction DMG (#205; Genshin Impact Wiki, Damage § Transformative Reaction Damage, fetched 2026-10-18):
 // coefficient x the level 90 Level Multiplier x (1 + 16 x EM / (EM + 2000) + Reaction Bonus), then the target's RES;
 // no DEF, no crit, no DMG Bonus, and only the triggering member's EM counts. Swirl 0.6 (868.11 at level 90, wiki
@@ -226,8 +226,8 @@ export function passiveEnabler(c: ScoringCharacter, active: readonly Reaction[])
 // x (1 + 6 x EM / (EM + 2000) + Reaction Bonus) + Reaction Additive Base DMG Bonus). It has no DMG Bonus term: Elemental and other DMG % bonuses don't apply (KeqingMains' Flins
 // guide: Lunar-Charged "does not scale with Electro DMG"). Indirect Lunar DMG (thunderclouds, Moondrifts) is the
 // team's reaction, not the carry's hits: left to the scorer.
-const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6 };
-const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
+export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6 };
+export const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
 // One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151).
 export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0) =>
   LUNAR_COEFFICIENT[reaction] * talentValue * (1 + baseBonus) * (1 + lunarEmBonus(em));

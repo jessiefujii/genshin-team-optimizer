@@ -1,5 +1,5 @@
 {
-  "median": 141211.1,
+  "median": 143175.2,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -31,11 +31,11 @@
     "Arlecchino": {
       "team": [
         "Arlecchino",
-        "Yelan",
-        "Bennett",
-        "Lan Yan"
+        "Columbina",
+        "Ineffa",
+        "Xilonen"
       ],
-      "value": 128551
+      "value": 129361.3
     },
     "Chasca": {
       "team": [
@@ -89,7 +89,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 119180.2
+      "value": 135176.4
     },
     "Freminet": {
       "team": [
@@ -238,11 +238,11 @@
     "Neuvillette": {
       "team": [
         "Neuvillette",
-        "Escoffier",
-        "Furina",
-        "Shenhe"
+        "Ineffa",
+        "Nahida",
+        "Furina"
       ],
-      "value": 171798.4
+      "value": 178749.6
     },
     "Ningguang": {
       "team": [
@@ -287,7 +287,7 @@
         "Ineffa",
         "Yae Miko"
       ],
-      "value": 131359.3
+      "value": 148353
     },
     "Sethos": {
       "team": [
@@ -422,16 +422,16 @@
         "Columbina",
         "Durin"
       ],
-      "value": 121753.9
+      "value": 133866
     },
     "Zibai": {
       "team": [
         "Zibai",
         "Xilonen",
         "Columbina",
-        "Furina"
+        "Ineffa"
       ],
-      "value": 147167.4
+      "value": 154298.7
     }
   }
 }
