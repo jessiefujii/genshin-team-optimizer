@@ -373,6 +373,18 @@ describe("scoreTeam", () => {
     expect(stellarFamily(scoreTeam(team(...ids), { revelationUnlocked: ["Wriothesley"] }))).toBe(true);
   });
 
+  test("Wriothesley plays his Stellar-Conduct combo only with his Witch's Revelation done (#124)", () => {
+    // Odette converts Superconduct either way; his Radiance combo (E 3[N5CD] N2) needs his own quest. Without it he
+    // plays the default combo, which deals more (#123), so the team's damage moves.
+    const t = team("Wriothesley", "Odette", "Fischl", "Furina");
+    const done = scoreTeam(t, { revelationUnlocked: ["Wriothesley"] });
+    const notDone = scoreTeam(t, { revelationUnlocked: [] });
+    expect(done.activeReactions).toContain("stellar-conduct");
+    expect(notDone.activeReactions).toContain("stellar-conduct");
+    expect(notDone.damage.perSecond).not.toBeCloseTo(done.damage.perSecond, 0);
+    expect(scoreTeam(t).damage.perSecond).toBeCloseTo(done.damage.perSecond, 6); // no option: quests assumed done
+  });
+
   test("Kazuha's buff needs something to swirl", () => {
     const s = score("Arataki Itto", "Kaedehara Kazuha", "Gorou", "Zhongli");
     expect(s.breakdown.some((l) => l.reason.includes("Kaedehara Kazuha buffs"))).toBe(false);

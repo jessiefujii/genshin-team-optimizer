@@ -102,6 +102,21 @@ function familiesOf(member: ScoringCharacter, options: ScoreOptions): Family[] {
   return families.filter((f) => !(f === "hexerei" && hexereiLocked) && !(f === "stellar" && stellarLocked));
 }
 
+// A member as the player's quests leave them (#124): without the families familiesOf locks, so the damage model, which
+// reads `families` directly (Ascendant Gleam, Secret Rite, Wriothesley's Radiance combo), agrees with the scorer. One
+// object per member and lock set, so object-keyed caches still hit.
+const questViews = new WeakMap<ScoringCharacter, Map<string, ScoringCharacter>>();
+function questView(m: ScoringCharacter, options: ScoreOptions): ScoringCharacter {
+  const families = familiesOf(m, options);
+  if (families === (m.families ?? NO_FAMILIES)) return m;
+  let views = questViews.get(m);
+  if (!views) questViews.set(m, (views = new Map()));
+  const key = families.join(",");
+  let view = views.get(key);
+  if (!view) views.set(key, (view = { ...m, families }));
+  return view;
+}
+
 // Runs for every team the search tries, so it sticks to plain loops (#4).
 function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamContext {
   const elements = new Set<Element>();
@@ -1368,7 +1383,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
   if (given.length !== 4) throw new Error(`A team needs 4 members, got ${given.length}`);
   // Read in a fixed member order, so sums and products of floats come out the same, to the last bit, whatever
   // order the team arrives in (the model checks' order test, #201).
-  const team = [...given].sort((a, b) => a.id.localeCompare(b.id));
+  const team = given.map((m) => questView(m, options)).sort((a, b) => a.id.localeCompare(b.id));
   const sink = (): Sink => (explain ? new Breakdown() : new Tally());
   const ctx = buildContext(team, options);
   const shared = sink();
