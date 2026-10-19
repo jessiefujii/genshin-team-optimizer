@@ -2258,6 +2258,30 @@ const CARRIES = {
     ],
     buffs: [],
   },
+  Aloy: {
+    // KQM's Aloy freeze calc (#232; "Aloy Weapon Calcs" by Greyhound#7836, linked from https://keqingmains.com/aloy/;
+    // sheet 1tqQ3ZXky1vrSElLZPgi_qM94q9pX2eGbZpPXOasfjbc, "Aloy freeze" tab, fetched 2026-10-18): "Rotation" (C4) "7 N3RR
+    // 1 E 1 Q"; "NA count" 7, "E count" 1, "Q count" 1 (C64-C67). The sheet doesn't spell out "N3RR"; its "NA string" is
+    // 236.80% at 88 frames (C234-C235) = her level-9 N1 (35.52% + 39.96%) + N2 (72.52%) + N3 (88.80%), "Infused? TRUE"
+    // (C88): an N3 string in Rushing Ice. "E" 641.92% (C240) = Freeze Bomb 301.92% + 5 Chillwater Bomblets x 68%; "Q"
+    // 610.64% (C243). 7 x 88 + 67 + 118 frames = 13.35 s, its "Rotation Duration" (C19). Its NA DMG% bonus 64.58% (C109)
+    // = Rushing Ice's 45.33% + 19.25%, passive 2's 3.5%/s ramp to 35% averaged (0.55 of the cap); ATK% 16% (C105) is
+    // passive 1.
+    combo: "E Q 7[N3]",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 7, type: N, instances: 2 },
+      { table: "normal", label: "2-Hit DMG", count: 7, type: N },
+      { table: "normal", label: "3-Hit DMG", count: 7, type: N },
+      { table: "skill", label: "Freeze Bomb DMG", count: 1, type: SK },
+      { table: "skill", label: "Chillwater Bomblet DMG", count: 5, type: SK },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [
+      { kind: "dmgBonus", table: "skill", label: "Rushing Ice Normal Attack DMG Bonus", types: [N] },
+      { kind: "dmgBonus", from: "passive2", re: /maximum Cryo DMG Bonus increase of (\d+)%/, share: 0.55, types: [N] },
+      { kind: "atkPct", from: "passive1", re: /her ATK is increased by (\d+)%/ },
+    ],
+  },
   Noelle: {
     // KQM quick guide: N3D is "Noelle's bread and butter combo"; its rotation for Linnea, Columbina and Illuga or
     // Furina or Gorou: "Noelle EQ 5[N3D] N2" (strings vary by team, KQM). Burst: ATK from DEF.
@@ -2731,6 +2755,43 @@ for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
   };
   lunarBase[id] = { stat: b.stat, perPoint: round(read(b.re) / 100 / b.per), max: read(b.max) / 100, reactions: b.reactions };
 }
+// 4pc set bonuses to the wearer's own damage, as carry buffs (#206), read from genshin-db's set text: `when` is the
+// condition (aura: an element the team applies; reaction: one the team triggers). Freeze scores only through these
+// (Jessie, 2026-10-18, #205): Blizzard Strayer first; the other 4pc sets follow.
+const SETS = {
+  "Blizzard Strayer": [
+    { kind: "critRate", re: /affected by Cryo, their CRIT Rate is increased by (\d+)%/, when: { aura: "Cryo" } },
+    { kind: "critRate", re: /If the opponent is Frozen, CRIT Rate is increased by an additional (\d+)%/, when: { reaction: "freeze" } },
+  ],
+};
+const sets = {};
+for (const [name, values] of Object.entries(SETS)) {
+  const a = genshindb.artifacts(name);
+  if (!a || a.name !== name) throw new Error(`${name}: no such artifact set in genshin-db`);
+  const text = a.effect4Pc.replace(/\s+/g, " ");
+  sets[name] = values.map((v) => {
+    const m = text.match(v.re);
+    if (!m) throw new Error(`${name}: pattern ${v.re} not found in its 4pc text: ${text}`);
+    return { kind: v.kind, value: Number(m[1]) / 100, when: v.when, source: `4pc: "${m[0]}"` };
+  });
+}
+// The 4pc set a carry without a build reads as wearing (#279): their KQM quick guide's pick, when the team triggers
+// `when`. Only sets in SETS: Ayaka and Wriothesley's guides pick 4pc Marechaussee Hunter (not modeled yet), so they
+// have none and keep the flat Freeze points.
+const benchmarkSets = {
+  Ganyu: {
+    set: "Blizzard Strayer",
+    when: { reaction: "freeze" },
+    source: 'KQM Ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): "This set is Ganyu\'s best-in-slot against freezable enemies"',
+  },
+  Freminet: {
+    set: "Blizzard Strayer",
+    when: { reaction: "freeze" },
+    source: 'KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): "4pc BS is one of Freminet\'s best artifact sets in his Cryo Skill DPS playstyle"',
+  },
+};
+for (const [id, b] of Object.entries(benchmarkSets)) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
+
 // Level 90 base HP/ATK/DEF (character only), for a sub-DPS's benchmark build when the player has none (#158), and the
 // level 90 ascension stat (#166: genshin-db substatType and its value; EM is flat, the rest are fractions).
 // genshin-db matches names loosely, so the name is checked; the Traveler's base stats are Lumine's.
@@ -2886,6 +2947,8 @@ writeFileSync(
       fightingSpirit,
       stellar,
       lunarBase,
+      sets,
+      benchmarkSets,
       subDps,
       sustain,
       carries,

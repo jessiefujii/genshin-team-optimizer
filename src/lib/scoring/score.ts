@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -217,10 +217,18 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   // Heizou's Swirl hit is in his damage, but in a Dendro team his Swirls' own damage isn't yet (#253).
   const transformative = carryActive.filter((r) => transformativeModeled(ctx, carry, r));
   const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
-  const modeled = [...kitModeled, ...transformative];
+  // Freeze scores only through crit (#205): with a 4pc set whose CRIT Rate needs it (Blizzard Strayer, #206) it is in the
+  // carry's damage. A carry without a build wears their guide's set (setsOf, #279), and a build with another set gets
+  // nothing from Freeze. A carry whose guide set isn't modeled yet (Ayaka, Wriothesley: Marechaussee Hunter) keeps the
+  // flat points.
+  const worn = carryActive.includes("freeze") && freezeInDamage(carry, ctx.active);
+  const frozen = worn || (carryActive.includes("freeze") && freezeSetModeled(carry));
+  if (worn) out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents`);
+  else if (frozen) out.add("Reactions", 0, () => `Freeze: adds nothing without a set whose CRIT Rate needs it (Blizzard Strayer)`);
+  const modeled = [...kitModeled, ...transformative, ...(frozen ? ["freeze" as Reaction] : [])];
   const flat = carryActive.filter((r) => !modeled.includes(r));
   const mainIn = (r: Reaction) =>
-    TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r);
+    TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r) || (r === "freeze" && frozen);
   const mainModeled = main !== undefined && main !== "none" && mainIn(main);
   if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
     out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
@@ -417,14 +425,48 @@ const STAT_RESONANCE: Partial<Record<Element, "ATK" | "HP" | "EM">> = { Pyro: "A
 // utilize any form of healing apart from the heal granted by her Burst cast while in combat" and "cannot rely on healers
 // for survivability" (KeqingMains' Arlecchino quick guide, fetched 2026-10-18), so only shields count for her.
 const SHIELDS_ONLY = new Set(["Arlecchino"]);
+// Sized against incoming damage (#208; Jessie, 2026-10-18: a sourced Spiral Abyss hit, survival a factor on the team
+// score as this line): the Abyss Monster Skill "Discharge", "400%" base multiplier, "15s" cooldown; Monster Skill
+// effects "deal flat damage" scaling "similarly to transformative reactions", are "unaffected by your character level or
+// defense", and "can be negated via shields" (KeqingMains Theorycrafting Library, Enemy Attributes, fetched
+// 2026-10-18), at the level 100 Enemies and Environment multiplier, 1674.8092 (wiki Elemental Reaction/Level Scaling):
+// 6,699 per hit. A shield counts by its uptime times the share of that hit it absorbs: its size from the talent table
+// at the member's stats (kit.json sustain), Geo shields "1.5" x (KQM TCL, Shields). Heals keep their coverage: every
+// sourced heal out-heals 6,699 per 15s. Crystallize shields count too (#205): the Geo member's level 90 base, 1851.0603,
+// x (1 + 4.44 EM / (EM + 1400)) (wiki Crystallize: +29.6% at 100 EM ... +185% at 1,000), up while a Crystallize comes at
+// least every 15s ("These Shield last for 15 seconds": KQM TCL, Shields); not Hydro's when it turns Lunar-Crystallize.
+const INCOMING_HIT = 4 * 1674.8092;
+const CRYSTALLIZE_SHIELD_90 = 1851.0603;
+type Sized = { kind: string; size: Partial<Record<"flat" | "hp" | "def" | "atk", number>>; uptime: number | null };
+function sustainCoverage(m: ScoringCharacter, heals: boolean): number {
+  const entry = SUSTAIN[m.id];
+  if (!entry || !entry.effects?.length) return entry?.coverage ?? 1;
+  const stats = subDpsStats(m) ?? carryStats(m);
+  const parts = entry.effects
+    .filter((e) => e.kind === "shield" || heals)
+    .map((e) => {
+      const up = e.uptime ?? 1;
+      if (e.kind !== "shield") return up;
+      const absorb = (e.size.flat ?? 0) + (e.size.hp ?? 0) * stats.hp + (e.size.def ?? 0) * stats.def + (e.size.atk ?? 0) * stats.atk;
+      return up * Math.min(1, (absorb * (m.element === "Geo" ? 1.5 : 1)) / INCOMING_HIT);
+    });
+  return 1 - parts.reduce((a, c) => a * (1 - c), 1);
+}
 function survivabilityLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const heals = !carry || !SHIELDS_ONLY.has(carry.id);
   const sustainers = ctx.members.filter((m) => hasRole(m, "shielder") || (heals && hasRole(m, "healer")));
-  if (sustainers.length) {
-    const coverage = 1 - sustainers.reduce((a, m) => a * (1 - (SUSTAIN[m.id]?.coverage ?? 1)), 1);
-    const names = sustainers.map((m) => m.id).join(", ");
+  const parts = sustainers.map((m) => ({ name: m.id, coverage: sustainCoverage(m, heals) }));
+  const crystallize = carry ? auraBudget(ctx, carry).crystallize : null;
+  if (crystallize && crystallize.perSecond > 0 && crystallize.geo.length > 0) {
+    const em = Math.max(...crystallize.geo.map((m) => (subDpsStats(m) ?? carryStats(m)).em));
+    const shield = CRYSTALLIZE_SHIELD_90 * (1 + (4.44 * em) / (em + 1400));
+    parts.push({ name: "Crystallize shields", coverage: Math.min(1, crystallize.perSecond * 15) * Math.min(1, shield / INCOMING_HIT) });
+  }
+  if (parts.length) {
+    const coverage = 1 - parts.reduce((a, p) => a * (1 - p.coverage), 1);
+    const names = parts.map((p) => p.name).join(", ");
     const verb = heals ? "heal or shield" : "shield";
-    const reason = () => `${names} ${verb} ~${Math.round(coverage * 100)}% of the rotation`;
+    const reason = () => `${names} ${verb} ~${Math.round(coverage * 100)}% of an Abyss hit per rotation`;
     out.add("Survivability", Math.round(POINTS.survivability * coverage), reason);
   } else {
     const reason = () => (heals ? "No healer or shielder" : `No shielder (${carry!.id} can't be healed)`);
@@ -455,7 +497,7 @@ interface GleamValue {
 type GleamEntry = { target: "self"; source: string } | { target: "party"; source: string; values: GleamValue[] };
 const GLEAM = kitJson.ascendantGleam as Record<string, GleamEntry>;
 // Shields and heals (#177): coverage is null when the kit has no duration to read (`missing`).
-const SUSTAIN = kitJson.sustain as Record<string, { coverage: number | null; missing?: string }>;
+const SUSTAIN = kitJson.sustain as unknown as Record<string, { coverage: number | null; missing?: string; effects?: Sized[] }>;
 const KIT_BUFFS = kitJson.characters as Record<
   string,
   { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number; burst?: boolean }[] }
@@ -1087,7 +1129,10 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
     indirect.push({ r: "stellar-swirl", what: "Anemo hits", perSecond: stellar, coefficient: 0.75, element: "Anemo" });
     indirect.push({ r: "stellar-swirl", what: `Stellar Vortex Lv. ${lv2 ? 2 : 1}`, perSecond: stellar / perVortex, coefficient: lv2 ? 3 : 2, element: "Cryo" });
   }
-  return { subs: out, carry: carryShare, transformative, appsOf, indirect };
+  // Crystallize shards per second for survival (#208): Geo on any aura but Hydro's when it turns Lunar-Crystallize.
+  const crystals = pairs.filter((p) => p.r === "crystallize" && !(p.aura === "Hydro" && ctx.active.includes("lunar-crystallize")));
+  const crystallize = { perSecond: crystals.reduce((s, p) => s + p.reactions, 0), geo: [...new Set(crystals.flatMap((p) => p.members))] };
+  return { subs: out, carry: carryShare, transformative, appsOf, indirect, crystallize };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
 const CRYSTALLIZE_PER_SECOND = 1;

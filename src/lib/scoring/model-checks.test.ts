@@ -59,13 +59,13 @@ const built = all
   .filter((c) => roster[c.id]?.build?.stats)
   .map((c) => {
     const { build, constellation } = roster[c.id];
-    return { ...c, stats: build!.stats, talents: build!.talents, effects: characterEffects(c.id, constellation, build) };
+    return { ...c, stats: build!.stats, talents: build!.talents, sets: build!.artifactSets, effects: characterEffects(c.id, constellation, build) };
   });
 
 describe("coverage gate", () => {
   // #203 brings both to 0. Until then they may only shrink: a new character without a damage profile fails here.
-  const NO_DAMAGE_PROFILE = 8;
-  const MAIN_DPS_WITHOUT_CARRY_KIT = 9;
+  const NO_DAMAGE_PROFILE = 7;
+  const MAIN_DPS_WITHOUT_CARRY_KIT = 8;
   const NO_PARTICLE_COUNT = 5;
   const NO_SUSTAIN_COVERAGE = 5;
 

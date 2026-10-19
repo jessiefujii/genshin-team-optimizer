@@ -1748,6 +1748,42 @@
       ]
     }
   },
+  "sets": {
+    "Blizzard Strayer": [
+      {
+        "kind": "critRate",
+        "value": 0.2,
+        "when": {
+          "aura": "Cryo"
+        },
+        "source": "4pc: \"affected by Cryo, their CRIT Rate is increased by 20%\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.2,
+        "when": {
+          "reaction": "freeze"
+        },
+        "source": "4pc: \"If the opponent is Frozen, CRIT Rate is increased by an additional 20%\""
+      }
+    ]
+  },
+  "benchmarkSets": {
+    "Ganyu": {
+      "set": "Blizzard Strayer",
+      "when": {
+        "reaction": "freeze"
+      },
+      "source": "KQM Ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): \"This set is Ganyu's best-in-slot against freezable enemies\""
+    },
+    "Freminet": {
+      "set": "Blizzard Strayer",
+      "when": {
+        "reaction": "freeze"
+      },
+      "source": "KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
+    }
+  },
   "subDps": {
     "Bennett": {
       "base": {
@@ -8705,6 +8741,81 @@
       ],
       "buffs": []
     },
+    "Aloy": {
+      "rotationSeconds": 13.35,
+      "combo": "E Q 7[N3]",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.7548
+          },
+          "count": 7,
+          "instances": 2
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.7252
+          },
+          "count": 7
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.888
+          },
+          "count": 7
+        },
+        {
+          "label": "Freeze Bomb DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.0192
+          },
+          "count": 1
+        },
+        {
+          "label": "Chillwater Bomblet DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.68
+          },
+          "count": 5
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 6.1064
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.45325,
+          "types": [
+            "normal"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.1925,
+          "types": [
+            "normal"
+          ]
+        },
+        {
+          "kind": "atkPct",
+          "value": 0.16
+        }
+      ]
+    },
     "Noelle": {
       "rotationSeconds": 23.5,
       "combo": "EQ 5[N3D] N2",
@@ -9494,7 +9605,6 @@
     }
   },
   "carriesTodo": [
-    "Aloy",
     "Lohen",
     "Lyney",
     "Manekin",
