@@ -2751,6 +2751,22 @@ for (const [name, values] of Object.entries(SETS)) {
     return { kind: v.kind, value: Number(m[1]) / 100, when: v.when, source: `4pc: "${m[0]}"` };
   });
 }
+// The 4pc set a carry without a build reads as wearing (#279): their KQM quick guide's pick, when the team triggers
+// `when`. Only sets in SETS: Ayaka and Wriothesley's guides pick 4pc Marechaussee Hunter (not modeled yet), so they
+// have none and keep the flat Freeze points.
+const benchmarkSets = {
+  Ganyu: {
+    set: "Blizzard Strayer",
+    when: { reaction: "freeze" },
+    source: 'KQM Ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): "This set is Ganyu\'s best-in-slot against freezable enemies"',
+  },
+  Freminet: {
+    set: "Blizzard Strayer",
+    when: { reaction: "freeze" },
+    source: 'KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): "4pc BS is one of Freminet\'s best artifact sets in his Cryo Skill DPS playstyle"',
+  },
+};
+for (const [id, b] of Object.entries(benchmarkSets)) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
 
 // Level 90 base HP/ATK/DEF (character only), for a sub-DPS's benchmark build when the player has none (#158), and the
 // level 90 ascension stat (#166: genshin-db substatType and its value; EM is flat, the rest are fractions).
@@ -2908,6 +2924,7 @@ writeFileSync(
       stellar,
       lunarBase,
       sets,
+      benchmarkSets,
       subDps,
       sustain,
       carries,

@@ -1768,6 +1768,22 @@
       }
     ]
   },
+  "benchmarkSets": {
+    "Ganyu": {
+      "set": "Blizzard Strayer",
+      "when": {
+        "reaction": "freeze"
+      },
+      "source": "KQM Ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): \"This set is Ganyu's best-in-slot against freezable enemies\""
+    },
+    "Freminet": {
+      "set": "Blizzard Strayer",
+      "when": {
+        "reaction": "freeze"
+      },
+      "source": "KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
+    }
+  },
   "subDps": {
     "Bennett": {
       "base": {

@@ -86,12 +86,21 @@ const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).ca
 // 4pc set bonuses to the wearer's own damage (#206, extract-kit SETS): Blizzard Strayer's CRIT Rate for now.
 type SetBuff = { kind: "critRate"; value: number; when: { aura?: Element; reaction?: Reaction } };
 const SETS = (kitJson as unknown as { sets: Record<string, SetBuff[]> }).sets;
+// A carry without a build reads as wearing their KQM guide's 4pc set in teams that trigger its reaction (#279,
+// extract-kit benchmarkSets): Ganyu and Freminet's Blizzard Strayer in Freeze. A build's own sets always count.
+type BenchmarkSet = { set: string; when: { reaction: Reaction } };
+const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet> }).benchmarkSets;
+export function setsOf(c: ScoringCharacter, active: readonly Reaction[]): NonNullable<ScoringCharacter["sets"]> {
+  if (c.stats || c.sets) return c.sets ?? [];
+  const b = BENCHMARK_SETS[c.id];
+  return b && active.includes(b.when.reaction) ? [{ set: b.set, pieces: 4 }] : [];
+}
 // The carry's own 4pc CRIT Rate in this team: "an opponent affected by Cryo" when a member applies Cryo (the carry
 // included), "Frozen" when the team triggers Freeze; each taken as up on every hit (estimate: in Freeze teams the
 // enemy is kept Cryo-affected or Frozen).
 export function setCritRate(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): number {
   let rate = 0;
-  for (const { set, pieces } of c.sets ?? []) {
+  for (const { set, pieces } of setsOf(c, active)) {
     if (pieces < 4) continue;
     for (const b of SETS[set] ?? []) {
       const fits = (!b.when.aura || team.some((m) => m.element === b.when.aura)) && (!b.when.reaction || active.includes(b.when.reaction));
@@ -101,8 +110,12 @@ export function setCritRate(c: ScoringCharacter, active: readonly Reaction[], te
   return rate;
 }
 // Whether the carry's Freeze is in their damage through a set's CRIT Rate (#205: Freeze scores only through crit).
-export const freezeInDamage = (c: ScoringCharacter) =>
-  (c.sets ?? []).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.when.reaction === "freeze"));
+export const freezeInDamage = (c: ScoringCharacter, active: readonly Reaction[]) =>
+  setsOf(c, active).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.when.reaction === "freeze"));
+// A benchmark carry whose set gives CRIT Rate wears a CRIT DMG circlet instead of a CRIT Rate one (#279: KQM's Ganyu
+// guide, Freeze stat priority "CRIT DMG ≥ ATK% > CRIT Rate" with Blizzard Strayer).
+const critCirclet = (c: ScoringCharacter, active: readonly Reaction[]) =>
+  !c.stats && setsOf(c, active).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.kind === "critRate"));
 
 // Whether the carry's damage is modeled: a kit with no unsourced (missing) hit. The scorer reads a carry with one as not
 // modeled (modeledCarryDps), so this does too: model checks then treat them alike (#227).
@@ -156,10 +169,12 @@ export function carryStats(c: ScoringCharacter, goblet?: "Physical") {
 // hit in carry and sub-DPS damage crits, flat additions included: Catalyze's bonus is added to the hit's base DMG
 // before crit and DMG bonuses (Genshin Impact Wiki, Damage § Catalyze Damage Bonus), and Vaporize/Melt multiply a hit
 // that has already crit. Pure EM characters too (Nefer: her own hits crit; usesCrit only skips their CV line).
-// `extraRate` is Crit Rate from teammates' buffs (#157), as a fraction.
-export function expectedCrit(c: ScoringCharacter, extraRate = 0): number {
+// `extraRate` is Crit Rate from teammates' buffs (#157), as a fraction; `dmgCirclet` swaps the benchmark's CRIT Rate
+// circlet for a CRIT DMG one (critCirclet, #279).
+export function expectedCrit(c: ScoringCharacter, extraRate = 0, dmgCirclet = false): number {
   if (c.stats) return 1 + Math.min(c.stats.critRate / 100 + extraRate, 1) * (c.stats.critDmg / 100);
-  return 1 + Math.min(BENCHMARK.carryCritRate + extraRate, 1) * BENCHMARK.carryCritDmg;
+  const swap = dmgCirclet ? BENCHMARK.circlet : { critRate: 0, critDmg: 0 };
+  return 1 + Math.min(BENCHMARK.carryCritRate - swap.critRate + extraRate, 1) * (BENCHMARK.carryCritDmg + swap.critDmg);
 }
 
 // Vaporize and Melt multiply the hits that react: 2x for Hydro on Pyro / Pyro on Cryo, 1.5x the other way, plus EM.
@@ -362,6 +377,7 @@ function computeCarryDamage(
   const { kit, combo, reaction } = skillOnly ? { ...picked, kit: base, combo: `${(base.combo ?? "").replace(" Q", "")} (Skill only: can't Burst)` } : picked;
   // Teammates' CRIT Rate buffs (#157) and the carry's own 4pc set's (#206).
   const critRate = teamBuffs.critRate + setCritRate(c, active, team);
+  const dmgCirclet = critCirclet(c, active);
   const own = carryStats(c, kit.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
@@ -472,7 +488,7 @@ function computeCarryDamage(
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
       // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
       if (b.kind === "critRate" && b.labels.includes(h.label))
-        factor *= expectedCrit(c, critRate + b.value) / expectedCrit(c, critRate);
+        factor *= expectedCrit(c, critRate + b.value, dmgCirclet) / expectedCrit(c, critRate, dmgCirclet);
       if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
         const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
@@ -499,6 +515,6 @@ function computeCarryDamage(
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp) * (1 + resShredGain(teamBuffs.resShred)) * (1 + defShredGain(Math.min(0.9, teamBuffs.defShred)));
   }
-  total *= expectedCrit(c, critRate);
+  total *= expectedCrit(c, critRate, dmgCirclet);
   return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [], em };
 }

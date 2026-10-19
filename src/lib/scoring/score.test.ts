@@ -826,6 +826,21 @@ describe("talent levels (#25)", () => {
     expect(four.freeze).toMatchObject({ points: 0 });
   });
 
+  test("a carry without a build wears their guide's set in its reaction's teams, with a CRIT DMG circlet (#279)", () => {
+    const freezeLine = (s: ReturnType<typeof scoreTeam>) => s.breakdown.find((l) => l.rule === "Reactions" && l.reason.startsWith("Freeze"));
+    const freeze = team("Ganyu", "Furina", "Escoffier", "Shenhe");
+    const s = scoreTeam(freeze);
+    expect(freezeLine(s)).toMatchObject({ points: 0 });
+    // Same as giving her 4pc Blizzard Strayer by hand.
+    const worn = freeze.map((c) => (c.id === "Ganyu" ? { ...c, sets: [{ set: "Blizzard Strayer", pieces: 4 as const }] } : c));
+    expect(carryDamage(freeze[0], s.activeReactions, freeze)!.perSecond).toBeCloseTo(carryDamage(worn[0], s.activeReactions, worn)!.perSecond, 6);
+    // A build's own sets count, even without the guide's: the flat points stay.
+    const other = freeze.map((c) => (c.id === "Ganyu" ? { ...c, sets: [{ set: "Wanderer's Troupe", pieces: 4 as const }] } : c));
+    expect(freezeLine(scoreTeam(other))!.points).toBeGreaterThan(0);
+    // Ayaka's guide picks Marechaussee Hunter (not modeled yet): flat points.
+    expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))!.points).toBeGreaterThan(0);
+  });
+
   test("a Burst short of Energy funds its buffs less often (#207)", () => {
     const stats = (er: number): CharacterStats => ({
       atk: 900, hp: 20000, def: 800, critRate: 20, critDmg: 60, energyRecharge: er, elementalMastery: 0, elementalDmgBonus: 0,
