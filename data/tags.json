@@ -274,7 +274,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Barbara",
@@ -295,7 +298,10 @@
       "actions": [
         "E"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Beidou",
@@ -358,7 +364,10 @@
       ],
       "buffSeconds": 12
     },
-    "notes": "Buff applies to whoever stands in the burst circle."
+    "notes": "Buff applies to whoever stands in the burst circle.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Candace",
@@ -388,7 +397,10 @@
         "Q"
       ],
       "buffSeconds": 9
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Charlotte",
@@ -409,7 +421,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Chasca",
@@ -470,7 +485,10 @@
       ],
       "buffSeconds": 6
     },
-    "notes": "Full buff only when the team is all Pyro and Electro."
+    "notes": "Full buff only when the team is all Pyro and Electro.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Chiori",
@@ -723,7 +741,10 @@
         "Q"
       ]
     },
-    "notes": "Shield regenerates from Benison stacks."
+    "notes": "Shield regenerates from Benison stacks.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Dehya",
@@ -801,7 +822,10 @@
         "hold E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Dori",
@@ -823,7 +847,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Durin",
@@ -978,7 +1005,10 @@
         "Q"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Fischl",
@@ -1183,7 +1213,10 @@
       ],
       "buffSeconds": 12
     },
-    "notes": "Full buff needs 3 Geo characters."
+    "notes": "Full buff needs 3 Geo characters.",
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Hu Tao",
@@ -1239,7 +1272,10 @@
         "E"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Ifa",
@@ -1277,7 +1313,10 @@
         "N x3",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Illuga",
@@ -1312,7 +1351,10 @@
       ],
       "buffSeconds": 20
     },
-    "notes": "Geo buffer; his burst buff lasts 20s."
+    "notes": "Geo buffer; his burst buff lasts 20s.",
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Ineffa",
@@ -1407,7 +1449,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Kachina",
@@ -1467,7 +1512,10 @@
         "Q"
       ],
       "buffSeconds": 8
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Kaeya",
@@ -1652,7 +1700,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Klee",
@@ -1709,7 +1760,10 @@
         "Q"
       ],
       "buffSeconds": 6
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Kuki Shinobu",
@@ -1731,12 +1785,14 @@
         "E"
       ]
     },
-    "notes": "Common Hyperbloom trigger; build EM."
+    "notes": "Common Hyperbloom trigger; build EM.",
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Lan Yan",
     "roles": [
-      "main-dps",
       "sub-dps",
       "shielder",
       "buffer"
@@ -1823,7 +1879,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Linnea",
@@ -2103,7 +2162,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Mona",
@@ -2135,7 +2197,10 @@
         "Q"
       ],
       "buffSeconds": 5
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Mualani",
@@ -2319,7 +2384,10 @@
       ],
       "buffSeconds": 20
     },
-    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family)."
+    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family).",
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Nilou",
@@ -2335,6 +2403,22 @@
     "erTarget": 150,
     "scalesOn": [
       "HP"
+    ],
+    "buffs": [
+      {
+        "stat": "Bountiful Core DMG (HP-based)",
+        "scope": "team",
+        "reactions": [
+          "bloom"
+        ],
+        "talent": "passive"
+      },
+      {
+        "stat": "EM from Golden Chalice's Bounty",
+        "scope": "team",
+        "affects": "EM",
+        "talent": "passive"
+      }
     ],
     "rotation": {
       "slot": "setup",
@@ -2511,7 +2595,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Raiden Shogun",
@@ -2658,7 +2745,10 @@
         "E"
       ]
     },
-    "notes": "Off-field E jellyfish, or on-field with Q for N x10."
+    "notes": "Off-field E jellyfish, or on-field with Q for N x10.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Sayu",
@@ -2677,7 +2767,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Sethos",
@@ -2735,7 +2828,10 @@
         "hold E"
       ],
       "buffSeconds": 10
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Shikanoin Heizou",
@@ -2847,7 +2943,10 @@
         "Q"
       ],
       "buffSeconds": 8
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Tartaglia",
@@ -2896,7 +2995,10 @@
         "Q",
         "E"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Tighnari",
@@ -2928,9 +3030,9 @@
   {
     "id": "Traveler (Anemo)",
     "roles": [
-      "main-dps"
+      "sub-dps"
     ],
-    "fieldTime": "on",
+    "fieldTime": "flex",
     "reactions": [
       "swirl"
     ],
@@ -2996,7 +3098,10 @@
         "Q"
       ]
     },
-    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine.",
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Traveler (Geo)",
@@ -3270,7 +3375,10 @@
         "E"
       ]
     },
-    "notes": "Stellar-Swirl enabler, healer and RES shredder."
+    "notes": "Stellar-Swirl enabler, healer and RES shredder.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Wanderer",
@@ -3377,7 +3485,10 @@
         "Q"
       ],
       "buffSeconds": 16
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Xiao",
@@ -3431,7 +3542,10 @@
         "Q"
       ],
       "buffSeconds": 15
-    }
+    },
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Xingqiu",
@@ -3482,7 +3596,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Yae Miko",
@@ -3565,7 +3682,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Yelan",
@@ -3682,7 +3802,10 @@
         "E"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Zhongli",
@@ -3709,7 +3832,10 @@
         "hold E"
       ],
       "buffSeconds": 20
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Zibai",

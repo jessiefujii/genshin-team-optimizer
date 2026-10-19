@@ -2,9 +2,9 @@
 // benchmark carry gains, instead of a tier list. The benchmark is a rough level 90 carry with a typical
 // build; it only has to rank buffs against each other, not predict real damage.
 import kitJson from "../../../data/kit.json";
-import type { Reaction } from "../../types/tags";
+import type { Element, Reaction } from "../../types/tags";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, resShredGain } from "./benchmark";
-import { canTrigger, reactionShare } from "./reactions";
+import { canTrigger, reactionShare, TRANSFORMATIVE } from "./reactions";
 import type { ScoringCharacter } from "./types";
 
 export interface KitBuff {
@@ -20,7 +20,10 @@ export interface KitBuff {
   maxFanfare?: number; // fanfare: Furina's Fanfare cap
   drainFloor?: number; // fanfare: her Salon Members only drain characters above this share of HP
   points?: { max: number; own: number }; // rescueEssentials: the cap, and Ifa's own Nightsoul points from his Skill
-  threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts
+  threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts; a perHp reactionBonus: HP above this (Nilou)
+  whileOnField?: boolean; // only while this member is the on-field carry (Kaveh's Painted Dome, #256)
+  perEm?: number; // a reactionBonus per this many points of the buffer's EM (Mizuki, #235)
+  burst?: boolean; // comes from the Burst (or a passive it triggers): up only in the rotations its Energy funds (#207)
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
   unit: string;
@@ -30,7 +33,9 @@ export interface KitBuff {
 
 interface KitCharacter {
   base: { hp: number; atk: number; def: number } | null;
-  buildFor?: { atk?: number }; // stats to assume without a build, for a buffer built for their buff (Prune)
+  // stats to assume without a build, for a buffer built for their buff (Prune); em "built": the EM-built carry
+  // benchmark's (Mizuki, #235)
+  buildFor?: { atk?: number; em?: number | "built" };
   buffs: KitBuff[];
   missing?: string;
 }
@@ -128,7 +133,7 @@ function bufferStats(s: ScoringCharacter, base: KitCharacter["base"], buildFor: 
     atk: s.stats?.atk ?? buildFor?.atk ?? b.atk,
     hp: s.stats?.hp ?? b.hp,
     def: s.stats?.def ?? b.def,
-    em: s.stats?.elementalMastery ?? b.em,
+    em: s.stats?.elementalMastery ?? (buildFor?.em === "built" ? BENCHMARK.carry.emBuilt : buildFor?.em) ?? b.em,
   };
 }
 
@@ -145,6 +150,17 @@ interface TeamShape {
 // `own` points that drain while he hovers, so half count; other Nightsoul members are assumed to hold about
 // 40 each (their pools vary by kit).
 const rescueEssentials = (p: { max: number; own: number }, team: TeamShape) => Math.min(p.max, p.own / 2 + 40 * team.nightsoulOthers);
+
+// A reactionBonus's value: flat, or per `perHp` of the member's Max HP above `threshold` (Baizhu; Nilou above 30,000),
+// capped at `max`. Ifa's Rescue Essentials scaling is applied by the caller.
+function reactionBonusValue(buff: KitBuff, stats: ReturnType<typeof bufferStats>): number {
+  const v = buff.perHp
+    ? (buff.value * Math.max(0, stats.hp - (buff.threshold ?? 0))) / buff.perHp
+    : buff.perEm
+      ? (buff.value * stats.em) / buff.perEm
+      : buff.value;
+  return buff.max === undefined ? v : Math.min(v, buff.max);
+}
 
 // Furina's Fanfare (#90): 1 point per 1% of Max HP any party member gains or loses during her Burst, cleared when
 // it ends. Her Salon Members drain HP only down to drainFloor, so without another healer each member gives at most
@@ -172,7 +188,7 @@ function applicable(buff: KitBuff, carry: ScoringCharacter, carryReactions: read
   if (buff.steps) buff = { ...buff, value: stepValue(buff, team) };
   if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return null;
   if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return null;
-  if (buff.physical) return null; // the scorer has no Physical carries tagged as such
+  if (buff.physical) return null; // Physical hits are in damage (#222); Physical buffs from weapons and sets wait for #206
   return buff;
 }
 
@@ -201,7 +217,7 @@ function gain(raw: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scorin
       return dmg(buff.value * stats.em);
     case "reactionBonus":
       if (buff.condition === "rescueEssentials") return dmg(buff.value * rescueEssentials(buff.points!, team));
-      return dmg(cap(buff.perHp ? (buff.value * stats.hp) / buff.perHp : buff.value));
+      return dmg(reactionBonusValue(buff, stats));
     case "dmgBonusFromExcessAtk":
       return dmg(cap(buff.value * Math.max(0, stats.atk - buff.threshold!)));
     case "resShred":
@@ -250,12 +266,17 @@ const cache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string
 
 // `outsideDamage`: only the buffs a modeled carry's damage doesn't already read through teamBuffStats (#202): EM,
 // Reaction Bonus, RES and DEF shred, attack speed, and buffs for some reactions only.
+// `burst`: the share of rotations the buffer's Burst is funded in this team (#207, energy.ts); their `burst` buffs
+// count that share of the time, like the Burst's own damage.
 export function kitBuffValue(
   s: ScoringCharacter,
   carry: ScoringCharacter,
   carryReactions: readonly Reaction[],
   team: readonly ScoringCharacter[],
-  outsideDamage = false,
+  // true: leave out what is already in damage (the carry's modeled damage, and reaction damage); "reactions": only the
+  // bonuses to reactions that deal their own damage, which transformativeLines adds there for any carry (#256).
+  outsideDamage: boolean | "reactions" = false,
+  burst = 1,
 ): KitBuffValue | null {
   let byCarry = cache.get(s);
   if (!byCarry) cache.set(s, (byCarry = new WeakMap()));
@@ -267,9 +288,9 @@ export function kitBuffValue(
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
   };
-  const key = `${outsideDamage}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
+  const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
-  const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage);
+  const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage, burst);
   byReactions.set(key, value);
   return value;
 }
@@ -279,17 +300,19 @@ function computeKitBuffValue(
   carry: ScoringCharacter,
   carryReactions: readonly Reaction[],
   team: TeamShape,
-  outsideDamage: boolean,
+  outsideDamage: boolean | "reactions",
+  burst: number,
 ): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
   const stats = bufferStats(s, entry.base, entry.buildFor);
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
-    if (outsideDamage && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
+    if (outsideDamage === true && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
+    if (outsideDamage && b.reactions?.every((r) => TRANSFORMATIVE[r as Reaction])) continue;
     // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
     const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions) : 1;
-    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share;
+    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share * (b.burst ? burst : 1);
     best.set(b.kind, Math.max(best.get(b.kind) ?? 0, g));
   }
   let total = 1;
@@ -300,8 +323,7 @@ function computeKitBuffValue(
 // The team's kit buffs as stats added to the carry's own (#157), so carry damage can be read with them: flat
 // reaction damage (Aggravate, Spread, Clorinde's passive) is then weighed against buffed hits, not bare ones.
 // Same buffs, conditions, uptimes and reaction shares as kitBuffValue, and the same best-per-kind choice per buffer.
-// Left out, as they don't change how flat damage compares with a hit: RES and DEF shred (they scale every hit
-// alike), attack speed. Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
+// RES and DEF shred are in it too (#204): they scale the hits they reach. Left out: attack speed. Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
 // damage, which buffer points already score; inside this yardstick they'd raise Aggravate or Vaporize again (Nahida's
 // EM took Clorinde's Aggravate line from +170% to +212%). Weapon, set and constellation effects (effects.json)
 // aren't in kit.json.
@@ -311,14 +333,24 @@ export interface TeamBuffStats {
   dmgBonus: number;
   critRate: number;
   flat: number; // flat DMG per hit instance (Additive Base DMG Bonus: Shenhe, Yun Jin)
+  resShred: number; // enemy RES decrease on the hits it reaches (#204)
+  defShred: number; // enemy DEF decrease (#204)
+  // Teammates' Moonsign Benediction Base DMG bonus to the carry's direct Lunar hits, by reaction (#88; score.ts
+  // teammatesLunarBase). Set by the scorer beside these sums, so teamBuffStats leaves it out.
+  lunarBase?: Partial<Record<Reaction, number>>;
+  // Each member's funded Burst share (#207), for buffs from their Burst; set by the scorer, like lunarBase.
+  burstShares?: BurstShares;
 }
+// The share of rotations each member's Burst is funded in this team (#207, energy.ts energyNeeds); 1 when missing.
+export type BurstShares = ReadonlyMap<ScoringCharacter, number>;
 
-export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0 };
+type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares">;
+export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
 const IN_CARRY_DAMAGE = new Set([
   "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate",
-  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg",
+  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred",
 ]);
 
 function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
@@ -352,6 +384,13 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
     case "critRate":
       into.critRate += v * weight;
       break;
+    // RES and DEF shred (#204): on the enemy, so on every hit of the element they cover (`applicable`); uptime-weighted.
+    case "resShred":
+      into.resShred += v * weight;
+      break;
+    case "defShred":
+      into.defShred += v * weight;
+      break;
     case "flatDmgFromAtk":
       into.flat += cap(stats.atk * v) * weight;
       break;
@@ -370,18 +409,23 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
 // One buffer's part, cached like kitBuffValue (per buffer and carry object, then team shape), not per team: the search
 // reads thousands of teams per carry.
 const statsCache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string, TeamBuffStats>>>();
-function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
-  const shape: TeamShape = {
+// What a buffer's conditions read from the team: its elements, Mavuika's Fighting Spirit, Ifa's and Furina's partners.
+function shapeOf(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): TeamShape {
+  return {
     elements: team.map((m) => m.element),
     fightingSpirit: fightingSpirit(s, carry, team),
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
   };
+}
+
+function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[], burst: number): TeamBuffStats {
+  const shape = shapeOf(s, carry, team);
   let byCarry = statsCache.get(s);
   if (!byCarry) statsCache.set(s, (byCarry = new WeakMap()));
   let byKey = byCarry.get(carry);
   if (!byKey) byCarry.set(carry, (byKey = new Map()));
-  const key = `${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
+  const key = `${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
   const cached = byKey.get(key);
   if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
@@ -395,7 +439,7 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
     if (b.reactions) continue;
     const buff = applicable(b, carry, carryReactions, shape);
     if (!buff) continue;
-    const weight = b.uptime ?? 1;
+    const weight = (b.uptime ?? 1) * (b.burst ? burst : 1);
     const g = gain(b, stats, carry, carryReactions, shape) * weight;
     if (g > (best.get(b.kind)?.g ?? 0)) best.set(b.kind, { buff, weight, g });
   }
@@ -404,22 +448,116 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
   return out;
 }
 
-// Cached per team array object (#215): the scorer asks for the same carry's buffs several times per team, and
-// damage.ts caches carry readings by this object, so the same buffs must come back as the same object.
-const teamBuffsCache = new WeakMap<readonly ScoringCharacter[], Map<string, TeamBuffStats>>();
-export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[]): TeamBuffStats {
-  let byKey = teamBuffsCache.get(team);
-  if (!byKey) teamBuffsCache.set(team, (byKey = new Map()));
-  const key = `${carry.id}#${carryReactions.join("|")}`;
+export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[], shares?: BurstShares): TeamBuffStats {
+  const out = { ...NO_TEAM_BUFFS };
+  for (const s of team) {
+    const entry = KIT[s.id];
+    if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
+    const part = bufferPart(s, carry, carryReactions, team, shares?.get(s) ?? 1);
+    for (const k of Object.keys(NO_TEAM_BUFFS) as NumericBuff[]) out[k] += part[k];
+  }
+  return out;
+}
+
+// Kit buffs that reach every party member's hits, not only the on-field character's (#204), hand-tagged from the
+// talent text. teamBuffStats gives the carry every buff; these also reach sub-DPS hits (memberBuffStats). The rest
+// stay on-field only (Bennett's field, Yelan's and Iansan's active-character buffs, Xianyun's plunges...). Not
+// tagged yet for want of a check, so on-field only for now: Alyosha, Nicole, Illuga, Prune, Sigewinne.
+const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?: Reaction[]; note: string }> = {
+  Faruzan: { kinds: ["dmgBonus"], note: "Prayerful Wind's Benefit: all nearby party members' Anemo DMG" },
+  Furina: { kinds: ["dmgBonus"], note: "Let the People Rejoice: all nearby party members' DMG, by Fanfare" },
+  "Kaedehara Kazuha": {
+    kinds: ["dmgBonusPerEm"],
+    elements: ["Pyro", "Hydro", "Electro", "Cryo"],
+    needs: ["swirl", "stellar-swirl"],
+    note: "Poetics of Fuubutsu: all party members' DMG of the element he swirls",
+  },
+  Lynette: { kinds: ["atkPct"], note: "Sophisticated Synergy: all party members' ATK" },
+  Mavuika: { kinds: ["dmgBonus"], note: "Kiongozi: all nearby party members' DMG, by Fighting Spirit" },
+  Mona: { kinds: ["dmgBonus"], note: "Illusory Bubble's Omen: opponents take more DMG from every hit" },
+  Rosaria: { kinds: ["critRate"], note: "Shadow Samaritan: CRIT Rate of all party members but Rosaria" },
+  Shenhe: { kinds: ["flatDmgFromAtk"], note: "Icy Quill: all party members' Cryo hits (the quills are shared: estimate)" },
+};
+
+// The party-wide kit buffs one member's hits get from their teammates (#204), as teamBuffStats gives the carry: same
+// values, conditions and uptimes. A buffer's buff on their own hits is left out (#98). `talent`: the hit's talent, for a
+// buff limited to some (appliesTo). Cached per team array object, like the scorer's other team readings.
+const memberCache = new WeakMap<readonly ScoringCharacter[], Map<string, TeamBuffStats>>();
+export function memberBuffStats(
+  m: ScoringCharacter,
+  carry: ScoringCharacter,
+  active: readonly Reaction[],
+  team: readonly ScoringCharacter[],
+  talent?: string,
+  shares?: BurstShares,
+): TeamBuffStats {
+  let byKey = memberCache.get(team);
+  if (!byKey) memberCache.set(team, (byKey = new Map()));
+  const key = `${m.id}|${carry.id}|${active.join(",")}|${talent ?? ""}|${shares ? "funded" : ""}`;
   const cached = byKey.get(key);
   if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
   byKey.set(key, out);
   for (const s of team) {
+    const wide = PARTY_WIDE[s.id];
     const entry = KIT[s.id];
-    if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
-    const part = bufferPart(s, carry, carryReactions, team);
-    for (const k of Object.keys(out) as (keyof TeamBuffStats)[]) out[k] += part[k];
+    if (s === m || !entry || entry.missing) continue;
+    // RES and DEF shred are on the enemy: every member's hits of the element they cover get them (#204).
+    const shape0 = shapeOf(s, carry, team);
+    for (const kind of ["resShred", "defShred"] as const) {
+      const b = entry.buffs.find((x) => x.kind === kind && !x.reactions && (!x.elements || x.elements.includes(m.element)) && (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))));
+      const funded = b?.burst ? (shares?.get(s) ?? 1) : 1;
+      if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor), shape0, (b.uptime ?? 1) * funded, out);
+    }
+    if (!wide) continue;
+    if (wide.elements && !wide.elements.includes(m.element)) continue;
+    if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
+    const shape = shapeOf(s, carry, team);
+    const stats = bufferStats(s, entry.base, entry.buildFor);
+    const seen = new Set<string>(); // one buff per kind, as bufferPart
+    for (const b of entry.buffs) {
+      if (b.reactions || !wide.kinds.includes(b.kind) || seen.has(b.kind)) continue;
+      if (b.elements && !b.elements.includes(m.element)) continue;
+      if (b.teamOnly && !shape.elements.every((e) => b.teamOnly!.includes(e))) continue;
+      if (b.appliesTo && !(talent && b.appliesTo.includes(talent))) continue;
+      seen.add(b.kind);
+      addBuffStats(b.steps ? { ...b, value: stepValue(b, shape) } : b, stats, shape, (b.uptime ?? 1) * (b.burst ? (shares?.get(s) ?? 1) : 1), out);
+    }
   }
   return out;
+}
+
+// The team's kit bonuses to a transformative reaction's own damage (#256), for score.ts transformativeLines: Reaction
+// Bonus (Baizhu per 1,000 Max HP, Nilou per 1,000 above 30,000 in an all-Dendro/Hydro team, Kaveh's Painted Dome while
+// he is on field, Ifa per Rescue Essentials point) and Reaction Additive Base DMG Bonus from EM (Lauma's), each times
+// its uptime. Buffer points leave them out (kitBuffValue outsideDamage).
+export function reactionBonusesFor(
+  r: Reaction,
+  carry: ScoringCharacter,
+  team: readonly ScoringCharacter[],
+  shares?: BurstShares,
+): { bonus: number; additive: number } {
+  let bonus = 0;
+  let additive = 0;
+  const elements = team.map((m) => m.element);
+  const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0 };
+  for (const m of team) {
+    const entry = KIT[m.id];
+    if (!entry || entry.missing) continue;
+    const stats = bufferStats(m, entry.base, entry.buildFor);
+    for (const b of entry.buffs) {
+      if (!b.reactions?.includes(r)) continue;
+      if (b.teamOnly && !elements.every((e) => b.teamOnly!.includes(e))) continue;
+      if (b.whileOnField && m !== carry) continue;
+      const up = (b.uptime ?? 1) * (b.burst ? (shares?.get(m) ?? 1) : 1);
+      if (b.kind === "reactionBonus") {
+        const others = team.filter((x) => x !== m && x.families?.includes("nightsoul")).length;
+        const essentials = () => rescueEssentials(b.points!, { ...shape, nightsoulOthers: others });
+        const points = b.condition === "rescueEssentials" ? essentials() : 1;
+        bonus += up * reactionBonusValue(b, stats) * points;
+      }
+      if (b.kind === "flatDmgFromEm") additive += up * b.value * stats.em;
+    }
+  }
+  return { bonus, additive };
 }

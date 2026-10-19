@@ -5,6 +5,8 @@ export const BENCHMARK = {
   carryBaseAtk: 950, // character + weapon base ATK
   carryAtk: 2200,
   carryDmgBonus: 0.6, // elemental goblet + set
+  // Physical goblet (58.3%) + a Physical 2pc (Pale Flame, Bloodstained Chivalry: "Physical DMG +25%", genshin-db) (#222)
+  carryPhysicalDmgBonus: 0.833,
   carryCritRate: 0.6,
   carryCritDmg: 1.2,
   carryEm: 100,

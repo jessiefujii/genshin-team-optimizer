@@ -35,6 +35,11 @@ describe("mapFightProps", () => {
     expect(mapFightProps(zhongli, "Hydro").elementalDmgBonus).toBe(0);
   });
 
+  test("reads Physical DMG Bonus (prop 30) when there is one (#222)", () => {
+    expect(mapFightProps({ ...zhongli, "30": 0.583 }, "Cryo").physicalDmgBonus).toBe(58.3);
+    expect(mapFightProps(zhongli, "Geo").physicalDmgBonus).toBeUndefined();
+  });
+
   test("treats missing props as 0", () => {
     expect(mapFightProps({}, "Pyro").critRate).toBe(0);
   });
