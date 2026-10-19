@@ -37,7 +37,10 @@ export function suggestionCandidates(roster: ScoringCharacter[], top: ScoredTeam
   const potential = roster.map((c) =>
     gaps.has(c.id) ? { ...c, stats: undefined, talents: undefined, built: true, belowMinimum: undefined } : c,
   );
-  return findBestTeams(potential, { ...options, requireAny: [...gaps.keys()], limit: (options.limit ?? 20) + top.length });
+  // pickSuggestions only takes teams above the list's last place, so the search skips the rest (#215).
+  const limit = options.limit ?? 20;
+  const above = top.length < limit ? undefined : top[top.length - 1].score;
+  return findBestTeams(potential, { ...options, requireAny: [...gaps.keys()], limit: limit + top.length, above });
 }
 
 // Each gappy member's best candidate team that would make the list, best first.

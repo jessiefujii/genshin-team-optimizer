@@ -1531,9 +1531,9 @@ export function teamScore(team: ScoringCharacter[], options: ScoreOptions = {}):
   return toScore(bestReading(team, options, false).value);
 }
 
-// A team's value with this carry on field, for the reference (team-reference.ts).
-export function carryTeamValue(team: ScoringCharacter[], carry: string): number {
-  return bestReading(team, {}, false, carry).value;
+// A team's value with this carry on field, for the reference (team-reference.ts) and the search's support ranking (#215).
+export function carryTeamValue(team: ScoringCharacter[], carry: string, options: ScoreOptions = {}): number {
+  return bestReading(team, options, false, carry).value;
 }
 
 export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {

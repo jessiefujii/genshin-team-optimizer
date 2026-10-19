@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { loadScoringCharacters } from "./load";
-import { findBestTeams, mergeTop } from "./search";
+import { findBestTeams, mergeTop, PRUNE_FROM } from "./search";
 import { pickSuggestions, suggestBuilds, suggestionCandidates, suggestionGaps } from "./suggest";
 import type { ScoringCharacter } from "./types";
 
@@ -35,5 +35,32 @@ describe("searching in parts (#215)", () => {
     const parts = [0, 1, 2, 3].map((index) => suggestionCandidates(roster, top, { limit: 10, part: { index, count: 4 } }));
     const merged = pickSuggestions(suggestionGaps(roster, { limit: 10 }), mergeTop(parts, 10 + top.length), top, 10);
     expect(merged.map((s) => [s.id, s.team.members.join("|"), s.rank])).toEqual(whole.map((s) => [s.id, s.team.members.join("|"), s.rank]));
+  });
+});
+
+// From PRUNE_FROM usable characters the search scores each carry's likely teams only (#215); it should find what
+// scoring every team finds. 30 characters, the last 30 (newer kits, more carries) with 5 of them not built.
+describe("the pruned search finds the exact search's teams (#215)", () => {
+  const big: ScoringCharacter[] = all
+    .filter((c) => !c.id.startsWith("Traveler ("))
+    .slice(-30)
+    .map((c, i) => (i % 6 === 0 ? { ...c, built: false } : c));
+  const built = big.filter((c) => c.built !== false);
+
+  test("the top 20", { timeout: 120_000 }, () => {
+    expect(built.length).toBeGreaterThanOrEqual(PRUNE_FROM);
+    expect(ids(findBestTeams(built))).toEqual(ids(findBestTeams(built, { exact: true })));
+  });
+
+  test("and in parts", { timeout: 120_000 }, () => {
+    const parts = [0, 1, 2, 3].map((index) => findBestTeams(built, { part: { index, count: 4 } }));
+    expect(ids(mergeTop(parts, 20))).toEqual(ids(findBestTeams(built, { exact: true })));
+  });
+
+  test("the build-suggestion search", { timeout: 120_000 }, () => {
+    const top = findBestTeams(big, { limit: 10 });
+    const pruned = suggestionCandidates(big, top, { limit: 10 });
+    expect(pruned.length).toBeGreaterThan(0);
+    expect(ids(pruned)).toEqual(ids(suggestionCandidates(big, top, { limit: 10, exact: true })));
   });
 });
