@@ -253,8 +253,10 @@ describe("carry damage (#101)", () => {
     const ganyu = byId.get("Ganyu")!;
     expect(carryDamage(ganyu, ["melt"])!.combo).toBe("E Q 4[C]");
     expect(carryDamage(ganyu, ["freeze"])!.combo).toBe("E C EQ 4[C]");
-    // Reverse Melt (x1.5) on her arrows outweighs the Freeze rotation's extra arrow and Skill.
-    expect(carryDamage(ganyu, ["melt"])!.perSecond).toBeGreaterThan(carryDamage(ganyu, ["freeze"])!.perSecond);
+    // Reverse Melt (x1.5) on her arrows outweighs the Freeze rotation's extra arrow and Skill, at the same build: no set
+    // (without one she'd wear Blizzard Strayer in Freeze, #279).
+    const noSet = { ...ganyu, sets: [] };
+    expect(carryDamage(noSet, ["melt"])!.perSecond).toBeGreaterThan(carryDamage(noSet, ["freeze"])!.perSecond);
   });
 
   // #222: hits of their own damage type.

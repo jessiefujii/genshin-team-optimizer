@@ -218,8 +218,9 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   const transformative = carryActive.filter((r) => transformativeModeled(ctx, carry, r));
   const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
   // Freeze scores only through crit (#205): with a 4pc set whose CRIT Rate needs it (Blizzard Strayer, #206) it is in the
-  // carry's damage; without one, the flat points stay until benchmark builds get a set.
-  const frozen = carryActive.includes("freeze") && freezeInDamage(carry);
+  // carry's damage. A carry without a build wears their guide's set (setsOf, #279); without one (a build with another
+  // set, or a guide set not modeled yet: Ayaka, Wriothesley), the flat points stay.
+  const frozen = carryActive.includes("freeze") && freezeInDamage(carry, ctx.active);
   if (frozen) out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents`);
   const modeled = [...kitModeled, ...transformative, ...(frozen ? ["freeze" as Reaction] : [])];
   const flat = carryActive.filter((r) => !modeled.includes(r));
