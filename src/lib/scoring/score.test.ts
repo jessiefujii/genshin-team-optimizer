@@ -822,7 +822,8 @@ describe("talent levels (#25)", () => {
     // +20% vs Cryo-affected, +20% more vs Frozen: 40% -> 80% CRIT Rate in this Freeze team.
     expect(four.dps / none.dps).toBeCloseTo((1 + 0.8 * 1.8) / (1 + 0.4 * 1.8), 1);
     expect(two.dps).toBeCloseTo(none.dps, 6); // the 2pc Cryo DMG is in the imported stats already
-    expect(none.freeze?.points).toBeGreaterThan(0);
+    // Freeze is worth only the set's crit: a build without it gets nothing from Freeze (#279).
+    expect(none.freeze).toMatchObject({ points: 0 });
     expect(four.freeze).toMatchObject({ points: 0 });
   });
 
@@ -834,9 +835,11 @@ describe("talent levels (#25)", () => {
     // Same as giving her 4pc Blizzard Strayer by hand.
     const worn = freeze.map((c) => (c.id === "Ganyu" ? { ...c, sets: [{ set: "Blizzard Strayer", pieces: 4 as const }] } : c));
     expect(carryDamage(freeze[0], s.activeReactions, freeze)!.perSecond).toBeCloseTo(carryDamage(worn[0], s.activeReactions, worn)!.perSecond, 6);
-    // A build's own sets count, even without the guide's: the flat points stay.
+    // A build's own sets count: with another set, Freeze adds nothing and she keeps her 60% CRIT Rate circlet.
     const other = freeze.map((c) => (c.id === "Ganyu" ? { ...c, sets: [{ set: "Wanderer's Troupe", pieces: 4 as const }] } : c));
-    expect(freezeLine(scoreTeam(other))!.points).toBeGreaterThan(0);
+    const otherScore = scoreTeam(other);
+    expect(freezeLine(otherScore)).toMatchObject({ points: 0 });
+    expect(otherScore.score).toBeLessThan(s.score);
     // Ayaka's guide picks Marechaussee Hunter (not modeled yet): flat points.
     expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))!.points).toBeGreaterThan(0);
   });

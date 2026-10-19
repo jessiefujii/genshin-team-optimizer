@@ -112,6 +112,9 @@ export function setCritRate(c: ScoringCharacter, active: readonly Reaction[], te
 // Whether the carry's Freeze is in their damage through a set's CRIT Rate (#205: Freeze scores only through crit).
 export const freezeInDamage = (c: ScoringCharacter, active: readonly Reaction[]) =>
   setsOf(c, active).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.when.reaction === "freeze"));
+// Whether Freeze's value for this carry is their guide set's, in the model (#279): then a build without that set gets
+// none, as Freeze has no value but the set's crit (#205).
+export const freezeSetModeled = (c: ScoringCharacter) => BENCHMARK_SETS[c.id]?.when.reaction === "freeze";
 // A benchmark carry whose set gives CRIT Rate wears a CRIT DMG circlet instead of a CRIT Rate one (#279: KQM's Ganyu
 // guide, Freeze stat priority "CRIT DMG ≥ ATK% > CRIT Rate" with Blizzard Strayer).
 const critCirclet = (c: ScoringCharacter, active: readonly Reaction[]) =>
