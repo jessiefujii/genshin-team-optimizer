@@ -196,9 +196,12 @@ describe("scoreTeam", () => {
   test("only shields count for Arlecchino's survivability: she can't be healed in combat (#2)", () => {
     const survival = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
     expect(survival("Arlecchino", "Bennett", "Chevreuse", "Fischl")).toMatchObject({ points: -10, reason: "No shielder (Arlecchino can't be healed)" });
-    expect(survival("Arlecchino", "Bennett", "Yelan", "Zhongli").reason).toBe("Zhongli shield ~100% of the rotation");
+    // Zhongli's Geo crystallizes the team's auras too: Crystallize shields count as shields (#208).
+    expect(survival("Arlecchino", "Bennett", "Yelan", "Zhongli").reason).toBe("Zhongli, Crystallize shields shield ~100% of an Abyss hit per rotation");
     // Other carries still count healers.
-    expect(survival("Hu Tao", "Xingqiu", "Bennett", "Zhongli").reason).toBe("Bennett, Zhongli heal or shield ~100% of the rotation");
+    expect(survival("Hu Tao", "Xingqiu", "Bennett", "Zhongli").reason).toBe(
+      "Bennett, Zhongli, Crystallize shields heal or shield ~100% of an Abyss hit per rotation",
+    );
   });
 
   test("a hypercarry is not penalized for a team without reactions (#49)", () => {
@@ -268,13 +271,29 @@ describe("scoreTeam", () => {
   test("survivability scores by how much of the rotation shields and heals cover (#177)", () => {
     const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
     // Zhongli's shield: 20s per 12s Hold cooldown, always up.
-    expect(line("Hu Tao", "Zhongli", "Xingqiu", "Yelan")).toEqual({ rule: "Survivability", points: 10, reason: "Zhongli heal or shield ~100% of the rotation" });
+    expect(line("Hu Tao", "Zhongli", "Xingqiu", "Yelan")).toEqual({
+      rule: "Survivability",
+      points: 10,
+      reason: "Zhongli, Crystallize shields heal or shield ~100% of an Abyss hit per rotation",
+    });
     // Bennett's field: 12s per 15s; Bennett and Xianyun (16s per 18s) together: 1 - 0.2 x 0.11.
     expect(line("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu").points).toBe(8);
-    expect(line("Xiao", "Bennett", "Xianyun", "Faruzan").reason).toBe("Bennett, Xianyun heal or shield ~98% of the rotation");
+    expect(line("Xiao", "Bennett", "Xianyun", "Faruzan").reason).toBe("Bennett, Xianyun heal or shield ~98% of an Abyss hit per rotation");
     // Jean's field has no duration in the kit: she counts as full, as the healer tag did.
     expect(line("Kamisato Ayaka", "Jean", "Shenhe", "Furina").points).toBe(10);
-    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Kaedehara Kazuha")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
+    // Albedo has no shield of his own, but his Geo crystallizes the team's auras (#208).
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo").reason).toBe("Crystallize shields heal or shield ~31% of an Abyss hit per rotation");
+  });
+
+  test("shields are sized against the Abyss Discharge hit; Crystallize shields count (#208)", () => {
+    const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
+    const pct = (...ids: string[]) => Number(line(...ids).reason.match(/~(\d+)%/)![1]);
+    // Diona's Hold shield (~3k at the benchmark) takes under half of a 6,699 hit: less than her 80% uptime.
+    expect(pct("Ganyu", "Diona", "Kaedehara Kazuha", "Xiangling")).toBeLessThan(80);
+    // Navia's Geo crystallizes Xiangling's and Xingqiu's auras: her team adds Crystallize shields to Bennett's 80%.
+    expect(line("Navia", "Xiangling", "Bennett", "Xingqiu").reason).toContain("Crystallize shields");
+    expect(pct("Navia", "Xiangling", "Bennett", "Xingqiu")).toBeGreaterThan(80);
   });
 
   test("Hexerei only counts for characters whose quest is done", () => {
