@@ -151,6 +151,19 @@ const SPEC = {
   Nahida: { from: "passive1", values: [{ kind: "emFromTopEm", re: /increased by (\d+)% of the Elemental Mastery of the party member with the highest/, unit: "of the party's highest EM", percent: true }] },
   // Bountiful Cores (passive 1: an all-Dendro/Hydro team, Golden Chalice's Bounty for 30s per Skill) deal more with her
   // Max HP above 30,000 (passive 2); "Bountiful Core DMG is considered DMG dealt by Dendro Cores produced by Bloom" (#256).
+  // Dreamdrifter raises the Swirl and Stellar Swirl DMG party members deal by Mizuki's EM (#235), while she is on field
+  // (it ends when she leaves): 10s with passive 1's two 2.5s extensions (wiki Aisa Utamakura Pilgrimage notes: "up to 13
+  // instances over 10 seconds with her Passive Talent 1 unlocked"), on her 15s Skill. Built for EM (the carry benchmark's).
+  "Yumemizuki Mizuki": {
+    talent: "skill",
+    buildFor: { em: "built" },
+    values: [
+      { kind: "reactionBonus", label: "Elemental Mastery-Based Swirl DMG Increase", perEm: 100, reactions: ["swirl"], whileOnField: true, unit: "Swirl DMG % per 100 of Mizuki's EM" },
+      { kind: "reactionBonus", label: "Elemental Mastery-Based Stellar Swirl DMG Increase", perEm: 100, reactions: ["stellar-swirl"], whileOnField: true, unit: "Stellar Swirl DMG % per 100 of Mizuki's EM" },
+    ],
+    duration: 10,
+    cd: "CD",
+  },
   Nilou: {
     from: ["passive2", "passive1"],
     values: [
@@ -218,6 +231,7 @@ const limits = (v) => ({
   ...(v.condition ? { condition: v.condition } : {}),
   ...(v.teamOnly ? { teamOnly: v.teamOnly } : {}),
   ...(v.whileOnField ? { whileOnField: true } : {}),
+  ...(v.perEm ? { perEm: v.perEm } : {}),
 });
 
 // Reads a table label's first parameter at TALENT_LEVEL.
@@ -267,7 +281,7 @@ function readBuffs(id, spec) {
   if (!talents) throw new Error(`${id}: no talent data in genshin-db`);
   if (spec.talent) {
     const attrs = talents[COMBAT[spec.talent]].attributes;
-    const duration = spec.duration ? tableValue(attrs, spec.duration, id) : null;
+    const duration = typeof spec.duration === "number" ? spec.duration : spec.duration ? tableValue(attrs, spec.duration, id) : null;
     const cd = spec.cd ? tableValue(attrs, spec.cd, id) : null;
     const fanfare = spec.fanfare && {
       maxFanfare: tableValue(attrs, spec.fanfare.max, id),
@@ -1613,6 +1627,111 @@ const CARRIES = {
       },
     ],
   },
+  // #235. KeqingMains' Mizuki quick guide (https://keqingmains.com/q/mizuki-quickguide/, fetched 2026-10-18): "(Q) E /
+  // E(Q)", "no notable combo beyond 'float around'"; sample rotations "Mizuki E (Q)", Burst "every other rotation" (its
+  // ER table). Wiki Aisa Utamakura Pilgrimage notes: "Mizuki can deal 7 instances of damage over 5 seconds, and up to 13
+  // instances over 10 seconds with her Passive Talent 1 unlocked" (two 2.5s extensions for a Swirl or Stellar Swirl),
+  // read as her periodic hits after the Skill's own hit. Passive 4 (Witch's Revelation, kit-overrides.json): after she
+  // triggers Swirl or Stellar Swirl, her next periodic hit gains 1,000% of her EM, "once every 2.5s": 4 in 10s (worked
+  // out here); in Radiance: Stellar Swirl each also deals "an additional instance of Anemo DMG at 1,000% of her
+  // Elemental Mastery" that "is considered Stellar Swirl reaction DMG" (direct Stellar Swirl, coefficient 1: wiki Damage
+  // § Direct). Passive 2: EM +100 while teammates hit with Pyro/Hydro/Cryo/Electro (any Swirl team). Left out: the
+  // Burst's Munen Shockwaves (snack pick-ups, no sourced count).
+  "Yumemizuki Mizuki": {
+    radianceInDamage: true, // her Radiance hits are in her damage: no flat Stellar points for them (#235)
+    combo: "E (Q)",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "skill", label: "Continuous Attack DMG", count: 7, type: SK },
+      { table: "burst", label: "Skill DMG", count: 0.5, type: BU },
+    ],
+    buffs: [],
+    combos: [
+      {
+        combo: "E (Q), Stellar Swirl, Witch's Revelation",
+        when: [{ reaction: "stellar-swirl", radiance: true }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "skill", label: "Continuous Attack DMG", count: 13, type: SK },
+          { from: "passive4", re: /will be increased by ([\d,]+)% of her Elemental Mastery/, stat: "em", count: 4, type: SK, addOn: true },
+          { from: "passive4", re: /additional instance of Anemo DMG at ([\d,]+)% of her Elemental Mastery/, stat: "em", count: 4, type: SK, lunar: "stellar-swirl" },
+          { table: "burst", label: "Skill DMG", count: 0.5, type: BU },
+        ],
+        buffs: [
+          { kind: "emBonus", from: "passive2", re: /her Elemental Mastery will increase by (\d+)/ },
+          { kind: "lunarReactionBonus", table: "skill", label: "Elemental Mastery-Based Stellar Swirl DMG Increase", perEm: 100, reaction: "stellar-swirl" },
+        ],
+      },
+      {
+        combo: "E (Q), Swirl, Witch's Revelation",
+        when: [{ reaction: "swirl", radiance: true }, { reaction: "stellar-swirl", radiance: true }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "skill", label: "Continuous Attack DMG", count: 13, type: SK },
+          { from: "passive4", re: /will be increased by ([\d,]+)% of her Elemental Mastery/, stat: "em", count: 4, type: SK, addOn: true },
+          { table: "burst", label: "Skill DMG", count: 0.5, type: BU },
+        ],
+        buffs: [{ kind: "emBonus", from: "passive2", re: /her Elemental Mastery will increase by (\d+)/ }],
+      },
+      {
+        combo: "E (Q), Swirl",
+        when: [{ reaction: "swirl" }, { reaction: "stellar-swirl" }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "skill", label: "Continuous Attack DMG", count: 13, type: SK },
+          { table: "burst", label: "Skill DMG", count: 0.5, type: BU },
+        ],
+        buffs: [{ kind: "emBonus", from: "passive2", re: /her Elemental Mastery will increase by (\d+)/ }],
+      },
+    ],
+  },
+  // #235. No KQM guide (404, 2026-10-18). GameWith's Vesna guide (https://gamewith.net/genshin-impact/article/show/76472,
+  // fetched 2026-10-18): "Elemental Skill -> [ Normal Attack (x1) -> Charged Attack ] -> Special Skill (x2) -> Elemental
+  // Burst -> Special Skill -> [ Normal Attack (x1) -> Charged Attack ] -> Special Skill (x2)", then swap out. The wiki (The
+  // Art of Victory) agrees on the five Windborne Swords: levels go "from Lv. 1, up to Lv. 3 max", and she leaves Armed for
+  // Action "after she has used Windborne Sword at the highest level 3 times": Lv. 1, Lv. 2, Lv. 3 x3. Each Normal and
+  // Charged Attack also summons a wind pinion. With Stellar Swirl in the team (Radiance), "DMG dealt by the Spirit Blades
+  // become Anemo DMG that is considered Stellar Swirl reaction DMG": their Stellar Swirl rows, direct (wiki Damage §
+  // Direct). Rotation: 18.48s, measured in a HoYoLAB test (kit-overrides.json rotations). Left out:
+  // passive 2's ATK/EM by teammates' elements.
+  Vesna: {
+    radianceInDamage: true, // her Radiance: Stellar Swirl Spirit Blades are in her damage (#235)
+    combo: "E N1C 2sE Q sE N1C 2sE",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "normal", label: "1-Hit DMG", count: 2, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 2, type: CH },
+      { table: "skill", label: "Wind Pinion DMG", count: 4, type: SK },
+      { table: "skill", label: "Windborne Sword Lv. 1 DMG", count: 1, type: SK },
+      { table: "skill", label: "Windborne Sword Lv. 2 DMG", count: 1, type: SK },
+      { table: "skill", label: "Windborne Sword Lv. 2 Spirit Blade DMG", count: 1, type: SK },
+      { table: "skill", label: "Windborne Sword Lv. 3 Spirit Blade DMG", count: 3, type: SK, instances: 4 },
+      { table: "skill", label: "Windborne Sword Lv. 3 Spirit Blade Final Hit DMG", count: 3, type: SK },
+      { table: "burst", label: "Spirit Blade DMG", count: 1, type: BU },
+    ],
+    buffs: [],
+    combos: [
+      {
+        combo: "E N1C 2sE Q sE N1C 2sE, Radiance: Stellar Swirl",
+        when: [{ reaction: "stellar-swirl" }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "normal", label: "1-Hit DMG", count: 2, type: N },
+          { table: "normal", label: "Charged Attack DMG", count: 2, type: CH },
+          { table: "skill", label: "Wind Pinion DMG", count: 4, type: SK },
+          { table: "skill", label: "Windborne Sword Lv. 1 DMG", count: 1, type: SK },
+          { table: "skill", label: "Windborne Sword Lv. 2 DMG", count: 1, type: SK },
+          { table: "skill", label: "Windborne Sword Lv. 2 Spirit Blade Stellar Swirl DMG", count: 1, type: SK, lunar: "stellar-swirl" },
+          { table: "skill", label: "Windborne Sword Lv. 3 Spirit Blade Stellar Swirl DMG", count: 3, type: SK, instances: 4, lunar: "stellar-swirl" },
+          { table: "skill", label: "Windborne Sword Lv. 3 Spirit Blade Final Hit Stellar Swirl DMG", count: 3, type: SK, lunar: "stellar-swirl" },
+          { table: "burst", label: "Spirit Blade Stellar Swirl DMG", count: 1, type: BU, lunar: "stellar-swirl" },
+        ],
+        buffs: [
+          { kind: "lunarBaseBonus", from: "passive3", re: /Every 100 ATK she has increases the Base Stellar Swirl DMG by ([\d.]+)%/, per: 100, stat: "atk", max: /maximum DMG increase that can be gained this way is (\d+)%/ },
+        ],
+      },
+    ],
+  },
   Wanderer: {
     // KeqingMains' Wanderer calcs (#223), linked as "Calcs Here" from the full guide (https://keqingmains.com/wanderer/;
     // sheet 1e2e5ITnHVbT8tyJBqgfO89BWbPX5HcDxMdUm98ECZ0M, Calculator tab, fetched 2026-10-18): a 20s rotation of Burst,
@@ -2491,7 +2610,14 @@ function readCarry(id, spec) {
       case "lunarBaseBonus":
         return { kind: b.kind, stat: b.stat, perPoint: round(num(b.from, b.re) / 100 / b.per), max: num(b.from, b.max) / 100 };
       case "lunarReactionBonus":
-        return { kind: b.kind, value: num(b.from, b.re) / 100, reaction: b.reaction, ...(b.when ? { when: b.when } : {}) };
+        // From a passive's text, or a talent table row (`perEm`: per that many points of the carry's EM, Mizuki #235).
+        return {
+          kind: b.kind,
+          value: b.table ? raw(b.table, b.label) : num(b.from, b.re) / 100,
+          reaction: b.reaction,
+          ...(b.perEm ? { perEm: b.perEm } : {}),
+          ...(b.when ? { when: b.when } : {}),
+        };
       case "baseDmgMultiplier":
         return { kind: b.kind, value: round(b.value), labels: b.labels, ...(b.when ? { when: b.when } : {}) };
       case "emBonus":
@@ -2515,6 +2641,7 @@ function readCarry(id, spec) {
     rotationSeconds: rotation.seconds ?? tableValue(tableAttrs("burst"), "CD", id),
     ...(rotation.teams?.length ? { rotationTeams: rotation.teams.map((t) => ({ when: t.when, seconds: t.seconds })) } : {}),
     ...(spec.combo ? { combo: spec.combo } : {}),
+    ...(spec.radianceInDamage ? { radianceInDamage: true } : {}),
     hits,
     buffs,
     ...(combos.length ? { combos } : {}),
@@ -2611,6 +2738,12 @@ const LUNAR_CONVERTERS = {
     max: /maximum of (\d+)%/,
     reactions: ["lunar-charged", "lunar-bloom", "lunar-crystallize"],
   },
+  // Stellar Jubilee (#235): the same Base DMG bonus to the party's Stellar reactions (wiki Damage § Reaction Base DMG
+  // Bonus § Stellar Glimmer lists these four).
+  Odette: { from: "passive3", re: /increased by ([\d.]+)% for every 100 points of Odette's ATK/, per: 100, stat: "atk", max: /maximum increase of (\d+)%/, reactions: ["stellar-conduct", "stellar-swirl"] },
+  Sandrone: { from: "passive3", re: /increased by ([\d.]+)% for every 100 points of Sandrone's ATK/, per: 100, stat: "atk", max: /maximum increase of (\d+)%/, reactions: ["stellar-conduct", "stellar-swirl"] },
+  "Traveler (Cryo)": { from: "passive3", re: /increased by ([\d.]+)% for every 100 points of the Traveler's ATK/, per: 100, stat: "atk", max: /maximum (\d+)% increase/, reactions: ["stellar-conduct", "stellar-swirl"] },
+  Vesna: { from: "passive3", re: /Every 100 ATK she has increases the Base Stellar Swirl DMG by ([\d.]+)%/, per: 100, stat: "atk", max: /maximum DMG increase that can be gained this way is (\d+)%/, reactions: ["stellar-swirl"] },
 };
 const lunarBase = {};
 for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
@@ -2622,6 +2755,43 @@ for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
   };
   lunarBase[id] = { stat: b.stat, perPoint: round(read(b.re) / 100 / b.per), max: read(b.max) / 100, reactions: b.reactions };
 }
+// 4pc set bonuses to the wearer's own damage, as carry buffs (#206), read from genshin-db's set text: `when` is the
+// condition (aura: an element the team applies; reaction: one the team triggers). Freeze scores only through these
+// (Jessie, 2026-10-18, #205): Blizzard Strayer first; the other 4pc sets follow.
+const SETS = {
+  "Blizzard Strayer": [
+    { kind: "critRate", re: /affected by Cryo, their CRIT Rate is increased by (\d+)%/, when: { aura: "Cryo" } },
+    { kind: "critRate", re: /If the opponent is Frozen, CRIT Rate is increased by an additional (\d+)%/, when: { reaction: "freeze" } },
+  ],
+};
+const sets = {};
+for (const [name, values] of Object.entries(SETS)) {
+  const a = genshindb.artifacts(name);
+  if (!a || a.name !== name) throw new Error(`${name}: no such artifact set in genshin-db`);
+  const text = a.effect4Pc.replace(/\s+/g, " ");
+  sets[name] = values.map((v) => {
+    const m = text.match(v.re);
+    if (!m) throw new Error(`${name}: pattern ${v.re} not found in its 4pc text: ${text}`);
+    return { kind: v.kind, value: Number(m[1]) / 100, when: v.when, source: `4pc: "${m[0]}"` };
+  });
+}
+// The 4pc set a carry without a build reads as wearing (#279): their KQM quick guide's pick, when the team triggers
+// `when`. Only sets in SETS: Ayaka and Wriothesley's guides pick 4pc Marechaussee Hunter (not modeled yet), so they
+// have none and keep the flat Freeze points.
+const benchmarkSets = {
+  Ganyu: {
+    set: "Blizzard Strayer",
+    when: { reaction: "freeze" },
+    source: 'KQM Ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): "This set is Ganyu\'s best-in-slot against freezable enemies"',
+  },
+  Freminet: {
+    set: "Blizzard Strayer",
+    when: { reaction: "freeze" },
+    source: 'KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): "4pc BS is one of Freminet\'s best artifact sets in his Cryo Skill DPS playstyle"',
+  },
+};
+for (const [id, b] of Object.entries(benchmarkSets)) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
+
 // Level 90 base HP/ATK/DEF (character only), for a sub-DPS's benchmark build when the player has none (#158), and the
 // level 90 ascension stat (#166: genshin-db substatType and its value; EM is flat, the rest are fractions).
 // genshin-db matches names loosely, so the name is checked; the Traveler's base stats are Lumine's.
@@ -2636,7 +2806,7 @@ function baseStatsOf(id) {
 const subDps = {};
 for (const [id, spec] of Object.entries(SUBDPS)) {
   subDps[id] = { base: baseStatsOf(id), ...readSubDps(id, spec) };
-  if (lunarBase[id]) subDps[id].lunarBaseBonus = lunarBase[id];
+  if (lunarBase[id]?.reactions.some((r) => r.startsWith("lunar-"))) subDps[id].lunarBaseBonus = lunarBase[id];
 }
 
 // Every Stellar member needs a STELLAR entry, so a new one (or new Radiance text) can't be missed.
@@ -2777,6 +2947,8 @@ writeFileSync(
       fightingSpirit,
       stellar,
       lunarBase,
+      sets,
+      benchmarkSets,
       subDps,
       sustain,
       carries,

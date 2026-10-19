@@ -196,9 +196,12 @@ describe("scoreTeam", () => {
   test("only shields count for Arlecchino's survivability: she can't be healed in combat (#2)", () => {
     const survival = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
     expect(survival("Arlecchino", "Bennett", "Chevreuse", "Fischl")).toMatchObject({ points: -10, reason: "No shielder (Arlecchino can't be healed)" });
-    expect(survival("Arlecchino", "Bennett", "Yelan", "Zhongli").reason).toBe("Zhongli shield ~100% of the rotation");
+    // Zhongli's Geo crystallizes the team's auras too: Crystallize shields count as shields (#208).
+    expect(survival("Arlecchino", "Bennett", "Yelan", "Zhongli").reason).toBe("Zhongli, Crystallize shields shield ~100% of an Abyss hit per rotation");
     // Other carries still count healers.
-    expect(survival("Hu Tao", "Xingqiu", "Bennett", "Zhongli").reason).toBe("Bennett, Zhongli heal or shield ~100% of the rotation");
+    expect(survival("Hu Tao", "Xingqiu", "Bennett", "Zhongli").reason).toBe(
+      "Bennett, Zhongli, Crystallize shields heal or shield ~100% of an Abyss hit per rotation",
+    );
   });
 
   test("a hypercarry is not penalized for a team without reactions (#49)", () => {
@@ -268,13 +271,29 @@ describe("scoreTeam", () => {
   test("survivability scores by how much of the rotation shields and heals cover (#177)", () => {
     const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
     // Zhongli's shield: 20s per 12s Hold cooldown, always up.
-    expect(line("Hu Tao", "Zhongli", "Xingqiu", "Yelan")).toEqual({ rule: "Survivability", points: 10, reason: "Zhongli heal or shield ~100% of the rotation" });
+    expect(line("Hu Tao", "Zhongli", "Xingqiu", "Yelan")).toEqual({
+      rule: "Survivability",
+      points: 10,
+      reason: "Zhongli, Crystallize shields heal or shield ~100% of an Abyss hit per rotation",
+    });
     // Bennett's field: 12s per 15s; Bennett and Xianyun (16s per 18s) together: 1 - 0.2 x 0.11.
     expect(line("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu").points).toBe(8);
-    expect(line("Xiao", "Bennett", "Xianyun", "Faruzan").reason).toBe("Bennett, Xianyun heal or shield ~98% of the rotation");
+    expect(line("Xiao", "Bennett", "Xianyun", "Faruzan").reason).toBe("Bennett, Xianyun heal or shield ~98% of an Abyss hit per rotation");
     // Jean's field has no duration in the kit: she counts as full, as the healer tag did.
     expect(line("Kamisato Ayaka", "Jean", "Shenhe", "Furina").points).toBe(10);
-    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Kaedehara Kazuha")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
+    // Albedo has no shield of his own, but his Geo crystallizes the team's auras (#208).
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo").reason).toBe("Crystallize shields heal or shield ~31% of an Abyss hit per rotation");
+  });
+
+  test("shields are sized against the Abyss Discharge hit; Crystallize shields count (#208)", () => {
+    const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
+    const pct = (...ids: string[]) => Number(line(...ids).reason.match(/~(\d+)%/)![1]);
+    // Diona's Hold shield (~3k at the benchmark) takes under half of a 6,699 hit: less than her 80% uptime.
+    expect(pct("Ganyu", "Diona", "Kaedehara Kazuha", "Xiangling")).toBeLessThan(80);
+    // Navia's Geo crystallizes Xiangling's and Xingqiu's auras: her team adds Crystallize shields to Bennett's 80%.
+    expect(line("Navia", "Xiangling", "Bennett", "Xingqiu").reason).toContain("Crystallize shields");
+    expect(pct("Navia", "Xiangling", "Bennett", "Xingqiu")).toBeGreaterThan(80);
   });
 
   test("Hexerei only counts for characters whose quest is done", () => {
@@ -606,6 +625,35 @@ describe("sub-DPS (#96)", () => {
     expect(read("Ineffa", 2000).lunar).toBeGreaterThan(read("Ineffa", 1000).lunar);
   });
 
+  test("Stellar Swirl deals damage; Mizuki's and Vesna's Radiance is in their damage (#235)", () => {
+    const ids = ["Yumemizuki Mizuki", "Odette", "Traveler (Cryo)", "Faruzan"];
+    const s = score(...ids);
+    // Each Stellar Swirl's Anemo hit and its vortex's explosion, as 0-point Reactions lines in team damage.
+    const stellar = s.breakdown.filter((l) => l.rule === "Reactions" && /^Stellar-swirl (Anemo hits|Stellar Vortex)/.test(l.reason));
+    expect(stellar.map((l) => l.reason.split(":")[0])).toEqual(["Stellar-swirl Anemo hits", "Stellar-swirl Stellar Vortex Lv. 2"]);
+    expect(stellar.every((l) => l.points === 0 && dps(l.reason) > 0)).toBe(true);
+    // Her Radiance hits are in her damage: no flat points for them; without her Witch's Revelation they're gone.
+    const radiance = (t: ReturnType<typeof scoreTeam>) => t.breakdown.find((l) => l.rule === "Stellar" && l.reason.startsWith("Radiance"));
+    expect(radiance(s)?.points).toBe(0);
+    expect(scoreTeam(team(...ids), { revelationUnlocked: [] }).damage.perSecond).toBeLessThan(s.damage.perSecond);
+    expect(radiance(score("Vesna", "Odette", "Vodyanitsa", "Traveler (Cryo)"))?.points).toBe(0);
+  });
+
+  test("indirect Lunar damage: thunderclouds and Moondrift Harmony, not Lunar-Bloom (#145)", () => {
+    const indirect = (...ids: string[]) => {
+      const line = score(...ids).breakdown.find((l) => l.rule === "Reactions" && /thunderclouds|Moondrift Harmony/.test(l.reason));
+      return line ? { points: line.points, dps: dps(line.reason), rate: Number(line.reason.match(/~([\d.]+)\/s\)/)![1]) } : null;
+    };
+    // Thunderclouds strike every 2s at most, scored as damage (0 points); Moondrift Harmony every third Lunar-Crystallize.
+    const charged = indirect("Flins", "Ineffa", "Columbina", "Aino")!;
+    expect(charged.points).toBe(0);
+    expect(charged.dps).toBeGreaterThan(0);
+    expect(charged.rate).toBeLessThanOrEqual(0.5);
+    expect(indirect("Zibai", "Columbina", "Illuga", "Linnea")?.dps).toBeGreaterThan(0);
+    // Lunar-Bloom has no indirect damage (wiki Damage § Indirect).
+    expect(indirect("Nefer", "Lauma", "Columbina", "Furina")).toBeNull();
+  });
+
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
     const share = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.
@@ -755,6 +803,45 @@ describe("talent levels (#25)", () => {
     expect(buff("Chevreuse", "Raiden Shogun", "Chevreuse", "Xiangling", "Xingqiu")).toBe(
       "Chevreuse: their kit's buff doesn't apply to Raiden Shogun's damage",
     );
+  });
+
+  test("Blizzard Strayer's CRIT Rate is in the carry's damage; Freeze then scores no flat points (#206, #205)", () => {
+    const stats: CharacterStats = {
+      atk: 2000, hp: 18000, def: 800, critRate: 40, critDmg: 180, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 61.6,
+    };
+    const read = (sets?: { set: string; pieces: 2 | 4 }[]) => {
+      const t = team("Ganyu", "Furina", "Escoffier", "Shenhe").map((c) => (c.id === "Ganyu" ? { ...c, stats, sets } : c));
+      const s = scoreTeam(t);
+      // Her own damage (the set reaches only her hits), in this team's Freeze.
+      const dps = carryDamage(t[0], s.activeReactions, t)!.perSecond;
+      return { dps, freeze: s.breakdown.find((l) => l.rule === "Reactions" && l.reason.startsWith("Freeze")) };
+    };
+    const none = read();
+    const two = read([{ set: "Blizzard Strayer", pieces: 2 }]);
+    const four = read([{ set: "Blizzard Strayer", pieces: 4 }]);
+    // +20% vs Cryo-affected, +20% more vs Frozen: 40% -> 80% CRIT Rate in this Freeze team.
+    expect(four.dps / none.dps).toBeCloseTo((1 + 0.8 * 1.8) / (1 + 0.4 * 1.8), 1);
+    expect(two.dps).toBeCloseTo(none.dps, 6); // the 2pc Cryo DMG is in the imported stats already
+    // Freeze is worth only the set's crit: a build without it gets nothing from Freeze (#279).
+    expect(none.freeze).toMatchObject({ points: 0 });
+    expect(four.freeze).toMatchObject({ points: 0 });
+  });
+
+  test("a carry without a build wears their guide's set in its reaction's teams, with a CRIT DMG circlet (#279)", () => {
+    const freezeLine = (s: ReturnType<typeof scoreTeam>) => s.breakdown.find((l) => l.rule === "Reactions" && l.reason.startsWith("Freeze"));
+    const freeze = team("Ganyu", "Furina", "Escoffier", "Shenhe");
+    const s = scoreTeam(freeze);
+    expect(freezeLine(s)).toMatchObject({ points: 0 });
+    // Same as giving her 4pc Blizzard Strayer by hand.
+    const worn = freeze.map((c) => (c.id === "Ganyu" ? { ...c, sets: [{ set: "Blizzard Strayer", pieces: 4 as const }] } : c));
+    expect(carryDamage(freeze[0], s.activeReactions, freeze)!.perSecond).toBeCloseTo(carryDamage(worn[0], s.activeReactions, worn)!.perSecond, 6);
+    // A build's own sets count: with another set, Freeze adds nothing and she keeps her 60% CRIT Rate circlet.
+    const other = freeze.map((c) => (c.id === "Ganyu" ? { ...c, sets: [{ set: "Wanderer's Troupe", pieces: 4 as const }] } : c));
+    const otherScore = scoreTeam(other);
+    expect(freezeLine(otherScore)).toMatchObject({ points: 0 });
+    expect(otherScore.score).toBeLessThan(s.score);
+    // Ayaka's guide picks Marechaussee Hunter (not modeled yet): flat points.
+    expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))!.points).toBeGreaterThan(0);
   });
 
   test("a Burst short of Energy funds its buffs less often (#207)", () => {

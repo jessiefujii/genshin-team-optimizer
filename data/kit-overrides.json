@@ -790,6 +790,14 @@
       "seconds": 13.35,
       "source": "KeqingMains Aloy freeze calc (\"Aloy Weapon Calcs\", linked from https://keqingmains.com/aloy/; sheet 1tqQ3ZXky1vrSElLZPgi_qM94q9pX2eGbZpPXOasfjbc, \"Aloy freeze\" tab), fetched 2026-10-18: \"Rotation Duration\" 13.35 (C19) for \"7 N3RR 1 E 1 Q\"."
     },
+    "Vesna": {
+      "seconds": 18.48,
+      "source": "HoYoLAB C0 Vesna performance test (Vesna, Odette, Faruzan, Vodyanitsa), https://www.hoyolab.com/article/46785086, fetched 2026-10-18: \"Rotation time: 18.48 seconds\" for one full team rotation. (Its Vesna string is E twice, Q, E, 2[N1C], E, 2[N1C], E: four Windborne Swords; the spec keeps GameWith's five, which the wiki's three Lv. 3 casts allow.)"
+    },
+    "Yumemizuki Mizuki": {
+      "seconds": 15,
+      "source": "KeqingMains Mizuki quick guide, https://keqingmains.com/q/mizuki-quickguide/, fetched 2026-10-18: one Skill per rotation (sample rotations \"Mizuki E (Q)\"), Burst \"every other rotation\"; its ER calculator (sheet 13p-qXUhZqw3HNuhTsszj7iAzqoQB2jpgcRYzUzpHu_4) has \"Rotation length 30\" with 2 Mizuki Skills per Burst and a 15s Skill cooldown: 15s per rotation."
+    },
     "Tartaglia": {
       "seconds": 25.5,
       "source": "KeqingMains Tartaglia guide, https://keqingmains.com/tartaglia/, fetched 2026-10-18: \"The downtime results in 24–27s rotations when executed properly\" (midpoint)."

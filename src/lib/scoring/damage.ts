@@ -34,7 +34,8 @@ type When = { reaction?: Reaction; ascendantGleam?: boolean; secretRite?: boolea
 // A teammate whose heals reach the on-field character in play (#2): a tagged healer, but not Furina: her damage profile
 // plays her in Ousia, where her Salon Members drain HP; only Pneuma's Singer of Many Waters heals.
 export const healsInPlay = (m: ScoringCharacter) => m.roles.includes("healer") && m.id !== "Furina";
-export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize";
+// Direct Lunar hits, and direct Stellar Swirl hits by the same formula (wiki Damage § Direct; Mizuki, #235).
+export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize" | "stellar-swirl";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
   | { kind: "atkFromDef"; value: number }
@@ -52,7 +53,7 @@ type CarryBuff =
   | { kind: "flatAtk"; value: number; cap: number; types: HitType[]; reactions: Reaction[] }
   | { kind: "emFromAtk"; value: number; max: number }
   | { kind: "lunarBaseBonus"; stat: "atk" | "def" | "em"; perPoint: number; max: number }
-  | { kind: "lunarReactionBonus"; value: number; reaction: LunarReaction; when?: When }
+  | { kind: "lunarReactionBonus"; value: number; reaction: LunarReaction; perEm?: number; when?: When }
   | { kind: "baseDmgMultiplier"; value: number; labels: string[]; when?: When }
   | { kind: "emBonus"; value: number; when?: When };
 // When a combo fits a team (#114): one of the team's active reactions, a teammate from each `members` list, and
@@ -79,8 +80,45 @@ interface CarryKit {
   combos?: CarryCombo[];
   missing?: string[];
   goblet?: "Physical"; // a Physical DMG goblet and set on the benchmark build (#222); else the carry's element
+  radianceInDamage?: boolean; // their own Radiance upgrade is in their hits (Mizuki, #235)
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
+// 4pc set bonuses to the wearer's own damage (#206, extract-kit SETS): Blizzard Strayer's CRIT Rate for now.
+type SetBuff = { kind: "critRate"; value: number; when: { aura?: Element; reaction?: Reaction } };
+const SETS = (kitJson as unknown as { sets: Record<string, SetBuff[]> }).sets;
+// A carry without a build reads as wearing their KQM guide's 4pc set in teams that trigger its reaction (#279,
+// extract-kit benchmarkSets): Ganyu and Freminet's Blizzard Strayer in Freeze. A build's own sets always count.
+type BenchmarkSet = { set: string; when: { reaction: Reaction } };
+const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet> }).benchmarkSets;
+export function setsOf(c: ScoringCharacter, active: readonly Reaction[]): NonNullable<ScoringCharacter["sets"]> {
+  if (c.stats || c.sets) return c.sets ?? [];
+  const b = BENCHMARK_SETS[c.id];
+  return b && active.includes(b.when.reaction) ? [{ set: b.set, pieces: 4 }] : [];
+}
+// The carry's own 4pc CRIT Rate in this team: "an opponent affected by Cryo" when a member applies Cryo (the carry
+// included), "Frozen" when the team triggers Freeze; each taken as up on every hit (estimate: in Freeze teams the
+// enemy is kept Cryo-affected or Frozen).
+export function setCritRate(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): number {
+  let rate = 0;
+  for (const { set, pieces } of setsOf(c, active)) {
+    if (pieces < 4) continue;
+    for (const b of SETS[set] ?? []) {
+      const fits = (!b.when.aura || team.some((m) => m.element === b.when.aura)) && (!b.when.reaction || active.includes(b.when.reaction));
+      if (b.kind === "critRate" && fits) rate += b.value;
+    }
+  }
+  return rate;
+}
+// Whether the carry's Freeze is in their damage through a set's CRIT Rate (#205: Freeze scores only through crit).
+export const freezeInDamage = (c: ScoringCharacter, active: readonly Reaction[]) =>
+  setsOf(c, active).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.when.reaction === "freeze"));
+// Whether Freeze's value for this carry is their guide set's, in the model (#279): then a build without that set gets
+// none, as Freeze has no value but the set's crit (#205).
+export const freezeSetModeled = (c: ScoringCharacter) => BENCHMARK_SETS[c.id]?.when.reaction === "freeze";
+// A benchmark carry whose set gives CRIT Rate wears a CRIT DMG circlet instead of a CRIT Rate one (#279: KQM's Ganyu
+// guide, Freeze stat priority "CRIT DMG ≥ ATK% > CRIT Rate" with Blizzard Strayer).
+const critCirclet = (c: ScoringCharacter, active: readonly Reaction[]) =>
+  !c.stats && setsOf(c, active).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.kind === "critRate"));
 
 // Whether the carry's damage is modeled: a kit with no unsourced (missing) hit. The scorer reads a carry with one as not
 // modeled (modeledCarryDps), so this does too: model checks then treat them alike (#227).
@@ -98,6 +136,10 @@ export function modelsAscendantGleam(id: string): boolean {
 export function modelsSecretRite(id: string): boolean {
   return modelsWhen(id, "secretRite");
 }
+
+// Whether the carry's damage model has their own Stellar Radiance upgrade (Mizuki's Radiance hits, #235): then no flat
+// "enhances X's kit" points for it. Wriothesley's Radiance combo isn't: the Stellar-Conduct DMG it adds isn't in it.
+export const modelsRadiance = (id: string) => !!CARRIES[id]?.radianceInDamage;
 
 function modelsWhen(id: string, flag: "ascendantGleam" | "secretRite"): boolean {
   const kit = CARRIES[id];
@@ -130,10 +172,12 @@ export function carryStats(c: ScoringCharacter, goblet?: "Physical") {
 // hit in carry and sub-DPS damage crits, flat additions included: Catalyze's bonus is added to the hit's base DMG
 // before crit and DMG bonuses (Genshin Impact Wiki, Damage § Catalyze Damage Bonus), and Vaporize/Melt multiply a hit
 // that has already crit. Pure EM characters too (Nefer: her own hits crit; usesCrit only skips their CV line).
-// `extraRate` is Crit Rate from teammates' buffs (#157), as a fraction.
-export function expectedCrit(c: ScoringCharacter, extraRate = 0): number {
+// `extraRate` is Crit Rate from teammates' buffs (#157), as a fraction; `dmgCirclet` swaps the benchmark's CRIT Rate
+// circlet for a CRIT DMG one (critCirclet, #279).
+export function expectedCrit(c: ScoringCharacter, extraRate = 0, dmgCirclet = false): number {
   if (c.stats) return 1 + Math.min(c.stats.critRate / 100 + extraRate, 1) * (c.stats.critDmg / 100);
-  return 1 + Math.min(BENCHMARK.carryCritRate + extraRate, 1) * BENCHMARK.carryCritDmg;
+  const swap = dmgCirclet ? BENCHMARK.circlet : { critRate: 0, critDmg: 0 };
+  return 1 + Math.min(BENCHMARK.carryCritRate - swap.critRate + extraRate, 1) * (BENCHMARK.carryCritDmg + swap.critDmg);
 }
 
 // Vaporize and Melt multiply the hits that react: 2x for Hydro on Pyro / Pyro on Cryo, 1.5x the other way, plus EM.
@@ -160,7 +204,7 @@ const CATALYZE: Partial<Record<Reaction, { element: Element; coefficient: number
   spread: { element: "Dendro", coefficient: 1.25 },
   aggravate: { element: "Electro", coefficient: 1.15 },
 };
-const LEVEL_MULTIPLIER_90 = 1446.85;
+export const LEVEL_MULTIPLIER_90 = 1446.85;
 // Transformative reaction DMG (#205; Genshin Impact Wiki, Damage § Transformative Reaction Damage, fetched 2026-10-18):
 // coefficient x the level 90 Level Multiplier x (1 + 16 x EM / (EM + 2000) + Reaction Bonus), then the target's RES;
 // no DEF, no crit, no DMG Bonus, and only the triggering member's EM counts. Swirl 0.6 (868.11 at level 90, wiki
@@ -226,8 +270,8 @@ export function passiveEnabler(c: ScoringCharacter, active: readonly Reaction[])
 // x (1 + 6 x EM / (EM + 2000) + Reaction Bonus) + Reaction Additive Base DMG Bonus). It has no DMG Bonus term: Elemental and other DMG % bonuses don't apply (KeqingMains' Flins
 // guide: Lunar-Charged "does not scale with Electro DMG"). Indirect Lunar DMG (thunderclouds, Moondrifts) is the
 // team's reaction, not the carry's hits: left to the scorer.
-const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6 };
-const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
+export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6, "stellar-swirl": 1 };
+export const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
 // One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151).
 export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0) =>
   LUNAR_COEFFICIENT[reaction] * talentValue * (1 + baseBonus) * (1 + lunarEmBonus(em));
@@ -334,6 +378,9 @@ function computeCarryDamage(
   const skillOnly = usesFs && fightingSpirit(c, c, team) === 0; // Mavuika can't Burst: Skill only (#126)
   const picked = pickCombo(base, c, active, team);
   const { kit, combo, reaction } = skillOnly ? { ...picked, kit: base, combo: `${(base.combo ?? "").replace(" Q", "")} (Skill only: can't Burst)` } : picked;
+  // Teammates' CRIT Rate buffs (#157) and the carry's own 4pc set's (#206).
+  const critRate = teamBuffs.critRate + setCritRate(c, active, team);
+  const dmgCirclet = critCirclet(c, active);
   const own = carryStats(c, kit.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
@@ -392,7 +439,9 @@ function computeCarryDamage(
   let lunarBase = 0;
   for (const b of buffs) if (b.kind === "lunarBaseBonus") lunarBase += Math.min(b.max, b.perPoint * stat[b.stat]);
   // Reaction DMG Bonus to direct Lunar hits (Flins' passive 1, #147): added to the EM bonus, as in the wiki formula.
-  const lunarBonus = (r: LunarReaction) => buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? b.value : 0), 0);
+  // `perEm`: per that many points of the carry's EM (Mizuki's Skill, #235).
+  const lunarBonus = (r: LunarReaction) =>
+    buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? (b.perEm ? (b.value * em) / b.perEm : b.value) : 0), 0);
   // Base DMG Multiplier by hit label (Nefer's Veil of Falsehood, #148): multiplies the hit's base, Lunar or not.
   const baseMultiplier = (h: CarryHit) =>
     buffs.reduce((a, b) => a * (b.kind === "baseDmgMultiplier" && b.labels.includes(h.label) ? 1 + b.value : 1), 1);
@@ -442,7 +491,7 @@ function computeCarryDamage(
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
       // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
       if (b.kind === "critRate" && b.labels.includes(h.label))
-        factor *= expectedCrit(c, teamBuffs.critRate + b.value) / expectedCrit(c, teamBuffs.critRate);
+        factor *= expectedCrit(c, critRate + b.value, dmgCirclet) / expectedCrit(c, critRate, dmgCirclet);
       if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
         const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
@@ -469,6 +518,6 @@ function computeCarryDamage(
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
     total += b.ratio * bondSum * atk * (1 + s.dmgBonus) * (1 + AMPLIFY_SHARE * amp) * (1 + resShredGain(teamBuffs.resShred)) * (1 + defShredGain(Math.min(0.9, teamBuffs.defShred)));
   }
-  total *= expectedCrit(c, teamBuffs.critRate);
+  total *= expectedCrit(c, critRate, dmgCirclet);
   return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [], em };
 }
