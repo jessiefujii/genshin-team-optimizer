@@ -1748,6 +1748,42 @@
       ]
     }
   },
+  "sets": {
+    "Blizzard Strayer": [
+      {
+        "kind": "critRate",
+        "value": 0.2,
+        "when": {
+          "aura": "Cryo"
+        },
+        "source": "4pc: \"affected by Cryo, their CRIT Rate is increased by 20%\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.2,
+        "when": {
+          "reaction": "freeze"
+        },
+        "source": "4pc: \"If the opponent is Frozen, CRIT Rate is increased by an additional 20%\""
+      }
+    ]
+  },
+  "benchmarkSets": {
+    "Ganyu": {
+      "set": "Blizzard Strayer",
+      "when": {
+        "reaction": "freeze"
+      },
+      "source": "KQM Ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): \"This set is Ganyu's best-in-slot against freezable enemies\""
+    },
+    "Freminet": {
+      "set": "Blizzard Strayer",
+      "when": {
+        "reaction": "freeze"
+      },
+      "source": "KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
+    }
+  },
   "subDps": {
     "Bennett": {
       "base": {

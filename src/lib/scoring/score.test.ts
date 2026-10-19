@@ -786,6 +786,45 @@ describe("talent levels (#25)", () => {
     );
   });
 
+  test("Blizzard Strayer's CRIT Rate is in the carry's damage; Freeze then scores no flat points (#206, #205)", () => {
+    const stats: CharacterStats = {
+      atk: 2000, hp: 18000, def: 800, critRate: 40, critDmg: 180, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 61.6,
+    };
+    const read = (sets?: { set: string; pieces: 2 | 4 }[]) => {
+      const t = team("Ganyu", "Furina", "Escoffier", "Shenhe").map((c) => (c.id === "Ganyu" ? { ...c, stats, sets } : c));
+      const s = scoreTeam(t);
+      // Her own damage (the set reaches only her hits), in this team's Freeze.
+      const dps = carryDamage(t[0], s.activeReactions, t)!.perSecond;
+      return { dps, freeze: s.breakdown.find((l) => l.rule === "Reactions" && l.reason.startsWith("Freeze")) };
+    };
+    const none = read();
+    const two = read([{ set: "Blizzard Strayer", pieces: 2 }]);
+    const four = read([{ set: "Blizzard Strayer", pieces: 4 }]);
+    // +20% vs Cryo-affected, +20% more vs Frozen: 40% -> 80% CRIT Rate in this Freeze team.
+    expect(four.dps / none.dps).toBeCloseTo((1 + 0.8 * 1.8) / (1 + 0.4 * 1.8), 1);
+    expect(two.dps).toBeCloseTo(none.dps, 6); // the 2pc Cryo DMG is in the imported stats already
+    // Freeze is worth only the set's crit: a build without it gets nothing from Freeze (#279).
+    expect(none.freeze).toMatchObject({ points: 0 });
+    expect(four.freeze).toMatchObject({ points: 0 });
+  });
+
+  test("a carry without a build wears their guide's set in its reaction's teams, with a CRIT DMG circlet (#279)", () => {
+    const freezeLine = (s: ReturnType<typeof scoreTeam>) => s.breakdown.find((l) => l.rule === "Reactions" && l.reason.startsWith("Freeze"));
+    const freeze = team("Ganyu", "Furina", "Escoffier", "Shenhe");
+    const s = scoreTeam(freeze);
+    expect(freezeLine(s)).toMatchObject({ points: 0 });
+    // Same as giving her 4pc Blizzard Strayer by hand.
+    const worn = freeze.map((c) => (c.id === "Ganyu" ? { ...c, sets: [{ set: "Blizzard Strayer", pieces: 4 as const }] } : c));
+    expect(carryDamage(freeze[0], s.activeReactions, freeze)!.perSecond).toBeCloseTo(carryDamage(worn[0], s.activeReactions, worn)!.perSecond, 6);
+    // A build's own sets count: with another set, Freeze adds nothing and she keeps her 60% CRIT Rate circlet.
+    const other = freeze.map((c) => (c.id === "Ganyu" ? { ...c, sets: [{ set: "Wanderer's Troupe", pieces: 4 as const }] } : c));
+    const otherScore = scoreTeam(other);
+    expect(freezeLine(otherScore)).toMatchObject({ points: 0 });
+    expect(otherScore.score).toBeLessThan(s.score);
+    // Ayaka's guide picks Marechaussee Hunter (not modeled yet): flat points.
+    expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))!.points).toBeGreaterThan(0);
+  });
+
   test("a Burst short of Energy funds its buffs less often (#207)", () => {
     const stats = (er: number): CharacterStats => ({
       atk: 900, hp: 20000, def: 800, critRate: 20, critDmg: 60, energyRecharge: er, elementalMastery: 0, elementalDmgBonus: 0,

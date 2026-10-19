@@ -14,6 +14,7 @@ export type ScoringCharacter = CharacterTags & {
   stats?: CharacterStats;
   talents?: CharacterBuild["talents"]; // from the same build as stats
   effects?: EffectTag[];
+  sets?: CharacterBuild["artifactSets"]; // the build's active set bonuses: their own 4pc buffs in carry damage (#206)
   built?: boolean; // false = the player marked them not built: left out of the search, suggested for building
   belowMinimum?: string[]; // why their build misses the search's minimum (#133): left out like built: false
 };

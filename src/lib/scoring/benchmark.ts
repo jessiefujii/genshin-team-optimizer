@@ -9,6 +9,9 @@ export const BENCHMARK = {
   carryPhysicalDmgBonus: 0.833,
   carryCritRate: 0.6,
   carryCritDmg: 1.2,
+  // Read as including a CRIT Rate circlet: a carry whose set gives CRIT Rate swaps it for a CRIT DMG one (#279).
+  // 5-star max main stats, wiki Artifact/Stats.
+  circlet: { critRate: 0.311, critDmg: 0.622 },
   carryEm: 100,
   enemyRes: 0.1,
   hitDamage: 7000, // one non-crit hit before flat bonuses, to weigh flat damage against
