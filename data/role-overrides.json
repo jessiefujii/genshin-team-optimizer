@@ -1,9 +1,17 @@
 {
-  "note": "Character Roles added on top of the wiki's (#105) by Jessie's decision; npm run roles and roles.test.ts apply them.",
+  "note": "Character Roles changed from the wiki's (#105) by Jessie's decision: `add` wiki roles, `drop` tags.json roles; npm run roles and roles.test.ts apply them.",
   "characters": {
     "Traveler (Cryo)": {
-      "add": ["On-Field"],
+      "add": [
+        "On-Field"
+      ],
       "why": "Jessie, 2026-10-12 (#136): also a main DPS. Guides play them on-field for Stellar-Conduct (bittopup 2026-08-14: 'On-field Conduct DPS / off-field Swirl sub-DPS'); Game8 7.1 ranks them SS Main DPS. The wiki lists only Off-Field DPS."
+    },
+    "Lan Yan": {
+      "drop": [
+        "main-dps"
+      ],
+      "why": "Jessie, 2026-10-15 (#216): the wiki gives On-Field + DPS, but her KQM quick guide (keqingmains.com/q/lan-yan-quickguide/) has no team with her as the on-field main DPS: shield support, Anemo driver and quickswap DPS only."
     }
   }
 }
