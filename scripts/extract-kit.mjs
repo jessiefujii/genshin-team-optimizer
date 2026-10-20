@@ -1960,7 +1960,9 @@ const CARRIES = {
   },
   Kinich: {
     // E, hold E swings x6 (Loop Shots), Q. Nightsoul points: 2 per second for 10s, 3 per Loop Shot, 4 from a Blind
-    // Spot = 42, so 2 Scalespiker Cannons (20 points each, "Nightsoul Point Limit"). Worked out from his kit.
+    // Spot = 42, so 2 Scalespiker Cannons (20 points each, "Nightsoul Point Limit"). Worked out from his kit, for teams
+    // without Burning or Burgeon: KQM gives no count for them.
+    combo: "E 6N 2E Q (kit estimate)",
     hits: [
       { table: "skill", label: "Loop Shot DMG", count: 6, type: SK },
       { table: "skill", label: "Scalespiker Cannon DMG", count: 2, type: SK },
@@ -1968,6 +1970,23 @@ const CARRIES = {
       { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
     ],
     buffs: [],
+    combos: [
+      {
+        // KeqingMains Kinich quick guide (pasted by Jessie 2026-10-20): "shE N2E Q E 3[N2E]" (shE = Short Hold Skill)
+        // "utilizes Kinich's A1 Passive to gain Nightsoul points during his Burst animation in order to immediately fire
+        // an extra Scalespiker Cannon", and should "only be done when his Burst is available". His A1 gives 7 points
+        // when a Desolation target takes Burning or Burgeon DMG, so the 5 Cannons need one of them (#286); every
+        // KQM sample rotation for him is a Burning team. 8 Loop Shots, 5 Cannons, 1 Burst.
+        combo: "shE N2E Q E 3[N2E]",
+        when: [{ reaction: "burning" }, { reaction: "burgeon" }],
+        hits: [
+          { table: "skill", label: "Loop Shot DMG", count: 8, type: SK },
+          { table: "skill", label: "Scalespiker Cannon DMG", count: 5, type: SK },
+          { table: "burst", label: "Skill DMG", count: 1, type: BU },
+          { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
+        ],
+      },
+    ],
   },
   Neuvillette: {
     // KeqingMains quick guide (fetched 2026-10-12): "Neuvillette can perform 2–4 Charged Attacks per rotation"; its

@@ -7526,6 +7526,7 @@
     },
     "Kinich": {
       "rotationSeconds": 18,
+      "combo": "E 6N 2E Q (kit estimate)",
       "hits": [
         {
           "label": "Loop Shot DMG",
@@ -7560,7 +7561,54 @@
           "count": 6
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "combos": [
+        {
+          "combo": "shE N2E Q E 3[N2E]",
+          "when": [
+            {
+              "reaction": "burning"
+            },
+            {
+              "reaction": "burgeon"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Loop Shot DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.94752
+              },
+              "count": 8
+            },
+            {
+              "label": "Scalespiker Cannon DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 11.68648
+              },
+              "count": 5
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.278
+              },
+              "count": 1
+            },
+            {
+              "label": "Dragon Breath DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.052512
+              },
+              "count": 6
+            }
+          ]
+        }
+      ]
     },
     "Neuvillette": {
       "rotationSeconds": 18,
