@@ -2792,6 +2792,62 @@ const benchmarkSets = {
 };
 for (const [id, b] of Object.entries(benchmarkSets)) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
 
+// Weapon passives on the holder's own hits (#40, #206), read from genshin-db's passive text at each refinement (R1-R5):
+// `values` per refinement. A team-conditional one has `when`: energy (the value is per point of the party's combined
+// max Energy, capped at `max`), teammatesSkill (another member uses their Skill), geo (a member deals Geo DMG while
+// active), hpChanges (party HP goes up or down: a healer in the team). Static stats a weapon gives (Uraku's DEF) are on
+// the character screen, so an imported build already has them; DMG bonuses by type aren't.
+const WATATSUMI = [
+  {
+    kind: "dmgBonus", types: ["burst"], when: { energy: true },
+    re: /combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by ([\d.]+)%/,
+    max: /A maximum of ([\d.]+)% increased Elemental Burst DMG/,
+  },
+];
+const WEAPONS = {
+  Akuoumaru: WATATSUMI,
+  "Mouun's Moon": WATATSUMI,
+  "Wavebreaker's Fin": WATATSUMI,
+  "Mountain-Bracing Bolt": [
+    { kind: "dmgBonus", types: ["skill"], re: /and increases Elemental Skill DMG by ([\d.]+)%/ },
+    { kind: "dmgBonus", types: ["skill"], when: { teammatesSkill: true }, re: /Elemental Skill DMG will also increase by ([\d.]+)% for/ },
+  ],
+  "Uraku Misugiri": [
+    { kind: "dmgBonus", types: ["normal"], re: /Normal Attack DMG is increased by ([\d.]+)%/ },
+    { kind: "dmgBonus", types: ["skill"], re: /Elemental Skill DMG is increased by ([\d.]+)%/ },
+    // "the aforementioned effects increase by 100%": the same values again.
+    { kind: "dmgBonus", types: ["normal"], when: { geo: true }, re: /Normal Attack DMG is increased by ([\d.]+)%(?=.*increase by 100%)/ },
+    { kind: "dmgBonus", types: ["skill"], when: { geo: true }, re: /Elemental Skill DMG is increased by ([\d.]+)%(?=.*increase by 100%)/ },
+  ],
+  "Splendor of Tranquil Waters": [
+    // Each "for 6s. Max N stacks", taken at full stacks while the team's HP keeps changing (estimate).
+    { kind: "dmgBonus", types: ["skill"], when: { hpChanges: true }, re: /Elemental Skill DMG dealt will be increased by ([\d.]+)% for 6s/, stacks: /for 6s\. Max (\d+) stacks/ },
+    { kind: "hpPct", when: { hpChanges: true }, re: /Max HP will be increased by ([\d.]+)% for 6s/, stacks: /Max HP will be increased by [\d.]+% for 6s\. Max (\d+) stacks/ },
+  ],
+};
+const weapons = {};
+for (const [name, specs] of Object.entries(WEAPONS)) {
+  const w = genshindb.weapons(name);
+  if (!w || w.name !== name) throw new Error(`${name}: no such weapon in genshin-db`);
+  const texts = [w.r1, w.r2, w.r3, w.r4, w.r5].map((r) => r.description.replace(/\s+/g, " "));
+  const read = (re, text) => {
+    const m = text.match(re);
+    if (!m) throw new Error(`${name}: pattern ${re} not found in its passive text: ${text}`);
+    return Number(m[1]);
+  };
+  weapons[name] = specs.map((s) => {
+    const stacks = s.stacks ? read(s.stacks, texts[0]) : 1;
+    return {
+      kind: s.kind,
+      ...(s.types ? { types: s.types } : {}),
+      values: texts.map((t) => round((read(s.re, t) / 100) * stacks)),
+      ...(s.max ? { max: texts.map((t) => read(s.max, t) / 100) } : {}),
+      ...(s.when ? { when: s.when } : {}),
+      source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}`,
+    };
+  });
+}
+
 // Level 90 base HP/ATK/DEF (character only), for a sub-DPS's benchmark build when the player has none (#158), and the
 // level 90 ascension stat (#166: genshin-db substatType and its value; EM is flat, the rest are fractions).
 // genshin-db matches names loosely, so the name is checked; the Traveler's base stats are Lumine's.
@@ -2949,6 +3005,7 @@ writeFileSync(
       lunarBase,
       sets,
       benchmarkSets,
+      weapons,
       subDps,
       sustain,
       carries,

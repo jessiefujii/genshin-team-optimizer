@@ -1784,6 +1784,216 @@
       "source": "KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
     }
   },
+  "weapons": {
+    "Akuoumaru": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Mouun's Moon": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Wavebreaker's Fin": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Mountain-Bracing Bolt": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"and increases Elemental Skill DMG by 12%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "when": {
+          "teammatesSkill": true
+        },
+        "source": "R1: \"Elemental Skill DMG will also increase by 12% for\""
+      }
+    ],
+    "Uraku Misugiri": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Normal Attack DMG is increased by 16%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "source": "R1: \"Elemental Skill DMG is increased by 24%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "when": {
+          "geo": true
+        },
+        "source": "R1: \"Normal Attack DMG is increased by 16%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "when": {
+          "geo": true
+        },
+        "source": "R1: \"Elemental Skill DMG is increased by 24%\""
+      }
+    ],
+    "Splendor of Tranquil Waters": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "when": {
+          "hpChanges": true
+        },
+        "source": "R1: \"Elemental Skill DMG dealt will be increased by 8% for 6s\" x3 stacks"
+      },
+      {
+        "kind": "hpPct",
+        "values": [
+          0.28,
+          0.35,
+          0.42,
+          0.49,
+          0.56
+        ],
+        "when": {
+          "hpChanges": true
+        },
+        "source": "R1: \"Max HP will be increased by 14% for 6s\" x2 stacks"
+      }
+    ]
+  },
   "subDps": {
     "Bennett": {
       "base": {
