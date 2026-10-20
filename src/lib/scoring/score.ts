@@ -1528,9 +1528,10 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
   const shared = sink();
   teamLines(ctx, shared);
   // The member who deals the most damage carries (#96): of the main DPS whose damage is modeled, only the strongest
-  // is tried as the on-field carry. The others are still tried by team damage.
+  // is tried as the on-field carry. The others are still tried by team damage. With one main DPS, or the carry given,
+  // there is no strongest to pick, so their damage isn't read here (#215).
   const mainDps = team.filter((m) => m.roles.includes("main-dps"));
-  const modeled = mainDps.map((m) => ({ m, dps: modeledCarryDps(m, ctx) })).filter((x) => x.dps !== null);
+  const modeled = onlyCarry || mainDps.length < 2 ? [] : mainDps.map((m) => ({ m, dps: modeledCarryDps(m, ctx) })).filter((x) => x.dps !== null);
   const strongest = modeled.reduce<(typeof modeled)[number] | null>((a, x) => (!a || x.dps! > a.dps! ? x : a), null);
   const candidates = onlyCarry
     ? team.filter((m) => m.id === onlyCarry)

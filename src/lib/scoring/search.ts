@@ -47,11 +47,14 @@ const CARRY_SLACK = 1.3;
 // The carry's supports, best first, and the best team found: from a starting team (the carry and the first three
 // others), each round tries every other character in each of the three support slots, reading the carry on field
 // (carryTeamValue), and keeps the best team; it stops when a round finds nothing better. A support's value is the best
-// of its tries.
+// of its tries. Later rounds try many of the same teams again, so each team is read once (#215).
 function supportRanks(carry: ScoringCharacter, others: ScoringCharacter[], options: ScoreOptions) {
   const best = new Map<ScoringCharacter, number>();
+  const values = new Map<string, number>();
   const read = (team: ScoringCharacter[]) => {
-    const v = validTeam(team) ? carryTeamValue(team, carry.id, options) : -Infinity;
+    const key = team.map((m) => m.id).sort().join("|");
+    let v = values.get(key);
+    if (v === undefined) values.set(key, (v = validTeam(team) ? carryTeamValue(team, carry.id, options) : -Infinity));
     for (const s of team) if (s !== carry && v > (best.get(s) ?? -Infinity)) best.set(s, v);
     return v;
   };
