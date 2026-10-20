@@ -444,16 +444,68 @@
       "buffs": [
         {
           "kind": "flatDmgFromEm",
-          "value": 0.5712,
+          "value": 0.8112,
+          "steps": {
+            "count": "members",
+            "of": [
+              "Hydro",
+              "Geo"
+            ],
+            "values": [
+              0.6412,
+              0.7112,
+              0.8112
+            ]
+          },
+          "stacks": 21,
           "elements": [
             "Geo"
           ],
-          "unit": "of Illuga's EM as flat Geo DMG",
-          "source": "burst talent \"Geo DMG Bonus\", level 9",
+          "unit": "of Illuga's EM as flat Geo DMG (not on Lunar-Crystallize hits)",
+          "source": "burst talent \"Geo DMG Bonus\", level 9, plus passive2 by the team",
           "duration": 20,
           "cd": 15,
           "uptime": 1,
           "burst": true
+        },
+        {
+          "kind": "lunarAdditiveFromEm",
+          "value": 5.44064,
+          "steps": {
+            "count": "members",
+            "of": [
+              "Hydro",
+              "Geo"
+            ],
+            "values": [
+              4.32064,
+              4.80064,
+              5.44064
+            ]
+          },
+          "lunar": "lunar-crystallize",
+          "stacks": 21,
+          "elements": [
+            "Geo"
+          ],
+          "unit": "of Illuga's EM as Additive Base DMG on the active character's direct Lunar-Crystallize hits",
+          "source": "burst talent \"Lunar-Crystallize Reaction DMG Bonus\", level 9, plus passive2 by the team",
+          "duration": 20,
+          "cd": 15,
+          "uptime": 1,
+          "burst": true
+        },
+        {
+          "kind": "critRate",
+          "value": 0.05,
+          "elements": [
+            "Geo"
+          ],
+          "unit": "CRIT Rate on Geo DMG",
+          "source": "passive1: \"CRIT Rate increases by 5%\"",
+          "duration": 20,
+          "cd": 15,
+          "uptime": 1
         }
       ]
     },
@@ -4382,6 +4434,19 @@
           "duration": 25,
           "cd": 18,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Linnea, fetched 2026-10-10: \"In Super Power Form, she will use Pound-Pound Pummeler every ~2 seconds\""
+        },
+        {
+          "talent": "skill",
+          "label": "Lumi Heavy Overdrive Hammer DMG",
+          "scaling": {
+            "def": 1.7
+          },
+          "every": 5,
+          "duration": 25,
+          "lunar": "lunar-crystallize",
+          "whenReaction": "lunar-crystallize",
+          "cd": 18,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Countermeasure:_Lumi%27s_Battle_Cry!, fetched 2026-10-20 (Gameplay Notes): \"In Super Power Form, she will use Pound-Pound Pummeler every ~2 seconds, and Heavy Overdrive Hammer every ~5 seconds (if there are Moondrifts nearby).\""
         }
       ],
       "lunarBaseBonus": {

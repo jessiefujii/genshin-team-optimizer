@@ -26,6 +26,9 @@ export interface KitBuff {
   burst?: boolean; // comes from the Burst (or a passive it triggers): up only in the rotations its Energy funds (#207)
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
+  lunar?: string; // lunarAdditiveFromEm: the direct Lunar reaction hits it adds to (Illuga's Lunar-Crystallize, #186)
+  stacks?: number; // used one per hit of the carry's, this many per use (Illuga's Nightingale's Song, #186)
+  cd?: number | null;
   unit: string;
   source: string;
   uptime: number | null;
@@ -143,6 +146,7 @@ interface TeamShape {
   elements: string[]; // one per member
   fightingSpirit: number;
   nightsoulOthers: number; // Nightsoul members other than the buffer
+  moonsign: number; // Moonsign members: two make Ascendant Gleam, which adds carry hits (stackShare, #186)
   healersOthers: number; // healers other than the buffer
 }
 
@@ -178,6 +182,38 @@ function stepValue(buff: KitBuff, team: TeamShape): number {
   const steps = buff.steps!;
   const n = steps.count === "elementTypes" ? new Set(team.elements).size : team.elements.filter((e) => steps.of!.includes(e)).length;
   return n === 0 ? 0 : steps.values[Math.min(n, steps.values.length) - 1];
+}
+
+// A modeled carry's hits per rotation (kit.json carries, default combo): the hits of their own element that land in this
+// team (a `when` met: the reaction active, Ascendant Gleam at two Moonsign members), and of those the direct Lunar hits.
+// Zibai's Passive 1 bonus is part of a Stride hit, not a hit of its own. Other `when` conditions are taken as met.
+type CarryKitHit = { count: number; instances?: number; element?: string; lunar?: string; additive?: boolean; when?: { reaction?: string; ascendantGleam?: boolean } };
+const CARRY_KITS = (kitJson as unknown as { carries: Record<string, { rotationSeconds: number; hits: CarryKitHit[] }> }).carries;
+function carryHitCounts(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape) {
+  const kit = CARRY_KITS[carry.id];
+  if (!kit) return null;
+  const lands = (h: CarryKitHit) =>
+    !h.additive && (h.element ?? carry.element) === carry.element &&
+    (!h.when || ((!h.when.reaction || carryReactions.includes(h.when.reaction as Reaction)) && (!h.when.ascendantGleam || team.moonsign >= 2)));
+  let all = 0;
+  const lunar = new Map<string, number>();
+  for (const h of kit.hits.filter(lands)) {
+    all += h.count * (h.instances ?? 1);
+    if (h.lunar) lunar.set(h.lunar, (lunar.get(h.lunar) ?? 0) + h.count * (h.instances ?? 1));
+  }
+  return { all, lunar, rotationSeconds: kit.rotationSeconds };
+}
+
+// A buff with stacks (Illuga's Nightingale's Song, #186: "Illuga gains 21 stacks", one "consumed" per Geo hit of the
+// active character; Genshin Impact Wiki, Shadowless Reflection, fetched 2026-10-20) reaches only that many of the
+// carry's hits: the share of their hits per rotation the stacks cover, one use per CD. Which hits get them isn't
+// modeled: an even share (estimate). A carry without a damage model: 1.
+function stackShare(buff: KitBuff, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): number {
+  if (!buff.stacks) return 1;
+  const hits = carryHitCounts(carry, carryReactions, team);
+  if (!hits || hits.all === 0) return 1;
+  const uses = buff.cd ? hits.rotationSeconds / Math.max(buff.cd, hits.rotationSeconds) : 1;
+  return Math.min(1, (buff.stacks * uses) / hits.all);
 }
 
 // The buff as it applies to this carry and team (a stepped value read at the team's count), or null when it can't
@@ -244,6 +280,12 @@ function gain(raw: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scorin
       return flat(stats.def * buff.value);
     case "flatDmgFromEm":
       return flat(stats.em * buff.value);
+    case "lunarAdditiveFromEm": {
+      // Only on a carry's direct Lunar hits of that reaction (Zibai's), as a share of their hits.
+      const hits = carryHitCounts(carry, carryReactions, team);
+      const share = hits && hits.all ? (hits.lunar.get(buff.lunar!) ?? 0) / hits.all : 0;
+      return flat(stats.em * buff.value) * share;
+    }
     case "flatDmg":
       return flat(Math.max(0, (stats.hp - 30000) / 1000) * buff.value); // Sigewinne: per 1,000 HP above 30,000
     case "defFlat":
@@ -287,8 +329,9 @@ export function kitBuffValue(
     fightingSpirit: fightingSpirit(s, carry, team),
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
+    moonsign: team.filter((m) => m.families?.includes("moonsign")).length,
   };
-  const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
+  const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${[...shape.elements].sort().join(",")}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
   const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage, burst);
   byReactions.set(key, value);
@@ -312,7 +355,7 @@ function computeKitBuffValue(
     if (outsideDamage && b.reactions?.every((r) => TRANSFORMATIVE[r as Reaction])) continue;
     // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
     const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions) : 1;
-    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share * (b.burst ? burst : 1);
+    const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share * (b.burst ? burst : 1) * stackShare(b, carry, carryReactions, team);
     best.set(b.kind, Math.max(best.get(b.kind) ?? 0, g));
   }
   let total = 1;
@@ -333,6 +376,9 @@ export interface TeamBuffStats {
   dmgBonus: number;
   critRate: number;
   flat: number; // flat DMG per hit instance (Additive Base DMG Bonus: Shenhe, Yun Jin)
+  // Reaction Additive Base DMG Bonus on the carry's direct Lunar hits, by reaction (Illuga's Lunar-Crystallize, #186):
+  // per hit, added after the Lunar multipliers (damage.ts). Summed by teamBuffStats beside the numbers.
+  lunarAdditive?: Partial<Record<Reaction, number>>;
   resShred: number; // enemy RES decrease on the hits it reaches (#204)
   defShred: number; // enemy DEF decrease (#204)
   // Teammates' Moonsign Benediction Base DMG bonus to the carry's direct Lunar hits, by reaction (#88; score.ts
@@ -344,13 +390,13 @@ export interface TeamBuffStats {
 // The share of rotations each member's Burst is funded in this team (#207, energy.ts energyNeeds); 1 when missing.
 export type BurstShares = ReadonlyMap<ScoringCharacter, number>;
 
-type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares">;
+type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares" | "lunarAdditive">;
 export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
 const IN_CARRY_DAMAGE = new Set([
   "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate",
-  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred",
+  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred", "lunarAdditiveFromEm",
 ]);
 
 function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
@@ -400,6 +446,11 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
     case "flatDmgFromEm":
       into.flat += cap(stats.em * v) * weight;
       break;
+    case "lunarAdditiveFromEm": {
+      const r = buff.lunar as Reaction;
+      into.lunarAdditive = { ...into.lunarAdditive, [r]: (into.lunarAdditive?.[r] ?? 0) + cap(stats.em * v) * weight };
+      break;
+    }
     case "flatDmg":
       into.flat += cap(Math.max(0, (stats.hp - 30000) / 1000) * v) * weight;
       break;
@@ -416,6 +467,7 @@ function shapeOf(s: ScoringCharacter, carry: ScoringCharacter, team: readonly Sc
     fightingSpirit: fightingSpirit(s, carry, team),
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
+    moonsign: team.filter((m) => m.families?.includes("moonsign")).length,
   };
 }
 
@@ -425,7 +477,7 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
   if (!byCarry) statsCache.set(s, (byCarry = new WeakMap()));
   let byKey = byCarry.get(carry);
   if (!byKey) byCarry.set(carry, (byKey = new Map()));
-  const key = `${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${[...shape.elements].sort().join(",")}`;
+  const key = `${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${[...shape.elements].sort().join(",")}`;
   const cached = byKey.get(key);
   if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
@@ -439,7 +491,7 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
     if (b.reactions) continue;
     const buff = applicable(b, carry, carryReactions, shape);
     if (!buff) continue;
-    const weight = (b.uptime ?? 1) * (b.burst ? burst : 1);
+    const weight = (b.uptime ?? 1) * (b.burst ? burst : 1) * stackShare(b, carry, carryReactions, shape);
     const g = gain(b, stats, carry, carryReactions, shape) * weight;
     if (g > (best.get(b.kind)?.g ?? 0)) best.set(b.kind, { buff, weight, g });
   }
@@ -455,6 +507,8 @@ export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly 
     if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
     const part = bufferPart(s, carry, carryReactions, team, shares?.get(s) ?? 1);
     for (const k of Object.keys(NO_TEAM_BUFFS) as NumericBuff[]) out[k] += part[k];
+    for (const [r, v] of Object.entries(part.lunarAdditive ?? {}) as [Reaction, number][])
+      out.lunarAdditive = { ...out.lunarAdditive, [r]: (out.lunarAdditive?.[r] ?? 0) + v };
   }
   return out;
 }
@@ -540,7 +594,7 @@ export function reactionBonusesFor(
   let bonus = 0;
   let additive = 0;
   const elements = team.map((m) => m.element);
-  const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0 };
+  const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0, moonsign: 0 };
   for (const m of team) {
     const entry = KIT[m.id];
     if (!entry || entry.missing) continue;

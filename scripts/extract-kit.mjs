@@ -69,7 +69,44 @@ const SPEC = {
     cd: "CD",
   },
   Iansan: { talent: "burst", values: [{ kind: "atkFlat", label: "Max ATK Bonus", unit: "flat ATK (max)" }], duration: "Duration", cd: "CD" },
-  Illuga: { talent: "burst", values: [{ kind: "flatDmgFromEm", label: "Geo DMG Bonus", unit: "of Illuga's EM as flat Geo DMG", elements: ["Geo"] }], duration: "Duration", cd: "CD" },
+  // Nightingale's Song (#186): 21 stacks per Burst, one used per Geo hit of the active character, each adding a share of
+  // Illuga's EM: "Geo DMG Bonus", or on a hit that is Lunar-Crystallize DMG the "Lunar-Crystallize Reaction DMG Bonus"
+  // (Genshin Impact Wiki, Shadowless Reflection, fetched 2026-10-20: Utility "Lunar-Crystallize Additive Base DMG
+  // Bonus"). Passive 2 adds to both by the party's Hydro and Geo members (`plus`, read at the team's count; the text's
+  // "characters in the party" is read as counting Illuga, like Escoffier's). Geo Constructs' extra stacks: not counted.
+  Illuga: {
+    talent: "burst",
+    values: [
+      {
+        kind: "flatDmgFromEm",
+        label: "Geo DMG Bonus",
+        unit: "of Illuga's EM as flat Geo DMG (not on Lunar-Crystallize hits)",
+        elements: ["Geo"],
+        plus: { from: "passive2", re: /DMG is equal to (\d+)%\/(\d+)%\/(\d+)% of Illuga's Elemental Mastery\. If/, steps: { count: "members", of: ["Hydro", "Geo"] } },
+      },
+      {
+        kind: "lunarAdditiveFromEm",
+        label: "Lunar-Crystallize Reaction DMG Bonus",
+        unit: "of Illuga's EM as Additive Base DMG on the active character's direct Lunar-Crystallize hits",
+        elements: ["Geo"],
+        lunar: "lunar-crystallize",
+        plus: { from: "passive2", re: /Lunar-Crystallize reaction, increase in DMG is equal to (\d+)%\/(\d+)%\/(\d+)%/, steps: { count: "members", of: ["Hydro", "Geo"] } },
+      },
+    ],
+    stacks: "Nightingale's Song Stacks Gained from Elemental Burst",
+    duration: "Duration",
+    cd: "CD",
+    // Passive 1, Lightkeeper's Oath: "For Geo DMG dealt to opponents, CRIT Rate increases by 5% and CRIT DMG increases
+    // by 10%" for 20s after his Skill or Burst. Its CRIT DMG isn't counted: team buffs have no CRIT DMG yet.
+    also: [
+      {
+        from: "passive1",
+        values: [{ kind: "critRate", re: /CRIT Rate increases by (\d+)%/, unit: "CRIT Rate on Geo DMG", percent: true, elements: ["Geo"] }],
+        duration: /Lightkeeper's Oath effect for (\d+)s/,
+        cd: { talent: "burst", label: "CD" },
+      },
+    ],
+  },
   "Kujou Sara": { talent: "skill", values: [{ kind: "atkFromBase", label: "ATK Bonus Ratio", unit: "of Sara's base ATK" }], duration: "ATK Bonus Duration", cd: "CD" },
   Lauma: {
     talent: "burst",
@@ -291,19 +328,35 @@ function readBuffs(id, spec) {
         return Number(m[1]) / 100;
       })(),
     };
-    return spec.values.map((v) => ({
-      kind: v.kind,
-      value: round(tableValue(attrs, v.label, id) * (v.times ? tableValue(attrs, v.times, id) : 1)),
-      ...(fanfare ?? {}),
-      ...(v.cap ? { max: tableValue(attrs, v.cap, id) } : {}),
-      ...limits(v),
-      unit: v.unit,
-      source: `${spec.talent} talent "${v.label}"${v.times ? ` x "${v.times}"` : ""}, level ${TALENT_LEVEL}`,
-      duration,
-      cd,
-      uptime: uptime(duration, cd),
-      ...(fromBurst(id, spec.talent, talents) ? { burst: true } : {}),
-    }));
+    // `plus`: a passive that adds to the table value by the team's count (Illuga's passive 2, #186): every step is
+    // the table value plus that step's number, and `value` is the top one, as for a text value's `steps`.
+    const plusSteps = (v, base) => {
+      const ptext = talents[v.plus.from].description.replace(/\s+/g, " ");
+      const m = ptext.match(v.plus.re);
+      if (!m) throw new Error(`${id}: pattern ${v.plus.re} not found in ${v.plus.from}: ${ptext}`);
+      return { ...v.plus.steps, values: m.slice(1).map((n) => round(base + Number(n) / 100)) };
+    };
+    const stacks = spec.stacks ? tableValue(attrs, spec.stacks, id) : null;
+    return spec.values.map((v) => {
+      const value = round(tableValue(attrs, v.label, id) * (v.times ? tableValue(attrs, v.times, id) : 1));
+      const steps = v.plus ? plusSteps(v, value) : null;
+      return {
+        kind: v.kind,
+        value: steps ? steps.values[steps.values.length - 1] : value,
+        ...(steps ? { steps } : {}),
+        ...(v.lunar ? { lunar: v.lunar } : {}),
+        ...(stacks ? { stacks } : {}),
+        ...(fanfare ?? {}),
+        ...(v.cap ? { max: tableValue(attrs, v.cap, id) } : {}),
+        ...limits(v),
+        unit: v.unit,
+        source: `${spec.talent} talent "${v.label}"${v.times ? ` x "${v.times}"` : ""}, level ${TALENT_LEVEL}${v.plus ? `, plus ${v.plus.from} by the team` : ""}`,
+        duration,
+        cd,
+        uptime: uptime(duration, cd),
+        ...(fromBurst(id, spec.talent, talents) ? { burst: true } : {}),
+      };
+    });
   }
   const froms = [spec.from].flat();
   const texts = froms.map((f) => talents[f].description.replace(/\s+/g, " "));
@@ -1256,7 +1309,20 @@ const SUBDPS = {
     { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Frostgrove Sanctuary Attack DMG", every: "rate", duration: "Frostgrove Sanctuary Duration", cd: "CD" },
   ],
-  Linnea: [{ talent: "skill", label: "Lumi Pound-Pound Pummeler DMG", every: "rate", duration: "Lumi Duration", cd: "CD" }],
+  Linnea: [
+    { talent: "skill", label: "Lumi Pound-Pound Pummeler DMG", every: "rate", duration: "Lumi Duration", cd: "CD" },
+    // With Moondrifts nearby, Lumi "will also deal AoE Geo DMG to nearby enemies, which will be considered
+    // Lunar-Crystallize Reaction DMG" (Skill text): her Heavy Overdrive Hammer (wiki, rate in kit-overrides.json; #186).
+    {
+      talent: "skill",
+      label: "Lumi Heavy Overdrive Hammer DMG",
+      every: "rate",
+      duration: "Lumi Duration",
+      cd: "CD",
+      lunar: "lunar-crystallize",
+      whenReaction: "lunar-crystallize",
+    },
+  ],
   Lisa: [
     { talent: "skill", label: "Stack 3 Conductive Hold DMG", hits: 1, cd: "Holding CD" },
     { talent: "burst", label: "Discharge DMG", hits: "rate", cd: "CD" },
