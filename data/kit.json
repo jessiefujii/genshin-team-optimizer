@@ -1379,6 +1379,7 @@
         "target": "self",
         "duration": 15,
         "maxStacks": 2,
+        "inDamage": true,
         "source": "passive2: \"After a nearby party member triggers a Nightsoul Burst, Kinich will gain 1 stack of Hunter's Experience that lasts 15s.\""
       },
       "Mavuika": {
@@ -7545,6 +7546,16 @@
           "count": 2
         },
         {
+          "label": "passive2 bonus",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.2
+          },
+          "count": 0,
+          "addOn": true,
+          "nightsoulBursts": "Scalespiker Cannon DMG"
+        },
+        {
           "label": "Skill DMG",
           "type": "burst",
           "scaling": {
@@ -7589,6 +7600,16 @@
                 "atk": 11.68648
               },
               "count": 5
+            },
+            {
+              "label": "passive2 bonus",
+              "type": "skill",
+              "scaling": {
+                "atk": 3.2
+              },
+              "count": 0,
+              "addOn": true,
+              "nightsoulBursts": "Scalespiker Cannon DMG"
             },
             {
               "label": "Skill DMG",

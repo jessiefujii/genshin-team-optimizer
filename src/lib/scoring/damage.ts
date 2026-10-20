@@ -26,6 +26,7 @@ interface CarryHit {
   // team has, each a list indexed by that number (its last value past the end).
   byTeammates?: { elements: Element[]; members?: number[]; types?: number[] };
   addOn?: boolean; // more DMG on hits counted elsewhere (Cyno's passive 2): no Catalyze or teammates' flat DMG of its own
+  nightsoulBursts?: string; // count: the party's Nightsoul Bursts per rotation, at most the hits with this label (#288)
   when?: When; // the hit only lands with these
 }
 // secretRite: two Hexerei members (Klee's Boom-Boom Strikes from her third Normal Attack, #241).
@@ -83,6 +84,15 @@ interface CarryKit {
   radianceInDamage?: boolean; // their own Radiance upgrade is in their hits (Mizuki, #235)
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
+const NIGHTSOUL = kitJson.nightsoulBurst as { cooldownByNatlanese: Record<string, number>; notNatlanese: string[] };
+// Seconds between the party's Nightsoul Bursts (#63, kit.json: 18s with 1 Natlanese member, 12s with 2, 9s with 3 or
+// more), or null without one. Nightsoul has no quest lock, so `families` agrees with the scorer's familiesOf.
+export function nightsoulCooldown(team: readonly ScoringCharacter[]): number | null {
+  const n = team.filter((m) => m.families?.includes("nightsoul") && !NIGHTSOUL.notNatlanese.includes(m.id)).length;
+  if (n === 0) return null;
+  const listed = Object.keys(NIGHTSOUL.cooldownByNatlanese).map(Number).filter((k) => k <= n);
+  return NIGHTSOUL.cooldownByNatlanese[String(Math.max(...listed))];
+}
 // 4pc set bonuses to the wearer's own damage (#206, extract-kit SETS): Blizzard Strayer's CRIT Rate for now.
 type SetBuff = { kind: "critRate"; value: number; when: { aura?: Element; reaction?: Reaction } };
 const SETS = (kitJson as unknown as { sets: Record<string, SetBuff[]> }).sets;
@@ -451,9 +461,18 @@ function computeCarryDamage(
   // Teammates of the elements a hit converts to (#233): how many there are, and how many element types.
   const eligible = (els: readonly Element[]) => team.filter((m) => m.id !== c.id && els.includes(m.element));
   const typesOf = (els: readonly Element[]) => [...new Set(eligible(els).map((m) => m.element))];
+  // Kinich's Hunter's Experience (#288): a stack per party Nightsoul Burst, each spent on his next Cannon. Estimate
+  // (unsourced): the team deals Elemental DMG often enough that a Burst fires as soon as its cooldown ends, so
+  // rotation / cooldown of them per rotation (18s rotation: 1 with 1 Natlanese member, 1.5 with 2, 2 with 3+); each is
+  // spent by a Cannon within its 15s (he fires 2 or 5 a rotation, so the 2-stack cap doesn't bind), at most one per Cannon.
+  const cooldown = nightsoulCooldown(team);
+  const burstsPerRotation = cooldown ? rotationSeconds / cooldown : 0;
+  const labelCount = (label: string) => kit.hits.reduce((a, h) => a + (h.label === label ? h.count : 0), 0);
   const at = (list: number[] | undefined, i: number) => (list?.length ? list[Math.min(i, list.length - 1)] : 0);
   const teamCount = (h: CarryHit) =>
-    h.byTeammates ? at(h.byTeammates.members, eligible(h.byTeammates.elements).length) + at(h.byTeammates.types, typesOf(h.byTeammates.elements).length) : 0;
+    h.nightsoulBursts
+      ? Math.min(labelCount(h.nightsoulBursts), burstsPerRotation)
+      : h.byTeammates ? at(h.byTeammates.members, eligible(h.byTeammates.elements).length) + at(h.byTeammates.types, typesOf(h.byTeammates.elements).length) : 0;
   const hitTotal = (h: CarryHit, el: Element | "Physical", count: number) => {
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * em;
     perHit *= baseMultiplier(h);
