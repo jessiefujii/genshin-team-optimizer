@@ -824,7 +824,16 @@ function scaleStatOf(m: ScoringCharacter, entry: SubDpsEntry): ScaleStat {
 
 // A sub-DPS's stats: their build's, else a KQM Standards benchmark build for the stat they scale on (benchmark.ts,
 // #158). Their crit feeds #152's expected crit in subDpsLines.
+// Cached per character object (#215): a benchmark build depends only on them, and every team asks again.
+const statsCache = new WeakMap<ScoringCharacter, SubDpsStats | null>();
 export function subDpsStats(m: ScoringCharacter): SubDpsStats | null {
+  if (statsCache.has(m)) return statsCache.get(m)!;
+  const stats = readSubDpsStats(m);
+  statsCache.set(m, stats);
+  return stats;
+}
+
+function readSubDpsStats(m: ScoringCharacter): SubDpsStats | null {
   const entry = SUB_DPS[m.id];
   if (!entry) return null;
   if (m.stats) {
@@ -1512,16 +1521,17 @@ export function buildGaps(c: ScoringCharacter): string[] {
 function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: boolean, onlyCarry?: string) {
   if (given.length !== 4) throw new Error(`A team needs 4 members, got ${given.length}`);
   // Read in a fixed member order, so sums and products of floats come out the same, to the last bit, whatever
-  // order the team arrives in (the model checks' order test, #201).
-  const team = given.map((m) => questView(m, options)).sort((a, b) => a.id.localeCompare(b.id));
+  // order the team arrives in (the model checks' order test, #201). By code unit, not localeCompare: much faster (#215).
+  const team = given.map((m) => questView(m, options)).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const sink = (): Sink => (explain ? new Breakdown() : new Tally());
   const ctx = buildContext(team, options);
   const shared = sink();
   teamLines(ctx, shared);
   // The member who deals the most damage carries (#96): of the main DPS whose damage is modeled, only the strongest
-  // is tried as the on-field carry. The others are still tried by team damage.
+  // is tried as the on-field carry. The others are still tried by team damage. With one main DPS, or the carry given,
+  // there is no strongest to pick, so their damage isn't read here (#215).
   const mainDps = team.filter((m) => m.roles.includes("main-dps"));
-  const modeled = mainDps.map((m) => ({ m, dps: modeledCarryDps(m, ctx) })).filter((x) => x.dps !== null);
+  const modeled = onlyCarry || mainDps.length < 2 ? [] : mainDps.map((m) => ({ m, dps: modeledCarryDps(m, ctx) })).filter((x) => x.dps !== null);
   const strongest = modeled.reduce<(typeof modeled)[number] | null>((a, x) => (!a || x.dps! > a.dps! ? x : a), null);
   const candidates = onlyCarry
     ? team.filter((m) => m.id === onlyCarry)
@@ -1567,9 +1577,9 @@ export function teamScore(team: ScoringCharacter[], options: ScoreOptions = {}):
   return toScore(bestReading(team, options, false).value);
 }
 
-// A team's value with this carry on field, for the reference (team-reference.ts).
-export function carryTeamValue(team: ScoringCharacter[], carry: string): number {
-  return bestReading(team, {}, false, carry).value;
+// A team's value with this carry on field, for the reference (team-reference.ts) and the search's support ranking (#215).
+export function carryTeamValue(team: ScoringCharacter[], carry: string, options: ScoreOptions = {}): number {
+  return bestReading(team, options, false, carry).value;
 }
 
 export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
