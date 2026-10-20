@@ -9549,6 +9549,98 @@
       ],
       "buffs": []
     },
+    "Razor": {
+      "rotationSeconds": 20,
+      "combo": "tE Q tE 3x(N4D N3tED)",
+      "hits": [
+        {
+          "label": "Press Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.3864
+          },
+          "count": 5
+        },
+        {
+          "label": "Burst DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.72
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.6132
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.38972
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.73752
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.28808
+          },
+          "count": 3,
+          "element": "Physical"
+        },
+        {
+          "label": "Soul Companion 1-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.658186
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 2-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.567006
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 3-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.708908
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 4-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.933537
+          },
+          "count": 3
+        }
+      ],
+      "buffs": [],
+      "goblet": "Physical"
+    },
     "Eula": {
       "rotationSeconds": 20,
       "combo": "tE Q N4 hE N4",
@@ -9889,7 +9981,6 @@
     "Manekin",
     "Manekina",
     "Ningguang",
-    "Razor",
     "Sandrone",
     "Sethos",
     "Traveler (Cryo)",

@@ -1486,6 +1486,8 @@ function readSubDps(id, specs) {
 //     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
 //     its flat estimate for hits without it), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
 //     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
+//     ofRow ({ table, label }: the hit deals that row's share of its own row, as Razor's Soul Companion; with `as`, its
+//     own label)
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
 //   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
 //   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
@@ -2446,6 +2448,28 @@ const CARRIES = {
     ],
     buffs: [],
   },
+  Razor: {
+    // #231. KQM's Multi-Optimization guide (keqingmains.com/misc/multi-optimization/, 2023-06-26), its Physical Razor
+    // config: "The assumed rotation is tE Q tE 3x(N4D N3tED)", with these hit weights (both Noblesse states summed;
+    // its C6 target left out, C0): N1-N3 6 each, N4 3, Press 5, Burst 1, Soul Companion on N1-N3 6 each and on N4 3.
+    // Normal Attacks are Physical; the Wolf Within's Soul Companion hits deal "% Normal Attack DMG" (genshin-db) as
+    // Electro, tagged Elemental Burst (wiki Lightning Fang attack table). No rotation length: his 20s Burst cooldown.
+    combo: "tE Q tE 3x(N4D N3tED)",
+    goblet: "Physical",
+    hits: [
+      { table: "skill", label: "Press Skill DMG", count: 5, type: SK },
+      { table: "burst", label: "Burst DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "2-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "3-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "4-Hit DMG", count: 3, type: N, element: "Physical" },
+      { table: "normal", label: "1-Hit DMG", as: "Soul Companion 1-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "2-Hit DMG", as: "Soul Companion 2-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "3-Hit DMG", as: "Soul Companion 3-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "4-Hit DMG", as: "Soul Companion 4-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 3, type: BU },
+    ],
+    buffs: [],
+  },
   Eula: {
     // #222. KQM quick guide: "tE Q N4 hE N4", "Eula's default Burst combo, granting her the highest number of Lightfall
     // stacks (~13 without Attack SPD)". Her Normal Attacks and Lightfall Sword are Physical; Skill and Burst casts Cryo.
@@ -2555,9 +2579,14 @@ function readCarry(id, spec) {
         count = r.hits;
       } else if (typeof count === "object") count = tableValue(tableAttrs(count.table), count.label, id);
       if (h.reacting !== undefined && !(h.reacting >= 0 && h.reacting <= count)) throw new Error(`${id}: "${h.label}" reacting ${h.reacting} of ${count}`);
-      const scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+      let scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+      // ofRow: a hit dealing a share of another (Razor's Soul Companion, "% Normal Attack DMG"): that row's value.
+      if (h.ofRow) {
+        const share = tableValue(tableAttrs(h.ofRow.table), h.ofRow.label, id);
+        scaling = Object.fromEntries(Object.entries(scaling).map(([k, v]) => [k, round(v * share)]));
+      }
       hits.push({
-        label: h.from ? `${h.from} bonus` : h.label,
+        label: h.from ? `${h.from} bonus` : (h.as ?? h.label),
         type: h.type,
         scaling,
         count,
