@@ -1,0 +1,790 @@
+{
+  "_source": "Genshin Impact Wiki, Energy/Data § Elemental Skills (fandom API, fetched 2026-10-14), unless a note says otherwise. Skill cooldowns: genshin-db press CD unless the table here sets one. Built by a one-off script (#37); edit by hand.",
+  "_missing": "Ineffa, Varesa, Vesna, Vodyanitsa, Traveler (Cryo): no particle count on the wiki (checked 2026-10-14); scored as a standard teammate.",
+  "characters": {
+    "Aino": {
+      "perUse": 3,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Albedo": {
+      "perSecond": 0.335,
+      "timing": "field",
+      "note": "wiki Energy/Data: 0.67 per Transient Blossom (2s CD), field lasts 30s: 0.67/2s"
+    },
+    "Alhaitham": {
+      "perUse": 6.5,
+      "cd": 18,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per Projection Attack wave; 6.5 waves per rotation (kit-overrides.json, KQM)"
+    },
+    "Aloy": {
+      "perUse": 5,
+      "cd": 20,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Alyosha": {
+      "perUse": 5,
+      "cd": 15,
+      "timing": "cast",
+      "note": "Genshin Impact Wiki, Alyosha: \"generates 5 Elemental Particles\""
+    },
+    "Amber": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Arataki Itto": {
+      "perUse": 3.5,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Arlecchino": {
+      "perUse": 5,
+      "cd": 30,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Baizhu": {
+      "perUse": 3.5,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Barbara": {
+      "perUse": 0,
+      "cd": 32,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Beidou": {
+      "perUse": 2,
+      "cd": 7.5,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 2 (4 on a countered hold)"
+    },
+    "Bennett": {
+      "perUse": 2.25,
+      "cd": 5,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 2.25"
+    },
+    "Candace": {
+      "perUse": 2,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 2"
+    },
+    "Charlotte": {
+      "perUse": 3,
+      "cd": 12,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 3"
+    },
+    "Chasca": {
+      "perUse": 5,
+      "cd": 6.5,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 5 on a converted Charged Attack hit"
+    },
+    "Chevreuse": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Chiori": {
+      "perUse": 5.67,
+      "cd": 16,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1.2 per Tamoto hit; Tamoto attacks every 3.6s for 17s (genshin-db): 4.7 hits"
+    },
+    "Chongyun": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Citlali": {
+      "perUse": 5,
+      "cd": 16,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Clorinde": {
+      "perUse": 3.75,
+      "cd": 16,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per 2s CD during Night Vigil (7.5s, genshin-db)"
+    },
+    "Collei": {
+      "perUse": 3,
+      "cd": 12,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Columbina": {
+      "perUse": 1.33,
+      "cd": 17,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Cyno": {
+      "perUse": 3,
+      "cd": 7.5,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 3 (1.333 during his Burst, left out)"
+    },
+    "Dahlia": {
+      "perUse": 3,
+      "cd": 9,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Dehya": {
+      "perUse": 4,
+      "cd": 20,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 on field DMG; ~4 per 12s field (estimate)"
+    },
+    "Diluc": {
+      "perUse": 4,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 1.33 per hit, 3 hits"
+    },
+    "Diona": {
+      "perUse": 1.6,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 0.8 per paw hit, press 2 paws"
+    },
+    "Dori": {
+      "perUse": 2,
+      "cd": 9,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Durin": {
+      "perUse": 4,
+      "cd": 12,
+      "timing": "cast",
+      "flat": [
+        {
+          "to": "self",
+          "energy": 30,
+          "note": "Skill: Energy Regeneration 30 on entering his state (genshin-db combat2)"
+        }
+      ],
+      "note": "Genshin Impact Wiki, Durin: \"generates 4 Elemental Particles\""
+    },
+    "Emilie": {
+      "perUse": 8.8,
+      "cd": 14,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per Lumidouce Case hit (2.5s CD) at level 1/2; case lasts 22s (genshin-db)"
+    },
+    "Escoffier": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Eula": {
+      "perUse": 2.5,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data: hold 2.5"
+    },
+    "Faruzan": {
+      "perUse": 2,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Fischl": {
+      "perUse": 6.4,
+      "cd": 25,
+      "timing": "field",
+      "note": "wiki Energy/Data: 0.67 per Oz attack; ~9.5 attacks in Oz's 10s (estimate); Oz from her Burst left out"
+    },
+    "Flins": {
+      "perUse": 4,
+      "cd": 16,
+      "timing": "field",
+      "note": "Genshin Impact Wiki, Flins: converted Normal Attack hits generate 1 particle, 2s CD; ~4 per use (estimate)"
+    },
+    "Freminet": {
+      "perUse": 2,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Furina": {
+      "perSecond": 0.4,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per Salon Member hit, 2.5s CD; Salon lasts 30s"
+    },
+    "Gaming": {
+      "perUse": 2,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Ganyu": {
+      "perUse": 4,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 2x2"
+    },
+    "Gorou": {
+      "perUse": 2,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Hu Tao": {
+      "perUse": 5,
+      "cd": 16,
+      "timing": "field",
+      "note": "wiki Energy/Data: 2.5 per converted attack, 5s CD; 9s Paramita: 2"
+    },
+    "Iansan": {
+      "perUse": 4,
+      "cd": 16,
+      "timing": "cast",
+      "note": "Genshin Impact Wiki, Iansan: \"generates 4 Elemental Particles\""
+    },
+    "Ifa": {
+      "perUse": 4.5,
+      "cd": 7.5,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Illuga": {
+      "perUse": 4.5,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Jahoda": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "cast",
+      "note": "Genshin Impact Wiki, Jahoda: \"generates 4 Elemental Particles\""
+    },
+    "Jean": {
+      "perUse": 2.67,
+      "cd": 6,
+      "timing": "cast",
+      "flat": [
+        {
+          "to": "self",
+          "energy": 16,
+          "note": "passive 2: Dandelion Breeze regenerates 20% of its 80 Energy"
+        }
+      ],
+      "note": "wiki Energy/Data"
+    },
+    "Kachina": {
+      "perUse": 4,
+      "cd": 20,
+      "timing": "field",
+      "note": "wiki Energy/Data: 0.667 per hit (0.2s CD); ~6 hits per use (estimate)"
+    },
+    "Kaedehara Kazuha": {
+      "perUse": 3,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 3 (hold 4)"
+    },
+    "Kaeya": {
+      "perUse": 2.67,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Kamisato Ayaka": {
+      "perUse": 4.5,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Kamisato Ayato": {
+      "perUse": 3.6,
+      "cd": 12,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1.5 per converted attack, 2.5s CD; 6s state: 2.4"
+    },
+    "Kaveh": {
+      "perUse": 2,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Keqing": {
+      "perUse": 2.5,
+      "cd": 7.5,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Kinich": {
+      "perUse": 5,
+      "cd": 18,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Kirara": {
+      "perUse": 3,
+      "cd": 8,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 3"
+    },
+    "Klee": {
+      "perUse": 4,
+      "cd": 20,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Kujou Sara": {
+      "perUse": 3,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Kuki Shinobu": {
+      "perUse": 3.6,
+      "cd": 15,
+      "timing": "field",
+      "note": "wiki Energy/Data: 0.45 per ring hit; ~8 hits in 12s (estimate)"
+    },
+    "Lan Yan": {
+      "perUse": 3,
+      "cd": 16,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Lauma": {
+      "perUse": 5.9,
+      "cd": 12,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1.3 per Frostgrove Sanctuary attack (3.3s CD); 15s field: 4.5"
+    },
+    "Layla": {
+      "perUse": 5.3,
+      "cd": 12,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1.33 per Night Star volley (3s CD); ~4 in her 12s shield (estimate)"
+    },
+    "Linnea": {
+      "perUse": 3,
+      "cd": 18,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Lisa": {
+      "perUse": 5,
+      "cd": 16,
+      "timing": "cast",
+      "note": "wiki Energy/Data: hold 5 (press 0)"
+    },
+    "Lohen": {
+      "perUse": 3,
+      "cd": 18,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per Masterstroke hit, 2s CD; ~3 per use (estimate)"
+    },
+    "Lynette": {
+      "perUse": 4,
+      "cd": 12,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Lyney": {
+      "perUse": 5,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Manekin": {
+      "perUse": 1.2,
+      "cd": 10,
+      "timing": "cast",
+      "note": "Genshin Impact Wiki, Manekin: \"generates 1.2 Elemental Particles\" (2 charges)"
+    },
+    "Manekina": {
+      "perUse": 1.2,
+      "cd": 10,
+      "timing": "cast",
+      "note": "Genshin Impact Wiki, Manekina: \"generates 1.2 Elemental Particles\" (2 charges)"
+    },
+    "Mavuika": {
+      "perUse": 5,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Mika": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Mona": {
+      "perUse": 3.33,
+      "cd": 12,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Mualani": {
+      "perUse": 4.5,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Nahida": {
+      "perSecond": 0.429,
+      "timing": "field",
+      "note": "wiki Energy/Data: 3 per Tri-Karma Purification, 7s CD; seeds last 25s"
+    },
+    "Navia": {
+      "perUse": 3.5,
+      "cd": 9,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Nefer": {
+      "perUse": 2.67,
+      "cd": 9,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Neuvillette": {
+      "perUse": 4,
+      "cd": 12,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Nicole": {
+      "perUse": 5,
+      "cd": 16,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Nilou": {
+      "perUse": 4,
+      "cd": 18,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1.5 on activation + 1 per converted attack during Pirouette; ~4 per use (estimate)"
+    },
+    "Ningguang": {
+      "perUse": 3.33,
+      "cd": 12,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Noelle": {
+      "perUse": 0,
+      "cd": 24,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Odette": {
+      "perUse": 5,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Ororon": {
+      "perUse": 3,
+      "cd": 15,
+      "timing": "cast",
+      "flat": [
+        {
+          "to": "active",
+          "energy": 9,
+          "note": "passive 2: 3 Energy per active member's NA/CA hit, 3 times per 15s"
+        },
+        {
+          "to": "self",
+          "energy": 9,
+          "note": "passive 2: Ororon also restores 3 off-field, 3 times"
+        }
+      ],
+      "note": "wiki Energy/Data"
+    },
+    "Prune": {
+      "perUse": 5,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Qiqi": {
+      "perUse": 0,
+      "cd": 30,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Raiden Shogun": {
+      "perUse": 7,
+      "cd": 10,
+      "timing": "field",
+      "flat": [
+        {
+          "to": "all",
+          "energy": 12,
+          "note": "Musou Isshin Energy Restoration 2.4, 5 times per Burst (genshin-db combat3); her passive 2 scaling with ER is left out"
+        }
+      ],
+      "note": "wiki Energy/Data: 0.5 per coordinated attack (0.9s CD); ~14 in her 25s Eye (estimate)"
+    },
+    "Razor": {
+      "perUse": 3,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 3"
+    },
+    "Rosaria": {
+      "perUse": 3,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Sandrone": {
+      "perUse": 4,
+      "cd": 4,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per Prism Shot or Condensed Beam, 2.5s CD; ~4 per use (estimate)"
+    },
+    "Sangonomiya Kokomi": {
+      "perUse": 4,
+      "cd": 20,
+      "timing": "field",
+      "note": "wiki Energy/Data: 0.67 per jellyfish hit; ~6 hits in 12s (estimate)"
+    },
+    "Sayu": {
+      "perUse": 2,
+      "cd": 6,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 2"
+    },
+    "Sethos": {
+      "perUse": 2,
+      "cd": 8,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Shenhe": {
+      "perUse": 3,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 3"
+    },
+    "Shikanoin Heizou": {
+      "perUse": 2.5,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 2-3 by stacks; 2.5"
+    },
+    "Sigewinne": {
+      "perUse": 4,
+      "cd": 18,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Skirk": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 4 per Cryo hit, 15s CD"
+    },
+    "Sucrose": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Tartaglia": {
+      "perUse": 4,
+      "cd": 20,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per Riptide Slash/Flash, 3s CD; ~4 per melee stance (estimate)"
+    },
+    "Thoma": {
+      "perUse": 3.5,
+      "cd": 15,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Tighnari": {
+      "perUse": 3.5,
+      "cd": 12,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Traveler (Anemo)": {
+      "perUse": 2,
+      "cd": 5,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 2"
+    },
+    "Traveler (Dendro)": {
+      "perUse": 2.5,
+      "cd": 8,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Traveler (Electro)": {
+      "perUse": 1,
+      "cd": 13.5,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 1 (Abundance Amulets' Energy left out)"
+    },
+    "Traveler (Geo)": {
+      "perUse": 3.33,
+      "cd": 8,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Traveler (Hydro)": {
+      "perUse": 3.33,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data: 3.333 on Torrent Surge"
+    },
+    "Traveler (Pyro)": {
+      "perUse": 3,
+      "cd": 18,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per Threshold hit, 2.9s CD; ~3 per use (estimate)"
+    },
+    "Varka": {
+      "perUse": 6,
+      "cd": 16,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Venti": {
+      "perUse": 3,
+      "cd": 6,
+      "timing": "cast",
+      "flat": [
+        {
+          "to": "self",
+          "energy": 15,
+          "note": "passive 2: 15 Energy after Wind's Grand Ode"
+        },
+        {
+          "to": "activeAbsorbed",
+          "energy": 15,
+          "note": "passive 2: 15 to the absorbed element's members (read as the carry, if Pyro/Hydro/Electro/Cryo)"
+        }
+      ],
+      "note": "wiki Energy/Data: press 3 (hold 4)"
+    },
+    "Wanderer": {
+      "perUse": 5,
+      "cd": 6,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per NA/CA during his Skill, 2s CD; ~10s: 5"
+    },
+    "Wriothesley": {
+      "perUse": 5,
+      "cd": 16,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per enhanced attack, 2s CD; 10s state: 5"
+    },
+    "Xiangling": {
+      "perUse": 4,
+      "cd": 12,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per Guoba hit; Guoba attacks 4 times"
+    },
+    "Xianyun": {
+      "perUse": 5,
+      "cd": 12,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Xiao": {
+      "perUse": 3,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Xilonen": {
+      "perUse": 4,
+      "cd": 7,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Xingqiu": {
+      "perUse": 5,
+      "cd": 21,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Xinyan": {
+      "perUse": 4,
+      "cd": 18,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Yae Miko": {
+      "perSecond": 0.34,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per turret hit, 2.5s CD; turrets up most of the rotation (estimate: 85%)"
+    },
+    "Yanfei": {
+      "perUse": 3,
+      "cd": 9,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Yaoyao": {
+      "perUse": 5,
+      "cd": 15,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per radish hit, 1.5s CD; ~5 in 10s (estimate)"
+    },
+    "Yelan": {
+      "perUse": 4,
+      "cd": 10,
+      "timing": "cast",
+      "note": "wiki Energy/Data"
+    },
+    "Yoimiya": {
+      "perUse": 5,
+      "cd": 18,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per converted attack, 2s CD; 10s state: 5"
+    },
+    "Yumemizuki Mizuki": {
+      "perUse": 4,
+      "cd": 15,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per hit, max 4 per Skill"
+    },
+    "Yun Jin": {
+      "perUse": 2,
+      "cd": 9,
+      "timing": "cast",
+      "note": "wiki Energy/Data: press 2"
+    },
+    "Zhongli": {
+      "perSecond": 0.25,
+      "timing": "field",
+      "note": "wiki Energy/Data: 0.5 per Stone Stele hit, 1.5s CD; resonance every 2s (estimate)"
+    },
+    "Zibai": {
+      "perUse": 6,
+      "cd": 18,
+      "timing": "field",
+      "note": "wiki Energy/Data: 1 per hit during Lunar Phase Shift, 2s CD; 15s: ~6 (estimate)"
+    }
+  }
+}

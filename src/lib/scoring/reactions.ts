@@ -31,6 +31,22 @@ const REQUIREMENTS: Record<Reaction, ReactionRequirement> = {
   "stellar-swirl": { all: ["Anemo", "Cryo"], converted: true },
 };
 
+// Transformative reactions' damage (#205): coefficient on the Level Multiplier and the most instances one attacker deals a
+// target per second; formula and sources at damage.ts transformativeHit.
+export const TRANSFORMATIVE: Partial<Record<Reaction, { coefficient: number; perSecond: number }>> = {
+  swirl: { coefficient: 0.6, perSecond: 4 },
+  overloaded: { coefficient: 2.75, perSecond: 2 },
+  superconduct: { coefficient: 1.5, perSecond: 4 },
+  electrocharged: { coefficient: 2, perSecond: 1 },
+  // Bloom 2.0, Hyperbloom and Burgeon 3.0 (wiki Bloom § Damage: "2 instances of DMG from each Bloom-related reaction per
+  // source every 0.5 seconds"); score.ts reads Dendro Cores from the aura budget (#253).
+  bloom: { coefficient: 2, perSecond: 4 },
+  hyperbloom: { coefficient: 3, perSecond: 4 },
+  burgeon: { coefficient: 3, perSecond: 4 },
+  // Burning 0.25 (wiki Burning), a tick every 0.25s (KQM; score.ts reads its uptime from the aura budget).
+  burning: { coefficient: 0.25, perSecond: 4 },
+};
+
 // Elements that take part in a reaction (e.g. Pyro and Hydro for Vaporize; Anemo plus any aura element for Swirl).
 export function reactionElements(reaction: Reaction): Element[] {
   const req = REQUIREMENTS[reaction];
