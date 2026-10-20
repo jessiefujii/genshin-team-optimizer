@@ -38,6 +38,7 @@ export default function WorthBuilding({
             </div>
             <div className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
               → {s.team.members.join(" · ")} would rank #{s.rank} (score {Math.round(s.team.score)})
+              {s.alsoNeeds.length > 0 && `, with ${s.alsoNeeds.join(" and ")} built too`}
             </div>
           </li>
         ))}
