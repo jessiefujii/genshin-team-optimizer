@@ -3,8 +3,8 @@ import type { CharacterStats } from "../../types/build";
 import { loadScoringCharacters } from "./load";
 import { buildGaps } from "./score";
 import { findBestTeams } from "./search";
-import { suggestBuilds } from "./suggest";
-import type { ScoringCharacter } from "./types";
+import { pickSuggestions, suggestBuilds } from "./suggest";
+import type { ScoredTeam, ScoringCharacter } from "./types";
 
 const all = loadScoringCharacters();
 const byId = new Map(all.map((c) => [c.id, c]));
@@ -100,5 +100,31 @@ describe("suggestBuilds", () => {
       expect(s.team.score).toBeGreaterThan(top[top.length - 1].score);
       expect(top.some((t) => t.members.join("|") === s.team.members.join("|"))).toBe(false);
     }
+  });
+  test("a team needing two builds counts for each only with the other named (#284)", () => {
+    const r = roster.map((c) => (c.id === "Xingqiu" || c.id === "Bennett" ? { ...c, built: false } : c));
+    const suggestions = search(r).suggestions;
+    expect(suggestions.length).toBeGreaterThan(0);
+    for (const s of suggestions) {
+      const gappy = s.team.members.filter((id) => id === "Xingqiu" || id === "Bennett");
+      expect(gappy.sort()).toEqual([s.id, ...s.alsoNeeds].sort());
+    }
+    // Suggestions that need only that character come first.
+    const firstWithOthers = suggestions.findIndex((s) => s.alsoNeeds.length > 0);
+    if (firstWithOthers >= 0) expect(suggestions.slice(firstWithOthers).every((s) => s.alsoNeeds.length > 0)).toBe(true);
+  });
+});
+
+describe("pickSuggestions (#284)", () => {
+  const team = (members: string[], score: number) => ({ members, score }) as ScoredTeam;
+  const gaps = new Map([["A", ["marked not built"]], ["B", ["skill level 8 vs 9"]]]);
+
+  test("a member's team is the best one where they are the only gappy member", () => {
+    const both = team(["A", "B", "C", "D"], 130);
+    const onlyB = team(["B", "C", "D", "E"], 120);
+    const [a, b] = pickSuggestions(gaps, [both, onlyB], [], 20);
+    expect([a.id, a.team, a.alsoNeeds]).toEqual(["B", onlyB, []]);
+    // A has no team of their own: the shared one, naming B.
+    expect([b.id, b.team, b.alsoNeeds]).toEqual(["A", both, ["B"]]);
   });
 });
