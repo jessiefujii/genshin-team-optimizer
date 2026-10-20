@@ -59,7 +59,7 @@ const built = all
   .filter((c) => roster[c.id]?.build?.stats)
   .map((c) => {
     const { build, constellation } = roster[c.id];
-    return { ...c, stats: build!.stats, talents: build!.talents, sets: build!.artifactSets, effects: characterEffects(c.id, constellation, build) };
+    return { ...c, stats: build!.stats, talents: build!.talents, sets: build!.artifactSets, weaponBuild: build!.weapon, effects: characterEffects(c.id, constellation, build) };
   });
 
 describe("coverage gate", () => {

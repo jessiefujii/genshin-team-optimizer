@@ -115,6 +115,36 @@ export const freezeInDamage = (c: ScoringCharacter, active: readonly Reaction[])
 // Whether Freeze's value for this carry is their guide set's, in the model (#279): then a build without that set gets
 // none, as Freeze has no value but the set's crit (#205).
 export const freezeSetModeled = (c: ScoringCharacter) => BENCHMARK_SETS[c.id]?.when.reaction === "freeze";
+// Weapon passives on the holder's own hits (#40, extract-kit WEAPONS): `values` by refinement (R1-R5), `when` the team
+// condition. Only a build's weapon counts: a benchmark character holds none.
+type WeaponWhen = { energy?: boolean; teammatesSkill?: boolean; geo?: boolean; hpChanges?: boolean };
+type WeaponBuff = { kind: "dmgBonus" | "hpPct"; types?: HitType[]; values: number[]; max?: number[]; when?: WeaponWhen };
+const WEAPONS = (kitJson as unknown as { weapons: Record<string, WeaponBuff[]> }).weapons;
+// The holder's weapon buffs that hold in this team, each with its value at the build's refinement:
+// - energy: per point of the party's combined max Energy (every member's Burst cost), capped;
+// - teammatesSkill: another member's rotation uses their Skill (an E in its KQM actions);
+// - geo: a member deals Geo DMG while active (a Geo member: estimate, each takes the field to cast);
+// - hpChanges: party HP goes up or down, taken as a healer in the team keeping the stacks full (estimate).
+export function weaponBuffs(c: ScoringCharacter, team: readonly ScoringCharacter[]): { kind: WeaponBuff["kind"]; types?: HitType[]; value: number }[] {
+  const w = c.weaponBuild;
+  if (!w) return [];
+  const r = Math.min(5, Math.max(1, w.refinement)) - 1;
+  const fits = (when: WeaponWhen = {}) =>
+    (!when.teammatesSkill || team.some((m) => m.id !== c.id && m.rotation.actions.some((a) => a.includes("E")))) &&
+    (!when.geo || team.some((m) => m.element === "Geo")) &&
+    (!when.hpChanges || team.some((m) => m.roles.includes("healer")));
+  return (WEAPONS[w.id] ?? [])
+    .filter((b) => fits(b.when))
+    .map((b) => {
+      const energy = team.reduce((a, m) => a + (m.burstCost ?? 0), 0);
+      const value = b.when?.energy ? Math.min(b.max![r], b.values[r] * energy) : b.values[r];
+      return { kind: b.kind, ...(b.types ? { types: b.types } : {}), value };
+    });
+}
+// The DMG bonus the holder's weapon gives a hit of this type in this team (weaponBuffs).
+export const weaponDmgBonus = (buffs: ReturnType<typeof weaponBuffs>, type: HitType) =>
+  buffs.reduce((a, b) => a + (b.kind === "dmgBonus" && b.types!.includes(type) ? b.value : 0), 0);
+
 // A benchmark carry whose set gives CRIT Rate wears a CRIT DMG circlet instead of a CRIT Rate one (#279: KQM's Ganyu
 // guide, Freeze stat priority "CRIT DMG ≥ ATK% > CRIT Rate" with Blizzard Strayer).
 const critCirclet = (c: ScoringCharacter, active: readonly Reaction[]) =>
@@ -381,6 +411,7 @@ function computeCarryDamage(
   // Teammates' CRIT Rate buffs (#157) and the carry's own 4pc set's (#206).
   const critRate = teamBuffs.critRate + setCritRate(c, active, team);
   const dmgCirclet = critCirclet(c, active);
+  const weapon = weaponBuffs(c, team); // the build's weapon passive by hit type (#40)
   const own = carryStats(c, kit.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
@@ -473,7 +504,7 @@ function computeCarryDamage(
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
     if (!h.addOn) perHit += t.flat * (h.instances ?? 1);
-    let bonus = t.bonus;
+    let bonus = t.bonus + weaponDmgBonus(weapon, h.type);
     let factor = 1;
     for (const b of buffs) {
       if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * (b.stat === "hp" ? s.hp : atk);
