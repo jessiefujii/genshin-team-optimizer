@@ -8201,7 +8201,8 @@
           "scaling": {
             "atk": 2.5432
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Tanglevine Shaft DMG",
@@ -8209,7 +8210,8 @@
           "scaling": {
             "atk": 0.94554
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "Secondary Tanglevine Shaft DMG",
@@ -8217,7 +8219,8 @@
           "scaling": {
             "atk": 1.15566
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "Wreath Arrow DMG",
@@ -8225,7 +8228,8 @@
           "scaling": {
             "atk": 1.4824
           },
-          "count": 3
+          "count": 3,
+          "reacting": 3
         },
         {
           "label": "Clusterbloom Arrow DMG",
@@ -8233,7 +8237,8 @@
           "scaling": {
             "atk": 0.6562
           },
-          "count": 12
+          "count": 12,
+          "reacting": 3
         }
       ],
       "buffs": [

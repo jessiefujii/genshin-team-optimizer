@@ -178,6 +178,9 @@ function stronger(m: ScoringCharacter): ScoringCharacter {
 // with the issue that models them, and leaves this list then.
 const KNOWN_DROPS: Record<string, string> = {
   "Keqing, Chongyun, Sethos, Alyosha": "#232: Sethos, unmodelled, carries; Alyosha's buff share falls 6 -> 5",
+  // A stronger Tighnari out-damages Ayaka and takes the field (the main DPS is the one dealing the most), and his
+  // reading's team damage is a little lower (22.8k vs 23.3k per second): three carries, 4.96 -> 4.85 (#221).
+  "Tighnari, Keqing, Xiangling, Kamisato Ayaka": "#221: a stronger Tighnari becomes the main DPS; his reading is lower",
 };
 const drops = (() => {
   const out: string[] = [];

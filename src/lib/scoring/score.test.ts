@@ -985,7 +985,7 @@ describe("talent levels (#25)", () => {
       "Spread adds ~+98% to Alhaitham's damage",
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
-      "Spread adds ~+174% to Tighnari's damage",
+      "Spread adds ~+96% to Tighnari's damage", // 1 in 4 Clusterbloom Arrows applies Dendro (#221)
     );
   });
 

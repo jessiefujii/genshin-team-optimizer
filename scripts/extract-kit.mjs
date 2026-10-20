@@ -2082,13 +2082,18 @@ const CARRIES = {
   Tighnari: {
     // KQM: "E Q 3CS" (Charged Shots: Wreath Arrows; "Upon hit, the Wreath Arrow will create 4 Clusterbloom Arrows").
     // His Burst fires 6 Tanglevine Shafts and a secondary wave (genshin-db: "fire 6 Tanglevine Shafts"; one each).
+    // Hits that apply Dendro (and so Spread, #221), from KQM's Tighnari evidence page
+    // (library.keqingmains.com/evidence/characters/dendro/tighnari, linked by Jessie 2026-10-20): "CA Lv.1 and CA Lv.2
+    // Wreath Arrow have no ICD, CA Lv.2 Clusterbloom Arrow have 2.5s/4 Hits ICD"; "E has no ICD and Q Tanglevine Shaft
+    // and Secondary Tanglevine Shaft DMG have normal ICD" (2.5s/3 hits). On one opponent: every Wreath Arrow and the
+    // Skill; 1 in 4 Clusterbloom Arrows (each Wreath Arrow's 4 land well inside 2.5s); the 1st and 4th of each 6 shafts.
     combo: "E Q 3CS",
     hits: [
-      { table: "skill", label: "Skill DMG", count: 1, type: SK },
-      { table: "burst", label: "Tanglevine Shaft DMG", count: 6, type: BU },
-      { table: "burst", label: "Secondary Tanglevine Shaft DMG", count: 6, type: BU },
-      { table: "normal", label: "Wreath Arrow DMG", count: 3, type: CH },
-      { table: "normal", label: "Clusterbloom Arrow DMG", count: 12, type: CH },
+      { table: "skill", label: "Skill DMG", count: 1, reacting: 1, type: SK },
+      { table: "burst", label: "Tanglevine Shaft DMG", count: 6, reacting: 2, type: BU },
+      { table: "burst", label: "Secondary Tanglevine Shaft DMG", count: 6, reacting: 2, type: BU },
+      { table: "normal", label: "Wreath Arrow DMG", count: 3, reacting: 3, type: CH },
+      { table: "normal", label: "Clusterbloom Arrow DMG", count: 12, reacting: 3, type: CH },
     ],
     buffs: [
       // Passive 1: +50 EM for 4s after each Wreath Arrow: up through his Charged Shots.
