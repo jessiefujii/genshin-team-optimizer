@@ -9,6 +9,7 @@ export interface CharacterStats {
   energyRecharge: number;
   elementalMastery: number;
   elementalDmgBonus: number; // for the character's own element
+  physicalDmgBonus?: number; // Physical DMG Bonus (#222): from imports; builds saved before it have none
   // Character + weapon base ATK: the white number on the Attributes screen. ATK % buffs are a percent of
   // this (#80). Imports take Enka's number; the build editor gets it from the levels (src/lib/build/base-atk.ts).
   // Optional: builds saved before it existed don't have it.

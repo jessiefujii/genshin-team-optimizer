@@ -22,8 +22,14 @@ test("ascension decides the value at an ascension level", () => {
   expect(baseAtk("Bennett", lv(90, 6), "Sapwood Blade", lv(80, 6))!).toBeGreaterThan(weaponBefore);
 });
 
+// The Traveler's quest bonuses (#84): +3 Base ATK (Ever So Close) and +7 (Skirk's Story Quest) on Aether's curve.
+// Enka's base ATK for the Lumine in src/lib/enka/__fixtures__/traveler-cryo.json: 830.47 (Exaiphanes Blade, 90/90).
+test("the Traveler's Base ATK includes her quest bonuses", () => {
+  expect(baseAtk("Traveler (Cryo)", lv(90, 6), "Exaiphanes Blade", lv(90, 6))).toBe(830);
+});
+
 test("Traveler ids use Aether's stats; unknown names give undefined", () => {
-  expect(baseAtk("Traveler (Pyro)", lv(90), "Sapwood Blade", lv(90))).toBe(baseAtk("Aether", lv(90), "Sapwood Blade", lv(90)));
+  expect(baseAtk("Traveler (Pyro)", lv(90), "Sapwood Blade", lv(90))).toBe(baseAtk("Aether", lv(90), "Sapwood Blade", lv(90))! + 10);
   expect(baseAtk("Bennett", lv(90), "No Such Sword", lv(90))).toBeUndefined();
   // genshin-db matches names loosely; a near-miss must not pick some other weapon or character.
   expect(baseAtk("Bennett", lv(90), "Nope", lv(90))).toBeUndefined();

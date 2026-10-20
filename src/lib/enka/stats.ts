@@ -11,6 +11,7 @@ const CRIT_RATE = 20;
 const CRIT_DMG = 22;
 const ENERGY_RECHARGE = 23;
 const ELEMENTAL_MASTERY = 28;
+const PHYSICAL_DMG_BONUS = 30;
 
 const DMG_BONUS: Record<Element, number> = {
   Pyro: 40,
@@ -35,6 +36,7 @@ export function mapFightProps(props: Record<string, number>, element: Element): 
     energyRecharge: percent(props[ENERGY_RECHARGE]),
     elementalMastery: flat(props[ELEMENTAL_MASTERY]),
     elementalDmgBonus: percent(props[DMG_BONUS[element]]),
+    ...(props[PHYSICAL_DMG_BONUS] ? { physicalDmgBonus: percent(props[PHYSICAL_DMG_BONUS]) } : {}),
     ...(props[BASE_ATK] ? { baseAtk: flat(props[BASE_ATK]) } : {}),
   };
 }

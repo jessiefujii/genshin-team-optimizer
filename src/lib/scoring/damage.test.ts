@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, hasCarryKit, modelsAscendantGleam } from "./damage";
+import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite } from "./damage";
+import { NO_TEAM_BUFFS } from "./kit";
+import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
 import type { Reaction, ScoringCharacter } from "./types";
@@ -30,6 +32,14 @@ describe("carry damage (#101)", () => {
     expect(seconds("Arlecchino", "Kachina", "Bennett", "Chiori")).toBe(20);
     expect(seconds("Arlecchino", "Bennett", "Furina", "Xilonen")).toBe(15); // no default stated: Burst cooldown
     expect(seconds("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toBe(15); // unsourced: Burst cooldown
+  });
+
+  test("Hu Tao's passive 2 needs no teammate healing her; Furina in Ousia doesn't (#2)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const dps = (...ids: string[]) => carryDamage(byId.get("Hu Tao")!, ["vaporize"], team("Hu Tao", ...ids))!.perSecond;
+    const shield = dps("Xingqiu", "Yelan", "Zhongli");
+    expect(dps("Xingqiu", "Yelan", "Bennett")).toBeLessThan(shield * 0.9); // +33% Pyro DMG off
+    expect(dps("Xingqiu", "Furina", "Zhongli")).toBeCloseTo(dps("Xingqiu", "Yelan", "Zhongli"), 0);
   });
 
   test("the main reaction only counts when the team can trigger it (Vaporize for Hu Tao)", () => {
@@ -164,6 +174,30 @@ describe("carry damage (#101)", () => {
       expect(modelsAscendantGleam("Neuvillette")).toBe(false);
       expect(modelsAscendantGleam("Bennett")).toBe(false);
     });
+
+    test("modelsReaction: a reaction the carry's combos, hits or buffs need is in their damage (#200, #205)", () => {
+      const models = (id: string, r: Reaction) => modelsReaction(byId.get(id)!, r);
+      expect(models("Nefer", "lunar-bloom")).toBe(true); // Phantasm Performance needs Verdant Dew
+      expect(models("Flins", "lunar-charged")).toBe(true); // Thunderous Symphony Additional DMG needs thunderclouds
+      // Zibai's Lunar hits land with any team, but 2 of her 4 Strides need the team's Lunar-Crystallize (#248).
+      expect(models("Zibai", "lunar-crystallize")).toBe(true);
+      // Any reaction a combo, hit or buff needs (#205): Navia's shards, Freminet's and Wriothesley's combos.
+      expect(models("Navia", "crystallize")).toBe(true);
+      expect(models("Freminet", "superconduct")).toBe(true);
+      expect(models("Wriothesley", "stellar-conduct")).toBe(true);
+      expect(models("Shikanoin Heizou", "swirl")).toBe(true);
+      expect(models("Navia", "swirl")).toBe(false);
+    });
+
+    test("Klee's Boom-Boom Strikes and Boom Badges need Secret Rite (#241)", () => {
+      // Fischl (Hexerei) gives Secret Rite, Zhongli doesn't: 5 Strikes at 150% of 1.5x a Charged Attack, ~+65%.
+      const rite = dps(["Klee", "Fischl", "Bennett", "Xingqiu"], []);
+      const none = dps(["Klee", "Zhongli", "Bennett", "Xingqiu"], []);
+      expect(rite / none).toBeGreaterThan(1.5);
+      expect(rite / none).toBeLessThan(1.8);
+      expect(modelsSecretRite("Klee")).toBe(true);
+      expect(modelsSecretRite("Varka")).toBe(false);
+    });
   });
 
   test("a build's stats change the damage", () => {
@@ -176,6 +210,18 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(built)!.perSecond).toBeGreaterThan(carryDamage(raiden)!.perSecond);
   });
 
+  test("hits count at expected crit: the build's, else the benchmark's (#152)", () => {
+    const raiden = byId.get("Raiden Shogun")!;
+    const stats = { atk: 2200, baseAtk: 950, hp: 20000, def: 900, energyRecharge: 100, elementalMastery: 100, elementalDmgBonus: 60 };
+    expect(expectedCrit(raiden)).toBeCloseTo(1.72); // benchmark 60% / 120%
+    expect(expectedCrit({ ...raiden, stats: { ...stats, critRate: 80, critDmg: 200 } })).toBeCloseTo(2.6);
+    expect(expectedCrit({ ...raiden, stats: { ...stats, critRate: 130, critDmg: 100 } })).toBeCloseTo(2); // rate caps at 100%
+    // Same ATK and DMG bonus, better crit: damage grows by the crit ratio alone.
+    const crit = { ...raiden, stats: { ...stats, critRate: 80, critDmg: 200 } };
+    const plain = { ...raiden, stats: { ...stats, critRate: 60, critDmg: 120 } };
+    expect(carryDamage(crit)!.perSecond / carryDamage(plain)!.perSecond).toBeCloseTo(2.6 / 1.72);
+  });
+
   test("an imported build's DMG bonus already holds Raiden's ER passive: it isn't added again (#161)", () => {
     const raiden = byId.get("Raiden Shogun")!;
     // Jessie's Raiden from Enka: 108.8% Electro DMG Bonus = 46.6% goblet + 0.4 x 155.6 ER.
@@ -184,6 +230,139 @@ describe("carry damage (#101)", () => {
     const moreEr: ScoringCharacter = { ...raiden, stats: { ...stats, energyRecharge: 300 } };
     // ER only reaches her damage through the panel's DMG bonus, so more ER alone changes nothing.
     expect(carryDamage(moreEr)!.perSecond).toBeCloseTo(carryDamage(jessie)!.perSecond, 6);
+  });
+
+  // Carry batch 2 (#203): stacks that scale on HP, CRIT Rate for some hits only, a combo for Crystallize teams.
+  test("Ayato's Namisen adds Max HP to each Shunsuiken hit: more HP alone raises his damage", () => {
+    const ayato = byId.get("Kamisato Ayato")!;
+    const stats = { atk: 1900, baseAtk: 900, hp: 20000, def: 800, critRate: 60, critDmg: 120, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    const more: ScoringCharacter = { ...ayato, stats: { ...stats, hp: 30000 } };
+    expect(carryDamage(more)!.perSecond).toBeGreaterThan(carryDamage({ ...ayato, stats })!.perSecond);
+  });
+
+  test("Ganyu's passive 1 crit only reaches her Frostflake Arrows, and is lost past 100% CRIT Rate", () => {
+    const ganyu = byId.get("Ganyu")!;
+    const stats = { atk: 2200, baseAtk: 950, hp: 15000, def: 700, critDmg: 200, energyRecharge: 110, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    const at = (critRate: number) => carryDamage({ ...ganyu, stats: { ...stats, critRate } })!.perSecond;
+    // From 90% to 100%, her arrows (already at 100% with the passive) gain nothing; only her Skill hits do.
+    expect(at(100) / at(90)).toBeGreaterThan(1);
+    expect(at(100) / at(90)).toBeLessThan(3 / 2.8);
+  });
+
+  test("Ganyu plays KQM's Melt rotation in Melt teams, and it Melts (#228)", () => {
+    const ganyu = byId.get("Ganyu")!;
+    expect(carryDamage(ganyu, ["melt"])!.combo).toBe("E Q 4[C]");
+    expect(carryDamage(ganyu, ["freeze"])!.combo).toBe("E C EQ 4[C]");
+    // Reverse Melt (x1.5) on her arrows outweighs the Freeze rotation's extra arrow and Skill, at the same build: no set
+    // (without one she'd wear Blizzard Strayer in Freeze, #279).
+    const noSet = { ...ganyu, sets: [] };
+    expect(carryDamage(noSet, ["melt"])!.perSecond).toBeGreaterThan(carryDamage(noSet, ["freeze"])!.perSecond);
+  });
+
+  // #222: hits of their own damage type.
+  test("Eula's Physical hits take Physical DMG Bonus, her Cryo hits Cryo DMG Bonus", () => {
+    const eula = byId.get("Eula")!;
+    const stats = { atk: 2400, baseAtk: 950, hp: 15000, def: 1000, critRate: 60, critDmg: 140, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 0 };
+    const at = (extra: object) => carryDamage({ ...eula, stats: { ...stats, ...extra } })!.perSecond;
+    const physical = at({ physicalDmgBonus: 58.3 }) - at({});
+    const cryo = at({ elementalDmgBonus: 46.6 }) - at({});
+    expect(cryo).toBeGreaterThan(0);
+    expect(physical).toBeGreaterThan(cryo * 2); // Lightfall Sword and her Normal Attacks are most of her damage
+  });
+
+  test("a buff for the carry's element skips hits of another type (#222)", () => {
+    const eula = byId.get("Eula")!;
+    // Flat DMG read for her element (Cryo) reaches her 5 Cryo hit instances only (Press, Burst cast, Hold, 2 Icewhirl
+    // Brands); her Physical hits read their own team buffs, none here. Benchmark: no Cryo DMG Bonus (Physical goblet).
+    // The 2 Icewhirl Brands land under her own 24% Cryo RES shred (#204).
+    const gain = carryDamage(eula, [], [eula], { ...NO_TEAM_BUFFS, flat: 1000 })!.perSecond - carryDamage(eula, [], [eula])!.perSecond;
+    expect(gain).toBeCloseTo((1000 * (3 + 2 * (1 + resShredGain(0.24))) * expectedCrit(eula)) / 20, 6);
+  });
+
+  // #233: hits that take teammates' elements, counted by the team.
+  test("Chasca's Shining Shells grow with her Pyro, Hydro, Cryo and Electro teammates", () => {
+    const dps = (...ids: string[]) => {
+      const team = ["Chasca", ...ids].map((id) => byId.get(id)!);
+      return carryDamage(team[0], [], team)!.perSecond;
+    };
+    const none = dps("Zhongli", "Nahida", "Chiori"); // no conversion: 28 Anemo Shells
+    const one = dps("Bennett", "Zhongli", "Nahida"); // 1 Pyro teammate
+    const three = dps("Bennett", "Xingqiu", "Fischl"); // 3 teammates of 3 types
+    expect(one).toBeGreaterThan(none);
+    expect(three).toBeGreaterThan(one);
+    // Two Pyro teammates convert as many Shells as two of different types, but one type: fewer for passive 1.
+    expect(dps("Bennett", "Xingqiu", "Zhongli")).toBeGreaterThan(dps("Bennett", "Xiangling", "Zhongli"));
+  });
+
+  test("Freminet plays his Physical combo in Superconduct teams, with a Physical goblet (#231)", () => {
+    const freminet = byId.get("Freminet")!;
+    expect(carryDamage(freminet, ["freeze"])!.combo).toBe("EQE 4[2E N1] 2E");
+    expect(carryDamage(freminet, ["superconduct"])!.combo).toBe("EQ N2E 3[EN2E N1]");
+    // An import's Physical DMG Bonus reaches the Physical combo's Level 4 Shattering Pressures and Normal Attacks.
+    const stats = { atk: 2000, baseAtk: 850, hp: 15000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 130, elementalMastery: 0, elementalDmgBonus: 0 };
+    const at = (physicalDmgBonus: number) => carryDamage({ ...freminet, stats: { ...stats, physicalDmgBonus } }, ["superconduct"])!.perSecond;
+    expect(at(58.3)).toBeGreaterThan(at(0) * 1.3);
+  });
+
+  test("Superconduct's 40% Physical RES shred reaches Eula's Physical hits (#204)", () => {
+    const eula = byId.get("Eula")!;
+    const physicalShare = carryDamage(eula, ["superconduct"])!.perSecond / carryDamage(eula, [])!.perSecond;
+    expect(physicalShare).toBeGreaterThan(1.1); // ~2/3 of her damage is Physical: x1.18
+    expect(physicalShare).toBeLessThan(1 + resShredGain(0.4)); // her Cryo hits don't get it
+  });
+
+  test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {
+    const navia = byId.get("Navia")!;
+    expect(carryDamage(navia, ["crystallize"])!.perSecond).toBeGreaterThan(carryDamage(navia, [])!.perSecond * 1.2);
+  });
+
+  // Carry batch 3 (#203): DMG from EM on hits counted elsewhere, ATK from DEF.
+  test("Cyno's passive 2 DMG from EM adds no Aggravate of its own", () => {
+    const cyno = byId.get("Cyno")!;
+    const kitHits = (kit as unknown as { carries: Record<string, { hits: { addOn?: boolean; count: number; instances?: number }[] }> }).carries.Cyno.hits;
+    const instances = (h: { count: number; instances?: number }) => h.count * (h.instances ?? 1);
+    // Aggravate's flat DMG lands on his own hits only: 29 Burst Normal Attack instances, 9 bolts, 5 Skills.
+    expect(kitHits.filter((h) => !h.addOn).reduce((a, h) => a + instances(h), 0)).toBe(43);
+    expect(carryDamage(cyno, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(cyno, [])!.perSecond);
+  });
+
+  test("Noelle's Burst turns DEF into ATK: more DEF alone raises her damage", () => {
+    const noelle = byId.get("Noelle")!;
+    const stats = { atk: 1500, baseAtk: 750, hp: 15000, def: 2000, critRate: 60, critDmg: 120, energyRecharge: 140, elementalMastery: 0, elementalDmgBonus: 46.6 };
+    expect(carryDamage({ ...noelle, stats: { ...stats, def: 2600 } })!.perSecond).toBeGreaterThan(carryDamage({ ...noelle, stats })!.perSecond);
+  });
+
+  test("Mualani's Surging Bites scale on Max HP", () => {
+    const mualani = byId.get("Mualani")!;
+    const stats = { atk: 1100, baseAtk: 650, hp: 35000, def: 700, critRate: 60, critDmg: 120, energyRecharge: 110, elementalMastery: 100, elementalDmgBonus: 46.6 };
+    const at = (hp: number) => carryDamage({ ...mualani, stats: { ...stats, hp } })!.perSecond;
+    expect(at(42000) / at(35000)).toBeCloseTo(1.2, 2); // every hit scales on HP alone
+  });
+
+  // Carry batch 4 (#203): a hit that needs a reaction, a combo for Melt.
+  test("Heizou's Windmuster Iris lands only with an element to Swirl", () => {
+    const heizou = byId.get("Shikanoin Heizou")!;
+    expect(carryDamage(heizou, ["swirl"])!.perSecond).toBeGreaterThan(carryDamage(heizou, [])!.perSecond);
+  });
+
+  test("Gaming plays fewer Skill plunges in Melt teams (KQM)", () => {
+    const gaming = byId.get("Gaming")!;
+    expect(carryDamage(gaming, ["melt"])!.combo).toBe("Q 5.5[EP]");
+    expect(carryDamage(gaming, ["vaporize"])!.combo).toBe("Q 7[EP]");
+  });
+
+  // Carry batch 5 (#203): rows that already hold their hit count are one hit with that many instances.
+  test("Keqing's Burst slashes are 8 instances of one row, each Aggravating", () => {
+    const hits = (kit as unknown as { carries: Record<string, { hits: { label: string; count: number; instances?: number; scaling: { atk: number } }[] }> }).carries.Keqing.hits;
+    const slash = hits.find((h) => h.label === "Consecutive Slash DMG")!;
+    expect([slash.count, slash.instances, slash.scaling.atk]).toEqual([1, 8, 3.264]); // 40.8% x 8
+    const keqing = byId.get("Keqing")!;
+    expect(carryDamage(keqing, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(keqing, [])!.perSecond);
+  });
+
+  test("Diluc's combo Vaporizes inside Dawn's infusion", () => {
+    const diluc = byId.get("Diluc")!;
+    expect(carryDamage(diluc, ["vaporize"])!.perSecond).toBeGreaterThan(carryDamage(diluc, [])!.perSecond * 1.3);
   });
 });
 

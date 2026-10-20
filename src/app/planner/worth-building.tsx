@@ -37,7 +37,7 @@ export default function WorthBuilding({
               <span className="text-red-700 dark:text-red-400">{s.gaps.join(" · ")}</span>
             </div>
             <div className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-              → {s.team.members.join(" · ")} would rank #{s.rank} (score {s.team.score})
+              → {s.team.members.join(" · ")} would rank #{s.rank} (score {Math.round(s.team.score)})
             </div>
           </li>
         ))}

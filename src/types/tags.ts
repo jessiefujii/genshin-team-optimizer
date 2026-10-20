@@ -75,7 +75,9 @@ export interface CharacterTags {
   energyNeed: 'low' | 'medium' | 'high';
   erTarget?: number; // ER % this character wants for their burst; defaults by energyNeed (see ER_TARGETS)
   buffs?: Buff[];
-  scalesOn?: ScalingStat[]; // main DPS only: stats their damage scales on
+  // Stats their damage scales on: main DPS, and sub-DPS hand-tagged from their KQM quick guide (#167), whose first
+  // entry picks their benchmark build.
+  scalesOn?: ScalingStat[];
   keyTalent?: Talent; // main DPS only: the talent most of their damage scales with
   families?: Family[];
   // Lunar or Stellar reactions this character converts for the party ("Moonsign Benediction" / "Stellar Jubilee"
