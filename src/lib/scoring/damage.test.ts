@@ -326,6 +326,21 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(cyno, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(cyno, [])!.perSecond);
   });
 
+  test("Kinich's Hunter's Experience: 3.2x ATK on a Cannon per party Nightsoul Burst, more with more Natlanese (#288)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const kinich = byId.get("Kinich")!;
+    const dps = (...ids: string[]) => carryDamage(kinich, ["burning"], team("Kinich", ...ids))!.perSecond;
+    const one = dps("Emilie", "Xiangling", "Bennett"); // every 18s: 1 stack per 18s rotation
+    const two = dps("Mavuika", "Emilie", "Bennett"); // every 12s: 1.5
+    const three = dps("Xilonen", "Citlali", "Bennett"); // every 9s: 2 (Xilonen, Citlali don't change his own hits)
+    expect(two).toBeGreaterThan(one);
+    expect(three).toBeGreaterThan(two);
+    // The extra 0.5 stack per rotation is 0.5 x 3.2 = 1.6 ATK of Cannon-type damage: under one Cannon (11.7 ATK).
+    const hunter = (kit as unknown as { carries: { Kinich: { hits: { label: string; scaling: { atk: number }; nightsoulBursts?: string }[] } } }).carries.Kinich.hits.find((h) => h.nightsoulBursts)!;
+    expect(hunter.scaling.atk).toBe(3.2);
+    expect(two / one - 1).toBeLessThan(0.1);
+  });
+
   test("Noelle's Burst turns DEF into ATK: more DEF alone raises her damage", () => {
     const noelle = byId.get("Noelle")!;
     const stats = { atk: 1500, baseAtk: 750, hp: 15000, def: 2000, critRate: 60, critDmg: 120, energyRecharge: 140, elementalMastery: 0, elementalDmgBonus: 46.6 };

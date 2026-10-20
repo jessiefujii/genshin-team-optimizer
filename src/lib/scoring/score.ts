@@ -689,7 +689,7 @@ function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
 
 type NightsoulBurstEntry =
   | { target: "own"; note: string; source: string }
-  | { target: "self"; kind?: "atkPct"; value?: number; duration: number | null; maxStacks: number; source: string };
+  | { target: "self"; kind?: "atkPct"; value?: number; duration: number | null; maxStacks: number; inDamage?: boolean; source: string };
 const NIGHTSOUL_BURST = kitJson.nightsoulBurst as {
   cooldownByNatlanese: Record<string, number>;
   notNatlanese: string[];
@@ -707,11 +707,12 @@ const FASTEST_NIGHTSOUL = Math.min(...COOLDOWNS.map(([, s]) => s));
 // Nightsoul Burst (#63). A party with a Natlanese member triggers one whenever someone deals Elemental DMG, at most
 // once per cooldown (18s with 1 Natlanese member, 12s with 2, 9s with 3 or more; data/kit.json). Every effect it
 // triggers is that character's own, so only the carry's counts: Mavuika's and Varesa's ATK by the damage it adds,
-// Kinich's, Mualani's and Chasca's kit upgrade as ownNightsoulBurst. Either way, by how much of it a faster cooldown
-// keeps up: average stacks (each lasts `duration`, up to maxStacks) or, for a one-off like Chasca's shot, how often.
+// Mualani's and Chasca's kit upgrade as ownNightsoulBurst. Either way, by how much of it a faster cooldown keeps up:
+// average stacks (each lasts `duration`, up to maxStacks) or, for a one-off like Chasca's shot, how often. Kinich's
+// (inDamage) is in his Cannon damage instead (#288, damage.ts), so no points here.
 function nightsoulBurstLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const entry = carry && NIGHTSOUL_BURST.characters[carry.id];
-  if (!carry || entry?.target !== "self") return;
+  if (!carry || entry?.target !== "self" || entry.inDamage) return;
   const natlanese = ctx.members.filter(
     (m) => familiesOf(m, ctx.options).includes("nightsoul") && !NIGHTSOUL_BURST.notNatlanese.includes(m.id),
   ).length;

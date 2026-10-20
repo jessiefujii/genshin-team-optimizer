@@ -532,7 +532,9 @@ function readSecretRite(id, spec) {
 // DMG, at most once per cooldown that shortens with more Natlanese members (data/kit-overrides.json
 // rules.nightsoulBurst). Every effect it triggers is the character's own, so only the carry's counts:
 //   target "self", kind atkPct: the carry's ATK % (Mavuika, Varesa), value x stacks up
-//   target "self", no kind: an upgrade to the carry's own kit (Kinich, Mualani, Chasca), scored like Secret Rite
+//   target "self", no kind: an upgrade to the carry's own kit (Mualani, Chasca), scored like Secret Rite
+//   inDamage: the upgrade is in the carry's damage model instead (Kinich's Hunter's Experience, #288: CARRIES), so the
+//   scorer adds no flat points for it
 //   duration / max stacks: how long each stack lasts and how many can be up; no duration = one-off (Chasca's shot)
 //   target "own": a support's effect on their own stats or resources; recorded, not scored (sub-DPS damage is
 //   Phase 3, resources are the energy check's job)
@@ -542,7 +544,7 @@ const NIGHTSOUL_BURST = {
   Iansan: { from: "passive2", target: "own", note: "Warming Up (her own resource)" },
   Ifa: { from: "passive2", target: "own", note: "his own EM" },
   Kachina: { from: "passive1", target: "own", note: "her own Geo DMG" },
-  Kinich: { from: "passive2", target: "self", duration: /lasts (\d+)s/, max: /Max (\d+) stacks/ },
+  Kinich: { from: "passive2", target: "self", duration: /lasts (\d+)s/, max: /Max (\d+) stacks/, inDamage: true },
   Mavuika: { from: "passive1", target: "self", kind: "atkPct", re: /ATK increases by (\d+)% for/, duration: /for (\d+)s/ },
   Mualani: { from: "passive2", target: "self", duration: /lasts for (\d+)s/, max: /Max (\d+) stacks/ },
   Ororon: { from: "passive1", target: "own", note: "gains Nightsoul points" },
@@ -574,6 +576,7 @@ function readNightsoulBurst(id, spec) {
     ...(spec.kind ? { kind: spec.kind, value: num(spec.re) / 100 } : {}),
     duration: spec.duration ? num(spec.duration) : null,
     maxStacks: spec.max ? num(spec.max) : 1,
+    ...(spec.inDamage ? { inDamage: true } : {}),
     source,
   };
 }
@@ -1500,6 +1503,8 @@ function readSubDps(id, specs) {
 //     their own direct Lunar hits, #135), lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar
 //     reaction: Flins), baseDmgMultiplier (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction,
 //     ascendantGleam, secretRite, noHealer }) gates it like a hit's.
+//   A hit's `nightsoulBursts` (#288): one per party Nightsoul Burst in the rotation, on that many of the hits with
+//   that label at most (Kinich's Hunter's Experience on his next Cannon); damage.ts counts them. Give it count 0.
 //   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
 //   missing: parts of the rotation not modeled yet, so the damage is too low (none left since #135)
 // The rotation lasts as long as a sourced length (data/kit-overrides.json `rotations`, #103: a default, plus lengths
@@ -1966,6 +1971,10 @@ const CARRIES = {
     hits: [
       { table: "skill", label: "Loop Shot DMG", count: 6, type: SK },
       { table: "skill", label: "Scalespiker Cannon DMG", count: 2, type: SK },
+      // Passive 2, Hunter's Experience (#288): "After a nearby party member triggers a Nightsoul Burst, Kinich will gain 1
+      // stack of Hunter's Experience that lasts 15s. Max 2 stacks", consumed by his next Scalespiker Cannon, "each stack
+      // consumed increasing the DMG dealt by this Cannon shot by 320% of Kinich's ATK". A Cannon's own DMG, so addOn.
+      { from: "passive2", re: /increasing the DMG dealt by this Cannon shot by (\d+)% of Kinich's ATK/, count: 0, type: SK, addOn: true, nightsoulBursts: "Scalespiker Cannon DMG" },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
       { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
     ],
@@ -1982,6 +1991,7 @@ const CARRIES = {
         hits: [
           { table: "skill", label: "Loop Shot DMG", count: 8, type: SK },
           { table: "skill", label: "Scalespiker Cannon DMG", count: 5, type: SK },
+          { from: "passive2", re: /increasing the DMG dealt by this Cannon shot by (\d+)% of Kinich's ATK/, count: 0, type: SK, addOn: true, nightsoulBursts: "Scalespiker Cannon DMG" },
           { table: "burst", label: "Skill DMG", count: 1, type: BU },
           { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
         ],
@@ -2556,6 +2566,7 @@ function readCarry(id, spec) {
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
         ...(h.addOn ? { addOn: true } : {}),
+        ...(h.nightsoulBursts ? { nightsoulBursts: h.nightsoulBursts } : {}),
         ...(h.element ? { element: h.element } : {}),
         ...(h.byTeammates ? { byTeammates: { elements: h.byTeammates.elements, ...(h.byTeammates.members ? { members: h.byTeammates.members.map(round) } : {}), ...(h.byTeammates.types ? { types: h.byTeammates.types.map(round) } : {}) } } : {}),
         ...(h.when ? { when: h.when } : {}),

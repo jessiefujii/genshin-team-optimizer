@@ -346,8 +346,11 @@ describe("scoreTeam", () => {
     expect(three.points).toBeGreaterThan(solo.points);
     // Pyro Traveler has Nightsoul but isn't Natlanese.
     expect(line("Mavuika", "Traveler (Pyro)", "Bennett", "Furina")!.reason).toContain("(1 Natlan)");
-    // Kinich's Hunter's Experience stacks: a kit upgrade, scaled by how many stacks are up.
-    expect(line("Kinich", "Xilonen", "Citlali", "Bennett")!.points).toBeGreaterThan(line("Kinich", "Emilie", "Xiangling", "Bennett")!.points);
+    // Mualani's Wavechaser's Exploits stacks: a kit upgrade, scaled by how many stacks are up.
+    expect(line("Mualani", "Xilonen", "Citlali", "Bennett")!.points).toBeGreaterThan(line("Mualani", "Xingqiu", "Furina", "Bennett")!.points);
+    // Kinich's Hunter's Experience is in his Cannon damage (#288, damage.test.ts), so no flat line for it.
+    expect(line("Kinich", "Xilonen", "Citlali", "Bennett")).toBeUndefined();
+    expect(line("Kinich", "Emilie", "Xiangling", "Bennett")).toBeUndefined();
     // A support's own Nightsoul Burst effect (Kachina's Geo DMG) doesn't score for a non-Natlan carry, and nor
     // does the old flat Nightsoul pair.
     const geo = score("Navia", "Kachina", "Xilonen", "Zhongli").breakdown;
