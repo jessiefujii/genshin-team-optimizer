@@ -9186,7 +9186,7 @@
     },
     "Kaveh": {
       "rotationSeconds": 20,
-      "combo": "EQ N3D N3 E N3D N4 E",
+      "combo": "EQ 2[N3D] N1 E 2[N3D] N2 E",
       "hits": [
         {
           "label": "Skill DMG",
@@ -9210,7 +9210,7 @@
           "scaling": {
             "atk": 1.39969
           },
-          "count": 4
+          "count": 6
         },
         {
           "label": "2-Hit DMG",
@@ -9218,7 +9218,7 @@
           "scaling": {
             "atk": 1.279405
           },
-          "count": 4
+          "count": 5
         },
         {
           "label": "3-Hit DMG",
@@ -9227,14 +9227,6 @@
             "atk": 1.548052
           },
           "count": 4
-        },
-        {
-          "label": "4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.886599
-          },
-          "count": 1
         }
       ],
       "buffs": []
