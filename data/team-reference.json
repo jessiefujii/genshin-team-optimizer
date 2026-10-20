@@ -1,5 +1,5 @@
 {
-  "median": 141211.1,
+  "median": 133685.3,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -8,7 +8,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 214641.6
+      "value": 189383.8
     },
     "Aloy": {
       "team": [
@@ -17,7 +17,7 @@
         "Xiangling",
         "Shenhe"
       ],
-      "value": 130746.3
+      "value": 117593.1
     },
     "Arataki Itto": {
       "team": [
@@ -53,7 +53,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 145125.9
+      "value": 131247.1
     },
     "Cyno": {
       "team": [
@@ -62,16 +62,16 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 184031
+      "value": 169913.9
     },
     "Diluc": {
       "team": [
         "Diluc",
         "Xingqiu",
-        "Yelan",
-        "Bennett"
+        "Albedo",
+        "Zhongli"
       ],
-      "value": 104376.2
+      "value": 97564.5
     },
     "Eula": {
       "team": [
@@ -107,7 +107,7 @@
         "Xilonen",
         "Bennett"
       ],
-      "value": 182203.1
+      "value": 192541.7
     },
     "Ganyu": {
       "team": [
@@ -125,7 +125,7 @@
         "Zhongli",
         "Albedo"
       ],
-      "value": 192628.9
+      "value": 196992.7
     },
     "Kamisato Ayaka": {
       "team": [
@@ -157,11 +157,11 @@
     "Keqing": {
       "team": [
         "Keqing",
-        "Baizhu",
+        "Ineffa",
         "Furina",
-        "Yelan"
+        "Xilonen"
       ],
-      "value": 139834.5
+      "value": 130108.6
     },
     "Kinich": {
       "team": [
@@ -179,7 +179,7 @@
         "Albedo",
         "Xilonen"
       ],
-      "value": 235788.8
+      "value": 226218.3
     },
     "Lohen": {
       "team": [
@@ -206,7 +206,7 @@
         "Furina",
         "Bennett"
       ],
-      "value": 154536.2
+      "value": 154787.5
     },
     "Mualani": {
       "team": [
@@ -215,7 +215,7 @@
         "Yelan",
         "Zhongli"
       ],
-      "value": 120428
+      "value": 137464.6
     },
     "Navia": {
       "team": [
@@ -323,7 +323,7 @@
         "Xiangling",
         "Bennett"
       ],
-      "value": 70263
+      "value": 67561.7
     },
     "Tighnari": {
       "team": [
@@ -404,7 +404,7 @@
         "Yelan",
         "Xianyun"
       ],
-      "value": 94904.4
+      "value": 95826.5
     },
     "Yoimiya": {
       "team": [
@@ -413,7 +413,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 144328.2
+      "value": 132194.1
     },
     "Yumemizuki Mizuki": {
       "team": [

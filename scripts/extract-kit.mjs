@@ -1480,8 +1480,9 @@ function readSubDps(id, specs) {
 //     table: normal | skill | burst (which talent table), label (+ pick for "a/b" rows), count per rotation,
 //     type: normal | charged | plunge | skill | burst (the DMG type, for buffs), instances (separate hits in one row,
 //     for buffs added per hit; default 1), count "rate" (kit-overrides.json hitRates, keyed "carry: <label>"),
-//     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
-//     its flat estimate for hits without it), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
+//     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; else from the
+//     hit's kit-overrides.json carryIcd entry, icdReacting #226; damage.ts uses its flat estimate for hits with
+//     neither), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
 //     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
 //   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
@@ -2505,6 +2506,51 @@ const CARRIES = {
   },
 };
 
+// Which carry hits react (#226): on one opponent, the hits that apply their element (kit-overrides.json `carryIcd`, from
+// the Genshin Impact Wiki's Internal Cooldown/Data table), each taken to find the aura it reacts with. Hits of one ICD
+// tag and type share a counter: with `every` k, hits 1, k+1, 2k+1... of the rotation apply; the timer's resets are
+// left out (estimate: the hits are taken as close together, so this is a lower bound), unless `windows` says how many
+// separate timer windows they fall in (uses further apart than the reset, e.g. Ayato's two Skills), each starting the
+// counter over. "first": one hit per use applies (`count` is the number of uses, each use's hits land inside the
+// reset: estimate). `hits`: hits per count when the row's value sums several (Ayaka's Charged Attack, "x3") and
+// `instances` doesn't split it. "none": every hit applies. A hit's `reacting` is its share of the group's applying
+// hits times its count. Hits without an entry, or with a sourced `reacting`, keep theirs (damage.ts falls back to its
+// flat share for hits with neither).
+const STANDARD_CARRY_ICD = { reset: 2.5, every: 3 }; // wiki: Default ICD Type, "2.5" s, "1 0 0 as the repetend"
+// How many of the first m hits of a counter apply: hits 1, k+1, 2k+1..., a part hit counting as its fraction.
+const applying = (m, every) => {
+  if (every === "first") return Math.min(1, m);
+  const whole = Math.floor(m);
+  return Math.ceil(whole / every) + (whole % every === 0 ? m - whole : 0);
+};
+const icdUsed = new Set(); // carryIcd keys some hit read, so a misspelt one fails the build
+function icdReacting(id, hits, keys) {
+  const table = OVERRIDES.carryIcd?.[id] ?? {};
+  const groups = new Map();
+  hits.forEach((h, i) => {
+    const icd = keys[i] && table[keys[i]];
+    if (!icd) return;
+    icdUsed.add(`${id}|${keys[i]}`);
+    if (icd === "none") return void (h.reacting = h.count);
+    const { reset, every } = { ...STANDARD_CARRY_ICD, ...icd };
+    if (!icd.tag || !(reset > 0) || !(every === "first" || every >= 1)) throw new Error(`${id}: carryIcd "${keys[i]}" needs tag, reset, every`);
+    const key = `${icd.tag}|${reset}|${every}`;
+    if (!groups.has(key)) groups.set(key, { every, rows: [], windows: undefined });
+    const g = groups.get(key);
+    g.rows.push({ h, hits: h.count * (h.instances ?? icd.hits ?? 1) });
+    if (icd.windows !== undefined) g.windows = icd.windows;
+  });
+  for (const g of groups.values()) {
+    const n = g.rows.reduce((a, r) => a + r.hits, 0);
+    const uses = g.rows.reduce((a, r) => a + r.h.count, 0);
+    if (!(n > 0)) continue;
+    const windows = g.windows ?? (g.every === "first" ? uses : Math.min(1, uses));
+    const share = (windows * applying(n / windows, g.every)) / n;
+    for (const r of g.rows) r.h.reacting = round(r.h.count * share);
+  }
+  return hits;
+}
+
 // Reads a CARRIES entry into numbers: each hit's multiplier per stat and count, each buff's value.
 function readCarry(id, spec) {
   const talents = talentsOf(id);
@@ -2519,6 +2565,7 @@ function readCarry(id, spec) {
   const missing = [...(spec.missing ?? [])];
   const readHits = (list) => {
     const hits = [];
+    const keys = []; // each hit's carryIcd key ("table: label"), for icdReacting (#226)
     for (const h of list) {
       let count = h.count;
       if (count === "rate") {
@@ -2547,8 +2594,9 @@ function readCarry(id, spec) {
         ...(h.when ? { when: h.when } : {}),
         ...(h.tag ? { tag: h.tag } : h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
+      keys.push(h.from || h.addOn || h.reacting !== undefined ? null : `${h.table}: ${h.label}`);
     }
-    return hits;
+    return icdReacting(id, hits, keys);
   };
   const raw = (t, label, pick = 0) => {
     const s = scalingOf(tableAttrs(t), label, id, pick);
@@ -2705,6 +2753,9 @@ const fightingSpirit = readFightingSpirit(tags.filter((c) => (c.families ?? []).
 // Carries (#101): the 16 compare carries first; other main DPS are listed until they get an entry.
 const carries = {};
 for (const [id, spec] of Object.entries(CARRIES)) carries[id] = readCarry(id, spec);
+for (const [id, table] of Object.entries(OVERRIDES.carryIcd ?? {}))
+  for (const key of Object.keys(id === "_howTo" ? {} : table))
+    if (!icdUsed.has(`${id}|${key}`)) throw new Error(`${id}: carryIcd "${key}" matches no carry hit`);
 for (const id of Object.keys(OVERRIDES.rotations ?? {}))
   if (!id.startsWith("_") && !CARRIES[id]) throw new Error(`kit-overrides.json rotations: ${id} has no carry damage model`);
 const carriesTodo = tags.filter((c) => c.roles.includes("main-dps") && !CARRIES[c.id]).map((c) => c.id);
