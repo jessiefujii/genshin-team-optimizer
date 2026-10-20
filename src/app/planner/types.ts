@@ -1,7 +1,8 @@
 import type { ScoringCharacter } from "@/lib/scoring/types";
 
 // What the planner receives from the server: scoring data plus display fields from genshin-db.
-export type PlannerCharacter = ScoringCharacter & { rarity: number };
+// icon: genshin-db's icon file name ("UI_AvatarIcon_Hutao"), served by Enka (#179).
+export type PlannerCharacter = ScoringCharacter & { rarity: number; icon?: string };
 
 // Choices for the build editor, from genshin-db: weapon names by weapon type, and artifact set names.
 export interface BuildCatalog {
