@@ -17,8 +17,10 @@ const EMPTY: Results = { teams: [], suggestions: [] };
 
 const DEBOUNCE_MS = 250;
 
-// One worker per spare core, each searching a part of the teams (#215): the main thread keeps one core, at most 8.
-const workerCount = () => Math.min(8, Math.max(1, (navigator.hardwareConcurrency ?? 2) - 1));
+// One worker per spare core, each searching a part of the teams (#215): the main thread keeps one core, at most 4. On a
+// 12-thread laptop (i7-1250U: 2 performance + 8 efficiency cores) 4 workers finished the 50-character search in 1.3-2.1 s
+// and 8 in 1.8-3.5 s: parts run at the same time slow each other down.
+const workerCount = () => Math.min(4, Math.max(1, (navigator.hardwareConcurrency ?? 2) - 1));
 
 // Re-runs the search in Web Workers whenever the roster or options change; stale results are dropped. Two rounds,
 // each split across the workers and merged here: the teams, then the build-suggestion candidates for them.
@@ -27,20 +29,24 @@ export function useTeamSearch(roster: ScoringCharacter[], options: SearchOptions
   const workersRef = useRef<Worker[]>([]);
   const latest = useRef({ id: 0, started: 0 });
   // Parts received for the current search and round.
-  const parts = useRef<{ id: number; kind: "teams" | "candidates"; teams: ScoredTeam[][] }>({ id: 0, kind: "teams", teams: [] });
-  const request = useRef<{ roster: ScoringCharacter[]; options: SearchOptions; top: ScoredTeam[] } | null>(null);
+  type Round = "teams" | "rest" | "candidates";
+  const parts = useRef<{ id: number; kind: Round; teams: ScoredTeam[][]; more: boolean }>({ id: 0, kind: "teams", teams: [], more: false });
+  // `first`: the merged first wave of the regular search, until the rest arrives (search.ts Search).
+  const request = useRef<{ roster: ScoringCharacter[]; options: SearchOptions; top: ScoredTeam[]; first: ScoredTeam[] } | null>(null);
   const sendRef = useRef<((id: number, kind: "teams" | "candidates") => void) | null>(null);
 
   useEffect(() => {
-    const send = (id: number, kind: "teams" | "candidates") => {
+    const send = (id: number, kind: Round, above = -Infinity) => {
       const r = request.current!;
-      parts.current = { id, kind, teams: [] };
+      parts.current = { id, kind, teams: [], more: false };
       workersRef.current.forEach((w, index) => {
         const part = { index, count: workersRef.current.length };
         const message: SearchRequest =
           kind === "teams"
             ? { id, kind, roster: r.roster, options: { ...r.options, part } }
-            : { id, kind, roster: r.roster, top: r.top, options: { ...r.options, part } };
+            : kind === "rest"
+              ? { id, kind, above }
+              : { id, kind, roster: r.roster, top: r.top, options: { ...r.options, part } };
         w.postMessage(message);
       });
     };
@@ -53,12 +59,20 @@ export function useTeamSearch(roster: ScoringCharacter[], options: SearchOptions
       const p = parts.current;
       if (p.id !== data.id || p.kind !== data.kind) return;
       p.teams.push(data.teams);
+      if (data.kind === "teams" && data.more) p.more = true;
       if (p.teams.length < workersRef.current.length) return;
       const r = request.current!;
       const limit = r.options.limit ?? 20;
-      if (data.kind === "teams") {
+      if (data.kind === "teams" && p.more) {
+        // The rest only needs teams that can make the merged list: above its last place, a hair lower so a tie whose
+        // ids sort first still gets in, as in the whole search.
+        r.first = mergeTop(p.teams, limit);
+        send(data.id, "rest", r.first.length === limit ? r.first[limit - 1].score - 1e-9 : -Infinity);
+        return;
+      }
+      if (data.kind === "teams" || data.kind === "rest") {
         // The previous suggestions stay until the new ones arrive.
-        r.top = mergeTop(p.teams, limit);
+        r.top = mergeTop(data.kind === "rest" ? [r.first, ...p.teams] : p.teams, limit);
         const ms = Math.round(performance.now() - latest.current.started);
         setState((s) => ({ status: "done", teams: r.top, suggestions: s.suggestions, ms }));
         const gaps = suggestionGaps(r.roster, r.options);
@@ -89,7 +103,7 @@ export function useTeamSearch(roster: ScoringCharacter[], options: SearchOptions
       const id = ++latest.current.id;
       latest.current.started = performance.now();
       setState((s) => ({ status: "searching", teams: s.teams, suggestions: s.suggestions }));
-      request.current = { roster, options, top: [] };
+      request.current = { roster, options, top: [], first: [] };
       sendRef.current?.(id, "teams");
     }, DEBOUNCE_MS);
     return () => clearTimeout(timer);

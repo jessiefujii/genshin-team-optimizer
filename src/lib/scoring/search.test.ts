@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { loadScoringCharacters } from "./load";
-import { findBestTeams, mergeTop, PRUNE_FROM } from "./search";
+import { findBestTeams, mergeTop, PRUNE_FROM, startSearch } from "./search";
 import { pickSuggestions, suggestBuilds, suggestionCandidates, suggestionGaps } from "./suggest";
 import type { ScoringCharacter } from "./types";
 
@@ -55,6 +55,16 @@ describe("the pruned search finds the exact search's teams (#215)", () => {
   test("and in parts", { timeout: 120_000 }, () => {
     const parts = [0, 1, 2, 3].map((index) => findBestTeams(built, { part: { index, count: 4 } }));
     expect(ids(mergeTop(parts, 20))).toEqual(ids(findBestTeams(built, { exact: true })));
+  });
+
+  // As the planner runs it (use-team-search.ts): each part's first carry, then the rest above the merged last place.
+  test("and in waves", { timeout: 120_000 }, () => {
+    for (const count of [4, 8]) {
+      const searches = Array.from({ length: count }, (_, index) => startSearch(built, { part: { index, count } }));
+      const first = mergeTop(searches.map((s) => s.next(1)), 20);
+      const rest = searches.map((s) => s.next(Infinity, first[19].score - 1e-9));
+      expect(ids(mergeTop([first, ...rest], 20)), `${count} parts`).toEqual(ids(findBestTeams(built)));
+    }
   });
 
   test("the build-suggestion search", { timeout: 120_000 }, () => {

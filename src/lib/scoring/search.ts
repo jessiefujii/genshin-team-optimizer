@@ -37,10 +37,11 @@ export function mergeTop(parts: ScoredTeam[][], limit: number): ScoredTeam[] {
 // Carries go strongest first (by that team's score), and a carry whose team, CARRY_SLACK up, can't reach the list's
 // last place is skipped with every carry after them: on two 50-character rosters a carry's best team was at most 18.6%
 // above their swapped team (Wriothesley). Checked against the exact search (search.test.ts, search.perf.test.ts): the
-// 50-character bench's top 20 use at most their carry's 13th best support. Below PRUNE_FROM, and with a required
-// member, every team is scored.
+// 50-character bench's top 20 use at most their carry's 13th best support. 15 supports missed a team on 3 of 10 rosters
+// (slices of 30-50 characters at C0 and C6), 17 matched the exact search on all of them; 18 keeps one spare. Below
+// PRUNE_FROM, and with a required member, every team is scored.
 export const PRUNE_FROM = 25;
-const SUPPORTS_PER_CARRY = 20;
+const SUPPORTS_PER_CARRY = 18;
 const SWAP_ROUNDS = 3;
 const CARRY_SLACK = 1.3;
 
@@ -101,10 +102,23 @@ function validTeam(team: ScoringCharacter[]): boolean {
   return team.filter(isTraveler).length <= 1;
 }
 
+// A search that can run in waves (#215). `next(carries, above)` scores the next `carries` of a pruned search's carry
+// plans (all of them by default) and returns the best `limit` teams of those carries scoring above `above`. A parallel
+// search sends the first wave to every part, merges, and gives the rest the merged list's last place: alone, a part
+// only knows its own list, which fills with weaker teams, so it would go on scoring carries the whole search skips (8
+// parts scored 2.6x the whole search's teams). `waves` is false for an exact search: one `next` scores every team.
+export interface Search {
+  waves: boolean;
+  next(carries?: number, above?: number): ScoredTeam[];
+}
+
 // Tries every 4-character team from the roster and returns the best `limit`, highest score first.
 export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions = {}): ScoredTeam[] {
+  return startSearch(roster, options).next();
+}
+
+export function startSearch(roster: ScoringCharacter[], options: SearchOptions = {}): Search {
   const limit = options.limit ?? 20;
-  const above = options.above ?? -Infinity;
   const excluded = new Set(options.exclude ?? []);
   const required = options.mustInclude ?? [];
   // Characters marked not built, or whose build misses the minimum (#133), sit out unless the player asked for them.
@@ -120,7 +134,8 @@ export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions
   const rest = pool.filter((c) => !required.includes(c.id));
   const open = 4 - fixed.length;
 
-  const top: ScoredTeam[] = [];
+  let top: ScoredTeam[] = [];
+  let above = options.above ?? -Infinity;
   const consider = (team: ScoringCharacter[]) => {
     if (!validTeam(team) || (anyOf && !team.some((c) => anyOf.has(c.id)))) return;
     // Score first; build the breakdown only for teams that make the list.
@@ -141,20 +156,34 @@ export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions
     // Members in roster order, as the exact search builds them; each team once, though two of its members carry.
     const at = new Map(rest.map((c, i) => [c, i]));
     const seen = new Set<string>();
-    for (const { carry, picks, estimate } of carryPlans(rest, options, part)) {
-      const bar = Math.max(above, top.length === limit ? top[limit - 1].score : -Infinity);
-      if (estimate * CARRY_SLACK < bar) break;
-      for (let a = 0; a < picks.length; a++)
-        for (let b = a + 1; b < picks.length; b++)
-          for (let c = b + 1; c < picks.length; c++) {
-            const team = [carry, picks[a], picks[b], picks[c]].sort((x, y) => at.get(x)! - at.get(y)!);
-            const key = team.map((m) => m.id).join("|");
-            if (seen.has(key)) continue;
-            seen.add(key);
-            consider(team);
+    const plans = carryPlans(rest, options, part);
+    let done = 0;
+    let stopped = false;
+    return {
+      waves: true,
+      next(carries = Infinity, waveAbove = -Infinity) {
+        above = Math.max(above, waveAbove);
+        top = [];
+        for (const end = Math.min(plans.length, done + carries); done < end && !stopped; done++) {
+          const { carry, picks, estimate } = plans[done];
+          const bar = Math.max(above, top.length === limit ? top[limit - 1].score : -Infinity);
+          if (estimate * CARRY_SLACK < bar) {
+            stopped = true;
+            break;
           }
-    }
-    return top;
+          for (let a = 0; a < picks.length; a++)
+            for (let b = a + 1; b < picks.length; b++)
+              for (let c = b + 1; c < picks.length; c++) {
+                const team = [carry, picks[a], picks[b], picks[c]].sort((x, y) => at.get(x)! - at.get(y)!);
+                const key = team.map((m) => m.id).join("|");
+                if (seen.has(key)) continue;
+                seen.add(key);
+                consider(team);
+              }
+        }
+        return top;
+      },
+    };
   }
   const pick = (start: number, chosen: ScoringCharacter[]) => {
     if (chosen.length === open) return consider([...fixed, ...chosen]);
@@ -165,6 +194,11 @@ export function findBestTeams(roster: ScoringCharacter[], options: SearchOptions
       chosen.pop();
     }
   };
-  if (open > 0 || part.index === 0) pick(0, []); // with every member fixed, the one team belongs to part 0
-  return top;
+  return {
+    waves: false,
+    next() {
+      if (open > 0 || part.index === 0) pick(0, []); // with every member fixed, the one team belongs to part 0
+      return top;
+    },
+  };
 }
