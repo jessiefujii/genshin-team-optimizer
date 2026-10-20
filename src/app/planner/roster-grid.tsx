@@ -5,6 +5,7 @@ import { belowMinimum } from "@/lib/build/minimum";
 import { ELEMENTS } from "@/types/tags";
 import { control, elementChip } from "@/lib/ui/elements";
 import BuildEditor from "./build-editor";
+import CharacterIcon from "./character-icon";
 import type { BuildCatalog, PlannerCharacter } from "./types";
 import type { OwnedEntry, Roster } from "./use-roster";
 
@@ -100,12 +101,15 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
                 type="button"
                 onClick={() => onToggle(c.id)}
                 aria-pressed={!!owned}
-                className="w-full text-left"
+                className="flex w-full items-center gap-2 text-left"
               >
-                <span className="block truncate text-sm font-medium">{c.id}</span>
-                <span className="mt-1 flex items-center gap-1 text-xs text-zinc-500">
-                  <span className={elementChip(c.element)}>{c.element}</span>
-                  {c.rarity}★
+                <CharacterIcon icon={c.icon} size={40} />
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium">{c.id}</span>
+                  <span className="mt-1 flex items-center gap-1 text-xs text-zinc-500">
+                    <span className={elementChip(c.element)}>{c.element}</span>
+                    {c.rarity}★
+                  </span>
                 </span>
               </button>
               {owned && (

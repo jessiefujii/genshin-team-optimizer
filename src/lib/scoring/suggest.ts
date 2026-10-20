@@ -7,6 +7,7 @@ export interface BuildSuggestion {
   gaps: string[]; // e.g. "ER 120% vs 180% target"; see buildGaps
   team: ScoredTeam; // their best team that would make the list once built, scored at benchmark
   rank: number; // where that team would land in the current list (1 = top)
+  alsoNeeds: string[]; // the team's other members who fall short too, who need building as well (#284)
 }
 
 // Owned characters worth building (design doc: build suggestions): their best team would make the
@@ -43,17 +44,23 @@ export function suggestionCandidates(roster: ScoringCharacter[], top: ScoredTeam
   return findBestTeams(potential, { ...options, requireAny: [...gaps.keys()], limit: limit + top.length, above });
 }
 
-// Each gappy member's best candidate team that would make the list, best first.
+// Each gappy member's best candidate team that would make the list, best first. The candidates raise every gappy
+// member at once, so a team with two of them needs both built (#284): a member's team is the best one where they are
+// the only gappy member, and only without one, the best that needs others too (`alsoNeeds`), listed after.
 export function pickSuggestions(gaps: Map<string, string[]>, candidates: ScoredTeam[], top: ScoredTeam[], limit: number): BuildSuggestion[] {
   const floor = top.length < limit ? -Infinity : top[top.length - 1].score;
   const listed = new Set(top.map((t) => t.members.join("|")));
-  const out = new Map<string, BuildSuggestion>();
+  const alone = new Map<string, BuildSuggestion>();
+  const withOthers = new Map<string, BuildSuggestion>();
   for (const team of candidates) {
     if (team.score <= floor || listed.has(team.members.join("|"))) continue;
     const rank = top.filter((t) => t.score >= team.score).length + 1;
-    for (const id of team.members) {
-      if (gaps.has(id) && !out.has(id)) out.set(id, { id, gaps: gaps.get(id)!, team, rank });
+    const gappy = team.members.filter((id) => gaps.has(id));
+    for (const id of gappy) {
+      const alsoNeeds = gappy.filter((other) => other !== id);
+      const out = alsoNeeds.length === 0 ? alone : withOthers;
+      if (!out.has(id)) out.set(id, { id, gaps: gaps.get(id)!, team, rank, alsoNeeds });
     }
   }
-  return [...out.values()]; // best team first
+  return [...alone.values(), ...[...withOthers.values()].filter((s) => !alone.has(s.id))];
 }
