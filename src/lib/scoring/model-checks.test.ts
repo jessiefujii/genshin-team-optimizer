@@ -181,6 +181,9 @@ const KNOWN_DROPS: Record<string, string> = {
   // A stronger Tighnari out-damages Ayaka and takes the field (the main DPS is the one dealing the most), and his
   // reading's team damage is a little lower (22.8k vs 23.3k per second): three carries, 4.96 -> 4.85 (#221).
   "Tighnari, Keqing, Xiangling, Kamisato Ayaka": "#221: a stronger Tighnari becomes the main DPS; his reading is lower",
+  // Likewise a stronger Xiao (25.6k vs 22.9k) out-damages Neuvillette in his sourced 24.5s rotation (#119) and takes
+  // the field; his reading's team damage is lower (19.7k vs 28.2k per second): 7.99 -> 5.59.
+  "Alyosha, Flins, Neuvillette, Xiao": "#119: a stronger Xiao becomes the main DPS; his reading is lower",
 };
 const drops = (() => {
   const out: string[] = [];

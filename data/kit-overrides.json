@@ -961,6 +961,25 @@
           "source": "same guide (Kuki Shinobu, Furina, Nahida): \"This team runs a 30s split field time rotation\""
         }
       ]
+    },
+    "Neuvillette": {
+      "seconds": 24.5,
+      "source": "KeqingMains Neuvillette guide, https://keqingmains.com/neuvillette/, fetched 2026-10-20 (Rotations): \"This is mainly an issue in 3CA rots whose 24–25s rotations necessitate precise Skill timings\" (midpoint), for the 3-CA default combo (#119).",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 28,
+          "source": "KeqingMains Neuvillette ER calculator (\"Neuvillette ERc (6.3)\", linked from https://keqingmains.com/neuvillette/; sheet 1OhaSLT5Pgeq7gIeDWtxN_dW8WFvjGhS8RpZDy_7mVdw), fetched 2026-10-20: \"Rotation length\" of its Furina team tabs, for the guide's 4-CA rotations: 28 (Kazuha/Xilonen, Lynette/Xilonen, Kazuha/Kachina, Xilonen/Fischl, Kazuha/Zhongli, Nahida/Xiangling, Kazuha/Ororon, Lynette/Ororon), 27 (Kazuha/Fischl), 26 (Jean/Xilonen, Lynette/Kachina, Lisa/Xilonen, Nahida/Raiden): the median, 28 (#119)."
+        }
+      ]
     }
   },
   "icd": {
