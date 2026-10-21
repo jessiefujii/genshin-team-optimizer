@@ -35,7 +35,7 @@ type When = { reaction?: Reaction; ascendantGleam?: boolean; secretRite?: boolea
 // plays her in Ousia, where her Salon Members drain HP; only Pneuma's Singer of Many Waters heals.
 export const healsInPlay = (m: ScoringCharacter) => m.roles.includes("healer") && m.id !== "Furina";
 // Direct Lunar hits, and direct Stellar Swirl hits by the same formula (wiki Damage § Direct; Mizuki, #235).
-export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize" | "stellar-swirl";
+export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize" | "stellar-swirl" | "stellar-conduct";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
   | { kind: "atkFromDef"; value: number }
@@ -269,8 +269,11 @@ export function passiveEnabler(c: ScoringCharacter, active: readonly Reaction[])
 // 2026-10-12): (coefficient x the talent's % x the stat x Base DMG Multiplier x (1 + Reaction Base DMG Bonus)
 // x (1 + 6 x EM / (EM + 2000) + Reaction Bonus) + Reaction Additive Base DMG Bonus). It has no DMG Bonus term: Elemental and other DMG % bonuses don't apply (KeqingMains' Flins
 // guide: Lunar-Charged "does not scale with Electro DMG"). Indirect Lunar DMG (thunderclouds, Moondrifts) is the
-// team's reaction, not the carry's hits: left to the scorer.
-export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6, "stellar-swirl": 1 };
+// team's reaction, not the carry's hits: left to the scorer. Stellar-Conduct's coefficient "scales with the number of
+// recorded Cryo and Electro hits": 1 with none, else "starts at 1.4 and increases by 0.05 for each recorded hit until a
+// maximum of 12 are accounted for" (same wiki section): 2, taken as saturated in Stellar-Conduct teams, which hit
+// with Cryo and Electro throughout (estimate; Cryo Traveler's Burst, #236).
+export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6, "stellar-swirl": 1, "stellar-conduct": 2 };
 export const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
 // One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151).
 export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0) =>

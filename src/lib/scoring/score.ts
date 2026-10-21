@@ -776,8 +776,9 @@ function teammatesLunarBase(r: Reaction, members: readonly ScoringCharacter[], s
   }
   return sum;
 }
-// With Stellar Swirl: the converters' Base DMG bonus reaches direct Stellar Swirl hits too (Mizuki's, #235).
-const LUNAR_REACTIONS: LunarReaction[] = ["lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-swirl"];
+// With the Stellar reactions: the converters' Base DMG bonus reaches direct Stellar hits too (Mizuki's, #235; Cryo
+// Traveler's Stellar-Conduct Burst, #236).
+const LUNAR_REACTIONS: LunarReaction[] = ["lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-swirl", "stellar-conduct"];
 // The share of rotations each member's Burst is funded with this carry (#37, energy.ts), for the buffs from it (#207):
 // the same reading their Burst damage uses (subDpsLines, carry damage's burstShare).
 function burstSharesFor(ctx: TeamContext, carry: ScoringCharacter): BurstShares {
