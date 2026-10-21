@@ -8405,6 +8405,14 @@
             "atk": 3.6992
           },
           "count": 5
+        },
+        {
+          "label": "Ice Shard DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.194624
+          },
+          "count": 10
         }
       ],
       "buffs": [
@@ -8456,6 +8464,14 @@
                 "atk": 3.6992
               },
               "count": 4
+            },
+            {
+              "label": "Ice Shard DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.194624
+              },
+              "count": 10
             }
           ],
           "buffs": [
