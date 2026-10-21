@@ -1009,6 +1009,10 @@
     "Ningguang": {
       "seconds": 15.5,
       "source": "KQM Ningguang quick guide, https://keqingmains.com/q/ningguang-quickguide/, fetched 2026-10-21: \"15s Rotation Teams\", \"These teams execute 15-16s rotations\" (midpoint), for her \"N1 ED N1C Q C N2C\" combo (#232)."
+    },
+    "Sethos": {
+      "seconds": 15,
+      "source": "KQM Sethos quick guide, https://keqingmains.com/q/sethos-quickguide/, fetched 2026-10-21: \"Sethos's desire for 15s rotations\", for his \"E Q 5[N2 (D/J)] N2 E\" combo (#232)."
     }
   },
   "icd": {
@@ -1664,6 +1668,14 @@
         "tag": "Elemental Burst",
         "reset": 8,
         "every": 4
+      }
+    },
+    "Sethos": {
+      "normal: 1-Hit DMG": {
+        "tag": "Dusk Bolt"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Dusk Bolt"
       }
     }
   }
