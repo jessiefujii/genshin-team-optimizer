@@ -10161,6 +10161,64 @@
         }
       ]
     },
+    "Ningguang": {
+      "rotationSeconds": 15.5,
+      "combo": "N1 ED N1C Q C N2C",
+      "hits": [
+        {
+          "label": "Normal Attack DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.476
+          },
+          "count": 4
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.95936
+          },
+          "count": 3
+        },
+        {
+          "label": "DMG per Star Jade",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.8432
+          },
+          "count": 4
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.9168
+          },
+          "count": 1
+        },
+        {
+          "label": "DMG Per Gem",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.47832
+          },
+          "count": 10
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.12,
+          "types": [
+            "normal",
+            "charged",
+            "skill",
+            "burst"
+          ]
+        }
+      ]
+    },
     "Yoimiya": {
       "rotationSeconds": 15,
       "combo": "E 3[N5]",
@@ -12269,7 +12327,6 @@
     "Lohen",
     "Manekin",
     "Manekina",
-    "Ningguang",
     "Sandrone",
     "Sethos",
     "Varka"

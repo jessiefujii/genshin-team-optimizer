@@ -995,6 +995,10 @@
           "source": "KeqingMains Neuvillette ER calculator (\"Neuvillette ERc (6.3)\", linked from https://keqingmains.com/neuvillette/; sheet 1OhaSLT5Pgeq7gIeDWtxN_dW8WFvjGhS8RpZDy_7mVdw), fetched 2026-10-20: \"Rotation length\" of its Furina team tabs, for the guide's 4-CA rotations: 28 (Kazuha/Xilonen, Lynette/Xilonen, Kazuha/Kachina, Xilonen/Fischl, Kazuha/Zhongli, Nahida/Xiangling, Kazuha/Ororon, Lynette/Ororon), 27 (Kazuha/Fischl), 26 (Jean/Xilonen, Lynette/Kachina, Lisa/Xilonen, Nahida/Raiden): the median, 28 (#119)."
         }
       ]
+    },
+    "Ningguang": {
+      "seconds": 15.5,
+      "source": "KQM Ningguang quick guide, https://keqingmains.com/q/ningguang-quickguide/, fetched 2026-10-21: \"15s Rotation Teams\", \"These teams execute 15-16s rotations\" (midpoint), for her \"N1 ED N1C Q C N2C\" combo (#232)."
     }
   },
   "icd": {
