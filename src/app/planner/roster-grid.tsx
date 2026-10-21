@@ -5,7 +5,7 @@ import { belowMinimum } from "@/lib/build/minimum";
 import { ELEMENTS } from "@/types/tags";
 import { control, elementChip } from "@/lib/ui/elements";
 import BuildEditor from "./build-editor";
-import CharacterIcon from "./character-icon";
+import CharacterIcon, { WeaponIcon } from "./character-icon";
 import type { BuildCatalog, PlannerCharacter } from "./types";
 import type { OwnedEntry, Roster } from "./use-roster";
 
@@ -134,10 +134,18 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
                     />
                     Built
                   </label>
+                  {owned.build && (
+                    <WeaponIcon
+                      icon={catalog.weaponIcons[owned.build.weapon.id]}
+                      size={20}
+                      title={`${owned.build.weapon.id} R${owned.build.weapon.refinement}`}
+                      className="ml-auto"
+                    />
+                  )}
                   <button
                     type="button"
                     onClick={() => setEditing(c.id)}
-                    className="ml-auto text-blue-700 hover:underline dark:text-blue-400"
+                    className={`${owned.build ? "" : "ml-auto "}text-blue-700 hover:underline dark:text-blue-400`}
                     aria-label={`${owned.build ? "Edit" : "Add"} ${c.id} build`}
                   >
                     {owned.build ? `Lv${owned.build.level} · Edit` : "Add build"}

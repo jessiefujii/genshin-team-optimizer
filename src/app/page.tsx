@@ -18,8 +18,12 @@ function loadBuildCatalog(): BuildCatalog {
   const names = (fn: (q: string, o: object) => unknown) => fn("names", { matchCategories: true }) as string[];
   const weapons: BuildCatalog["weapons"] = {};
   const weaponRarity: BuildCatalog["weaponRarity"] = {};
+  const weaponIcons: BuildCatalog["weaponIcons"] = {};
   const every = names(genshindb.weapons).map((n) => genshindb.weapons(n)!);
-  for (const w of every) weaponRarity[w.name] = w.rarity;
+  for (const w of every) {
+    weaponRarity[w.name] = w.rarity;
+    if (w.images?.filename_icon) weaponIcons[w.name] = w.images.filename_icon;
+  }
   const all = every
     .filter((w) => w.rarity >= 3) // 1-2 star weapons are never used
     .sort((a, b) => b.rarity - a.rarity || a.name.localeCompare(b.name));
@@ -27,7 +31,7 @@ function loadBuildCatalog(): BuildCatalog {
     const list = (weapons[w.weaponText] ??= []);
     if (!list.includes(w.name)) list.push(w.name); // some weapons (Prized Isshin Blade) are listed per variant
   }
-  return { weapons, sets: [...new Set(names(genshindb.artifacts))].sort((a, b) => a.localeCompare(b)), weaponRarity };
+  return { weapons, sets: [...new Set(names(genshindb.artifacts))].sort((a, b) => a.localeCompare(b)), weaponRarity, weaponIcons };
 }
 
 export default function Home() {
