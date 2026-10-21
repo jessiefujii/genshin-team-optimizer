@@ -2472,6 +2472,60 @@ const CARRIES = {
     ],
     buffs: [],
   },
+  "Traveler (Cryo)": {
+    // #236: no KQM guide. GameWith's Cryo Traveler guide (gamewith.net/genshin-impact/article/show/77315, fetched
+    // 2026-10-20), "Premium Stellar-Conduct Traveler Team Rotation" (Yae Miko, Odette, Alyosha; Jessie's Genshin Track
+    // rotation for the same team: "Yae EEE -> Alyosha E + Q -> Odette EE -> Traveler E, NA and CA spam, Q when star is
+    // full"): "Skill -> [ Normal Attack (x2) -> Charged Attack (x2) ] x2 -> Normal Attack (x2) -> Burst -> Normal
+    // Attack (x2) -> Charged Attack": 1 Skill, 8 Normal Attacks (4 1-Hit, 4 2-Hit), 5 Charged Attacks (2 strikes each).
+    // Jessie (2026-10-20): they aren't a strong DPS without Stellar Glimmer. This default reads that combo with no
+    // Radiance (estimate): Physical attacks, no ice crystals with them (the Star's interval has no rate yet), so no
+    // Frostglow and 3 javelin strikes. Left out everywhere: "Frostglow DMG Bonus" (datamine and wiki give 4.69% at
+    // level 9 with no unit: per stack or per strike unsourced). No rotation length: their 15s Burst cooldown.
+    combo: "E 2[N2 2C] N2 Q N2 C (no Radiance: estimate)",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N, element: "Physical" },
+      { table: "normal", label: "2-Hit DMG", count: 4, type: N, element: "Physical" },
+      { table: "normal", label: "Charged Attack DMG", count: 5, instances: 2, type: CH, element: "Physical" }, // "{a}+{b}": both strikes
+      { table: "burst", label: "Ice Javelin DMG", count: { table: "burst", label: "No. of Strikes in Attack" }, type: BU },
+    ],
+    buffs: [],
+    combos: [
+      {
+        // GameWith's combo under Radiance: Stellar-Conduct (passive 3: "inside a Polestar Field"). Passive 1: attacks
+        // "are converted to Cryo DMG" and "increased by 80% of the Traveler's ATK" (all 18 strikes). The Star "will
+        // instead fire an ice crystal at opponents in a coordinated attack when the Traveler hits an opponent ... once
+        // every 0.2s": one per attack, 13 (a Charged Attack's 2 rapid strikes, one crystal). Each crystal gives 1
+        // Frostglow (max 8); the 10 attacks before the Burst fill it, so "Additional Frostglow Attack Strikes at Stack
+        // Max" adds to its strikes, and its DMG "is changed to Cryo DMG of the corresponding Stellar Glimmer reaction".
+        combo: "E 2[N2 2C] N2 Q N2 C, Radiance: Stellar-Conduct",
+        when: [{ reaction: "stellar-conduct", radiance: true }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+          { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+          { table: "normal", label: "Charged Attack DMG", count: 5, instances: 2, type: CH },
+          { from: "passive1", re: /also increased by (\d+)% of the Traveler's ATK/, count: 8, type: N, addOn: true },
+          { from: "passive1", re: /also increased by (\d+)% of the Traveler's ATK/, count: 10, type: CH, addOn: true },
+          { table: "skill", label: "Ice Crystal DMG", count: 13, type: SK },
+          { table: "burst", label: "Stellar-Conduct Ice Javelin Single Strike DMG", count: { table: "burst", label: "No. of Strikes in Attack" }, type: BU, lunar: "stellar-conduct" },
+          { table: "burst", label: "Stellar-Conduct Ice Javelin Single Strike DMG", count: { table: "burst", label: "Additional Frostglow Attack Strikes at Stack Max" }, type: BU, lunar: "stellar-conduct" },
+        ],
+      },
+      {
+        // GameWith's "Stellar Swirl Traveler Team Rotation" (Odette, Faruzan): "Use their Skill, then Burst. You can use
+        // their special Charged Attack after Skill, but it's not necessary": Skill and Burst, the Burst as Stellar Swirl.
+        // Outside Stellar-Conduct the Star fires at intervals (no rate yet), so no Frostglow: 3 strikes.
+        combo: "E Q, Radiance: Stellar Swirl",
+        when: [{ reaction: "stellar-swirl", radiance: true }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "burst", label: "Stellar Swirl Ice Javelin Single Strike DMG", count: { table: "burst", label: "No. of Strikes in Attack" }, type: BU, lunar: "stellar-swirl" },
+        ],
+      },
+    ],
+  },
   "Traveler (Hydro)": {
     // KQM Hydro Traveler quick guide: "Hold Skill can be used to apply Hydro at range for up to 6s, firing up to 22
     // Dewdrops", then the Torrent Surge at its end; "the Hold Skill effectively has a 16s interval between uses"; the

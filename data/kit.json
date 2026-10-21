@@ -10571,6 +10571,175 @@
       ],
       "buffs": []
     },
+    "Traveler (Cryo)": {
+      "rotationSeconds": 15,
+      "combo": "E 2[N2 2C] N2 Q N2 C (no Radiance: estimate)",
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.55856
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.81686
+          },
+          "count": 4,
+          "element": "Physical"
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.7979
+          },
+          "count": 4,
+          "element": "Physical"
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.3542
+          },
+          "count": 5,
+          "instances": 2,
+          "element": "Physical"
+        },
+        {
+          "label": "Ice Javelin DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.937227
+          },
+          "count": 3
+        }
+      ],
+      "buffs": [],
+      "combos": [
+        {
+          "combo": "E 2[N2 2C] N2 Q N2 C, Radiance: Stellar-Conduct",
+          "when": [
+            {
+              "reaction": "stellar-conduct",
+              "radiance": true
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.55856
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.81686
+              },
+              "count": 4
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.7979
+              },
+              "count": 4
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.3542
+              },
+              "count": 5,
+              "instances": 2
+            },
+            {
+              "label": "passive1 bonus",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.8
+              },
+              "count": 8,
+              "addOn": true
+            },
+            {
+              "label": "passive1 bonus",
+              "type": "charged",
+              "scaling": {
+                "atk": 0.8
+              },
+              "count": 10,
+              "addOn": true
+            },
+            {
+              "label": "Ice Crystal DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.363664
+              },
+              "count": 13
+            },
+            {
+              "label": "Stellar-Conduct Ice Javelin Single Strike DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 0.624818
+              },
+              "count": 3,
+              "lunar": "stellar-conduct"
+            },
+            {
+              "label": "Stellar-Conduct Ice Javelin Single Strike DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 0.624818
+              },
+              "count": 2,
+              "lunar": "stellar-conduct"
+            }
+          ]
+        },
+        {
+          "combo": "E Q, Radiance: Stellar Swirl",
+          "when": [
+            {
+              "reaction": "stellar-swirl",
+              "radiance": true
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.55856
+              },
+              "count": 1
+            },
+            {
+              "label": "Stellar Swirl Ice Javelin Single Strike DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 0.937227
+              },
+              "count": 3,
+              "lunar": "stellar-swirl"
+            }
+          ]
+        }
+      ]
+    },
     "Traveler (Hydro)": {
       "rotationSeconds": 16,
       "combo": "hE Q",
@@ -11035,7 +11204,6 @@
     "Ningguang",
     "Sandrone",
     "Sethos",
-    "Traveler (Cryo)",
     "Varka"
   ]
 }
