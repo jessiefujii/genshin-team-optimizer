@@ -1431,6 +1431,7 @@
         "target": "self",
         "duration": 15,
         "maxStacks": 2,
+        "inDamage": true,
         "source": "passive2: \"After a nearby party member triggers a Nightsoul Burst, Kinich will gain 1 stack of Hunter's Experience that lasts 15s.\""
       },
       "Mavuika": {
@@ -1818,23 +1819,1152 @@
         },
         "source": "4pc: \"If the opponent is Frozen, CRIT Rate is increased by an additional 20%\""
       }
+    ],
+    "Crimson Witch of Flames": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.075,
+        "perStack": 0.075,
+        "maxStacks": 3,
+        "element": "Pyro",
+        "source": "4pc: \"increases the 2-Piece Set Bonus by 50% of its starting value\""
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.15,
+        "reactions": [
+          "vaporize",
+          "melt"
+        ],
+        "source": "4pc: \"Increases Vaporize and Melt DMG by 15%\""
+      }
+    ],
+    "Emblem of Severed Fate": [
+      {
+        "kind": "dmgBonusFromEr",
+        "value": 0.25,
+        "max": 0.75,
+        "types": [
+          "burst"
+        ],
+        "source": "4pc: \"Increases Elemental Burst DMG by 25% of Energy Recharge\""
+      }
+    ],
+    "Gilded Dreams": [
+      {
+        "kind": "atkPctPerSame",
+        "value": 0.14,
+        "max": 3,
+        "when": {
+          "wearerReacts": true
+        },
+        "source": "4pc: \"ATK is increased by 14% for each party member whose Elemental Type is the same\""
+      },
+      {
+        "kind": "emPerOther",
+        "value": 50,
+        "max": 3,
+        "when": {
+          "wearerReacts": true
+        },
+        "source": "4pc: \"Elemental Mastery is increased by 50 for every party member with a different Elemental Type\""
+      }
+    ],
+    "Fragment of Harmonic Whimsy": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.54,
+        "when": {
+          "bondOfLife": true
+        },
+        "source": "4pc: \"this character deals 18% increased DMG for 6s\" x3 stacks"
+      }
+    ],
+    "Thundering Fury": [
+      {
+        "kind": "reactionBonus",
+        "value": 0.2,
+        "reactions": [
+          "aggravate"
+        ],
+        "source": "4pc: \"the DMG Bonus conferred by Aggravate by 20%\""
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.2,
+        "reactions": [
+          "lunar-charged"
+        ],
+        "source": "4pc: \"the DMG caused by Lunar-Charged and Stellar-Conduct by 20%\""
+      }
+    ],
+    "Night of the Sky's Unveiling": [
+      {
+        "kind": "critRate",
+        "value": 0.15,
+        "when": {
+          "moonsign": "nascent"
+        },
+        "source": "4pc: \"Increases CRIT Rate by 15%/30% when the party's Moonsign is Nascent Gleam\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.3,
+        "when": {
+          "moonsign": "ascendant"
+        },
+        "source": "4pc: \"Increases CRIT Rate by 15%/30% when the party's Moonsign is Nascent Gleam/Ascendant Gleam\""
+      }
+    ],
+    "Marechaussee Hunter": [
+      {
+        "kind": "dmgBonus",
+        "pieces": 2,
+        "value": 0.15,
+        "types": [
+          "normal",
+          "charged"
+        ],
+        "source": "2pc: \"Normal and Charged Attack DMG +15%\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.36,
+        "when": {
+          "hpChanges": true
+        },
+        "source": "4pc: \"CRIT Rate will be increased by 12% for 5s\" x3 stacks"
+      }
+    ],
+    "Finale of the Deep Galleries": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.6,
+        "types": [
+          "normal"
+        ],
+        "when": {
+          "noEnergy": true
+        },
+        "source": "4pc: \"has 0 Elemental Energy, Normal Attack DMG is increased by 60%\""
+      }
+    ],
+    "Long Night's Oath": [
+      {
+        "kind": "dmgBonus",
+        "pieces": 2,
+        "value": 0.25,
+        "types": [
+          "plunge"
+        ],
+        "source": "2pc: \"Plunging Attack DMG increased by 25%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.75,
+        "types": [
+          "plunge"
+        ],
+        "source": "4pc: \"Plunging Attacks deal 15% increased DMG for 6s\" x5 stacks"
+      }
+    ],
+    "Vermillion Hereafter": [
+      {
+        "kind": "atkPct",
+        "value": 0.08,
+        "source": "4pc: \"increasing their ATK by 8% for 16s\" (taken as up after their Burst: estimate)"
+      },
+      {
+        "kind": "atkPct",
+        "value": 0.4,
+        "when": {
+          "hpDrops": true
+        },
+        "source": "4pc: \"their ATK will further increase by 10%\" x4 stacks"
+      }
+    ],
+    "Obsidian Codex": [
+      {
+        "kind": "dmgBonus",
+        "pieces": 2,
+        "value": 0.15,
+        "when": {
+          "nightsoul": true
+        },
+        "source": "2pc: \"is on the field, their DMG dealt is increased by 15%\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.4,
+        "when": {
+          "nightsoul": true
+        },
+        "source": "4pc: \"consumes 1 Nightsoul point while on the field, CRIT Rate increases by 40%\""
+      }
+    ],
+    "Shimenawa's Reminiscence": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.5,
+        "types": [
+          "normal",
+          "charged",
+          "plunge"
+        ],
+        "source": "4pc: \"Normal/Charged/Plunging Attack DMG is increased by 50% for 10s\" (taken as up after their Skill: estimate)"
+      }
+    ],
+    "Golden Troupe": [
+      {
+        "kind": "dmgBonus",
+        "pieces": 2,
+        "value": 0.2,
+        "types": [
+          "skill"
+        ],
+        "source": "2pc: \"Increases Elemental Skill DMG by 20%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.25,
+        "types": [
+          "skill"
+        ],
+        "source": "4pc: \"Increases Elemental Skill DMG by 25%\""
+      }
+    ],
+    "Gladiator's Finale": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.35,
+        "types": [
+          "normal"
+        ],
+        "when": {
+          "weapons": [
+            "Sword",
+            "Claymore",
+            "Polearm"
+          ]
+        },
+        "source": "4pc: \"uses a Sword, Claymore or Polearm, increases their Normal Attack DMG by 35%\""
+      }
+    ],
+    "Wanderer's Troupe": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.35,
+        "types": [
+          "charged"
+        ],
+        "when": {
+          "weapons": [
+            "Catalyst",
+            "Bow"
+          ]
+        },
+        "source": "4pc: \"Increases Charged Attack DMG by 35% if the character uses a Catalyst or a Bow\""
+      }
+    ],
+    "Heart of Depth": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.3,
+        "types": [
+          "normal",
+          "charged"
+        ],
+        "source": "4pc: \"After using Elemental Skill, increases Normal Attack and Charged Attack DMG by 30%\" (taken as up after their Skill: estimate)"
+      }
+    ],
+    "Unfinished Reverie": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.5,
+        "when": {
+          "reaction": "burning"
+        },
+        "source": "4pc: \"it will increase by 10% instead until it reaches 50%\""
+      }
     ]
   },
   "benchmarkSets": {
-    "Ganyu": {
-      "set": "Blizzard Strayer",
-      "when": {
-        "reaction": "freeze"
+    "Ganyu": [
+      {
+        "set": "Blizzard Strayer",
+        "when": {
+          "reaction": "freeze"
+        },
+        "source": "KQM ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): \"This set is Ganyu's best-in-slot against freezable enemies\""
+      }
+    ],
+    "Freminet": [
+      {
+        "set": "Blizzard Strayer",
+        "when": {
+          "reaction": "freeze"
+        },
+        "source": "KQM freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
+      }
+    ],
+    "Kamisato Ayaka": [
+      {
+        "set": "Marechaussee Hunter",
+        "when": {
+          "members": [
+            "Furina"
+          ]
+        },
+        "source": "KQM ayaka quick guide (keqingmains.com/q/ayaka-quickguide, accessed 2026-10-20): \"4pc Marechaussee Hunter is Ayaka's recommended artifact set for most content when Furina is on the team\""
+      }
+    ],
+    "Skirk": [
+      {
+        "set": "Marechaussee Hunter",
+        "when": {
+          "members": [
+            "Furina"
+          ]
+        },
+        "source": "KQM skirk quick guide (keqingmains.com/q/skirk-quickguide, accessed 2026-10-20): \"Marechaussee offers plenty of CRIT Rate and a Normal Attack DMG Bonus, which makes it on-field Skirk's Best-in-Slot as long as she can maintain full stacks and never uses her regular Burst — in other words, in Furina teams with no split rotations\""
       },
-      "source": "KQM Ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): \"This set is Ganyu's best-in-slot against freezable enemies\""
-    },
-    "Freminet": {
-      "set": "Blizzard Strayer",
-      "when": {
-        "reaction": "freeze"
-      },
-      "source": "KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
+      {
+        "set": "Finale of the Deep Galleries",
+        "source": "KQM skirk quick guide (keqingmains.com/q/skirk-quickguide, accessed 2026-10-20): \"Galleries performs less than ~2% worse than Marechaussee for Skirk's on-field playstyle ... While it's her best generalist set\""
+      }
+    ],
+    "Hu Tao": [
+      {
+        "set": "Crimson Witch of Flames",
+        "source": "KQM hu-tao quick guide (keqingmains.com/q/hu-tao-quickguide, accessed 2026-10-20): \"4pc Crimson Witch of Flames (4CW) Very strong on Hu Tao as she is able to benefit from everything it provides\""
+      }
+    ],
+    "Diluc": [
+      {
+        "set": "Crimson Witch of Flames",
+        "source": "KQM diluc quick guide (keqingmains.com/q/diluc-quickguide, accessed 2026-10-20): \"the difference is small enough where 4CW remains the generally recommended set\""
+      }
+    ],
+    "Gaming": [
+      {
+        "set": "Crimson Witch of Flames",
+        "source": "KQM gaming quick guide (keqingmains.com/q/gaming-quickguide, accessed 2026-10-20): \"4pc Crimson Witch of Flames is Gaming's best artifact set for Melt and Vaporize teams\""
+      }
+    ],
+    "Raiden Shogun": [
+      {
+        "set": "Emblem of Severed Fate",
+        "source": "KQM raiden quick guide (keqingmains.com/q/raiden-quickguide, accessed 2026-10-20): \"4pc Emblem of Severed Fate (EoSF) Undisputed best-in-slot set\""
+      }
+    ],
+    "Alhaitham": [
+      {
+        "set": "Gilded Dreams",
+        "source": "KQM alhaitham quick guide (keqingmains.com/q/alhaitham-quickguide, accessed 2026-10-20): \"4pc Gilded Dreams is Alhaitham's general Best-in-Slot artifact set\""
+      }
+    ],
+    "Yumemizuki Mizuki": [
+      {
+        "set": "Gilded Dreams",
+        "source": "KQM mizuki quick guide (keqingmains.com/q/mizuki-quickguide, accessed 2026-10-20): \"4pc Gilded Dreams (GD) Mizuki's BiS artifact set for personal damage in SSW teams\""
+      }
+    ],
+    "Arlecchino": [
+      {
+        "set": "Fragment of Harmonic Whimsy",
+        "source": "KQM arlecchino quick guide (keqingmains.com/q/arlecchino-quickguide, accessed 2026-10-20): \"Arlecchino's general Best-in-Slot set grants DMG Bonus according to Bond of Life. She can easily maintain full stacks\""
+      }
+    ],
+    "Clorinde": [
+      {
+        "set": "Fragment of Harmonic Whimsy",
+        "source": "KQM clorinde quick guide (keqingmains.com/q/clorinde-quickguide, accessed 2026-10-20): \"It provides her with the highest personal damage in all her teams, as she easily stacks the 4pc effect\""
+      }
+    ],
+    "Cyno": [
+      {
+        "set": "Thundering Fury",
+        "source": "KQM cyno quick guide (keqingmains.com/q/cyno-quickguide, accessed 2026-10-20): \"4pc Thundering Fury is Cyno's Best-in-Slot artifact set\""
+      }
+    ],
+    "Flins": [
+      {
+        "set": "Night of the Sky's Unveiling",
+        "source": "KQM flins quick guide (keqingmains.com/q/flins-quickguide, accessed 2026-10-20): \"4pc Night of the Sky's Unveiling (NotSU) Flins's best artifact set\""
+      }
+    ],
+    "Nefer": [
+      {
+        "set": "Night of the Sky's Unveiling",
+        "source": "KQM nefer quick guide (keqingmains.com/q/nefer-quickguide, accessed 2026-10-20): \"Nefer's best-in-slot set by a significant margin\""
+      }
+    ],
+    "Zibai": [
+      {
+        "set": "Night of the Sky's Unveiling",
+        "source": "KQM zibai quick guide (keqingmains.com/q/zibai-quickguide, accessed 2026-10-20): \"By far Zibai's best artifact set\""
+      }
+    ],
+    "Neuvillette": [
+      {
+        "set": "Marechaussee Hunter",
+        "source": "KQM neuvillette quick guide (keqingmains.com/q/neuvillette-quickguide, accessed 2026-10-20): \"Marechaussee's Charged Attack DMG% and hefty CRIT Rate make it Neuvillette's BiS by a sizable margin\""
+      }
+    ],
+    "Wriothesley": [
+      {
+        "set": "Marechaussee Hunter",
+        "source": "KQM wriothesley quick guide (keqingmains.com/q/wriothesley-quickguide, accessed 2026-10-20): \"4pc MH only performs slightly behind 4pc DiDS in Stellar-Conduct teams, but it is the Best-in-Slot in Wriothesley's other playstyles\""
+      }
+    ],
+    "Xiao": [
+      {
+        "set": "Vermillion Hereafter",
+        "source": "KQM xiao quick guide (keqingmains.com/q/xiao-quickguide, accessed 2026-10-20): \"4pc Vermillion Hereafter One of Xiao's best artifact sets. His Burst's HP drain stacks a buff of up to 48% ATK\""
+      }
+    ],
+    "Kinich": [
+      {
+        "set": "Obsidian Codex",
+        "source": "KQM kinich quick guide (keqingmains.com/q/kinich-quickguide, accessed 2026-10-20): \"4pc Obsidian Codex Kinich's best set, offering 40% CRIT Rate and 15% DMG\""
+      }
+    ],
+    "Mavuika": [
+      {
+        "set": "Obsidian Codex",
+        "source": "KQM mavuika quick guide (keqingmains.com/q/mavuika-quickguide, accessed 2026-10-20): \"4pc Obsidian Codex is on-field Mavuika's Best-in-Slot\""
+      }
+    ],
+    "Mualani": [
+      {
+        "set": "Obsidian Codex",
+        "source": "KQM mualani quick guide (keqingmains.com/q/mualani-quickguide, accessed 2026-10-20): \"Easily Mualani's Best-in-Slot\""
+      }
+    ],
+    "Chasca": [
+      {
+        "set": "Obsidian Codex",
+        "source": "KQM chasca quick guide (keqingmains.com/q/chasca-quickguide, accessed 2026-10-20): \"4pc Obsidian Codex Chasca's best set\""
+      }
+    ],
+    "Varesa": [
+      {
+        "set": "Long Night's Oath",
+        "source": "KQM varesa quick guide (keqingmains.com/q/varesa-quickguide, accessed 2026-10-20): \"Varesa is able to easily stack its 4pc effect for a substantial 100% Plunge DMG Bonus. This set performs either better to around equal to 4pc Obsidian Codex\""
+      }
+    ],
+    "Yoimiya": [
+      {
+        "set": "Shimenawa's Reminiscence",
+        "source": "KQM yoimiya quick guide (keqingmains.com/q/yoimiya-quickguide, accessed 2026-10-20): \"4pc SR is the baseline recommendation for almost all of Yoimiya's possible teams\""
+      }
+    ],
+    "Kamisato Ayato": [
+      {
+        "set": "Heart of Depth",
+        "source": "KQM ayato quick guide (keqingmains.com/q/ayato-quickguide, accessed 2026-10-20): \"All of these sets perform similarly ... 4pc Heart of Depth is one of Ayato's best sets\""
+      }
+    ],
+    "Lyney": [
+      {
+        "set": "Marechaussee Hunter",
+        "source": "KQM lyney quick guide (keqingmains.com/q/lyney-quickguide, accessed 2026-10-20): \"Marechaussee Hunter By far Lyney's best artifact set. Lyney pairs well with this set's condition\""
+      }
+    ],
+    "Tighnari": [
+      {
+        "set": "Wanderer's Troupe",
+        "source": "KQM tighnari quick guide (keqingmains.com/q/tighnari-quickguide, accessed 2026-10-20): \"4-piece Wanderer's Troupe (4WT) Provides an unconditional buff to his Charged Shots\""
+      }
+    ]
+  },
+  "holderStates": {
+    "selfHpDrain": [
+      "Neuvillette",
+      "Xiao",
+      "Wriothesley",
+      "Hu Tao",
+      "Lyney"
+    ],
+    "partyHpDrain": [
+      "Furina"
+    ],
+    "bondOfLife": [
+      "Arlecchino",
+      "Clorinde",
+      "Sigewinne"
+    ],
+    "setStacks": {
+      "Gaming": {
+        "Crimson Witch of Flames": 3
+      }
     }
+  },
+  "weapons": {
+    "Akuoumaru": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Mouun's Moon": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Wavebreaker's Fin": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Mountain-Bracing Bolt": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"and increases Elemental Skill DMG by 12%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "when": {
+          "teammatesSkill": true
+        },
+        "source": "R1: \"Elemental Skill DMG will also increase by 12% for\""
+      }
+    ],
+    "Uraku Misugiri": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Normal Attack DMG is increased by 16%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "source": "R1: \"Elemental Skill DMG is increased by 24%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "when": {
+          "geo": true
+        },
+        "source": "R1: \"Normal Attack DMG is increased by 16%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "when": {
+          "geo": true
+        },
+        "source": "R1: \"Elemental Skill DMG is increased by 24%\""
+      }
+    ],
+    "Splendor of Tranquil Waters": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "when": {
+          "hpChanges": true
+        },
+        "source": "R1: \"Elemental Skill DMG dealt will be increased by 8% for 6s\" x3 stacks"
+      },
+      {
+        "kind": "hpPct",
+        "values": [
+          0.28,
+          0.35,
+          0.42,
+          0.49,
+          0.56
+        ],
+        "when": {
+          "hpChanges": true
+        },
+        "source": "R1: \"Max HP will be increased by 14% for 6s\" x2 stacks"
+      }
+    ],
+    "Haran Geppaku Futsu": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "teammatesSkill": true
+        },
+        "source": "R1: \"each stack of Wavespike consumed will increase Normal Attack DMG by 20%\" x2 stacks"
+      }
+    ],
+    "Kagura's Verity": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.36,
+          0.45,
+          0.54,
+          0.63,
+          0.72
+        ],
+        "source": "R1: \"increasing the wielding character's Elemental Skill DMG by 12%\" x3 stacks (taken at full stacks / up throughout: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"gain a 12% All Elemental DMG Bonus when they possess 3 stacks\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Calamity Queller": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.192,
+          0.24,
+          0.288,
+          0.336,
+          0.384
+        ],
+        "source": "R1: \"causing ATK to increase by 3.2% per second\" x6 stacks (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Tome of the Eternal Flow": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "charged"
+        ],
+        "values": [
+          0.42,
+          0.54,
+          0.66,
+          0.78,
+          0.9
+        ],
+        "when": {
+          "hpChanges": true
+        },
+        "source": "R1: \"Charged Attack DMG will be increased by 14% for 4s\" x3 stacks"
+      }
+    ],
+    "Crimson Moon's Semblance": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.12,
+          0.16,
+          0.2,
+          0.24,
+          0.28
+        ],
+        "when": {
+          "bondOfLife": true
+        },
+        "source": "R1: \"when the equipping character has a Bond of Life, they gain a 12% DMG Bonus\""
+      },
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.24,
+          0.32,
+          0.4,
+          0.48,
+          0.56
+        ],
+        "when": {
+          "bondOfLife": true
+        },
+        "source": "R1: \"then gain an additional 24% DMG Bonus\""
+      }
+    ],
+    "Absolution": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.48,
+          0.6,
+          0.72,
+          0.84,
+          0.96
+        ],
+        "when": {
+          "bondOfLife": true
+        },
+        "source": "R1: \"increases the DMG the equipping character deals by 16% for 6s\" x3 stacks"
+      }
+    ],
+    "Thundering Pulse": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "source": "R1: \"Thunder Emblem increases Normal Attack DMG by 12/24/40%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Aqua Simulacra": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "source": "R1: \"the DMG dealt by the wielder of this weapon is increased by 20%\""
+      }
+    ],
+    "Polar Star": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"Elemental Skill and Elemental Burst DMG increased by 12%\""
+      },
+      {
+        "kind": "atkPct",
+        "values": [
+          0.48,
+          0.6,
+          0.72,
+          0.84,
+          0.96
+        ],
+        "source": "R1: \"ATK is increased by 10/20/30/48%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "\"The Catch\"": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Increases Elemental Burst DMG by 16%\""
+      }
+    ],
+    "Rust": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "source": "R1: \"Increases Normal Attack DMG by 40%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "charged"
+        ],
+        "values": [
+          -0.1,
+          -0.1,
+          -0.1,
+          -0.1,
+          -0.1
+        ],
+        "source": "R1: \"decreases Charged Attack DMG by 10%\""
+      }
+    ],
+    "Hamayumi": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Increases Normal Attack DMG by 16%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "charged"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"and Charged Attack DMG by 12%\""
+      }
+    ],
+    "Kitain Cross Spear": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.06,
+          0.075,
+          0.09,
+          0.105,
+          0.12
+        ],
+        "source": "R1: \"Increases Elemental Skill DMG by 6%\""
+      }
+    ],
+    "Wolf-Fang": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"DMG dealt by Elemental Skill and Elemental Burst is increased by 16%\""
+      }
+    ],
+    "Dragon's Bane": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.24,
+          0.28,
+          0.32,
+          0.36
+        ],
+        "when": {
+          "aura": [
+            "Hydro",
+            "Pyro"
+          ]
+        },
+        "source": "R1: \"affected by Hydro or Pyro by 20%\""
+      }
+    ],
+    "Lion's Roar": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.24,
+          0.28,
+          0.32,
+          0.36
+        ],
+        "when": {
+          "aura": [
+            "Pyro",
+            "Electro"
+          ]
+        },
+        "source": "R1: \"affected by Pyro or Electro by 20%\""
+      }
+    ],
+    "Rainslasher": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.24,
+          0.28,
+          0.32,
+          0.36
+        ],
+        "when": {
+          "aura": [
+            "Hydro",
+            "Electro"
+          ]
+        },
+        "source": "R1: \"affected by Hydro or Electro by 20%\""
+      }
+    ],
+    "Iron Sting": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"increases all DMG by 6% for 6s\" x2 stacks (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Fang of the Mountain King": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "values": [
+          0.6,
+          0.75,
+          0.9,
+          1.05,
+          1.2
+        ],
+        "when": {
+          "reactions": [
+            "burning",
+            "burgeon"
+          ]
+        },
+        "source": "R1: \"Elemental Skill and Burst DMG is increased by 10% for 6s\" x6 stacks"
+      }
+    ],
+    "Staff of the Scarlet Sands": [
+      {
+        "kind": "atkFromEm",
+        "values": [
+          0.84,
+          1.05,
+          1.26,
+          1.47,
+          1.68
+        ],
+        "source": "R1: \"gain 28% of their Elemental Mastery as bonus ATK. Max\" x3 stacks (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Primordial Jade Winged-Spear": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.224,
+          0.273,
+          0.322,
+          0.371,
+          0.42
+        ],
+        "source": "R1: \"On hit, increases ATK by 3.2% for 6s\" x7 stacks (taken at full stacks / up throughout: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"While in possession of the maximum possible stacks, DMG dealt is increased by 12%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Lumidouce Elegy": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.36,
+          0.46,
+          0.56,
+          0.66,
+          0.76
+        ],
+        "when": {
+          "reactions": [
+            "burning"
+          ]
+        },
+        "source": "R1: \"the DMG dealt is increased by 18%\" x2 stacks"
+      }
+    ],
+    "Fruitful Hook": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal",
+          "charged",
+          "plunge"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Normal, Charged, and Plunging Attack DMG increased by 16% for 10s\" (taken at full stacks / up throughout: estimate)"
+      }
+    ]
   },
   "subDps": {
     "Bennett": {
@@ -3435,7 +4565,8 @@
             "atk": 4.87424
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3445,7 +4576,11 @@
           },
           "every": 2,
           "duration": 14,
-          "cd": 18
+          "cd": 18,
+          "icd": {
+            "reset": 1.6,
+            "every": "first"
+          }
         },
         {
           "talent": "burst",
@@ -3455,7 +4590,11 @@
           },
           "every": 2,
           "duration": 14,
-          "cd": 18
+          "cd": 18,
+          "icd": {
+            "reset": 1.6,
+            "every": "first"
+          }
         }
       ]
     },
@@ -3905,7 +5044,8 @@
             "atk": 1.7952
           },
           "hits": 1,
-          "cd": 12
+          "cd": 12,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3914,7 +5054,11 @@
             "atk": 5.5624
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": {
+            "reset": 2.5,
+            "every": 3
+          }
         },
         {
           "talent": "burst",
@@ -3931,7 +5075,11 @@
           "every": 1,
           "duration": 20,
           "cd": 18,
-          "rateSource": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide: \"When Durin is in the Confirmation of Purity state, his Burst immediately deals 3 instances of AoE Pyro damage and then deals AoE Pyro damage every 1s.\" (Dark Form: every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown)"
+          "rateSource": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide: \"When Durin is in the Confirmation of Purity state, his Burst immediately deals 3 instances of AoE Pyro damage and then deals AoE Pyro damage every 1s.\" (Dark Form: every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown)",
+          "icd": {
+            "reset": 1.5,
+            "every": "first"
+          }
         }
       ]
     },
@@ -4206,7 +5354,8 @@
             "atk": 1.4688
           },
           "hits": 1,
-          "cd": 16
+          "cd": 16,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4217,7 +5366,8 @@
           "every": 2,
           "duration": 20,
           "cd": 16,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\"",
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -4226,7 +5376,8 @@
             "atk": 11.5056
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4239,7 +5390,8 @@
           "lunar": "lunar-charged",
           "whenReaction": "lunar-charged",
           "cd": 16,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\"",
+          "icd": "none"
         }
       ],
       "lunarBaseBonus": {
@@ -4269,7 +5421,8 @@
             "atk": 3.604
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -4278,7 +5431,8 @@
             "atk": 3.5224
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -4292,6 +5446,10 @@
           },
           "cd": 18,
           "rateSource": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority: see alternatives (#175).",
+          "icd": {
+            "reset": 15,
+            "every": 4
+          },
           "alternatives": [
             {
               "when": {
@@ -4389,7 +5547,8 @@
             "atk": 2.0672
           },
           "hits": 1,
-          "cd": 12
+          "cd": 12,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4401,7 +5560,8 @@
           "every": 2,
           "duration": 15,
           "cd": 12,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lauma, fetched 2026-10-10: \"The Frostgrove Sanctuary will follow the active character, dealing a single instance of AoE Dendro DMG to opponents within the array every 2s.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lauma, fetched 2026-10-10: \"The Frostgrove Sanctuary will follow the active character, dealing a single instance of AoE Dendro DMG to opponents within the array every 2s.\"",
+          "icd": "none"
         }
       ],
       "lunarBaseBonus": {
@@ -4641,7 +5801,8 @@
             "atk": 1.83736
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4652,7 +5813,8 @@
           "every": 4,
           "duration": 20,
           "cd": 15,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)"
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)",
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4663,7 +5825,8 @@
           "every": 4,
           "duration": 20,
           "cd": 15,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)"
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)",
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4681,7 +5844,11 @@
             "atk": 5.618976
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": {
+            "reset": 2.5,
+            "every": 3
+          }
         },
         {
           "talent": "burst",
@@ -4690,7 +5857,11 @@
             "atk": 2.894624
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": {
+            "reset": 2.5,
+            "every": 3
+          }
         }
       ]
     },
@@ -5839,6 +7010,7 @@
   "carries": {
     "Hu Tao": {
       "rotationSeconds": 15,
+      "combo": "E 7[N2CJ] (Q)",
       "hits": [
         {
           "label": "1-Hit DMG",
@@ -5846,7 +7018,8 @@
           "scaling": {
             "atk": 0.788544
           },
-          "count": 7
+          "count": 7,
+          "reacting": 2.5
         },
         {
           "label": "2-Hit DMG",
@@ -5854,7 +7027,8 @@
           "scaling": {
             "atk": 0.811543
           },
-          "count": 7
+          "count": 7,
+          "reacting": 2.5
         },
         {
           "label": "Charged Attack",
@@ -5862,7 +7036,8 @@
           "scaling": {
             "atk": 2.2866
           },
-          "count": 7
+          "count": 7,
+          "reacting": 7
         },
         {
           "label": "Blood Blossom DMG",
@@ -5870,7 +7045,8 @@
           "scaling": {
             "atk": 1.088
           },
-          "count": 2
+          "count": 2,
+          "reacting": 2
         },
         {
           "label": "Skill DMG",
@@ -5878,7 +7054,8 @@
           "scaling": {
             "atk": 4.70344
           },
-          "count": 0.5
+          "count": 0.5,
+          "reacting": 0.5
         }
       ],
       "buffs": [
@@ -5901,10 +7078,74 @@
             "noHealer": true
           }
         }
+      ],
+      "combos": [
+        {
+          "combo": "E 7.5[N1CJ] (Q)",
+          "when": [
+            {
+              "reaction": "vaporize",
+              "elements": {
+                "Cryo": 2
+              }
+            },
+            {
+              "reaction": "vaporize",
+              "members": [
+                [
+                  "Thoma"
+                ],
+                [
+                  "Sucrose",
+                  "Kaedehara Kazuha"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.788544
+              },
+              "count": 7.5,
+              "reacting": 3
+            },
+            {
+              "label": "Charged Attack",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.2866
+              },
+              "count": 7.5,
+              "reacting": 7.5
+            },
+            {
+              "label": "Blood Blossom DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.088
+              },
+              "count": 2,
+              "reacting": 2
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 4.70344
+              },
+              "count": 0.5,
+              "reacting": 0.5
+            }
+          ]
+        }
       ]
     },
     "Raiden Shogun": {
       "rotationSeconds": 18,
+      "combo": "E Q 3[N3C] N1C",
       "hits": [
         {
           "label": "Skill DMG",
@@ -5912,7 +7153,8 @@
           "scaling": {
             "atk": 1.9924
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Coordinated ATK DMG",
@@ -5920,7 +7162,8 @@
           "scaling": {
             "atk": 0.714
           },
-          "count": 7
+          "count": 7,
+          "reacting": 3
         },
         {
           "label": "Musou no Hitotachi Base DMG",
@@ -5929,7 +7172,8 @@
             "atk": 6.8136
           },
           "count": 1,
-          "tag": "initial"
+          "tag": "initial",
+          "reacting": 1
         },
         {
           "label": "1-Hit DMG",
@@ -5938,7 +7182,8 @@
             "atk": 0.752402
           },
           "count": 4,
-          "tag": "isshin"
+          "tag": "isshin",
+          "reacting": 1.333333
         },
         {
           "label": "2-Hit DMG",
@@ -5947,7 +7192,8 @@
             "atk": 0.73926
           },
           "count": 3,
-          "tag": "isshin"
+          "tag": "isshin",
+          "reacting": 1
         },
         {
           "label": "3-Hit DMG",
@@ -5956,7 +7202,8 @@
             "atk": 0.905183
           },
           "count": 3,
-          "tag": "isshin"
+          "tag": "isshin",
+          "reacting": 1
         },
         {
           "label": "Charged Attack DMG",
@@ -5966,7 +7213,8 @@
           },
           "count": 4,
           "instances": 2,
-          "tag": "isshin"
+          "tag": "isshin",
+          "reacting": 1.333333
         }
       ],
       "buffs": [
@@ -5993,10 +7241,74 @@
           "kind": "dmgBonusFromEr",
           "perPercent": 0.004
         }
+      ],
+      "combos": [
+        {
+          "combo": "E Q 6[JP], with Xianyun",
+          "when": [
+            {
+              "members": [
+                [
+                  "Xianyun"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.9924
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Coordinated ATK DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.714
+              },
+              "count": 7,
+              "reacting": 3
+            },
+            {
+              "label": "Musou no Hitotachi Base DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.8136
+              },
+              "count": 1,
+              "tag": "initial",
+              "reacting": 1
+            },
+            {
+              "label": "Low/High Plunge DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.933586
+              },
+              "count": 6,
+              "tag": "isshin"
+            },
+            {
+              "label": "Plunge DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.174572
+              },
+              "count": 6,
+              "collision": true,
+              "tag": "isshin"
+            }
+          ]
+        }
       ]
     },
     "Xiao": {
       "rotationSeconds": 18,
+      "combo": "E E Q 10[JhP]",
       "hits": [
         {
           "label": "Skill DMG",
@@ -6013,6 +7325,15 @@
             "atk": 3.75499
           },
           "count": 10
+        },
+        {
+          "label": "Plunge DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 1.503452
+          },
+          "count": 10,
+          "collision": true
         }
       ],
       "buffs": [
@@ -6037,6 +7358,56 @@
           ],
           "note": "passive 1: 5% + 5% per 3s up to 25% over the 15s Burst, about 15% on average"
         }
+      ],
+      "combos": [
+        {
+          "combo": "E E Q 11[JhP] 2[JlP]",
+          "when": [
+            {
+              "members": [
+                [
+                  "Xianyun",
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 4.2976
+              },
+              "count": 2
+            },
+            {
+              "label": "Low/High Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 3.75499
+              },
+              "count": 11
+            },
+            {
+              "label": "Low/High Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 3.006267
+              },
+              "count": 2
+            },
+            {
+              "label": "Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 1.503452
+              },
+              "count": 13,
+              "collision": true
+            }
+          ]
+        }
       ]
     },
     "Wriothesley": {
@@ -6049,7 +7420,8 @@
           "scaling": {
             "atk": 0.980327
           },
-          "count": 5
+          "count": 5,
+          "reacting": 1.666667
         },
         {
           "label": "2-Hit DMG",
@@ -6057,7 +7429,8 @@
           "scaling": {
             "atk": 0.95165
           },
-          "count": 5
+          "count": 5,
+          "reacting": 1.666667
         },
         {
           "label": "3-Hit DMG",
@@ -6065,7 +7438,8 @@
           "scaling": {
             "atk": 1.235023
           },
-          "count": 5
+          "count": 5,
+          "reacting": 1.666667
         },
         {
           "label": "Charged Attack DMG",
@@ -6073,7 +7447,8 @@
           "scaling": {
             "atk": 2.60032
           },
-          "count": 5
+          "count": 5,
+          "reacting": 5
         },
         {
           "label": "Skill DMG",
@@ -6081,7 +7456,8 @@
           "scaling": {
             "atk": 10.812
           },
-          "count": 0.5
+          "count": 0.5,
+          "reacting": 0.2
         },
         {
           "label": "Surging Blade DMG",
@@ -6129,7 +7505,8 @@
               "scaling": {
                 "atk": 0.980327
               },
-              "count": 4
+              "count": 4,
+              "reacting": 1.4
             },
             {
               "label": "2-Hit DMG",
@@ -6137,7 +7514,8 @@
               "scaling": {
                 "atk": 0.95165
               },
-              "count": 4
+              "count": 4,
+              "reacting": 1.4
             },
             {
               "label": "3-Hit DMG",
@@ -6145,7 +7523,8 @@
               "scaling": {
                 "atk": 1.235023
               },
-              "count": 3
+              "count": 3,
+              "reacting": 1.05
             },
             {
               "label": "4-Hit DMG",
@@ -6154,7 +7533,8 @@
                 "atk": 1.392754
               },
               "count": 3,
-              "instances": 2
+              "instances": 2,
+              "reacting": 1.05
             },
             {
               "label": "5-Hit DMG",
@@ -6162,7 +7542,8 @@
               "scaling": {
                 "atk": 1.667121
               },
-              "count": 3
+              "count": 3,
+              "reacting": 1.05
             },
             {
               "label": "Charged Attack DMG",
@@ -6170,7 +7551,8 @@
               "scaling": {
                 "atk": 2.60032
               },
-              "count": 3
+              "count": 3,
+              "reacting": 3
             }
           ],
           "buffs": [
@@ -6659,7 +8041,8 @@
           "scaling": {
             "atk": 1.57488
           },
-          "count": 3
+          "count": 3,
+          "reacting": 3
         },
         {
           "label": "Fiery Passion Low/High Plunge DMG",
@@ -6667,7 +8050,8 @@
           "scaling": {
             "atk": 5.133776
           },
-          "count": 3
+          "count": 3,
+          "reacting": 3
         },
         {
           "label": "passive1 bonus",
@@ -6691,7 +8075,8 @@
           "scaling": {
             "atk": 1.51776
           },
-          "count": 4
+          "count": 4,
+          "reacting": 4
         },
         {
           "label": "Low/High Plunge DMG",
@@ -6699,7 +8084,8 @@
           "scaling": {
             "atk": 3.422517
           },
-          "count": 4
+          "count": 4,
+          "reacting": 4
         },
         {
           "label": "passive1 bonus",
@@ -6730,7 +8116,8 @@
           "scaling": {
             "atk": 1.2648
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Skill DMG",
@@ -6739,7 +8126,8 @@
             "atk": 7.5616
           },
           "count": 1,
-          "tag": "sunfell"
+          "tag": "sunfell",
+          "reacting": 1
         },
         {
           "label": "Flamestrider Charged Attack Cyclic DMG",
@@ -6748,7 +8136,8 @@
             "atk": 1.817
           },
           "count": 8,
-          "tag": "ca"
+          "tag": "ca",
+          "reacting": 2.666667
         },
         {
           "label": "Flamestrider Charged Attack Final DMG",
@@ -6757,7 +8146,8 @@
             "atk": 2.528
           },
           "count": 1,
-          "tag": "ca"
+          "tag": "ca",
+          "reacting": 0.333333
         }
       ],
       "buffs": [
@@ -6812,7 +8202,8 @@
               "scaling": {
                 "atk": 1.2648
               },
-              "count": 1
+              "count": 1,
+              "reacting": 1
             },
             {
               "label": "Skill DMG",
@@ -6831,7 +8222,8 @@
                 "atk": 1.817
               },
               "count": 9,
-              "tag": "ca"
+              "tag": "ca",
+              "reacting": 3
             }
           ]
         },
@@ -6858,7 +8250,8 @@
               "scaling": {
                 "atk": 1.2648
               },
-              "count": 1
+              "count": 1,
+              "reacting": 1
             },
             {
               "label": "Skill DMG",
@@ -6926,7 +8319,8 @@
               "scaling": {
                 "atk": 1.2648
               },
-              "count": 1
+              "count": 1,
+              "reacting": 1
             },
             {
               "label": "Skill DMG",
@@ -6964,7 +8358,8 @@
               "scaling": {
                 "atk": 1.2648
               },
-              "count": 1
+              "count": 1,
+              "reacting": 1
             },
             {
               "label": "Skill DMG",
@@ -6983,7 +8378,8 @@
                 "atk": 1.817
               },
               "count": 8,
-              "tag": "ca"
+              "tag": "ca",
+              "reacting": 3
             }
           ]
         }
@@ -7194,7 +8590,8 @@
             "atk": 1.298528,
             "em": 2.597056
           },
-          "count": 2
+          "count": 2,
+          "reacting": 2
         },
         {
           "label": "Phantasm Performance 1-Hit DMG (Nefer)",
@@ -7206,7 +8603,8 @@
           "count": 6,
           "when": {
             "reaction": "lunar-bloom"
-          }
+          },
+          "reacting": 2
         },
         {
           "label": "Phantasm Performance 2-Hit DMG (Nefer)",
@@ -7218,7 +8616,8 @@
           "count": 6,
           "when": {
             "reaction": "lunar-bloom"
-          }
+          },
+          "reacting": 2
         },
         {
           "label": "Phantasm Performance 1-Hit DMG (Shades)",
@@ -7263,7 +8662,8 @@
             "atk": 3.81888,
             "em": 7.63776
           },
-          "count": 1
+          "count": 1,
+          "reacting": 0.5
         },
         {
           "label": "2-Hit DMG",
@@ -7272,7 +8672,8 @@
             "atk": 5.72832,
             "em": 11.45664
           },
-          "count": 1
+          "count": 1,
+          "reacting": 0.5
         }
       ],
       "buffs": [
@@ -7316,7 +8717,8 @@
           "scaling": {
             "atk": 0.71258
           },
-          "count": 18
+          "count": 18,
+          "reacting": 6
         },
         {
           "label": "Impale the Night DMG",
@@ -7325,7 +8727,8 @@
             "atk": 1.38408
           },
           "count": 6,
-          "instances": 3
+          "instances": 3,
+          "reacting": 2
         },
         {
           "label": "Surging Blade DMG",
@@ -7342,7 +8745,8 @@
             "atk": 10.7848
           },
           "count": 1,
-          "instances": 5
+          "instances": 5,
+          "reacting": 0.4
         }
       ],
       "buffs": [
@@ -7501,6 +8905,7 @@
           "seconds": 20
         }
       ],
+      "combo": "E C 5[N3D] N3",
       "hits": [
         {
           "label": "Spike DMG",
@@ -7508,7 +8913,8 @@
           "scaling": {
             "atk": 0.25228
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Cleave DMG",
@@ -7516,7 +8922,8 @@
           "scaling": {
             "atk": 2.27052
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Charged Attack DMG",
@@ -7524,7 +8931,8 @@
           "scaling": {
             "atk": 1.66848
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "1-Hit DMG",
@@ -7532,8 +8940,8 @@
           "scaling": {
             "atk": 0.872681
           },
-          "count": 3,
-          "instances": 1
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "2-Hit DMG",
@@ -7541,8 +8949,8 @@
           "scaling": {
             "atk": 0.95729
           },
-          "count": 3,
-          "instances": 1
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "3-Hit DMG",
@@ -7550,34 +8958,8 @@
           "scaling": {
             "atk": 1.201274
           },
-          "count": 3,
-          "instances": 1
-        },
-        {
-          "label": "4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.364868
-          },
-          "count": 3,
-          "instances": 2
-        },
-        {
-          "label": "5-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.285709
-          },
-          "count": 3,
-          "instances": 1
-        },
-        {
-          "label": "Skill DMG",
-          "type": "burst",
-          "scaling": {
-            "atk": 6.2968
-          },
-          "count": 1
+          "count": 6,
+          "reacting": 2
         }
       ],
       "buffs": [
@@ -7587,10 +8969,473 @@
           "start": 1.45,
           "use": 0.075
         }
+      ],
+      "combos": [
+        {
+          "combo": "E C 2[N6] N3",
+          "when": [
+            {
+              "members": [
+                [
+                  "Citlali",
+                  "Escoffier"
+                ],
+                [
+                  "Escoffier",
+                  "Layla",
+                  "Nicole"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 3,
+              "reacting": 1
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 3,
+              "reacting": 1
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 3,
+              "reacting": 1
+            },
+            {
+              "label": "4-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.364868
+              },
+              "count": 2,
+              "instances": 2,
+              "reacting": 0.666667
+            },
+            {
+              "label": "5-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.285709
+              },
+              "count": 2,
+              "reacting": 0.666667
+            },
+            {
+              "label": "6-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.568577
+              },
+              "count": 2
+            }
+          ]
+        },
+        {
+          "combo": "E C 2[N5D] N5",
+          "when": [
+            {
+              "members": [
+                [
+                  "Citlali"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 3,
+              "reacting": 1
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 3,
+              "reacting": 1
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 3,
+              "reacting": 1
+            },
+            {
+              "label": "4-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.364868
+              },
+              "count": 3,
+              "instances": 2,
+              "reacting": 1
+            },
+            {
+              "label": "5-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.285709
+              },
+              "count": 3,
+              "reacting": 1
+            }
+          ]
+        },
+        {
+          "combo": "E 7[N2C] N2",
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ],
+                [
+                  "Yelan"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 7,
+              "reacting": 7
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 8,
+              "reacting": 3
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 8,
+              "reacting": 3
+            }
+          ]
+        },
+        {
+          "combo": "E 5[N3C] N1",
+          "when": [
+            {
+              "members": [
+                [
+                  "Yelan"
+                ],
+                [
+                  "Lan Yan"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 5,
+              "reacting": 5
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 6,
+              "reacting": 2.25
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 5,
+              "reacting": 1.875
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 5,
+              "reacting": 1.875
+            }
+          ]
+        },
+        {
+          "combo": "E C N3 4[N3D] N1",
+          "when": [
+            {
+              "members": [
+                [
+                  "Mona"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 6,
+              "reacting": 2.25
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 5,
+              "reacting": 1.875
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 5,
+              "reacting": 1.875
+            }
+          ]
+        },
+        {
+          "combo": "E C 6[N3D] N3",
+          "when": [
+            {
+              "members": [
+                [
+                  "Columbina"
+                ],
+                [
+                  "Ineffa"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 7,
+              "reacting": 2.333333
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 7,
+              "reacting": 2.333333
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 7,
+              "reacting": 2.333333
+            }
+          ]
+        }
       ]
     },
     "Kinich": {
       "rotationSeconds": 18,
+      "combo": "E 6N 2E Q (kit estimate)",
       "hits": [
         {
           "label": "Loop Shot DMG",
@@ -7598,7 +9443,8 @@
           "scaling": {
             "atk": 1.94752
           },
-          "count": 6
+          "count": 6,
+          "reacting": 6
         },
         {
           "label": "Scalespiker Cannon DMG",
@@ -7606,7 +9452,18 @@
           "scaling": {
             "atk": 11.68648
           },
-          "count": 2
+          "count": 2,
+          "reacting": 2
+        },
+        {
+          "label": "passive2 bonus",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.2
+          },
+          "count": 0,
+          "addOn": true,
+          "nightsoulBursts": "Scalespiker Cannon DMG"
         },
         {
           "label": "Skill DMG",
@@ -7614,7 +9471,8 @@
           "scaling": {
             "atk": 2.278
           },
-          "count": 1
+          "count": 1,
+          "reacting": 0.428571
         },
         {
           "label": "Dragon Breath DMG",
@@ -7622,13 +9480,90 @@
           "scaling": {
             "atk": 2.052512
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2.571429
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "combos": [
+        {
+          "combo": "shE N2E Q E 3[N2E]",
+          "when": [
+            {
+              "reaction": "burning"
+            },
+            {
+              "reaction": "burgeon"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Loop Shot DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.94752
+              },
+              "count": 8,
+              "reacting": 8
+            },
+            {
+              "label": "Scalespiker Cannon DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 11.68648
+              },
+              "count": 5,
+              "reacting": 5
+            },
+            {
+              "label": "passive2 bonus",
+              "type": "skill",
+              "scaling": {
+                "atk": 3.2
+              },
+              "count": 0,
+              "addOn": true,
+              "nightsoulBursts": "Scalespiker Cannon DMG"
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.278
+              },
+              "count": 1,
+              "reacting": 0.428571
+            },
+            {
+              "label": "Dragon Breath DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.052512
+              },
+              "count": 6,
+              "reacting": 2.571429
+            }
+          ]
+        }
+      ]
     },
     "Neuvillette": {
-      "rotationSeconds": 18,
+      "rotationSeconds": 26.5,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 28
+        }
+      ],
+      "combo": "E C E C Q 2[C]",
       "hits": [
         {
           "label": "Skill DMG",
@@ -7636,7 +9571,8 @@
           "scaling": {
             "hp": 0.378383
           },
-          "count": 1
+          "count": 1,
+          "reacting": 0.333333
         },
         {
           "label": "Waterfall DMG",
@@ -7644,7 +9580,8 @@
           "scaling": {
             "hp": 0.154793
           },
-          "count": 2
+          "count": 2,
+          "reacting": 0.666667
         },
         {
           "label": "Skill DMG",
@@ -7652,7 +9589,8 @@
           "scaling": {
             "hp": 0.218688
           },
-          "count": 2
+          "count": 2,
+          "reacting": 2
         },
         {
           "label": "Charged Attack: Equitable Judgment",
@@ -7660,7 +9598,8 @@
           "scaling": {
             "hp": 0.134458
           },
-          "count": 24
+          "count": 32,
+          "reacting": 11
         }
       ],
       "buffs": [
@@ -7702,6 +9641,7 @@
     },
     "Kamisato Ayaka": {
       "rotationSeconds": 20,
+      "combo": "EDQ 2(N2C N2CD) E",
       "hits": [
         {
           "label": "Skill DMG",
@@ -7709,7 +9649,8 @@
           "scaling": {
             "atk": 4.0664
           },
-          "count": 1
+          "count": 2,
+          "reacting": 2
         },
         {
           "label": "Cutting DMG",
@@ -7717,7 +9658,8 @@
           "scaling": {
             "atk": 1.9091
           },
-          "count": 19
+          "count": 19,
+          "reacting": 7
         },
         {
           "label": "Bloom DMG",
@@ -7725,7 +9667,8 @@
           "scaling": {
             "atk": 2.86365
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "1-Hit DMG",
@@ -7733,7 +9676,8 @@
           "scaling": {
             "atk": 0.84007
           },
-          "count": 3
+          "count": 4,
+          "reacting": 1.5
         },
         {
           "label": "2-Hit DMG",
@@ -7741,7 +9685,8 @@
           "scaling": {
             "atk": 0.894438
           },
-          "count": 3
+          "count": 4,
+          "reacting": 1.5
         },
         {
           "label": "Charged Attack DMG",
@@ -7749,7 +9694,8 @@
           "scaling": {
             "atk": 3.03834
           },
-          "count": 3
+          "count": 4,
+          "reacting": 1.333333
         }
       ],
       "buffs": [
@@ -7769,6 +9715,84 @@
             "charged",
             "skill",
             "burst"
+          ]
+        }
+      ],
+      "combos": [
+        {
+          "combo": "ED N1 Q N3CD 2[N2C] ED N1C",
+          "when": [
+            {
+              "members": [
+                [
+                  "Yelan"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 4.0664
+              },
+              "count": 2,
+              "reacting": 2
+            },
+            {
+              "label": "Cutting DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.9091
+              },
+              "count": 19,
+              "reacting": 7
+            },
+            {
+              "label": "Bloom DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.86365
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.84007
+              },
+              "count": 5,
+              "reacting": 1.875
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.894438
+              },
+              "count": 3,
+              "reacting": 1.125
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.150493
+              },
+              "count": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 3.03834
+              },
+              "count": 4,
+              "reacting": 1.333333
+            }
           ]
         }
       ]
@@ -7815,7 +9839,8 @@
             "atk": 3.2912,
             "em": 2.63296
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Single-Instance DMG",
@@ -7824,7 +9849,8 @@
             "atk": 2.0672,
             "em": 1.65376
           },
-          "count": 10
+          "count": 10,
+          "reacting": 4
         },
         {
           "label": "1-Hit DMG",
@@ -7832,7 +9858,8 @@
           "scaling": {
             "atk": 0.90989
           },
-          "count": 5
+          "count": 5,
+          "reacting": 1.75
         },
         {
           "label": "2-Hit DMG",
@@ -7840,7 +9867,8 @@
           "scaling": {
             "atk": 0.932374
           },
-          "count": 5
+          "count": 5,
+          "reacting": 1.75
         },
         {
           "label": "3-Hit DMG",
@@ -7849,7 +9877,8 @@
             "atk": 1.255862
           },
           "count": 5,
-          "instances": 2
+          "instances": 2,
+          "reacting": 1.75
         },
         {
           "label": "Charged Attack DMG",
@@ -7858,7 +9887,8 @@
             "atk": 2.0303
           },
           "count": 3,
-          "instances": 2
+          "instances": 2,
+          "reacting": 1.5
         },
         {
           "label": "3-Mirror Projection Attack DMG",
@@ -7868,7 +9898,8 @@
             "em": 6.8544
           },
           "count": 6.5,
-          "instances": 3
+          "instances": 3,
+          "reacting": 3.333333
         }
       ],
       "buffs": [
@@ -7911,7 +9942,8 @@
           "scaling": {
             "atk": 1.22672
           },
-          "count": 7
+          "count": 7,
+          "reacting": 2.545455
         },
         {
           "label": "2-Hit DMG",
@@ -7919,7 +9951,8 @@
           "scaling": {
             "atk": 1.0608
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2.181818
         },
         {
           "label": "3-Hit DMG",
@@ -7927,7 +9960,8 @@
           "scaling": {
             "atk": 1.52864
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2.181818
         },
         {
           "label": "Charged Attack DMG",
@@ -7938,7 +9972,8 @@
           "count": 5,
           "when": {
             "secretRite": true
-          }
+          },
+          "reacting": 5
         },
         {
           "label": "Jumpy Dumpty DMG",
@@ -7946,7 +9981,8 @@
           "scaling": {
             "atk": 1.6184
           },
-          "count": 3
+          "count": 3,
+          "reacting": 1.090909
         },
         {
           "label": "Sparks 'n' Splash DMG",
@@ -7954,7 +9990,8 @@
           "scaling": {
             "atk": 0.72488
           },
-          "count": 24
+          "count": 24,
+          "reacting": 8
         }
       ],
       "buffs": [
@@ -7987,7 +10024,8 @@
           "scaling": {
             "atk": 2.5432
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Tanglevine Shaft DMG",
@@ -7995,7 +10033,8 @@
           "scaling": {
             "atk": 0.94554
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "Secondary Tanglevine Shaft DMG",
@@ -8003,7 +10042,8 @@
           "scaling": {
             "atk": 1.15566
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "Wreath Arrow DMG",
@@ -8011,7 +10051,8 @@
           "scaling": {
             "atk": 1.4824
           },
-          "count": 3
+          "count": 3,
+          "reacting": 3
         },
         {
           "label": "Clusterbloom Arrow DMG",
@@ -8019,7 +10060,8 @@
           "scaling": {
             "atk": 0.6562
           },
-          "count": 12
+          "count": 12,
+          "reacting": 3
         }
       ],
       "buffs": [
@@ -8044,6 +10086,86 @@
         }
       ]
     },
+    "Lyney": {
+      "rotationSeconds": 15,
+      "combo": "4[CS] Q E",
+      "hits": [
+        {
+          "label": "Prop Arrow DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.9376
+          },
+          "count": 4
+        },
+        {
+          "label": "Pyrotechnic Strike DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 3.604
+          },
+          "count": 5
+        },
+        {
+          "label": "passive1 bonus",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.8
+          },
+          "count": 4,
+          "addOn": true
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.618
+          },
+          "count": 1
+        },
+        {
+          "label": "Explosive Firework DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 7.038
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.8424
+          },
+          "count": 1,
+          "tag": "propSurplus"
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.9044,
+          "stacks": 5,
+          "tag": "propSurplus"
+        },
+        {
+          "kind": "dmgBonusByMembers",
+          "values": [
+            0.6,
+            0.8,
+            1,
+            1
+          ],
+          "elements": [
+            "Pyro"
+          ],
+          "unless": [
+            "vaporize",
+            "melt"
+          ]
+        }
+      ]
+    },
     "Yoimiya": {
       "rotationSeconds": 15,
       "combo": "E 3[N5]",
@@ -8055,7 +10177,8 @@
             "atk": 1.1988
           },
           "count": 3,
-          "instances": 2
+          "instances": 2,
+          "reacting": 1
         },
         {
           "label": "2-Hit DMG",
@@ -8063,7 +10186,8 @@
           "scaling": {
             "atk": 1.14996
           },
-          "count": 3
+          "count": 3,
+          "reacting": 1
         },
         {
           "label": "3-Hit DMG",
@@ -8071,7 +10195,8 @@
           "scaling": {
             "atk": 1.494948
           },
-          "count": 3
+          "count": 3,
+          "reacting": 1
         },
         {
           "label": "4-Hit DMG",
@@ -8080,7 +10205,8 @@
             "atk": 1.5614
           },
           "count": 3,
-          "instances": 2
+          "instances": 2,
+          "reacting": 1
         },
         {
           "label": "5-Hit DMG",
@@ -8088,7 +10214,8 @@
           "scaling": {
             "atk": 1.78044
           },
-          "count": 3
+          "count": 3,
+          "reacting": 1
         },
         {
           "label": "Skill DMG",
@@ -8096,7 +10223,8 @@
           "scaling": {
             "atk": 2.1624
           },
-          "count": 0.4
+          "count": 0.4,
+          "reacting": 0.4
         }
       ],
       "buffs": [
@@ -8128,7 +10256,8 @@
           "scaling": {
             "atk": 2.244
           },
-          "count": 4
+          "count": 4,
+          "reacting": 4
         },
         {
           "label": "Frostflake Arrow DMG",
@@ -8136,7 +10265,8 @@
           "scaling": {
             "atk": 2.176
           },
-          "count": 5
+          "count": 5,
+          "reacting": 5
         },
         {
           "label": "Frostflake Arrow Bloom DMG",
@@ -8144,7 +10274,16 @@
           "scaling": {
             "atk": 3.6992
           },
-          "count": 5
+          "count": 5,
+          "reacting": 5
+        },
+        {
+          "label": "Ice Shard DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.194624
+          },
+          "count": 10
         }
       ],
       "buffs": [
@@ -8179,7 +10318,8 @@
               "scaling": {
                 "atk": 2.244
               },
-              "count": 2
+              "count": 2,
+              "reacting": 2
             },
             {
               "label": "Frostflake Arrow DMG",
@@ -8187,7 +10327,8 @@
               "scaling": {
                 "atk": 2.176
               },
-              "count": 4
+              "count": 4,
+              "reacting": 4
             },
             {
               "label": "Frostflake Arrow Bloom DMG",
@@ -8195,7 +10336,16 @@
               "scaling": {
                 "atk": 3.6992
               },
-              "count": 4
+              "count": 4,
+              "reacting": 4
+            },
+            {
+              "label": "Ice Shard DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.194624
+              },
+              "count": 10
             }
           ],
           "buffs": [
@@ -8229,7 +10379,8 @@
             "atk": 0.9717
           },
           "count": 10,
-          "tag": "namisen"
+          "tag": "namisen",
+          "reacting": 3.333333
         },
         {
           "label": "Shunsuiken 2-Hit DMG",
@@ -8238,7 +10389,8 @@
             "atk": 1.0823
           },
           "count": 10,
-          "tag": "namisen"
+          "tag": "namisen",
+          "reacting": 3.333333
         },
         {
           "label": "Shunsuiken 3-Hit DMG",
@@ -8247,7 +10399,8 @@
             "atk": 1.1929
           },
           "count": 10,
-          "tag": "namisen"
+          "tag": "namisen",
+          "reacting": 3.333333
         },
         {
           "label": "Water Illusion DMG",
@@ -8255,7 +10408,8 @@
           "scaling": {
             "atk": 1.8644
           },
-          "count": 2
+          "count": 2,
+          "reacting": 2
         },
         {
           "label": "Bloomwater Blade DMG",
@@ -8263,7 +10417,8 @@
           "scaling": {
             "atk": 1.129752
           },
-          "count": 20
+          "count": 20,
+          "reacting": 7
         }
       ],
       "buffs": [
@@ -8463,7 +10618,8 @@
           "scaling": {
             "atk": 0.991807
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "2-Hit DMG",
@@ -8471,7 +10627,8 @@
           "scaling": {
             "atk": 0.886135
           },
-          "count": 3
+          "count": 3,
+          "reacting": 1
         },
         {
           "label": "3-Hit DMG",
@@ -8479,7 +10636,8 @@
           "scaling": {
             "atk": 1.292218
           },
-          "count": 3
+          "count": 3,
+          "reacting": 1
         },
         {
           "label": "Charged Attack",
@@ -8487,7 +10645,8 @@
           "scaling": {
             "atk": 2.329964
           },
-          "count": 5
+          "count": 5,
+          "reacting": 5
         },
         {
           "label": "Skill DMG",
@@ -8495,7 +10654,8 @@
           "scaling": {
             "atk": 2.8832
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Skill DMG",
@@ -8503,7 +10663,8 @@
           "scaling": {
             "atk": 3.1008
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         }
       ],
       "buffs": [
@@ -8533,7 +10694,8 @@
           "scaling": {
             "atk": 2.2168
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Mortuary Rite DMG",
@@ -8541,7 +10703,8 @@
           "scaling": {
             "atk": 2.6656
           },
-          "count": 4
+          "count": 4,
+          "reacting": 4
         },
         {
           "label": "1-Hit DMG",
@@ -8549,7 +10712,8 @@
           "scaling": {
             "atk": 1.438227
           },
-          "count": 7
+          "count": 7,
+          "reacting": 2.413793
         },
         {
           "label": "2-Hit DMG",
@@ -8557,7 +10721,8 @@
           "scaling": {
             "atk": 1.515125
           },
-          "count": 7
+          "count": 7,
+          "reacting": 2.413793
         },
         {
           "label": "3-Hit DMG",
@@ -8566,7 +10731,8 @@
             "atk": 1.922339
           },
           "count": 3,
-          "instances": 2
+          "instances": 2,
+          "reacting": 1.034483
         },
         {
           "label": "4-Hit DMG",
@@ -8575,7 +10741,8 @@
             "atk": 1.89946
           },
           "count": 3,
-          "instances": 2
+          "instances": 2,
+          "reacting": 1.034483
         },
         {
           "label": "5-Hit DMG",
@@ -8583,7 +10750,8 @@
           "scaling": {
             "atk": 2.403891
           },
-          "count": 3
+          "count": 3,
+          "reacting": 1.034483
         },
         {
           "label": "passive1 bonus",
@@ -8637,7 +10805,8 @@
             "hp": 0.14756
           },
           "count": 3,
-          "tag": "bite"
+          "tag": "bite",
+          "reacting": 3
         },
         {
           "label": "Skill DMG",
@@ -8645,7 +10814,8 @@
           "scaling": {
             "hp": 0.993466
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         }
       ],
       "buffs": [
@@ -8752,7 +10922,8 @@
           "scaling": {
             "atk": 6.4328
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Stance Change DMG",
@@ -8760,7 +10931,8 @@
           "scaling": {
             "atk": 1.224
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "1-Hit DMG",
@@ -8768,7 +10940,8 @@
           "scaling": {
             "atk": 0.71416
           },
-          "count": 5
+          "count": 5,
+          "reacting": 1.666667
         },
         {
           "label": "2-Hit DMG",
@@ -8776,7 +10949,8 @@
           "scaling": {
             "atk": 0.76472
           },
-          "count": 5
+          "count": 5,
+          "reacting": 1.666667
         },
         {
           "label": "3-Hit DMG",
@@ -8784,7 +10958,8 @@
           "scaling": {
             "atk": 1.0349
           },
-          "count": 2
+          "count": 2,
+          "reacting": 0.666667
         },
         {
           "label": "Charged Attack DMG",
@@ -8793,7 +10968,8 @@
             "atk": 2.42846
           },
           "count": 5,
-          "instances": 2
+          "instances": 2,
+          "reacting": 2
         },
         {
           "label": "Riptide Slash",
@@ -8801,7 +10977,8 @@
           "scaling": {
             "atk": 1.106
           },
-          "count": 4
+          "count": 4,
+          "reacting": 4
         }
       ],
       "buffs": []
@@ -8817,7 +10994,8 @@
             "atk": 0.7548
           },
           "count": 7,
-          "instances": 2
+          "instances": 2,
+          "reacting": 2.5
         },
         {
           "label": "2-Hit DMG",
@@ -8825,7 +11003,8 @@
           "scaling": {
             "atk": 0.7252
           },
-          "count": 7
+          "count": 7,
+          "reacting": 2.5
         },
         {
           "label": "3-Hit DMG",
@@ -8833,7 +11012,8 @@
           "scaling": {
             "atk": 0.888
           },
-          "count": 7
+          "count": 7,
+          "reacting": 2.5
         },
         {
           "label": "Freeze Bomb DMG",
@@ -8841,7 +11021,8 @@
           "scaling": {
             "atk": 3.0192
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Chillwater Bomblet DMG",
@@ -8849,7 +11030,8 @@
           "scaling": {
             "atk": 0.68
           },
-          "count": 5
+          "count": 5,
+          "reacting": 2
         },
         {
           "label": "Skill DMG",
@@ -8857,7 +11039,8 @@
           "scaling": {
             "atk": 6.1064
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         }
       ],
       "buffs": [
@@ -9015,7 +11198,8 @@
           "scaling": {
             "atk": 3.9168
           },
-          "count": 7
+          "count": 7,
+          "reacting": 7
         },
         {
           "label": "Suanni Man Chai Smash DMG",
@@ -9050,7 +11234,8 @@
               "scaling": {
                 "atk": 3.9168
               },
-              "count": 5.5
+              "count": 5.5,
+              "reacting": 5.5
             },
             {
               "label": "Suanni Man Chai Smash DMG",
@@ -9076,7 +11261,8 @@
               "scaling": {
                 "atk": 3.9168
               },
-              "count": 7
+              "count": 7,
+              "reacting": 7
             },
             {
               "label": "Suanni Man Chai Smash DMG",
@@ -9100,7 +11286,8 @@
           "scaling": {
             "atk": 3.468
           },
-          "count": 1
+          "count": 1,
+          "reacting": 0.222222
         },
         {
           "label": "DoT",
@@ -9108,7 +11295,8 @@
           "scaling": {
             "atk": 1.02
           },
-          "count": 2.5
+          "count": 2.5,
+          "reacting": 0.555556
         },
         {
           "label": "Explosion DMG",
@@ -9116,7 +11304,8 @@
           "scaling": {
             "atk": 3.468
           },
-          "count": 1
+          "count": 1,
+          "reacting": 0.222222
         },
         {
           "label": "1-Hit DMG",
@@ -9124,7 +11313,8 @@
           "scaling": {
             "atk": 1.6048
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "2-Hit DMG",
@@ -9132,7 +11322,8 @@
           "scaling": {
             "atk": 1.6592
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "3-Hit DMG",
@@ -9140,7 +11331,8 @@
           "scaling": {
             "atk": 2.1896
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "1-Hit DMG",
@@ -9148,7 +11340,8 @@
           "scaling": {
             "atk": 1.64794
           },
-          "count": 4
+          "count": 4,
+          "reacting": 1.5
         },
         {
           "label": "2-Hit DMG",
@@ -9156,7 +11349,8 @@
           "scaling": {
             "atk": 1.61002
           },
-          "count": 4
+          "count": 4,
+          "reacting": 1.5
         }
       ],
       "buffs": [
@@ -9180,7 +11374,8 @@
           "scaling": {
             "atk": 0.8568
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Skill DMG",
@@ -9188,7 +11383,8 @@
           "scaling": {
             "atk": 1.496
           },
-          "count": 1
+          "count": 1,
+          "reacting": 0.4
         },
         {
           "label": "Consecutive Slash DMG",
@@ -9197,7 +11393,8 @@
             "atk": 3.264
           },
           "count": 1,
-          "instances": 8
+          "instances": 8,
+          "reacting": 0.4
         },
         {
           "label": "Last Attack DMG",
@@ -9205,7 +11402,8 @@
           "scaling": {
             "atk": 3.2096
           },
-          "count": 1
+          "count": 1,
+          "reacting": 0.4
         },
         {
           "label": "Thunderclap Slash DMG",
@@ -9214,7 +11412,8 @@
             "atk": 2.856
           },
           "count": 1,
-          "instances": 2
+          "instances": 2,
+          "reacting": 0.5
         },
         {
           "label": "1-Hit DMG",
@@ -9222,7 +11421,8 @@
           "scaling": {
             "atk": 0.75366
           },
-          "count": 5
+          "count": 5,
+          "reacting": 1.666667
         },
         {
           "label": "Charged Attack DMG",
@@ -9231,7 +11431,8 @@
             "atk": 2.99094
           },
           "count": 5,
-          "instances": 2
+          "instances": 2,
+          "reacting": 1.666667
         }
       ],
       "buffs": [
@@ -9251,7 +11452,7 @@
     },
     "Kaveh": {
       "rotationSeconds": 20,
-      "combo": "EQ N3D N3 E N3D N4 E",
+      "combo": "EQ 2[N3D] N1 E 2[N3D] N2 E",
       "hits": [
         {
           "label": "Skill DMG",
@@ -9259,7 +11460,8 @@
           "scaling": {
             "atk": 3.468
           },
-          "count": 3
+          "count": 3,
+          "reacting": 3
         },
         {
           "label": "Skill DMG",
@@ -9267,7 +11469,8 @@
           "scaling": {
             "atk": 2.72
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "1-Hit DMG",
@@ -9275,7 +11478,8 @@
           "scaling": {
             "atk": 1.39969
           },
-          "count": 4
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "2-Hit DMG",
@@ -9283,7 +11487,8 @@
           "scaling": {
             "atk": 1.279405
           },
-          "count": 4
+          "count": 5,
+          "reacting": 1.666667
         },
         {
           "label": "3-Hit DMG",
@@ -9291,18 +11496,180 @@
           "scaling": {
             "atk": 1.548052
           },
-          "count": 4
-        },
-        {
-          "label": "4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.886599
-          },
-          "count": 1
+          "count": 4,
+          "reacting": 1.333333
         }
       ],
       "buffs": []
+    },
+    "Traveler (Cryo)": {
+      "rotationSeconds": 15,
+      "combo": "E 2[N2 2C] N2 Q N2 C (no Radiance: estimate)",
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.55856
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.81686
+          },
+          "count": 4,
+          "element": "Physical"
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.7979
+          },
+          "count": 4,
+          "element": "Physical"
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.3542
+          },
+          "count": 5,
+          "instances": 2,
+          "element": "Physical"
+        },
+        {
+          "label": "Ice Javelin DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.937227
+          },
+          "count": 3
+        }
+      ],
+      "buffs": [],
+      "combos": [
+        {
+          "combo": "E 2[N2 2C] N2 Q N2 C, Radiance: Stellar-Conduct",
+          "when": [
+            {
+              "reaction": "stellar-conduct",
+              "radiance": true
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.55856
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.81686
+              },
+              "count": 4
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.7979
+              },
+              "count": 4
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.3542
+              },
+              "count": 5,
+              "instances": 2
+            },
+            {
+              "label": "passive1 bonus",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.8
+              },
+              "count": 8,
+              "addOn": true
+            },
+            {
+              "label": "passive1 bonus",
+              "type": "charged",
+              "scaling": {
+                "atk": 0.8
+              },
+              "count": 10,
+              "addOn": true
+            },
+            {
+              "label": "Ice Crystal DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.363664
+              },
+              "count": 13
+            },
+            {
+              "label": "Stellar-Conduct Ice Javelin Single Strike DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 0.624818
+              },
+              "count": 3,
+              "lunar": "stellar-conduct"
+            },
+            {
+              "label": "Stellar-Conduct Ice Javelin Single Strike DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 0.624818
+              },
+              "count": 2,
+              "lunar": "stellar-conduct"
+            }
+          ]
+        },
+        {
+          "combo": "E Q, Radiance: Stellar Swirl",
+          "when": [
+            {
+              "reaction": "stellar-swirl",
+              "radiance": true
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.55856
+              },
+              "count": 1
+            },
+            {
+              "label": "Stellar Swirl Ice Javelin Single Strike DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 0.937227
+              },
+              "count": 3,
+              "lunar": "stellar-swirl"
+            }
+          ]
+        }
+      ]
     },
     "Traveler (Hydro)": {
       "rotationSeconds": 16,
@@ -9322,7 +11689,8 @@
           "scaling": {
             "atk": 3.21776
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Skill DMG",
@@ -9330,10 +11698,103 @@
           "scaling": {
             "atk": 1.731729
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         }
       ],
       "buffs": []
+    },
+    "Razor": {
+      "rotationSeconds": 20,
+      "combo": "tE Q tE 3x(N4D N3tED)",
+      "hits": [
+        {
+          "label": "Press Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.3864
+          },
+          "count": 5
+        },
+        {
+          "label": "Burst DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.72
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.6132
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.38972
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.73752
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.28808
+          },
+          "count": 3,
+          "element": "Physical"
+        },
+        {
+          "label": "Soul Companion 1-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.658186
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 2-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.567006
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 3-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.708908
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 4-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.933537
+          },
+          "count": 3
+        }
+      ],
+      "buffs": [],
+      "goblet": "Physical"
     },
     "Eula": {
       "rotationSeconds": 20,
@@ -9345,7 +11806,8 @@
           "scaling": {
             "atk": 2.4888
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Skill DMG",
@@ -9353,7 +11815,8 @@
           "scaling": {
             "atk": 4.1752
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "1-Hit DMG",
@@ -9398,7 +11861,8 @@
           "scaling": {
             "atk": 4.1752
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Icewhirl Brand DMG",
@@ -9406,7 +11870,8 @@
           "scaling": {
             "atk": 1.632
           },
-          "count": 2
+          "count": 2,
+          "reacting": 1
         },
         {
           "label": "Lightfall Sword Base DMG",
@@ -9453,6 +11918,142 @@
           ],
           "labels": [
             "Icewhirl Brand DMG"
+          ]
+        }
+      ],
+      "combos": [
+        {
+          "combo": "tE Q N3 hE N4 D N2",
+          "when": [
+            {
+              "members": [
+                [
+                  "Mika"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Press DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.4888
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 4.1752
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.648572
+              },
+              "count": 3,
+              "element": "Physical"
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.718724
+              },
+              "count": 3,
+              "element": "Physical"
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 2.087022
+              },
+              "count": 2,
+              "instances": 2,
+              "element": "Physical"
+            },
+            {
+              "label": "4-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 2.069484
+              },
+              "count": 1,
+              "element": "Physical"
+            },
+            {
+              "label": "Hold DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 4.1752
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Icewhirl Brand DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.632
+              },
+              "count": 2,
+              "reacting": 1
+            },
+            {
+              "label": "Lightfall Sword Base DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.74344
+              },
+              "count": 1,
+              "element": "Physical",
+              "tag": "lightfall"
+            },
+            {
+              "label": "Lightfall Sword Base DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.74344
+              },
+              "count": 0.5,
+              "element": "Physical"
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "addPerStack",
+              "value": 1.37776,
+              "stacks": 15,
+              "tag": "lightfall"
+            },
+            {
+              "kind": "resShred",
+              "value": 0.24,
+              "elements": [
+                "Physical"
+              ],
+              "labels": [
+                "Lightfall Sword Base DMG"
+              ]
+            },
+            {
+              "kind": "resShred",
+              "value": 0.24,
+              "elements": [
+                "Cryo"
+              ],
+              "labels": [
+                "Icewhirl Brand DMG"
+              ]
+            }
           ]
         }
       ],
@@ -9671,14 +12272,11 @@
   },
   "carriesTodo": [
     "Lohen",
-    "Lyney",
     "Manekin",
     "Manekina",
     "Ningguang",
-    "Razor",
     "Sandrone",
     "Sethos",
-    "Traveler (Cryo)",
     "Varka"
   ]
 }

@@ -59,13 +59,13 @@ const built = all
   .filter((c) => roster[c.id]?.build?.stats)
   .map((c) => {
     const { build, constellation } = roster[c.id];
-    return { ...c, stats: build!.stats, talents: build!.talents, sets: build!.artifactSets, effects: characterEffects(c.id, constellation, build) };
+    return { ...c, stats: build!.stats, talents: build!.talents, sets: build!.artifactSets, weaponBuild: build!.weapon, effects: characterEffects(c.id, constellation, build) };
   });
 
 describe("coverage gate", () => {
   // #203 brings both to 0. Until then they may only shrink: a new character without a damage profile fails here.
-  const NO_DAMAGE_PROFILE = 7;
-  const MAIN_DPS_WITHOUT_CARRY_KIT = 8;
+  const NO_DAMAGE_PROFILE = 5;
+  const MAIN_DPS_WITHOUT_CARRY_KIT = 5;
   const NO_PARTICLE_COUNT = 5;
   const NO_SUSTAIN_COVERAGE = 5;
 
@@ -178,6 +178,15 @@ function stronger(m: ScoringCharacter): ScoringCharacter {
 // with the issue that models them, and leaves this list then.
 const KNOWN_DROPS: Record<string, string> = {
   "Keqing, Chongyun, Sethos, Alyosha": "#232: Sethos, unmodelled, carries; Alyosha's buff share falls 6 -> 5",
+  // A stronger Tighnari out-damages Ayaka and takes the field (the main DPS is the one dealing the most), and his
+  // reading's team damage is a little lower (22.8k vs 23.3k per second): three carries, 4.96 -> 4.85 (#221).
+  "Tighnari, Keqing, Xiangling, Kamisato Ayaka": "#221: a stronger Tighnari becomes the main DPS; his reading is lower",
+  // The same with Jessie's Varesa (Normal Attack level 4): a stronger Cryo Traveler (#236) out-damages her and takes the
+  // field, and that reading has her "also wants field time" (-15) and less team damage (6.9k vs 7.6k): 6.50 -> 2.69.
+  "Sayu, Varesa, Chevreuse, Traveler (Cryo)": "#236: a stronger Cryo Traveler becomes the main DPS; the reading is lower",
+  // Likewise a stronger Xiao (25.6k vs 22.9k) out-damages Neuvillette in his sourced 24.5s rotation (#119) and takes
+  // the field; his reading's team damage is lower (19.7k vs 28.2k per second): 7.99 -> 5.59.
+  "Alyosha, Flins, Neuvillette, Xiao": "#119: a stronger Xiao becomes the main DPS; his reading is lower",
 };
 const drops = (() => {
   const out: string[] = [];

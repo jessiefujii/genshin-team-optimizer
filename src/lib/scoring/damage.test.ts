@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite } from "./damage";
+import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite, setBuffs, setsOf, weaponBuffs, weaponDmgBonus } from "./damage";
 import { NO_TEAM_BUFFS, teamBuffStats } from "./kit";
 import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
@@ -110,9 +110,10 @@ describe("carry damage (#101)", () => {
 
   describe("direct Lunar reaction DMG (#135)", () => {
     const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
-    const dps = (ids: string[], active: Reaction[], stats?: Partial<NonNullable<ScoringCharacter["stats"]>>) => {
+    // `sets`: the build's sets (default none; a carry without a build wears their guide's, #206).
+    const dps = (ids: string[], active: Reaction[], stats?: Partial<NonNullable<ScoringCharacter["stats"]>>, sets?: ScoringCharacter["sets"]) => {
       const c = byId.get(ids[0])!;
-      const built = stats ? { ...c, stats: { atk: 2200, baseAtk: 950, hp: 16000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 120, elementalMastery: 100, elementalDmgBonus: 0, ...stats } } : c;
+      const built = stats ? { ...c, sets, stats: { atk: 2200, baseAtk: 950, hp: 16000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 120, elementalMastery: 100, elementalDmgBonus: 0, ...stats } } : c;
       return carryDamage(built, active, team(...ids).map((m) => (m.id === c.id ? built : m)))!.perSecond;
     };
 
@@ -137,17 +138,22 @@ describe("carry damage (#101)", () => {
       // Two Moonsign members (Columbina) vs one.
       expect(dps(["Zibai", "Columbina", "Furina", "Zhongli"], [])).toBeGreaterThan(dps(["Zibai", "Bennett", "Furina", "Zhongli"], []));
       const flinsGleam = ["Flins", "Ineffa", "Xingqiu", "Bennett"];
-      // Flins' extra hit also needs thunderclouds: a Lunar-Charged reaction.
-      expect(dps(flinsGleam, ["lunar-charged"])).toBeGreaterThan(dps(flinsGleam, []));
-      expect(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], ["lunar-charged"])).toBe(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], []));
+      // Flins' extra hit also needs thunderclouds: a Lunar-Charged reaction (a build without his guide's Night of the
+      // Sky's Unveiling, whose CRIT Rate also needs a Lunar reaction, #206).
+      expect(dps(flinsGleam, ["lunar-charged"], {})).toBeGreaterThan(dps(flinsGleam, [], {}));
+      expect(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], ["lunar-charged"], {})).toBe(dps(["Flins", "Xingqiu", "Bennett", "Zhongli"], [], {}));
     });
 
     test("Flins' passive 2 EM counts for an imported build too (#149)", () => {
-      // A build with the benchmark's own stats (ATK 2200, EM 100, 60% DMG bonus) deals what no build does: Enka's EM
-      // leaves the passive out, so it's added either way.
+      // A build with the benchmark's own stats (ATK 2200, EM 100, 60% DMG bonus) and set (his guide's Night of the Sky's
+      // Unveiling, #206) deals what no build does: Enka's EM leaves the passive out, so it's added either way.
       const ids = ["Flins", "Ineffa", "Xingqiu", "Bennett"];
       for (const active of [[], ["lunar-charged"]] as Reaction[][]) {
-        expect(dps(ids, active, { elementalDmgBonus: 60 })).toBeCloseTo(dps(ids, active), 6);
+        const night = [{ set: "Night of the Sky's Unveiling", pieces: 4 as const }];
+        // The benchmark wears a CRIT DMG circlet when its set's CRIT Rate is up (a Lunar reaction, #279): 60 - 31.1 CRIT
+        // Rate, 120 + 62.2 CRIT DMG.
+        const crit = active.length ? { critRate: 28.9, critDmg: 182.2 } : {};
+        expect(dps(ids, active, { elementalDmgBonus: 60, ...crit }, night)).toBeCloseTo(dps(ids, active), 6);
       }
     });
 
@@ -339,6 +345,21 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(cyno, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(cyno, [])!.perSecond);
   });
 
+  test("Kinich's Hunter's Experience: 3.2x ATK on a Cannon per party Nightsoul Burst, more with more Natlanese (#288)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const kinich = byId.get("Kinich")!;
+    const dps = (...ids: string[]) => carryDamage(kinich, ["burning"], team("Kinich", ...ids))!.perSecond;
+    const one = dps("Emilie", "Xiangling", "Bennett"); // every 18s: 1 stack per 18s rotation
+    const two = dps("Mavuika", "Emilie", "Bennett"); // every 12s: 1.5
+    const three = dps("Xilonen", "Citlali", "Bennett"); // every 9s: 2 (Xilonen, Citlali don't change his own hits)
+    expect(two).toBeGreaterThan(one);
+    expect(three).toBeGreaterThan(two);
+    // The extra 0.5 stack per rotation is 0.5 x 3.2 = 1.6 ATK of Cannon-type damage: under one Cannon (11.7 ATK).
+    const hunter = (kit as unknown as { carries: { Kinich: { hits: { label: string; scaling: { atk: number }; nightsoulBursts?: string }[] } } }).carries.Kinich.hits.find((h) => h.nightsoulBursts)!;
+    expect(hunter.scaling.atk).toBe(3.2);
+    expect(two / one - 1).toBeLessThan(0.1);
+  });
+
   test("Noelle's Burst turns DEF into ATK: more DEF alone raises her damage", () => {
     const noelle = byId.get("Noelle")!;
     const stats = { atk: 1500, baseAtk: 750, hp: 15000, def: 2000, critRate: 60, critDmg: 120, energyRecharge: 140, elementalMastery: 0, elementalDmgBonus: 46.6 };
@@ -382,3 +403,113 @@ describe("carry damage (#101)", () => {
 for (const [id, c] of Object.entries(carries)) {
   for (const m of c.missing ?? []) test.todo(`kit-overrides hitRates: ${id} ${m}`);
 }
+
+describe("weapon passives on the holder's hits (#40)", () => {
+  const get = (id: string) => byId.get(id)!;
+  const holding = (id: string, weapon: string, refinement = 1): ScoringCharacter => ({ ...get(id), weaponBuild: { id: weapon, level: 90, refinement } });
+  const bonus = (c: ScoringCharacter, team: ScoringCharacter[], type: "normal" | "charged" | "skill" | "burst") => weaponDmgBonus(weaponBuffs(c, [c, ...team]), type);
+
+  test("Watatsumi weapons: Burst DMG per point of the party's max Energy, capped, by refinement", () => {
+    const team = ["Bennett", "Xingqiu", "Xiangling"].map(get);
+    const energy = [holding("Raiden Shogun", "Wavebreaker's Fin"), ...team].reduce((a, m) => a + m.burstCost!, 0);
+    expect(bonus(holding("Raiden Shogun", "Wavebreaker's Fin"), team, "burst")).toBeCloseTo(Math.min(0.4, 0.0012 * energy));
+    expect(bonus(holding("Raiden Shogun", "Wavebreaker's Fin", 5), team, "burst")).toBeCloseTo(Math.min(0.8, 0.0024 * energy));
+    expect(bonus(holding("Raiden Shogun", "Wavebreaker's Fin"), team, "skill")).toBe(0);
+  });
+
+  test("Mountain-Bracing Bolt's second 12% needs a teammate who uses their Skill", () => {
+    expect(weaponDmgBonus(weaponBuffs(holding("Kachina", "Mountain-Bracing Bolt"), []), "skill")).toBeCloseTo(0.12);
+    expect(bonus(holding("Kachina", "Mountain-Bracing Bolt"), [get("Bennett")], "skill")).toBeCloseTo(0.24);
+  });
+
+  test("Uraku Misugiri doubles with a Geo member", () => {
+    const chiori = holding("Chiori", "Uraku Misugiri");
+    expect(bonus(chiori, [get("Furina")], "skill")).toBeCloseTo(0.48); // Chiori is Geo herself
+    const ayaka = holding("Kamisato Ayaka", "Uraku Misugiri");
+    expect(bonus(ayaka, [get("Shenhe")], "normal")).toBeCloseTo(0.16);
+    expect(bonus(ayaka, [get("Zhongli")], "normal")).toBeCloseTo(0.32);
+  });
+
+  test("Splendor of Tranquil Waters needs the party's HP to change (a healer)", () => {
+    const furina = holding("Furina", "Splendor of Tranquil Waters");
+    expect(weaponBuffs(furina, [furina, get("Xingqiu")]).length).toBeGreaterThan(0); // Furina heals
+    const kazuha = holding("Kaedehara Kazuha", "Splendor of Tranquil Waters");
+    expect(weaponBuffs(kazuha, [kazuha, get("Xingqiu")])).toEqual([]);
+    expect(bonus(kazuha, [get("Bennett")], "skill")).toBeCloseTo(0.24); // 8% x 3 stacks
+  });
+
+  test("more passives on the holder's own damage (#206): Bond of Life, auras, HP drain, every hit", () => {
+    expect(bonus(holding("Arlecchino", "Crimson Moon's Semblance"), [], "normal")).toBeCloseTo(0.36); // 12% + 24%
+    expect(bonus(holding("Raiden Shogun", "Crimson Moon's Semblance"), [], "normal")).toBe(0); // no Bond of Life
+    expect(bonus(holding("Raiden Shogun", "Dragon's Bane"), [get("Xingqiu")], "burst")).toBeCloseTo(0.2);
+    expect(bonus(holding("Raiden Shogun", "Dragon's Bane"), [get("Kujou Sara")], "burst")).toBe(0);
+    expect(bonus(holding("Neuvillette", "Tome of the Eternal Flow"), [], "charged")).toBeCloseTo(0.42); // his HP drain
+    expect(bonus(holding("Raiden Shogun", '"The Catch"', 5), [], "burst")).toBeCloseTo(0.32);
+    const sands = holding("Raiden Shogun", "Staff of the Scarlet Sands");
+    expect(carryDamage(sands)!.perSecond).toBeGreaterThan(carryDamage(get("Raiden Shogun"))!.perSecond);
+  });
+
+  test("a benchmark character holds no weapon; a build's weapon raises its hits", () => {
+    expect(weaponBuffs(get("Raiden Shogun"), [get("Raiden Shogun")])).toEqual([]);
+    const team = ["Bennett", "Xingqiu", "Xiangling"].map(get);
+    const raiden = get("Raiden Shogun");
+    const fin = holding("Raiden Shogun", "Wavebreaker's Fin");
+    expect(carryDamage(fin, [], [fin, ...team])!.perSecond).toBeGreaterThan(carryDamage(raiden, [], [raiden, ...team])!.perSecond);
+  });
+});
+
+describe("set bonuses on the wearer's own damage (#206)", () => {
+  const get = (id: string) => byId.get(id)!;
+  const team = (...ids: string[]) => ids.map(get);
+  const STATS = { atk: 2200, baseAtk: 950, hp: 16000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 120, elementalMastery: 100, elementalDmgBonus: 60 };
+  const wearing = (id: string, set: string, pieces: 2 | 4 = 4): ScoringCharacter => ({ ...get(id), stats: STATS, sets: [{ set, pieces }] });
+  const value = (c: ScoringCharacter, mates: string[], active: Reaction[], kind: string) =>
+    setBuffs(c, active, [c, ...team(...mates)]).filter((b) => b.kind === kind).reduce((a, b) => a + b.value, 0);
+
+  test("a benchmark carry wears their guide's set, by team where the guide says so", () => {
+    expect(setsOf(get("Neuvillette"), [])).toEqual([{ set: "Marechaussee Hunter", pieces: 4 }]);
+    expect(setsOf(get("Skirk"), [], team("Skirk", "Furina"))).toEqual([{ set: "Marechaussee Hunter", pieces: 4 }]);
+    expect(setsOf(get("Skirk"), [], team("Skirk", "Escoffier"))).toEqual([{ set: "Finale of the Deep Galleries", pieces: 4 }]);
+    expect(setsOf(get("Kamisato Ayaka"), [], team("Kamisato Ayaka", "Shenhe"))).toEqual([]);
+    expect(setsOf(wearing("Neuvillette", "Gilded Dreams"), [])).toEqual([{ set: "Gilded Dreams", pieces: 4 }]);
+  });
+
+  test("Marechaussee's CRIT Rate needs the wearer's HP to change: HP drain or a healer", () => {
+    expect(value(get("Neuvillette"), ["Kaedehara Kazuha"], [], "critRate")).toBeCloseTo(0.36); // his own drain
+    expect(value(wearing("Kamisato Ayaka", "Marechaussee Hunter"), ["Shenhe"], [], "critRate")).toBe(0);
+    expect(value(wearing("Kamisato Ayaka", "Marechaussee Hunter"), ["Furina"], [], "critRate")).toBeCloseTo(0.36);
+  });
+
+  test("2pc bonuses the character screen doesn't show count for imports only", () => {
+    expect(value(wearing("Neuvillette", "Marechaussee Hunter", 2), ["Furina"], [], "dmgBonus")).toBeCloseTo(0.15);
+    expect(value(get("Neuvillette"), ["Furina"], [], "dmgBonus")).toBe(0); // the benchmark's generic DMG bonus has it
+    expect(value(wearing("Neuvillette", "Marechaussee Hunter", 2), ["Furina"], [], "critRate")).toBe(0); // no 4pc
+  });
+
+  test("Gilded Dreams counts the other members' elements, once the wearer reacts", () => {
+    const mates = ["Nahida", "Fischl", "Kuki Shinobu"];
+    expect(value(get("Alhaitham"), mates, ["spread"], "atkPctPerSame")).toBeCloseTo(0.14); // Nahida
+    expect(value(get("Alhaitham"), mates, ["spread"], "emPerOther")).toBe(100);
+    expect(value(get("Alhaitham"), mates, [], "emPerOther")).toBe(0);
+  });
+
+  test("Night of the Sky's Unveiling: 15% CRIT Rate at Nascent Gleam, 30% at Ascendant, with a Lunar reaction", () => {
+    expect(value(get("Flins"), ["Xingqiu", "Bennett"], ["lunar-charged"], "critRate")).toBeCloseTo(0.15);
+    expect(value(get("Flins"), ["Ineffa", "Bennett"], ["lunar-charged"], "critRate")).toBeCloseTo(0.15); // no gleam passed
+    expect(setBuffs(get("Flins"), ["lunar-charged"], team("Flins", "Ineffa"), true).find((b) => b.kind === "critRate")!.value).toBeCloseTo(0.3);
+    expect(value(get("Flins"), ["Ineffa", "Bennett"], [], "critRate")).toBe(0);
+  });
+
+  test("Crimson Witch: 1 stack and +15% Vaporize; Gaming's guide gives him 3 stacks", () => {
+    expect(value(get("Hu Tao"), ["Xingqiu"], ["vaporize"], "dmgBonus")).toBeCloseTo(0.075);
+    expect(value(get("Gaming"), ["Xingqiu"], ["vaporize"], "dmgBonus")).toBeCloseTo(0.225);
+    const vape = (c: ScoringCharacter) => carryDamage(c, ["vaporize"], [c, get("Xingqiu")])!.perSecond / carryDamage(c, [], [c, get("Xingqiu")])!.perSecond;
+    expect(vape(get("Hu Tao"))).toBeGreaterThan(vape({ ...get("Hu Tao"), stats: STATS, sets: [] }));
+  });
+
+  test("a set's buff raises the carry's damage", () => {
+    const raiden = { ...get("Raiden Shogun"), stats: STATS };
+    const fate = { ...raiden, sets: [{ set: "Emblem of Severed Fate", pieces: 4 as const }] };
+    expect(carryDamage(fate)!.perSecond).toBeGreaterThan(carryDamage({ ...raiden, sets: [] })!.perSecond);
+  });
+});

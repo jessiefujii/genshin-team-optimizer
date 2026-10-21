@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, weaponAtk, weaponBuffs, weaponDmgBonus, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -219,8 +219,8 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
   // Freeze scores only through crit (#205): with a 4pc set whose CRIT Rate needs it (Blizzard Strayer, #206) it is in the
   // carry's damage. A carry without a build wears their guide's set (setsOf, #279), and a build with another set gets
-  // nothing from Freeze. A carry whose guide set isn't modeled yet (Ayaka, Wriothesley: Marechaussee Hunter) keeps the
-  // flat points.
+  // nothing from Freeze. A carry whose guide set doesn't need Freeze (Ayaka, Wriothesley: Marechaussee Hunter, #206)
+  // keeps the flat points.
   const worn = carryActive.includes("freeze") && freezeInDamage(carry, ctx.active);
   const frozen = worn || (carryActive.includes("freeze") && freezeSetModeled(carry));
   if (worn) out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents`);
@@ -689,7 +689,7 @@ function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
 
 type NightsoulBurstEntry =
   | { target: "own"; note: string; source: string }
-  | { target: "self"; kind?: "atkPct"; value?: number; duration: number | null; maxStacks: number; source: string };
+  | { target: "self"; kind?: "atkPct"; value?: number; duration: number | null; maxStacks: number; inDamage?: boolean; source: string };
 const NIGHTSOUL_BURST = kitJson.nightsoulBurst as {
   cooldownByNatlanese: Record<string, number>;
   notNatlanese: string[];
@@ -707,11 +707,12 @@ const FASTEST_NIGHTSOUL = Math.min(...COOLDOWNS.map(([, s]) => s));
 // Nightsoul Burst (#63). A party with a Natlanese member triggers one whenever someone deals Elemental DMG, at most
 // once per cooldown (18s with 1 Natlanese member, 12s with 2, 9s with 3 or more; data/kit.json). Every effect it
 // triggers is that character's own, so only the carry's counts: Mavuika's and Varesa's ATK by the damage it adds,
-// Kinich's, Mualani's and Chasca's kit upgrade as ownNightsoulBurst. Either way, by how much of it a faster cooldown
-// keeps up: average stacks (each lasts `duration`, up to maxStacks) or, for a one-off like Chasca's shot, how often.
+// Mualani's and Chasca's kit upgrade as ownNightsoulBurst. Either way, by how much of it a faster cooldown keeps up:
+// average stacks (each lasts `duration`, up to maxStacks) or, for a one-off like Chasca's shot, how often. Kinich's
+// (inDamage) is in his Cannon damage instead (#288, damage.ts), so no points here.
 function nightsoulBurstLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const entry = carry && NIGHTSOUL_BURST.characters[carry.id];
-  if (!carry || entry?.target !== "self") return;
+  if (!carry || entry?.target !== "self" || entry.inDamage) return;
   const natlanese = ctx.members.filter(
     (m) => familiesOf(m, ctx.options).includes("nightsoul") && !NIGHTSOUL_BURST.notNatlanese.includes(m.id),
   ).length;
@@ -776,8 +777,9 @@ function teammatesLunarBase(r: Reaction, members: readonly ScoringCharacter[], s
   }
   return sum;
 }
-// With Stellar Swirl: the converters' Base DMG bonus reaches direct Stellar Swirl hits too (Mizuki's, #235).
-const LUNAR_REACTIONS: LunarReaction[] = ["lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-swirl"];
+// With the Stellar reactions: the converters' Base DMG bonus reaches direct Stellar hits too (Mizuki's, #235; Cryo
+// Traveler's Stellar-Conduct Burst, #236).
+const LUNAR_REACTIONS: LunarReaction[] = ["lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-swirl", "stellar-conduct"];
 // The share of rotations each member's Burst is funded with this carry (#37, energy.ts), for the buffs from it (#207):
 // the same reading their Burst damage uses (subDpsLines, carry damage's burstShare).
 function burstSharesFor(ctx: TeamContext, carry: ScoringCharacter): BurstShares {
@@ -1338,12 +1340,18 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       (own && own.reactions.includes(r) ? Math.min(own.max, own.perPoint * stat[own.stat]) : 0) + teammatesLunarBase(r, ctx.members, m);
     const reactions = subDpsReactions(m, ctx);
     const reacted = new Set<Reaction>();
+    // Their build's weapon passive on their own hits (#40): DMG bonus by talent, and Max HP as a % of base HP.
+    const weapon = weaponBuffs(m, ctx.members, ctx.active);
+    const hp = stat.hp + weapon.reduce((a, b) => a + (b.kind === "hpPct" ? b.value : 0), 0) * (entry.base?.hp ?? 0);
     for (const s of entry.sources) {
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
       // Teammates' party-wide kit buffs on this hit (#204, kit.ts memberBuffStats): ATK, DMG Bonus, CRIT Rate, flat DMG.
       const team = memberBuffStats(m, carry, ctx.active, ctx.members, s.talent, burstSharesFor(ctx, carry));
-      const atk = stat.atk + team.atk + team.atkPct * baseAtk;
-      const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
+      const atk = stat.atk + team.atk + team.atkPct * baseAtk + weaponAtk(weapon, baseAtk, stat.em); // weapon ATK (#206)
+      const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
+      // By talent (#40); a Normal Attack talent's hits read as Normal Attack DMG (#206: every-hit bonuses reach them).
+      const talent = s.talent === "normal" || s.talent === "skill" || s.talent === "burst" ? s.talent : undefined;
+      const weaponBonus = talent ? weaponDmgBonus(weapon, talent) : 0;
       // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
       const crit = 1 + Math.min(stat.critRate + team.critRate, 1) * stat.critDmg;
       // Teammates' RES and DEF shred on this hit (#204), as on the carry's: Lunar hits take RES only.
@@ -1374,7 +1382,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
         const b = s.boost;
         const hitsPerUse = (s.hits ?? 1) * (s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1);
         const boost = b ? 1 + Math.min(1, b.stacks / hitsPerUse) * Math.min(b.max, b.perPoint * stat[b.stat]) : 1;
-        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat) * crit * res * def * boost;
+        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat + weaponBonus) * crit * res * def * boost;
       }
     }
     dps += lunarDps;
