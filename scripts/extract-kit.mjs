@@ -2426,17 +2426,18 @@ const CARRIES = {
     ],
   },
   Kaveh: {
-    // KQM Kaveh guide, combo (2), for C0-1: "Kaveh EQ N3D N3 E N3D N4 E (N2)" ((N2) optional, "can be omitted to save
-    // rotation length": left out): 3 Skills, his Burst, 13 Normal Attacks in its Dendro infusion. His Bloom DMG
-    // (Painted Dome's Dendro Core bonus) stays outside damage (#145); passive 2's EM only feeds those reactions.
-    combo: "EQ N3D N3 E N3D N4 E",
+    // KQM Kaveh quick guide (keqingmains.com/q/kaveh-quickguide/, linked by Jessie 2026-10-20, #262): "Kaveh EQ 2[N3D]
+    // N1 E 2[N3D] N2 E (N2)", "For C1-C0 Kaveh" ((N2) optional, "can be omitted to save rotation length": left out). Its
+    // C2+ combo is "EQ N3D N4 E N4D N4 E (N2)". 3 Skills, his Burst, 15 Normal Attacks in its Dendro infusion; each is one
+    // hit at the standard 2.5s/3 hits ICD (wiki Schematic Setup, Advanced Properties). His Bloom DMG (Painted Dome's
+    // Dendro Core bonus) stays outside damage (#145); passive 2's EM only feeds those reactions.
+    combo: "EQ 2[N3D] N1 E 2[N3D] N2 E",
     hits: [
       { table: "skill", label: "Skill DMG", count: 3, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
-      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
-      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 5, type: N },
       { table: "normal", label: "3-Hit DMG", count: 4, type: N },
-      { table: "normal", label: "4-Hit DMG", count: 1, type: N },
     ],
     buffs: [],
   },
