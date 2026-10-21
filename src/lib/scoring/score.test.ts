@@ -18,7 +18,7 @@ const byId = new Map(all.map((c) => [c.id, c]));
 // Diluc, Keqing and Tartaglia with no damage model (#203, #232 model them): the flat-point paths for carries not
 // modeled yet (reaction partners, buffer points) are tested on these copies. Same tags; only the id differs, so no
 // carry kit.
-for (const id of ["Diluc", "Keqing", "Tartaglia", "Lyney"]) byId.set(`${id} (no model)`, { ...byId.get(id)!, id: `${id} (no model)` });
+for (const id of ["Diluc", "Keqing", "Tartaglia", "Lyney", "Neuvillette", "Kamisato Ayaka"]) byId.set(`${id} (no model)`, { ...byId.get(id)!, id: `${id} (no model)` });
 const team = (...ids: string[]) =>
   ids.map((id) => {
     const c = byId.get(id);
@@ -107,7 +107,7 @@ describe("scoreTeam", () => {
     expect(reasons("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toContain("Vaporize adds ~+78% to Hu Tao's damage");
     // Gaming's main reaction is Melt; his Vaporize teams amplify by Vaporize (his Vaporize combo). Plunging Attacks
     // have no ICD (#226): all 7 react. Xianyun's flat Plunge DMG is on those 7, not his Burst hits (#299).
-    expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+88% to Gaming's damage"); // his benchmark Fruitful Hook (#206)
+    expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+87% to Gaming's damage"); // his benchmark Fruitful Hook (#206), Fervent Flames in damage (#186)
   });
 
   test("Spread and Aggravate need the Quicken aura, which Hydro eats (#303)", () => {
@@ -115,14 +115,14 @@ describe("scoreTeam", () => {
     const spread = (...ids: string[]) => Number(reasons(...ids).find((r) => r.startsWith("Spread adds"))?.match(/\+(\d+)%/)?.[1] ?? 0);
     const own = (who: string, ...ids: string[]) => dps(reasons(...ids).find((r) => r.startsWith(`${who}'s own hits`)));
     // No Hydro or Pyro: the Quicken aura is up throughout, every applying hit Spreads (as before #303; ICDs #226, sets #206).
-    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(79); // his benchmark Wolf-Fang (#206)
+    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(73); // his benchmark Wolf-Fang (#206); Nahida's EM in damage (#186)
     // Furina's Hydro turns the Quicken aura into Bloom: Alhaitham Spreads about half the time, and Yae Aggravates less.
     const furina = spread("Alhaitham", "Furina", "Xilonen", "Yae Miko");
     expect(furina).toBeGreaterThan(30);
     expect(furina).toBeLessThan(70);
     expect(own("Yae Miko", "Alhaitham", "Furina", "Xilonen", "Yae Miko")).toBeLessThan(31193); // 31193 before #303
     // Kazuha's Anemo doesn't touch Quicken: Clorinde keeps her full Aggravate there.
-    expect(reasons("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toContain("Aggravate, Quicken add ~+27% to Clorinde's damage, on top of the passive"); // ICDs (#226)
+    expect(reasons("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toContain("Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive") // Nahida's EM in damage (#186); // ICDs (#226)
   });
 
   test("Dendro Cores: Electro pops them into Hyperbloom, none with a Lunar-Bloom converter (#253)", () => {
@@ -143,15 +143,15 @@ describe("scoreTeam", () => {
     // Overloaded alone; Aggravate then adds only what it adds on top. Overloaded's own damage is a 0-point line too (#205).
     expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+77% damage" },
-      { rule: "Reactions", points: 0, reason: "Overloaded: ~1202 damage per second (Bennett ~0.1/s, Chevreuse ~0.1/s)" },
-      { rule: "Reactions", points: 0, reason: "Electrocharged: ~4334 damage per second (Clorinde ~0.4/s, Furina ~0.6/s)" },
+      { rule: "Reactions", points: 0, reason: "Overloaded: ~1178 damage per second (Bennett ~0.1/s, Chevreuse ~0.1/s)" },
+      { rule: "Reactions", points: 0, reason: "Electrocharged: ~4335 damage per second (Clorinde ~0.4/s, Furina ~0.6/s)" },
     ]);
     expect(reactions("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+77% damage" },
       // 1 in 3 of her Swift Hunt and Impale hits applies Electro (one Normal Attack ICD, #226), 2 of 5 Burst hits.
-      { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+27% to Clorinde's damage, on top of the passive" },
+      { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive" },
       // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
-      { rule: "Reactions", points: 0, reason: "Swirl: ~2381 damage per second (Kaedehara Kazuha ~0.5/s)" },
+      { rule: "Reactions", points: 0, reason: "Swirl: ~2287 damage per second (Kaedehara Kazuha ~0.4/s)" },
     ]);
     // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze. Fischl's and Furina's
     // Electro-Charged deals its own damage (#205); no Superconduct, which Sandrone turns into Stellar-Conduct.
@@ -228,7 +228,7 @@ describe("scoreTeam", () => {
     // damage (#205). No flat points either way.
     expect(s.breakdown.filter((l) => l.rule === "Reactions")).toEqual([
       { rule: "Reactions", points: 0, reason: "Swirl, Crystallize add ~+20% to Neuvillette's damage" },
-      { rule: "Reactions", points: 0, reason: "Swirl: ~2778 damage per second (Kaedehara Kazuha ~0.5/s)" },
+      { rule: "Reactions", points: 0, reason: "Swirl: ~1960 damage per second (Kaedehara Kazuha ~0.3/s)" },
     ]);
   });
 
@@ -489,9 +489,14 @@ describe("scoreTeam", () => {
     });
 
     test("EM buffs need a reaction that uses EM", () => {
-      // Freeze does not scale with EM; Vaporize does.
+      // Freeze does not scale with EM; Vaporize does. Without a damage model, as points; for a modeled carry, in their
+      // damage (#186): it feeds the reactions the damage model reads.
       expect(buffLine(score("Kamisato Ayaka", "Sucrose", "Furina", "Shenhe"), "Sucrose")?.points).toBe(0);
-      expect(buffLine(score("Hu Tao", "Sucrose", "Xingqiu", "Yelan"), "Sucrose")?.points).toBe(11);
+      expect(buffLine(score("Diluc (no model)", "Sucrose", "Xingqiu", "Yelan"), "Sucrose")?.points).toBeGreaterThan(0);
+      const hutao = buffLine(score("Hu Tao", "Sucrose", "Xingqiu", "Yelan"), "Sucrose")!;
+      expect(hutao.points).toBe(0);
+      const [all, inDamage] = hutao.reason.match(/~\+\d+%/g)!;
+      expect(inDamage).toBe(all);
     });
 
     test("reaction buffs need that reaction in the team", () => {
@@ -639,7 +644,8 @@ describe("sub-DPS (#96)", () => {
     const rite = ["Arlecchino", "Durin", "Fischl", "Bennett"];
     expect(buffsOn("Bennett", rite).resShred).toBeGreaterThan(buffsOn("Bennett", ["Arlecchino", "Durin", "Beidou", "Bennett"]).resShred);
     expect(buffsOn("Fischl", rite).atkPct).toBeGreaterThan(0);
-    expect(buffsOn("Bennett", rite).atkPct).toBe(0);
+    // Fervent Flames (Arlecchino, Bennett: #186) is on both; Fischl's ATK only with Secret Rite.
+    expect(buffsOn("Bennett", rite).atkPct).toBeCloseTo(buffsOn("Bennett", ["Arlecchino", "Durin", "Beidou", "Bennett"]).atkPct, 6);
   });
 
   test("a support who out-damages the carry is not named main DPS (#266)", () => {
@@ -1018,12 +1024,17 @@ describe("talent levels (#25)", () => {
 
   test("Pyro resonance only counts for a carry that scales on ATK (#51)", () => {
     const pyro = (s: ReturnType<typeof scoreTeam>) => s.breakdown.find((l) => l.reason.startsWith("Fervent Flames"));
-    expect(pyro(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"))?.points).toBe(10);
-    expect(pyro(score("Neuvillette", "Bennett", "Xiangling", "Furina"))).toEqual({
+    // Without a damage model, as points for an ATK scaler only.
+    expect(pyro(score("Diluc (no model)", "Bennett", "Xiangling", "Xingqiu"))?.points).toBe(10);
+    expect(pyro(score("Neuvillette (no model)", "Bennett", "Xiangling", "Furina"))).toEqual({
       rule: "Resonance",
       points: 0,
-      reason: "Fervent Flames (+25% ATK), but Neuvillette scales on HP",
+      reason: "Fervent Flames (+25% ATK), but Neuvillette (no model) scales on HP",
     });
+    // A modeled carry has its +25% ATK in team damage (#186): Raiden's ATK hits gain, Neuvillette's HP hits don't.
+    expect(pyro(score("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu"))).toEqual({ rule: "Resonance", points: 0, reason: "Fervent Flames (+25% ATK): in team damage" });
+    const atk = (...ids: string[]) => teamBuffStats(team(...ids)[0], [], team(...ids)).atkPct;
+    expect(atk("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu") - atk("Raiden Shogun", "Bennett", "Furina", "Xingqiu")).toBeCloseTo(0.25, 6);
   });
 
   test("the strongest fitting buffers count, whatever their team order (#60)", () => {
@@ -1061,8 +1072,8 @@ describe("talent levels (#25)", () => {
     const spread = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Spread adds"))?.reason;
     // Bennett's ATK raises Alhaitham's hits but not Spread's flat damage, so Spread adds a smaller share.
     // (ICDs, #226; with his guide's Gilded Dreams, whose ATK and EM need a reaction, #206.)
-    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+79% to Alhaitham's damage");
-    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+67% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+73% to Alhaitham's damage"); // Nahida's EM in damage (#186)
+    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+63% to Alhaitham's damage");
     // Lauma's flat DMG is for Bloom-type reactions, not his hits: no change.
     expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+79% to Alhaitham's damage");
     // Vaporize multiplies the whole hit, so ATK buffs leave its share alone.
@@ -1072,14 +1083,20 @@ describe("talent levels (#25)", () => {
 
   test("Hydro and Dendro resonance only count when the carry uses the stat (#59)", () => {
     const res = (s: ReturnType<typeof scoreTeam>, name: string) => s.breakdown.find((l) => l.reason.startsWith(name));
-    expect(res(score("Kamisato Ayaka", "Diona", "Furina", "Mona"), "Soothing Water")).toEqual({
+    // Without a damage model, as points when the carry uses the stat.
+    expect(res(score("Kamisato Ayaka (no model)", "Diona", "Furina", "Mona"), "Soothing Water")).toEqual({
       rule: "Resonance",
       points: 0,
-      reason: "Soothing Water, but Kamisato Ayaka scales on ATK",
+      reason: "Soothing Water, but Kamisato Ayaka (no model) scales on ATK",
     });
-    expect(res(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"), "Soothing Water")?.points).toBe(5);
-    expect(res(score("Alhaitham", "Nahida", "Fischl", "Kuki Shinobu"), "Sprawling Greenery")?.points).toBe(5); // EM scaler
-    expect(res(score("Kinich", "Emilie", "Xiangling", "Bennett"), "Sprawling Greenery")?.points).toBe(5); // Burning uses EM
+    expect(res(score("Neuvillette (no model)", "Furina", "Kaedehara Kazuha", "Zhongli"), "Soothing Water")?.points).toBe(5);
+    // A modeled carry has them in team damage (#186): HP for HP hits, EM for the reactions the damage model reads.
+    const inDamage = (name: string) => ({ rule: "Resonance", points: 0, reason: `${name}: in team damage` });
+    expect(res(score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli"), "Soothing Water")).toEqual(inDamage("Soothing Water"));
+    expect(res(score("Alhaitham", "Nahida", "Fischl", "Kuki Shinobu"), "Sprawling Greenery")).toEqual(inDamage("Sprawling Greenery"));
+    expect(res(score("Kinich", "Emilie", "Xiangling", "Bennett"), "Sprawling Greenery")).toEqual(inDamage("Sprawling Greenery"));
+    const em = (...ids: string[]) => teamBuffStats(team(...ids)[0], [], team(...ids), undefined, score(...ids).activeReactions).em;
+    expect(em("Alhaitham", "Nahida", "Fischl", "Kuki Shinobu")).toBeGreaterThanOrEqual(50 + 20); // +20 after Spread
   });
 
   test("a hypercarry counts a third buffer (#51)", () => {
