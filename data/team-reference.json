@@ -1,14 +1,14 @@
 {
-  "median": 143175.2,
+  "median": 141211.1,
   "carries": {
     "Alhaitham": {
       "team": [
         "Alhaitham",
-        "Yae Miko",
-        "Nahida",
-        "Zhongli"
+        "Kuki Shinobu",
+        "Furina",
+        "Nahida"
       ],
-      "value": 214641.6
+      "value": 208132.1
     },
     "Aloy": {
       "team": [
@@ -287,7 +287,7 @@
         "Ineffa",
         "Yae Miko"
       ],
-      "value": 148353
+      "value": 135450.1
     },
     "Sethos": {
       "team": [
@@ -341,7 +341,7 @@
         "Odette",
         "Alyosha"
       ],
-      "value": 88438.7
+      "value": 77803.4
     },
     "Varesa": {
       "team": [

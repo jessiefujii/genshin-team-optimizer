@@ -888,6 +888,8 @@ function readStellar(id, spec) {
 //   boost: a passive that raises the DMG of a limited number of this source's hits per use by a share of a stat, capped
 //       (Durin's Primordial Fusion, #195): { from, stacks, re, per, stat, max }, regexes into its text; written as
 //       `boost: { stacks, perPoint, stat, max }`
+//   cdPlus: { from, re } seconds a passive adds to the `cd` row, read from its text (Yae's Edict of Cleansing: her
+//       totems last 10s longer, #304)
 const SUBDPS = {
   // Supports' own hits (#203): every character gets a damage profile, whatever their role. Their Skill and Burst hits,
   // from the talent tables; recurring hits at rates from the wiki's Gameplay Notes (kit-overrides.json hitRates).
@@ -1355,11 +1357,27 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Sword Rain DMG", onCarryNormal: true, every: "rate", hits: "rate", duration: "Duration", cd: "CD" },
   ],
+  // Off-field Yae is her three Sesshou Sakura (#304). KQM's quick guide (https://keqingmains.com/q/yae-quickguide/,
+  // fetched 2026-10-21): "Most of the time, Yae only uses her Elemental Skill and ignores her Burst", "Despite looking
+  // powerful, Yae's Burst is often a DPS loss", and in Alhaitham's team "Yae should skip her Burst entirely": her Burst
+  // (Skill DMG + 3 Tenko Thunderbolts, every 22s, about a third of her damage) is left out. With her Witch's Revelation
+  // (Edict of Cleansing, passive 4) "the duration of each Skill turret is permanently increased from 14 to 24s, allowing
+  // full uptime in most of Yae's teams without having to refresh her Skill", and "Yae's Burst no longer consumes her
+  // Skill totems": three totems always up, 8 strikes each per 24s (hitRates). Passive 2 Enlightened Blessing: "Every
+  // point of Elemental Mastery Yae Miko possesses will increase Sesshou Sakura DMG by 0.15%". Left out: passive 1's
+  // extra 40% ATK strike on recasting her Skill with 3 totems out (~3 per rotation, ~+3%, estimate) and passive 4's
+  // Superconduct/Stellar-Conduct-enhanced strikes (kit.json stellar). Without the quest her totems last 14s and her
+  // Burst destroys them (not modeled: the scorer assumes the quest done unless told otherwise).
   "Yae Miko": [
-    // Three Sesshou Sakura at level 3 ("A maximum of 3"), each striking as often as the wiki says.
-    { talent: "skill", label: "Sesshou Sakura DMG: Level 3", hits: "rate", times: /A maximum of (\d+) Sesshou Sakura/, cd: "Duration" },
-    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Tenko Thunderbolt DMG", hits: 3, cd: "CD" }, // one per Sesshou Sakura
+    {
+      talent: "skill",
+      label: "Sesshou Sakura DMG: Level 3",
+      hits: "rate",
+      times: /A maximum of (\d+) Sesshou Sakura/,
+      cd: "Duration",
+      cdPlus: { from: "passive4", re: /Extends the duration of the Sesshou Sakura by (\d+)s/ },
+      dmgBonusPer: [{ from: "passive2", re: /increase Sesshou Sakura DMG by ([\d.]+)%/, stat: "em" }],
+    },
   ],
   Yelan: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
@@ -1467,7 +1485,7 @@ function readSubDps(id, specs) {
       ...(s.lunar ? { lunar: s.lunar } : {}),
       ...(s.whenReaction ? { whenReaction: s.whenReaction } : {}),
       ...(s.pickOne ? { pickOne: s.pickOne } : {}),
-      cd: tableValue(attrs, s.cd, id),
+      cd: tableValue(attrs, s.cd, id) + (s.cdPlus ? passiveValue(s.cdPlus) * 100 : 0),
       ...(needsRate ? { rateSource: rate.source } : {}),
       ...(icds[`${s.talent}: ${s.label}`] ? { icd: icds[`${s.talent}: ${s.label}`] } : {}),
       ...(needsRate && rate.alternatives ? { alternatives: rate.alternatives.map(({ source, ...alt }) => ({ ...alt, rateSource: source })) } : {}),

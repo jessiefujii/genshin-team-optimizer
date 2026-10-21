@@ -629,8 +629,8 @@
     },
     "Yae Miko": {
       "skill: Sesshou Sakura DMG: Level 3": {
-        "hits": 5,
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yae_Miko, fetched 2026-10-10: \"The Sesshou Sakura can strike 5 times over their 14 seconds duration.\""
+        "hits": 8,
+        "source": "KQM, Yae Miko Quick Guide, https://keqingmains.com/q/yae-quickguide/, fetched 2026-10-21: \"Each turret will fire up to 8 shots, for a maximum of 24 total shots, for its duration\"; Edict of Cleansing (Witch's Revelation): \"the duration of each Skill turret is permanently increased from 14 to 24s\" (#304). Without the quest: \"The Sesshou Sakura can strike 5 times over their 14 seconds duration.\" (Genshin Impact Wiki, https://genshin-impact.fandom.com/wiki/Yae_Miko, fetched 2026-10-10)"
       }
     },
     "Kinich": {
@@ -1156,10 +1156,6 @@
     },
     "Xingqiu": {
       "skill: Skill DMG": "none"
-    },
-    "Yae Miko": {
-      "burst: Skill DMG": "none",
-      "burst: Tenko Thunderbolt DMG": "none"
     },
     "Yelan": {
       "skill: Skill DMG": "none",
