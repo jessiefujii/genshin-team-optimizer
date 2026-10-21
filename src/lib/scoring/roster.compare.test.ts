@@ -23,7 +23,7 @@ const owned = all
   .filter((c) => roster[c.id])
   .map((c) => {
     const { build, constellation, built } = roster[c.id];
-    return { ...c, stats: build?.stats, talents: build?.talents, sets: build?.artifactSets, built, effects: characterEffects(c.id, constellation, build) };
+    return { ...c, stats: build?.stats, talents: build?.talents, sets: build?.artifactSets, weaponBuild: build?.weapon, built, effects: characterEffects(c.id, constellation, build) };
   });
 
 test("Jessie's roster: Zibai Premium near the top", { timeout: 900_000 }, () => {

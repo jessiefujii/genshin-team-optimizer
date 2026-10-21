@@ -26,6 +26,7 @@ interface CarryHit {
   // team has, each a list indexed by that number (its last value past the end).
   byTeammates?: { elements: Element[]; members?: number[]; types?: number[] };
   addOn?: boolean; // more DMG on hits counted elsewhere (Cyno's passive 2): no Catalyze or teammates' flat DMG of its own
+  nightsoulBursts?: string; // count: the party's Nightsoul Bursts per rotation, at most the hits with this label (#288)
   when?: When; // the hit only lands with these
 }
 // secretRite: two Hexerei members (Klee's Boom-Boom Strikes from her third Normal Attack, #241).
@@ -35,7 +36,7 @@ type When = { reaction?: Reaction; ascendantGleam?: boolean; secretRite?: boolea
 // plays her in Ousia, where her Salon Members drain HP; only Pneuma's Singer of Many Waters heals.
 export const healsInPlay = (m: ScoringCharacter) => m.roles.includes("healer") && m.id !== "Furina";
 // Direct Lunar hits, and direct Stellar Swirl hits by the same formula (wiki Damage § Direct; Mizuki, #235).
-export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize" | "stellar-swirl";
+export type LunarReaction = "lunar-charged" | "lunar-bloom" | "lunar-crystallize" | "stellar-swirl" | "stellar-conduct";
 type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
   | { kind: "atkFromDef"; value: number }
@@ -44,6 +45,7 @@ type CarryBuff =
   | { kind: "factor"; value: number; types: HitType[]; when?: When }
   | { kind: "critRate"; value: number; labels: string[] }
   | { kind: "dmgBonusByTypes"; values: number[]; elements: Element[]; labels: string[] } // by teammates' types (#233)
+  | { kind: "dmgBonusByMembers"; values: number[]; elements: Element[]; unless?: Reaction[] } // by teammates of those elements (#230)
   | { kind: "resShred"; value: number; elements: (Element | "Physical")[]; labels: string[] } // their own (Eula's Skill, #204)
   | { kind: "factorByReactions"; values: number[]; types: HitType[]; reactions: Reaction[] }
   | { kind: "atkPct"; value: number }
@@ -83,6 +85,15 @@ interface CarryKit {
   radianceInDamage?: boolean; // their own Radiance upgrade is in their hits (Mizuki, #235)
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
+const NIGHTSOUL = kitJson.nightsoulBurst as { cooldownByNatlanese: Record<string, number>; notNatlanese: string[] };
+// Seconds between the party's Nightsoul Bursts (#63, kit.json: 18s with 1 Natlanese member, 12s with 2, 9s with 3 or
+// more), or null without one. Nightsoul has no quest lock, so `families` agrees with the scorer's familiesOf.
+export function nightsoulCooldown(team: readonly ScoringCharacter[]): number | null {
+  const n = team.filter((m) => m.families?.includes("nightsoul") && !NIGHTSOUL.notNatlanese.includes(m.id)).length;
+  if (n === 0) return null;
+  const listed = Object.keys(NIGHTSOUL.cooldownByNatlanese).map(Number).filter((k) => k <= n);
+  return NIGHTSOUL.cooldownByNatlanese[String(Math.max(...listed))];
+}
 // 4pc set bonuses to the wearer's own damage (#206, extract-kit SETS): Blizzard Strayer's CRIT Rate for now.
 type SetBuff = { kind: "critRate"; value: number; when: { aura?: Element; reaction?: Reaction } };
 const SETS = (kitJson as unknown as { sets: Record<string, SetBuff[]> }).sets;
@@ -115,6 +126,36 @@ export const freezeInDamage = (c: ScoringCharacter, active: readonly Reaction[])
 // Whether Freeze's value for this carry is their guide set's, in the model (#279): then a build without that set gets
 // none, as Freeze has no value but the set's crit (#205).
 export const freezeSetModeled = (c: ScoringCharacter) => BENCHMARK_SETS[c.id]?.when.reaction === "freeze";
+// Weapon passives on the holder's own hits (#40, extract-kit WEAPONS): `values` by refinement (R1-R5), `when` the team
+// condition. Only a build's weapon counts: a benchmark character holds none.
+type WeaponWhen = { energy?: boolean; teammatesSkill?: boolean; geo?: boolean; hpChanges?: boolean };
+type WeaponBuff = { kind: "dmgBonus" | "hpPct"; types?: HitType[]; values: number[]; max?: number[]; when?: WeaponWhen };
+const WEAPONS = (kitJson as unknown as { weapons: Record<string, WeaponBuff[]> }).weapons;
+// The holder's weapon buffs that hold in this team, each with its value at the build's refinement:
+// - energy: per point of the party's combined max Energy (every member's Burst cost), capped;
+// - teammatesSkill: another member's rotation uses their Skill (an E in its KQM actions);
+// - geo: a member deals Geo DMG while active (a Geo member: estimate, each takes the field to cast);
+// - hpChanges: party HP goes up or down, taken as a healer in the team keeping the stacks full (estimate).
+export function weaponBuffs(c: ScoringCharacter, team: readonly ScoringCharacter[]): { kind: WeaponBuff["kind"]; types?: HitType[]; value: number }[] {
+  const w = c.weaponBuild;
+  if (!w) return [];
+  const r = Math.min(5, Math.max(1, w.refinement)) - 1;
+  const fits = (when: WeaponWhen = {}) =>
+    (!when.teammatesSkill || team.some((m) => m.id !== c.id && m.rotation.actions.some((a) => a.includes("E")))) &&
+    (!when.geo || team.some((m) => m.element === "Geo")) &&
+    (!when.hpChanges || team.some((m) => m.roles.includes("healer")));
+  return (WEAPONS[w.id] ?? [])
+    .filter((b) => fits(b.when))
+    .map((b) => {
+      const energy = team.reduce((a, m) => a + (m.burstCost ?? 0), 0);
+      const value = b.when?.energy ? Math.min(b.max![r], b.values[r] * energy) : b.values[r];
+      return { kind: b.kind, ...(b.types ? { types: b.types } : {}), value };
+    });
+}
+// The DMG bonus the holder's weapon gives a hit of this type in this team (weaponBuffs).
+export const weaponDmgBonus = (buffs: ReturnType<typeof weaponBuffs>, type: HitType) =>
+  buffs.reduce((a, b) => a + (b.kind === "dmgBonus" && b.types!.includes(type) ? b.value : 0), 0);
+
 // A benchmark carry whose set gives CRIT Rate wears a CRIT DMG circlet instead of a CRIT Rate one (#279: KQM's Ganyu
 // guide, Freeze stat priority "CRIT DMG ≥ ATK% > CRIT Rate" with Blizzard Strayer).
 const critCirclet = (c: ScoringCharacter, active: readonly Reaction[]) =>
@@ -270,8 +311,11 @@ export function passiveEnabler(c: ScoringCharacter, active: readonly Reaction[])
 // 2026-10-12): (coefficient x the talent's % x the stat x Base DMG Multiplier x (1 + Reaction Base DMG Bonus)
 // x (1 + 6 x EM / (EM + 2000) + Reaction Bonus) + Reaction Additive Base DMG Bonus). It has no DMG Bonus term: Elemental and other DMG % bonuses don't apply (KeqingMains' Flins
 // guide: Lunar-Charged "does not scale with Electro DMG"). Indirect Lunar DMG (thunderclouds, Moondrifts) is the
-// team's reaction, not the carry's hits: left to the scorer.
-export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6, "stellar-swirl": 1 };
+// team's reaction, not the carry's hits: left to the scorer. Stellar-Conduct's coefficient "scales with the number of
+// recorded Cryo and Electro hits": 1 with none, else "starts at 1.4 and increases by 0.05 for each recorded hit until a
+// maximum of 12 are accounted for" (same wiki section): 2, taken as saturated in Stellar-Conduct teams, which hit
+// with Cryo and Electro throughout (estimate; Cryo Traveler's Burst, #236).
+export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6, "stellar-swirl": 1, "stellar-conduct": 2 };
 export const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
 // One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151).
 export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0) =>
@@ -382,6 +426,7 @@ function computeCarryDamage(
   // Teammates' CRIT Rate buffs (#157) and the carry's own 4pc set's (#206).
   const critRate = teamBuffs.critRate + setCritRate(c, active, team);
   const dmgCirclet = critCirclet(c, active);
+  const weapon = weaponBuffs(c, team); // the build's weapon passive by hit type (#40)
   const own = carryStats(c, kit.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
@@ -452,9 +497,18 @@ function computeCarryDamage(
   // Teammates of the elements a hit converts to (#233): how many there are, and how many element types.
   const eligible = (els: readonly Element[]) => team.filter((m) => m.id !== c.id && els.includes(m.element));
   const typesOf = (els: readonly Element[]) => [...new Set(eligible(els).map((m) => m.element))];
+  // Kinich's Hunter's Experience (#288): a stack per party Nightsoul Burst, each spent on his next Cannon. Estimate
+  // (unsourced): the team deals Elemental DMG often enough that a Burst fires as soon as its cooldown ends, so
+  // rotation / cooldown of them per rotation (18s rotation: 1 with 1 Natlanese member, 1.5 with 2, 2 with 3+); each is
+  // spent by a Cannon within its 15s (he fires 2 or 5 a rotation, so the 2-stack cap doesn't bind), at most one per Cannon.
+  const cooldown = nightsoulCooldown(team);
+  const burstsPerRotation = cooldown ? rotationSeconds / cooldown : 0;
+  const labelCount = (label: string) => kit.hits.reduce((a, h) => a + (h.label === label ? h.count : 0), 0);
   const at = (list: number[] | undefined, i: number) => (list?.length ? list[Math.min(i, list.length - 1)] : 0);
   const teamCount = (h: CarryHit) =>
-    h.byTeammates ? at(h.byTeammates.members, eligible(h.byTeammates.elements).length) + at(h.byTeammates.types, typesOf(h.byTeammates.elements).length) : 0;
+    h.nightsoulBursts
+      ? Math.min(labelCount(h.nightsoulBursts), burstsPerRotation)
+      : h.byTeammates ? at(h.byTeammates.members, eligible(h.byTeammates.elements).length) + at(h.byTeammates.types, typesOf(h.byTeammates.elements).length) : 0;
   const hitTotal = (h: CarryHit, el: Element | "Physical", count: number) => {
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * em;
     perHit *= baseMultiplier(h);
@@ -474,7 +528,7 @@ function computeCarryDamage(
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
     if (!h.addOn) perHit += t.flat * (h.instances ?? 1);
-    let bonus = t.bonus;
+    let bonus = t.bonus + weaponDmgBonus(weapon, h.type);
     let factor = 1;
     for (const b of buffs) {
       if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * (b.stat === "hp" ? s.hp : atk);
@@ -489,6 +543,7 @@ function computeCarryDamage(
       if (b.kind === "dmgBonusFromEr" && !c.stats) bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * em);
       if (b.kind === "dmgBonusByTypes" && b.labels.includes(h.label)) bonus += at([0, ...b.values], typesOf(b.elements).length);
+      if (b.kind === "dmgBonusByMembers" && !(b.unless ?? []).some((r) => active.includes(r))) bonus += at(b.values, eligible(b.elements).length);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
       // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
       if (b.kind === "critRate" && b.labels.includes(h.label))

@@ -532,7 +532,9 @@ function readSecretRite(id, spec) {
 // DMG, at most once per cooldown that shortens with more Natlanese members (data/kit-overrides.json
 // rules.nightsoulBurst). Every effect it triggers is the character's own, so only the carry's counts:
 //   target "self", kind atkPct: the carry's ATK % (Mavuika, Varesa), value x stacks up
-//   target "self", no kind: an upgrade to the carry's own kit (Kinich, Mualani, Chasca), scored like Secret Rite
+//   target "self", no kind: an upgrade to the carry's own kit (Mualani, Chasca), scored like Secret Rite
+//   inDamage: the upgrade is in the carry's damage model instead (Kinich's Hunter's Experience, #288: CARRIES), so the
+//   scorer adds no flat points for it
 //   duration / max stacks: how long each stack lasts and how many can be up; no duration = one-off (Chasca's shot)
 //   target "own": a support's effect on their own stats or resources; recorded, not scored (sub-DPS damage is
 //   Phase 3, resources are the energy check's job)
@@ -542,7 +544,7 @@ const NIGHTSOUL_BURST = {
   Iansan: { from: "passive2", target: "own", note: "Warming Up (her own resource)" },
   Ifa: { from: "passive2", target: "own", note: "his own EM" },
   Kachina: { from: "passive1", target: "own", note: "her own Geo DMG" },
-  Kinich: { from: "passive2", target: "self", duration: /lasts (\d+)s/, max: /Max (\d+) stacks/ },
+  Kinich: { from: "passive2", target: "self", duration: /lasts (\d+)s/, max: /Max (\d+) stacks/, inDamage: true },
   Mavuika: { from: "passive1", target: "self", kind: "atkPct", re: /ATK increases by (\d+)% for/, duration: /for (\d+)s/ },
   Mualani: { from: "passive2", target: "self", duration: /lasts for (\d+)s/, max: /Max (\d+) stacks/ },
   Ororon: { from: "passive1", target: "own", note: "gains Nightsoul points" },
@@ -574,6 +576,7 @@ function readNightsoulBurst(id, spec) {
     ...(spec.kind ? { kind: spec.kind, value: num(spec.re) / 100 } : {}),
     duration: spec.duration ? num(spec.duration) : null,
     maxStacks: spec.max ? num(spec.max) : 1,
+    ...(spec.inDamage ? { inDamage: true } : {}),
     source,
   };
 }
@@ -1484,6 +1487,8 @@ function readSubDps(id, specs) {
 //     hit's kit-overrides.json carryIcd entry, icdReacting #226; damage.ts uses its flat estimate for hits with
 //     neither), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
 //     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
+//     ofRow ({ table, label }: the hit deals that row's share of its own row, as Razor's Soul Companion; with `as`, its
+//     own label)
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
 //   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
 //   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
@@ -1501,6 +1506,8 @@ function readSubDps(id, specs) {
 //     their own direct Lunar hits, #135), lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar
 //     reaction: Flins), baseDmgMultiplier (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction,
 //     ascendantGleam, secretRite, noHealer }) gates it like a hit's.
+//   A hit's `nightsoulBursts` (#288): one per party Nightsoul Burst in the rotation, on that many of the hits with
+//   that label at most (Kinich's Hunter's Experience on his next Cannon); damage.ts counts them. Give it count 0.
 //   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
 //   missing: parts of the rotation not modeled yet, so the damage is too low (none left since #135)
 // The rotation lasts as long as a sourced length (data/kit-overrides.json `rotations`, #103: a default, plus lengths
@@ -1961,14 +1968,38 @@ const CARRIES = {
   },
   Kinich: {
     // E, hold E swings x6 (Loop Shots), Q. Nightsoul points: 2 per second for 10s, 3 per Loop Shot, 4 from a Blind
-    // Spot = 42, so 2 Scalespiker Cannons (20 points each, "Nightsoul Point Limit"). Worked out from his kit.
+    // Spot = 42, so 2 Scalespiker Cannons (20 points each, "Nightsoul Point Limit"). Worked out from his kit, for teams
+    // without Burning or Burgeon: KQM gives no count for them.
+    combo: "E 6N 2E Q (kit estimate)",
     hits: [
       { table: "skill", label: "Loop Shot DMG", count: 6, type: SK },
       { table: "skill", label: "Scalespiker Cannon DMG", count: 2, type: SK },
+      // Passive 2, Hunter's Experience (#288): "After a nearby party member triggers a Nightsoul Burst, Kinich will gain 1
+      // stack of Hunter's Experience that lasts 15s. Max 2 stacks", consumed by his next Scalespiker Cannon, "each stack
+      // consumed increasing the DMG dealt by this Cannon shot by 320% of Kinich's ATK". A Cannon's own DMG, so addOn.
+      { from: "passive2", re: /increasing the DMG dealt by this Cannon shot by (\d+)% of Kinich's ATK/, count: 0, type: SK, addOn: true, nightsoulBursts: "Scalespiker Cannon DMG" },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
       { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
     ],
     buffs: [],
+    combos: [
+      {
+        // KeqingMains Kinich quick guide (pasted by Jessie 2026-10-20): "shE N2E Q E 3[N2E]" (shE = Short Hold Skill)
+        // "utilizes Kinich's A1 Passive to gain Nightsoul points during his Burst animation in order to immediately fire
+        // an extra Scalespiker Cannon", and should "only be done when his Burst is available". His A1 gives 7 points
+        // when a Desolation target takes Burning or Burgeon DMG, so the 5 Cannons need one of them (#286); every
+        // KQM sample rotation for him is a Burning team. 8 Loop Shots, 5 Cannons, 1 Burst.
+        combo: "shE N2E Q E 3[N2E]",
+        when: [{ reaction: "burning" }, { reaction: "burgeon" }],
+        hits: [
+          { table: "skill", label: "Loop Shot DMG", count: 8, type: SK },
+          { table: "skill", label: "Scalespiker Cannon DMG", count: 5, type: SK },
+          { from: "passive2", re: /increasing the DMG dealt by this Cannon shot by (\d+)% of Kinich's ATK/, count: 0, type: SK, addOn: true, nightsoulBursts: "Scalespiker Cannon DMG" },
+          { table: "burst", label: "Skill DMG", count: 1, type: BU },
+          { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
+        ],
+      },
+    ],
   },
   Neuvillette: {
     // KeqingMains quick guide (fetched 2026-10-12): "Neuvillette can perform 2–4 Charged Attacks per rotation"; its
@@ -2072,6 +2103,34 @@ const CARRIES = {
       { kind: "dmgBonusPerEm", from: "passive2", re: /are increased by ([\d.]+)%/, max: /maximum DMG Bonus obtainable this way is (\d+)%/, types: [CH, BU], labels: ["Wreath Arrow DMG", "Clusterbloom Arrow DMG", "Tanglevine Shaft DMG", "Secondary Tanglevine Shaft DMG"] },
     ],
   },
+  Lyney: {
+    // #230. DotGG's Lyney quick guide (dotgg.gg/genshin-impact-lyney-quick-character-guide/, 2024-05-01), "General
+    // Rotation": "Healer doing healing & other supports > Lyney's Charged ATK x4 > Elemental Burst > Elemental Skill >
+    // Repeat" (traveler.gg gives the same); KQM's quick guide: "at least 3–4 Charged Shots per combo". So 4 Prop Arrows
+    // (Charge Level 2), Q, E. Each Prop Arrow summons a Grin-Malkin Hat; "Only 1 Hat can exist at any given time" and
+    // "Creating a Grin-Malkin Hat while another one already exists on the field will destroy it [and] cause it to fire
+    // a Pyrotechnic Strike immediately" (wiki Card Force Translocation, Gameplay Notes): arrows 2-4 and the Burst's Hat
+    // each fire the previous one (4), and his Skill explodes the Burst's Hat "equal to that of a Pyrotechnic Strike"
+    // ("considered Charged Attack DMG"): 5 strikes, all read as Charged Attack DMG (the replaced ones' type: estimate).
+    // Passive 1's +80% ATK: the 4 arrow Hats (KQM: the Burst's Hat "cannot benefit from Lyney's A1"). Prop Surplus:
+    // 1 per arrow fired above 60% HP (KQM: "fire up to five Charged Shots from above 60% Max HP") + 1 from the Burst = 5,
+    // the max, spent by the Skill. Left out: Spiritbreath Thorn (Pneuma, enemy-dependent). Rotation: his Burst cooldown.
+    combo: "4[CS] Q E",
+    hits: [
+      { table: "normal", label: "Prop Arrow DMG", count: 4, type: CH },
+      { table: "normal", label: "Pyrotechnic Strike DMG", count: 5, type: CH },
+      { from: "passive1", re: /increase DMG dealt by (\d+)% of his ATK/, count: 4, type: CH, addOn: true },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Explosive Firework DMG", count: 1, type: BU },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK, tag: "propSurplus" },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "skill", label: "Skill DMG Bonus", stacks: 5, hits: "propSurplus" },
+      // Passive 2 against "opponents affected by Pyro" (his own Pyro): KQM, "Lyney will not gain the buff if he triggers
+      // Vaporize or Melt", so not with them active (estimate: off for the whole rotation then).
+      { kind: "dmgBonusByMembers", from: "passive2", base: /Increases the DMG dealt by (\d+)%/, per: /additional (\d+)%/, max: /up to (\d+)% increased DMG/, elements: ["Pyro"], unless: ["vaporize", "melt"] },
+    ],
+  },
   Yoimiya: {
     // KQM: "her entire Normal Attack string repeated 3 times" in Niwabi Fire-Dance (E), the highest-damage combo in
     // most teams; her Burst "should only be used when it is available (typically every 2 or 3 rotations)": 0.4.
@@ -2089,13 +2148,15 @@ const CARRIES = {
   Ganyu: {
     // KQM quick guide, Freeze (Citlali): "Ganyu E > ... > Ganyu C¹ EQ 4[C]": 2 Skills, 1 Burst, 5 Frostflake Arrows.
     // Trail of the Qilin deals its Skill DMG twice (KQM library: the dash "dealing AoE Cryo DMG"; the lotus "Blooms
-    // profusely when destroyed ... dealing AoE Cryo DMG"). Her Burst's Ice Shards are left out: of the 50 (wiki), how
-    // many hit one opponent isn't sourced.
+    // profusely when destroyed ... dealing AoE Cryo DMG"). Her Burst's Ice Shards on one opponent (#225): KQM's Ganyu
+    // guide (keqingmains.com/ganyu/, fetched 2026-10-21), "In single-target scenarios, it only targets the enemy once
+    // every five Ice Shards, resulting in 10 instances of Cryo damage (assuming no random Ice Shards hit)": 10 of 50.
     combo: "E C EQ 4[C]",
     hits: [
       { table: "skill", label: "Skill DMG", count: 4, type: SK },
       { table: "normal", label: "Frostflake Arrow DMG", count: 5, type: CH },
       { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 5, type: CH },
+      { table: "burst", label: "Ice Shard DMG", count: 10, type: BU },
     ],
     buffs: [
       // Passive 1: +20% CRIT Rate for the Frostflake Arrows (and blooms) after the first: 4 of 5.
@@ -2114,6 +2175,7 @@ const CARRIES = {
           { table: "skill", label: "Skill DMG", count: 2, type: SK },
           { table: "normal", label: "Frostflake Arrow DMG", count: 4, type: CH },
           { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 4, type: CH },
+          { table: "burst", label: "Ice Shard DMG", count: 10, type: BU }, // 10 of 50 on one opponent (KQM, above)
         ],
         buffs: [
           { kind: "critRate", from: "passive1", re: /increased by (\d+)% for/, share: 3 / 4, labels: ["Frostflake Arrow DMG", "Frostflake Arrow Bloom DMG"] },
@@ -2396,19 +2458,74 @@ const CARRIES = {
     ],
   },
   Kaveh: {
-    // KQM Kaveh guide, combo (2), for C0-1: "Kaveh EQ N3D N3 E N3D N4 E (N2)" ((N2) optional, "can be omitted to save
-    // rotation length": left out): 3 Skills, his Burst, 13 Normal Attacks in its Dendro infusion. His Bloom DMG
-    // (Painted Dome's Dendro Core bonus) stays outside damage (#145); passive 2's EM only feeds those reactions.
-    combo: "EQ N3D N3 E N3D N4 E",
+    // KQM Kaveh quick guide (keqingmains.com/q/kaveh-quickguide/, linked by Jessie 2026-10-20, #262): "Kaveh EQ 2[N3D]
+    // N1 E 2[N3D] N2 E (N2)", "For C1-C0 Kaveh" ((N2) optional, "can be omitted to save rotation length": left out). Its
+    // C2+ combo is "EQ N3D N4 E N4D N4 E (N2)". 3 Skills, his Burst, 15 Normal Attacks in its Dendro infusion; each is one
+    // hit at the standard 2.5s/3 hits ICD (wiki Schematic Setup, Advanced Properties). His Bloom DMG (Painted Dome's
+    // Dendro Core bonus) stays outside damage (#145); passive 2's EM only feeds those reactions.
+    combo: "EQ 2[N3D] N1 E 2[N3D] N2 E",
     hits: [
       { table: "skill", label: "Skill DMG", count: 3, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
-      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
-      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 5, type: N },
       { table: "normal", label: "3-Hit DMG", count: 4, type: N },
-      { table: "normal", label: "4-Hit DMG", count: 1, type: N },
     ],
     buffs: [],
+  },
+  "Traveler (Cryo)": {
+    // #236: no KQM guide. GameWith's Cryo Traveler guide (gamewith.net/genshin-impact/article/show/77315, fetched
+    // 2026-10-20), "Premium Stellar-Conduct Traveler Team Rotation" (Yae Miko, Odette, Alyosha; Jessie's Genshin Track
+    // rotation for the same team: "Yae EEE -> Alyosha E + Q -> Odette EE -> Traveler E, NA and CA spam, Q when star is
+    // full"): "Skill -> [ Normal Attack (x2) -> Charged Attack (x2) ] x2 -> Normal Attack (x2) -> Burst -> Normal
+    // Attack (x2) -> Charged Attack": 1 Skill, 8 Normal Attacks (4 1-Hit, 4 2-Hit), 5 Charged Attacks (2 strikes each).
+    // Jessie (2026-10-20): they aren't a strong DPS without Stellar Glimmer. This default reads that combo with no
+    // Radiance (estimate): Physical attacks, no ice crystals with them (the Star's interval has no rate yet), so no
+    // Frostglow and 3 javelin strikes. Left out everywhere: "Frostglow DMG Bonus" (datamine and wiki give 4.69% at
+    // level 9 with no unit: per stack or per strike unsourced). No rotation length: their 15s Burst cooldown.
+    combo: "E 2[N2 2C] N2 Q N2 C (no Radiance: estimate)",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N, element: "Physical" },
+      { table: "normal", label: "2-Hit DMG", count: 4, type: N, element: "Physical" },
+      { table: "normal", label: "Charged Attack DMG", count: 5, instances: 2, type: CH, element: "Physical" }, // "{a}+{b}": both strikes
+      { table: "burst", label: "Ice Javelin DMG", count: { table: "burst", label: "No. of Strikes in Attack" }, type: BU },
+    ],
+    buffs: [],
+    combos: [
+      {
+        // GameWith's combo under Radiance: Stellar-Conduct (passive 3: "inside a Polestar Field"). Passive 1: attacks
+        // "are converted to Cryo DMG" and "increased by 80% of the Traveler's ATK" (all 18 strikes). The Star "will
+        // instead fire an ice crystal at opponents in a coordinated attack when the Traveler hits an opponent ... once
+        // every 0.2s": one per attack, 13 (a Charged Attack's 2 rapid strikes, one crystal). Each crystal gives 1
+        // Frostglow (max 8); the 10 attacks before the Burst fill it, so "Additional Frostglow Attack Strikes at Stack
+        // Max" adds to its strikes, and its DMG "is changed to Cryo DMG of the corresponding Stellar Glimmer reaction".
+        combo: "E 2[N2 2C] N2 Q N2 C, Radiance: Stellar-Conduct",
+        when: [{ reaction: "stellar-conduct", radiance: true }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+          { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+          { table: "normal", label: "Charged Attack DMG", count: 5, instances: 2, type: CH },
+          { from: "passive1", re: /also increased by (\d+)% of the Traveler's ATK/, count: 8, type: N, addOn: true },
+          { from: "passive1", re: /also increased by (\d+)% of the Traveler's ATK/, count: 10, type: CH, addOn: true },
+          { table: "skill", label: "Ice Crystal DMG", count: 13, type: SK },
+          { table: "burst", label: "Stellar-Conduct Ice Javelin Single Strike DMG", count: { table: "burst", label: "No. of Strikes in Attack" }, type: BU, lunar: "stellar-conduct" },
+          { table: "burst", label: "Stellar-Conduct Ice Javelin Single Strike DMG", count: { table: "burst", label: "Additional Frostglow Attack Strikes at Stack Max" }, type: BU, lunar: "stellar-conduct" },
+        ],
+      },
+      {
+        // GameWith's "Stellar Swirl Traveler Team Rotation" (Odette, Faruzan): "Use their Skill, then Burst. You can use
+        // their special Charged Attack after Skill, but it's not necessary": Skill and Burst, the Burst as Stellar Swirl.
+        // Outside Stellar-Conduct the Star fires at intervals (no rate yet), so no Frostglow: 3 strikes.
+        combo: "E Q, Radiance: Stellar Swirl",
+        when: [{ reaction: "stellar-swirl", radiance: true }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "burst", label: "Stellar Swirl Ice Javelin Single Strike DMG", count: { table: "burst", label: "No. of Strikes in Attack" }, type: BU, lunar: "stellar-swirl" },
+        ],
+      },
+    ],
   },
   "Traveler (Hydro)": {
     // KQM Hydro Traveler quick guide: "Hold Skill can be used to apply Hydro at range for up to 6s, firing up to 22
@@ -2420,6 +2537,28 @@ const CARRIES = {
       { table: "skill", label: "Dewdrop DMG", count: 22, type: SK },
       { table: "skill", label: "Torrent Surge DMG", count: 1, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
+    ],
+    buffs: [],
+  },
+  Razor: {
+    // #231. KQM's Multi-Optimization guide (keqingmains.com/misc/multi-optimization/, 2023-06-26), its Physical Razor
+    // config: "The assumed rotation is tE Q tE 3x(N4D N3tED)", with these hit weights (both Noblesse states summed;
+    // its C6 target left out, C0): N1-N3 6 each, N4 3, Press 5, Burst 1, Soul Companion on N1-N3 6 each and on N4 3.
+    // Normal Attacks are Physical; the Wolf Within's Soul Companion hits deal "% Normal Attack DMG" (genshin-db) as
+    // Electro, tagged Elemental Burst (wiki Lightning Fang attack table). No rotation length: his 20s Burst cooldown.
+    combo: "tE Q tE 3x(N4D N3tED)",
+    goblet: "Physical",
+    hits: [
+      { table: "skill", label: "Press Skill DMG", count: 5, type: SK },
+      { table: "burst", label: "Burst DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "2-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "3-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "4-Hit DMG", count: 3, type: N, element: "Physical" },
+      { table: "normal", label: "1-Hit DMG", as: "Soul Companion 1-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "2-Hit DMG", as: "Soul Companion 2-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "3-Hit DMG", as: "Soul Companion 3-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "4-Hit DMG", as: "Soul Companion 4-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 3, type: BU },
     ],
     buffs: [],
   },
@@ -2578,9 +2717,14 @@ function readCarry(id, spec) {
         count = r.hits;
       } else if (typeof count === "object") count = tableValue(tableAttrs(count.table), count.label, id);
       if (h.reacting !== undefined && !(h.reacting >= 0 && h.reacting <= count)) throw new Error(`${id}: "${h.label}" reacting ${h.reacting} of ${count}`);
-      const scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+      let scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+      // ofRow: a hit dealing a share of another (Razor's Soul Companion, "% Normal Attack DMG"): that row's value.
+      if (h.ofRow) {
+        const share = tableValue(tableAttrs(h.ofRow.table), h.ofRow.label, id);
+        scaling = Object.fromEntries(Object.entries(scaling).map(([k, v]) => [k, round(v * share)]));
+      }
       hits.push({
-        label: h.from ? `${h.from} bonus` : h.label,
+        label: h.from ? `${h.from} bonus` : (h.as ?? h.label),
         type: h.type,
         scaling,
         count,
@@ -2589,6 +2733,7 @@ function readCarry(id, spec) {
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
         ...(h.addOn ? { addOn: true } : {}),
+        ...(h.nightsoulBursts ? { nightsoulBursts: h.nightsoulBursts } : {}),
         ...(h.element ? { element: h.element } : {}),
         ...(h.byTeammates ? { byTeammates: { elements: h.byTeammates.elements, ...(h.byTeammates.members ? { members: h.byTeammates.members.map(round) } : {}), ...(h.byTeammates.types ? { types: h.byTeammates.types.map(round) } : {}) } } : {}),
         ...(h.when ? { when: h.when } : {}),
@@ -2623,6 +2768,12 @@ function readCarry(id, spec) {
           ...(b.fightingSpirit ? { fightingSpirit: true } : {}),
           ...(b.when ? { when: b.when } : {}),
         };
+      }
+      case "dmgBonusByMembers": {
+        // A DMG bonus that grows per teammate of `elements` (Lyney's passive 2, #230): base, +per each, capped; index =
+        // number of such teammates (0-3). `unless`: reactions that take it away.
+        const base = num(b.from, b.base) / 100, per = num(b.from, b.per) / 100, max = num(b.from, b.max) / 100;
+        return { kind: b.kind, values: [0, 1, 2, 3].map((n) => round(Math.min(max, base + per * n))), elements: b.elements, ...(b.unless ? { unless: b.unless } : {}) };
       }
       case "dmgBonusByTypes": {
         const m = text(b.from).match(b.re);
@@ -2848,6 +2999,62 @@ const benchmarkSets = {
 };
 for (const [id, b] of Object.entries(benchmarkSets)) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
 
+// Weapon passives on the holder's own hits (#40, #206), read from genshin-db's passive text at each refinement (R1-R5):
+// `values` per refinement. A team-conditional one has `when`: energy (the value is per point of the party's combined
+// max Energy, capped at `max`), teammatesSkill (another member uses their Skill), geo (a member deals Geo DMG while
+// active), hpChanges (party HP goes up or down: a healer in the team). Static stats a weapon gives (Uraku's DEF) are on
+// the character screen, so an imported build already has them; DMG bonuses by type aren't.
+const WATATSUMI = [
+  {
+    kind: "dmgBonus", types: ["burst"], when: { energy: true },
+    re: /combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by ([\d.]+)%/,
+    max: /A maximum of ([\d.]+)% increased Elemental Burst DMG/,
+  },
+];
+const WEAPONS = {
+  Akuoumaru: WATATSUMI,
+  "Mouun's Moon": WATATSUMI,
+  "Wavebreaker's Fin": WATATSUMI,
+  "Mountain-Bracing Bolt": [
+    { kind: "dmgBonus", types: ["skill"], re: /and increases Elemental Skill DMG by ([\d.]+)%/ },
+    { kind: "dmgBonus", types: ["skill"], when: { teammatesSkill: true }, re: /Elemental Skill DMG will also increase by ([\d.]+)% for/ },
+  ],
+  "Uraku Misugiri": [
+    { kind: "dmgBonus", types: ["normal"], re: /Normal Attack DMG is increased by ([\d.]+)%/ },
+    { kind: "dmgBonus", types: ["skill"], re: /Elemental Skill DMG is increased by ([\d.]+)%/ },
+    // "the aforementioned effects increase by 100%": the same values again.
+    { kind: "dmgBonus", types: ["normal"], when: { geo: true }, re: /Normal Attack DMG is increased by ([\d.]+)%(?=.*increase by 100%)/ },
+    { kind: "dmgBonus", types: ["skill"], when: { geo: true }, re: /Elemental Skill DMG is increased by ([\d.]+)%(?=.*increase by 100%)/ },
+  ],
+  "Splendor of Tranquil Waters": [
+    // Each "for 6s. Max N stacks", taken at full stacks while the team's HP keeps changing (estimate).
+    { kind: "dmgBonus", types: ["skill"], when: { hpChanges: true }, re: /Elemental Skill DMG dealt will be increased by ([\d.]+)% for 6s/, stacks: /for 6s\. Max (\d+) stacks/ },
+    { kind: "hpPct", when: { hpChanges: true }, re: /Max HP will be increased by ([\d.]+)% for 6s/, stacks: /Max HP will be increased by [\d.]+% for 6s\. Max (\d+) stacks/ },
+  ],
+};
+const weapons = {};
+for (const [name, specs] of Object.entries(WEAPONS)) {
+  const w = genshindb.weapons(name);
+  if (!w || w.name !== name) throw new Error(`${name}: no such weapon in genshin-db`);
+  const texts = [w.r1, w.r2, w.r3, w.r4, w.r5].map((r) => r.description.replace(/\s+/g, " "));
+  const read = (re, text) => {
+    const m = text.match(re);
+    if (!m) throw new Error(`${name}: pattern ${re} not found in its passive text: ${text}`);
+    return Number(m[1]);
+  };
+  weapons[name] = specs.map((s) => {
+    const stacks = s.stacks ? read(s.stacks, texts[0]) : 1;
+    return {
+      kind: s.kind,
+      ...(s.types ? { types: s.types } : {}),
+      values: texts.map((t) => round((read(s.re, t) / 100) * stacks)),
+      ...(s.max ? { max: texts.map((t) => read(s.max, t) / 100) } : {}),
+      ...(s.when ? { when: s.when } : {}),
+      source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}`,
+    };
+  });
+}
+
 // Level 90 base HP/ATK/DEF (character only), for a sub-DPS's benchmark build when the player has none (#158), and the
 // level 90 ascension stat (#166: genshin-db substatType and its value; EM is flat, the rest are fractions).
 // genshin-db matches names loosely, so the name is checked; the Traveler's base stats are Lumine's.
@@ -3005,6 +3212,7 @@ writeFileSync(
       lunarBase,
       sets,
       benchmarkSets,
+      weapons,
       subDps,
       sustain,
       carries,

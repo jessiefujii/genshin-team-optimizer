@@ -964,7 +964,7 @@
     }
   },
   "icd": {
-    "_howTo": "Elemental application ICD per sub-DPS source (#190), keyed like hitRates (\"talent: label\"). \"none\": every hit applies its element. { reset, every }: the timer in seconds, and the hit counter (every: 3 applies on hits 1, 4, 7...; \"first\": only the first hit until the timer resets). Sources left out use the standard ICD (2.5s / every 3rd hit). source: Genshin Impact Wiki, Internal Cooldown/Data (https://genshin-impact.fandom.com/wiki/Internal_Cooldown/Data, fandom API, fetched 2026-10-14). Not in that table: Ineffa, Durin, Jahoda, Alyosha (standard). Odette left standard: which of her talents the table rows belong to is unclear.",
+    "_howTo": "Elemental application ICD per sub-DPS source (#190), keyed like hitRates (\"talent: label\"). \"none\": every hit applies its element. { reset, every }: the timer in seconds, and the hit counter (every: 3 applies on hits 1, 4, 7...; \"first\": only the first hit until the timer resets). Sources left out use the standard ICD (2.5s / every 3rd hit). source: Genshin Impact Wiki, Internal Cooldown/Data (https://genshin-impact.fandom.com/wiki/Internal_Cooldown/Data, fandom API, fetched 2026-10-14). Not in that table, from each talent page's Advanced Properties instead (fandom API, fetched 2026-10-21, #193): Ineffa, Durin, Jahoda, Alyosha, Lauma, Odette. Alyosha's Fulgurite Hunting Field and Tugarin share one 1.6s tag; each source keeps its own timer here (estimate). Odette's Coda Stellar-Conduct/Stellar Swirl DMG is 0U (applies no element): left standard.",
     "Albedo": {
       "skill: Skill DMG": "none",
       "burst: Burst DMG": "none"
@@ -1147,6 +1147,58 @@
       "burst: Skill DMG": "none",
       "burst: Exquisite Throw DMG": {
         "reset": 2,
+        "every": 3
+      }
+    },
+    "Ineffa": {
+      "skill: Skill DMG": "none",
+      "skill: Birgitta Discharge DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Durin": {
+      "skill: Transmutation: Confirmation of Purity DMG": "none",
+      "burst: Principle of Purity: As the Light Shifts DMG": {
+        "reset": 2.5,
+        "every": 3
+      },
+      "burst: Dragon of White Flame DMG": {
+        "reset": 1.5,
+        "every": "first"
+      }
+    },
+    "Jahoda": {
+      "skill: Filled Treasure Flask DMG": "none",
+      "burst: Skill DMG": "none",
+      "burst: Purrsonal Coordinated Assistance Robot DMG": {
+        "reset": 15,
+        "every": 4
+      }
+    },
+    "Alyosha": {
+      "skill: Press DMG": "none",
+      "burst: Fulgurite Hunting Field DMG": {
+        "reset": 1.6,
+        "every": "first"
+      },
+      "burst: Tugarin DMG": {
+        "reset": 1.6,
+        "every": "first"
+      }
+    },
+    "Lauma": {
+      "skill: Press DMG": "none",
+      "skill: Frostgrove Sanctuary Attack DMG": "none"
+    },
+    "Odette": {
+      "skill: Skill DMG": "none",
+      "skill: \"Plume\" Dance Move DMG": "none",
+      "skill: \"Wing\" Dance Move DMG": "none",
+      "burst: Slash DMG": {
+        "reset": 2.5,
+        "every": 3
+      },
+      "burst: Final Slash DMG": {
+        "reset": 2.5,
         "every": 3
       }
     }
@@ -1431,9 +1483,6 @@
         "tag": "Normal Attack"
       },
       "normal: 3-Hit DMG": {
-        "tag": "Normal Attack"
-      },
-      "normal: 4-Hit DMG": {
         "tag": "Normal Attack"
       }
     },

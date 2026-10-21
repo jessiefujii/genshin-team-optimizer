@@ -1,5 +1,5 @@
 {
-  "median": 133685.3,
+  "median": 136320.5,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -35,7 +35,7 @@
         "Ineffa",
         "Xilonen"
       ],
-      "value": 129361.3
+      "value": 130191.1
     },
     "Chasca": {
       "team": [
@@ -116,7 +116,7 @@
         "Escoffier",
         "Shenhe"
       ],
-      "value": 172213
+      "value": 203439.5
     },
     "Hu Tao": {
       "team": [
@@ -152,7 +152,7 @@
         "Yelan",
         "Furina"
       ],
-      "value": 93674.9
+      "value": 95259
     },
     "Keqing": {
       "team": [
@@ -170,7 +170,7 @@
         "Furina",
         "Bennett"
       ],
-      "value": 102409.3
+      "value": 139620
     },
     "Klee": {
       "team": [
@@ -197,7 +197,7 @@
         "Kaedehara Kazuha",
         "Zhongli"
       ],
-      "value": 74416.2
+      "value": 114688.7
     },
     "Mavuika": {
       "team": [
@@ -231,9 +231,9 @@
         "Nefer",
         "Furina",
         "Lauma",
-        "Ineffa"
+        "Kuki Shinobu"
       ],
-      "value": 112108.6
+      "value": 113319.2
     },
     "Neuvillette": {
       "team": [
@@ -242,7 +242,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 178749.6
+      "value": 180101.3
     },
     "Ningguang": {
       "team": [
@@ -274,11 +274,11 @@
     "Razor": {
       "team": [
         "Razor",
-        "Layla",
-        "Yelan",
-        "Xingqiu"
+        "Rosaria",
+        "Fischl",
+        "Zhongli"
       ],
-      "value": 95755.5
+      "value": 94538.4
     },
     "Sandrone": {
       "team": [
@@ -341,7 +341,7 @@
         "Odette",
         "Alyosha"
       ],
-      "value": 108067.1
+      "value": 88438.7
     },
     "Varesa": {
       "team": [
