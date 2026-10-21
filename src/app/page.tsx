@@ -51,6 +51,15 @@ export default function Home() {
       <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
         Tick the characters you own; the best teams update as you go. Your roster is saved in this browser.
       </p>
+      {/* Jump links to the planner's sections (#182): useful on phones, where the two columns stack. */}
+      <nav aria-label="Sections" className="mt-2 flex gap-4 text-sm lg:hidden">
+        <a href="#roster-heading" className="text-blue-700 hover:underline dark:text-blue-400">
+          My roster
+        </a>
+        <a href="#results-heading" className="text-blue-700 hover:underline dark:text-blue-400">
+          Best teams
+        </a>
+      </nav>
       <div className="mt-6">
         <RosterPlanner characters={characters} catalog={catalog} />
       </div>
