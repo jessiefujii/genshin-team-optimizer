@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite } from "./damage";
+import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite, weaponBuffs, weaponDmgBonus } from "./damage";
 import { NO_TEAM_BUFFS } from "./kit";
 import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
@@ -326,6 +326,21 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(cyno, ["aggravate"])!.perSecond).toBeGreaterThan(carryDamage(cyno, [])!.perSecond);
   });
 
+  test("Kinich's Hunter's Experience: 3.2x ATK on a Cannon per party Nightsoul Burst, more with more Natlanese (#288)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const kinich = byId.get("Kinich")!;
+    const dps = (...ids: string[]) => carryDamage(kinich, ["burning"], team("Kinich", ...ids))!.perSecond;
+    const one = dps("Emilie", "Xiangling", "Bennett"); // every 18s: 1 stack per 18s rotation
+    const two = dps("Mavuika", "Emilie", "Bennett"); // every 12s: 1.5
+    const three = dps("Xilonen", "Citlali", "Bennett"); // every 9s: 2 (Xilonen, Citlali don't change his own hits)
+    expect(two).toBeGreaterThan(one);
+    expect(three).toBeGreaterThan(two);
+    // The extra 0.5 stack per rotation is 0.5 x 3.2 = 1.6 ATK of Cannon-type damage: under one Cannon (11.7 ATK).
+    const hunter = (kit as unknown as { carries: { Kinich: { hits: { label: string; scaling: { atk: number }; nightsoulBursts?: string }[] } } }).carries.Kinich.hits.find((h) => h.nightsoulBursts)!;
+    expect(hunter.scaling.atk).toBe(3.2);
+    expect(two / one - 1).toBeLessThan(0.1);
+  });
+
   test("Noelle's Burst turns DEF into ATK: more DEF alone raises her damage", () => {
     const noelle = byId.get("Noelle")!;
     const stats = { atk: 1500, baseAtk: 750, hp: 15000, def: 2000, critRate: 60, critDmg: 120, energyRecharge: 140, elementalMastery: 0, elementalDmgBonus: 46.6 };
@@ -369,3 +384,46 @@ describe("carry damage (#101)", () => {
 for (const [id, c] of Object.entries(carries)) {
   for (const m of c.missing ?? []) test.todo(`kit-overrides hitRates: ${id} ${m}`);
 }
+
+describe("weapon passives on the holder's hits (#40)", () => {
+  const get = (id: string) => byId.get(id)!;
+  const holding = (id: string, weapon: string, refinement = 1): ScoringCharacter => ({ ...get(id), weaponBuild: { id: weapon, level: 90, refinement } });
+  const bonus = (c: ScoringCharacter, team: ScoringCharacter[], type: "normal" | "skill" | "burst") => weaponDmgBonus(weaponBuffs(c, [c, ...team]), type);
+
+  test("Watatsumi weapons: Burst DMG per point of the party's max Energy, capped, by refinement", () => {
+    const team = ["Bennett", "Xingqiu", "Xiangling"].map(get);
+    const energy = [holding("Raiden Shogun", "Wavebreaker's Fin"), ...team].reduce((a, m) => a + m.burstCost!, 0);
+    expect(bonus(holding("Raiden Shogun", "Wavebreaker's Fin"), team, "burst")).toBeCloseTo(Math.min(0.4, 0.0012 * energy));
+    expect(bonus(holding("Raiden Shogun", "Wavebreaker's Fin", 5), team, "burst")).toBeCloseTo(Math.min(0.8, 0.0024 * energy));
+    expect(bonus(holding("Raiden Shogun", "Wavebreaker's Fin"), team, "skill")).toBe(0);
+  });
+
+  test("Mountain-Bracing Bolt's second 12% needs a teammate who uses their Skill", () => {
+    expect(weaponDmgBonus(weaponBuffs(holding("Kachina", "Mountain-Bracing Bolt"), []), "skill")).toBeCloseTo(0.12);
+    expect(bonus(holding("Kachina", "Mountain-Bracing Bolt"), [get("Bennett")], "skill")).toBeCloseTo(0.24);
+  });
+
+  test("Uraku Misugiri doubles with a Geo member", () => {
+    const chiori = holding("Chiori", "Uraku Misugiri");
+    expect(bonus(chiori, [get("Furina")], "skill")).toBeCloseTo(0.48); // Chiori is Geo herself
+    const ayaka = holding("Kamisato Ayaka", "Uraku Misugiri");
+    expect(bonus(ayaka, [get("Shenhe")], "normal")).toBeCloseTo(0.16);
+    expect(bonus(ayaka, [get("Zhongli")], "normal")).toBeCloseTo(0.32);
+  });
+
+  test("Splendor of Tranquil Waters needs the party's HP to change (a healer)", () => {
+    const furina = holding("Furina", "Splendor of Tranquil Waters");
+    expect(weaponBuffs(furina, [furina, get("Xingqiu")]).length).toBeGreaterThan(0); // Furina heals
+    const kazuha = holding("Kaedehara Kazuha", "Splendor of Tranquil Waters");
+    expect(weaponBuffs(kazuha, [kazuha, get("Xingqiu")])).toEqual([]);
+    expect(bonus(kazuha, [get("Bennett")], "skill")).toBeCloseTo(0.24); // 8% x 3 stacks
+  });
+
+  test("a benchmark character holds no weapon; a build's weapon raises its hits", () => {
+    expect(weaponBuffs(get("Raiden Shogun"), [get("Raiden Shogun")])).toEqual([]);
+    const team = ["Bennett", "Xingqiu", "Xiangling"].map(get);
+    const raiden = get("Raiden Shogun");
+    const fin = holding("Raiden Shogun", "Wavebreaker's Fin");
+    expect(carryDamage(fin, [], [fin, ...team])!.perSecond).toBeGreaterThan(carryDamage(raiden, [], [raiden, ...team])!.perSecond);
+  });
+});

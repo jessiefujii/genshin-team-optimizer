@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, weaponBuffs, weaponDmgBonus, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -689,7 +689,7 @@ function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
 
 type NightsoulBurstEntry =
   | { target: "own"; note: string; source: string }
-  | { target: "self"; kind?: "atkPct"; value?: number; duration: number | null; maxStacks: number; source: string };
+  | { target: "self"; kind?: "atkPct"; value?: number; duration: number | null; maxStacks: number; inDamage?: boolean; source: string };
 const NIGHTSOUL_BURST = kitJson.nightsoulBurst as {
   cooldownByNatlanese: Record<string, number>;
   notNatlanese: string[];
@@ -707,11 +707,12 @@ const FASTEST_NIGHTSOUL = Math.min(...COOLDOWNS.map(([, s]) => s));
 // Nightsoul Burst (#63). A party with a Natlanese member triggers one whenever someone deals Elemental DMG, at most
 // once per cooldown (18s with 1 Natlanese member, 12s with 2, 9s with 3 or more; data/kit.json). Every effect it
 // triggers is that character's own, so only the carry's counts: Mavuika's and Varesa's ATK by the damage it adds,
-// Kinich's, Mualani's and Chasca's kit upgrade as ownNightsoulBurst. Either way, by how much of it a faster cooldown
-// keeps up: average stacks (each lasts `duration`, up to maxStacks) or, for a one-off like Chasca's shot, how often.
+// Mualani's and Chasca's kit upgrade as ownNightsoulBurst. Either way, by how much of it a faster cooldown keeps up:
+// average stacks (each lasts `duration`, up to maxStacks) or, for a one-off like Chasca's shot, how often. Kinich's
+// (inDamage) is in his Cannon damage instead (#288, damage.ts), so no points here.
 function nightsoulBurstLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const entry = carry && NIGHTSOUL_BURST.characters[carry.id];
-  if (!carry || entry?.target !== "self") return;
+  if (!carry || entry?.target !== "self" || entry.inDamage) return;
   const natlanese = ctx.members.filter(
     (m) => familiesOf(m, ctx.options).includes("nightsoul") && !NIGHTSOUL_BURST.notNatlanese.includes(m.id),
   ).length;
@@ -1338,12 +1339,16 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       (own && own.reactions.includes(r) ? Math.min(own.max, own.perPoint * stat[own.stat]) : 0) + teammatesLunarBase(r, ctx.members, m);
     const reactions = subDpsReactions(m, ctx);
     const reacted = new Set<Reaction>();
+    // Their build's weapon passive on their own hits (#40): DMG bonus by talent, and Max HP as a % of base HP.
+    const weapon = weaponBuffs(m, ctx.members);
+    const hp = stat.hp + weapon.reduce((a, b) => a + (b.kind === "hpPct" ? b.value : 0), 0) * (entry.base?.hp ?? 0);
     for (const s of entry.sources) {
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
       // Teammates' party-wide kit buffs on this hit (#204, kit.ts memberBuffStats): ATK, DMG Bonus, CRIT Rate, flat DMG.
       const team = memberBuffStats(m, carry, ctx.active, ctx.members, s.talent, burstSharesFor(ctx, carry));
       const atk = stat.atk + team.atk + team.atkPct * baseAtk;
-      const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * stat.hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
+      const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
+      const weaponBonus = s.talent === "skill" || s.talent === "burst" ? weaponDmgBonus(weapon, s.talent) : 0;
       // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
       const crit = 1 + Math.min(stat.critRate + team.critRate, 1) * stat.critDmg;
       // Teammates' RES and DEF shred on this hit (#204), as on the carry's: Lunar hits take RES only.
@@ -1374,7 +1379,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
         const b = s.boost;
         const hitsPerUse = (s.hits ?? 1) * (s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1);
         const boost = b ? 1 + Math.min(1, b.stacks / hitsPerUse) * Math.min(b.max, b.perPoint * stat[b.stat]) : 1;
-        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat) * crit * res * def * boost;
+        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat + weaponBonus) * crit * res * def * boost;
       }
     }
     dps += lunarDps;

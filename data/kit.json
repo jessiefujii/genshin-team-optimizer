@@ -1379,6 +1379,7 @@
         "target": "self",
         "duration": 15,
         "maxStacks": 2,
+        "inDamage": true,
         "source": "passive2: \"After a nearby party member triggers a Nightsoul Burst, Kinich will gain 1 stack of Hunter's Experience that lasts 15s.\""
       },
       "Mavuika": {
@@ -1783,6 +1784,216 @@
       },
       "source": "KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
     }
+  },
+  "weapons": {
+    "Akuoumaru": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Mouun's Moon": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Wavebreaker's Fin": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.0012,
+          0.0015,
+          0.0018,
+          0.0021,
+          0.0024
+        ],
+        "max": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "energy": true
+        },
+        "source": "R1: \"combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by 0.12%\""
+      }
+    ],
+    "Mountain-Bracing Bolt": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"and increases Elemental Skill DMG by 12%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "when": {
+          "teammatesSkill": true
+        },
+        "source": "R1: \"Elemental Skill DMG will also increase by 12% for\""
+      }
+    ],
+    "Uraku Misugiri": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Normal Attack DMG is increased by 16%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "source": "R1: \"Elemental Skill DMG is increased by 24%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "when": {
+          "geo": true
+        },
+        "source": "R1: \"Normal Attack DMG is increased by 16%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "when": {
+          "geo": true
+        },
+        "source": "R1: \"Elemental Skill DMG is increased by 24%\""
+      }
+    ],
+    "Splendor of Tranquil Waters": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "when": {
+          "hpChanges": true
+        },
+        "source": "R1: \"Elemental Skill DMG dealt will be increased by 8% for 6s\" x3 stacks"
+      },
+      {
+        "kind": "hpPct",
+        "values": [
+          0.28,
+          0.35,
+          0.42,
+          0.49,
+          0.56
+        ],
+        "when": {
+          "hpChanges": true
+        },
+        "source": "R1: \"Max HP will be increased by 14% for 6s\" x2 stacks"
+      }
+    ]
   },
   "subDps": {
     "Bennett": {
@@ -7526,6 +7737,7 @@
     },
     "Kinich": {
       "rotationSeconds": 18,
+      "combo": "E 6N 2E Q (kit estimate)",
       "hits": [
         {
           "label": "Loop Shot DMG",
@@ -7544,6 +7756,16 @@
           "count": 2
         },
         {
+          "label": "passive2 bonus",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.2
+          },
+          "count": 0,
+          "addOn": true,
+          "nightsoulBursts": "Scalespiker Cannon DMG"
+        },
+        {
           "label": "Skill DMG",
           "type": "burst",
           "scaling": {
@@ -7560,7 +7782,64 @@
           "count": 6
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "combos": [
+        {
+          "combo": "shE N2E Q E 3[N2E]",
+          "when": [
+            {
+              "reaction": "burning"
+            },
+            {
+              "reaction": "burgeon"
+            }
+          ],
+          "hits": [
+            {
+              "label": "Loop Shot DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.94752
+              },
+              "count": 8
+            },
+            {
+              "label": "Scalespiker Cannon DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 11.68648
+              },
+              "count": 5
+            },
+            {
+              "label": "passive2 bonus",
+              "type": "skill",
+              "scaling": {
+                "atk": 3.2
+              },
+              "count": 0,
+              "addOn": true,
+              "nightsoulBursts": "Scalespiker Cannon DMG"
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.278
+              },
+              "count": 1
+            },
+            {
+              "label": "Dragon Breath DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.052512
+              },
+              "count": 6
+            }
+          ]
+        }
+      ]
     },
     "Neuvillette": {
       "rotationSeconds": 18,
@@ -7922,7 +8201,8 @@
           "scaling": {
             "atk": 2.5432
           },
-          "count": 1
+          "count": 1,
+          "reacting": 1
         },
         {
           "label": "Tanglevine Shaft DMG",
@@ -7930,7 +8210,8 @@
           "scaling": {
             "atk": 0.94554
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "Secondary Tanglevine Shaft DMG",
@@ -7938,7 +8219,8 @@
           "scaling": {
             "atk": 1.15566
           },
-          "count": 6
+          "count": 6,
+          "reacting": 2
         },
         {
           "label": "Wreath Arrow DMG",
@@ -7946,7 +8228,8 @@
           "scaling": {
             "atk": 1.4824
           },
-          "count": 3
+          "count": 3,
+          "reacting": 3
         },
         {
           "label": "Clusterbloom Arrow DMG",
@@ -7954,7 +8237,8 @@
           "scaling": {
             "atk": 0.6562
           },
-          "count": 12
+          "count": 12,
+          "reacting": 3
         }
       ],
       "buffs": [
@@ -9262,6 +9546,98 @@
       ],
       "buffs": []
     },
+    "Razor": {
+      "rotationSeconds": 20,
+      "combo": "tE Q tE 3x(N4D N3tED)",
+      "hits": [
+        {
+          "label": "Press Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 3.3864
+          },
+          "count": 5
+        },
+        {
+          "label": "Burst DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.72
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.6132
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.38972
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.73752
+          },
+          "count": 6,
+          "element": "Physical"
+        },
+        {
+          "label": "4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 2.28808
+          },
+          "count": 3,
+          "element": "Physical"
+        },
+        {
+          "label": "Soul Companion 1-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.658186
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 2-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.567006
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 3-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.708908
+          },
+          "count": 6
+        },
+        {
+          "label": "Soul Companion 4-Hit DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 0.933537
+          },
+          "count": 3
+        }
+      ],
+      "buffs": [],
+      "goblet": "Physical"
+    },
     "Eula": {
       "rotationSeconds": 20,
       "combo": "tE Q N4 hE N4",
@@ -9602,7 +9978,6 @@
     "Manekin",
     "Manekina",
     "Ningguang",
-    "Razor",
     "Sandrone",
     "Sethos",
     "Traveler (Cryo)",
