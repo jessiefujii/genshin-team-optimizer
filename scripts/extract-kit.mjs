@@ -2271,6 +2271,25 @@ const CARRIES = {
       { kind: "dmgBonusByMembers", from: "passive2", base: /Increases the DMG dealt by (\d+)%/, per: /additional (\d+)%/, max: /up to (\d+)% increased DMG/, elements: ["Pyro"], unless: ["vaporize", "melt"] },
     ],
   },
+  Ningguang: {
+    // #232. KQM's Ningguang quick guide (keqingmains.com/q/ningguang-quickguide/, fetched 2026-10-21), "15s Rotation
+    // Teams" ("These teams execute 15-16s rotations"; Xilonen, Yae, Fischl, Chiori, Bennett samples): "Ningguang N1 ED
+    // N1C Q C N2C". Her combo, "N2C (N1W N1C)", is "Ningguang's best combo in most scenarios". Counted on one opponent:
+    // 4 Normal Attacks; 3 Charged Attacks; Star Jades, one per Normal Attack hit ("Upon hit, this grants Ningguang 1
+    // Star Jade"), all fired by the next Charged Attack: 2 + 0 + 2 = 4; the Jade Screen's hit; Starshatter cast with the
+    // Screen up (6 gems + 6 from the Screen), 10 of them hitting one opponent (the gem weight in KQM's Multi-Optimization
+    // Ningguang config, keqingmains.com/misc/multi-optimization/; it assumes C6, the Burst is the same: estimate).
+    // Passive 2: dashing through the Screen ("ED") gives 12% Geo DMG for 10s, read as on all her hits (estimate).
+    combo: "N1 ED N1C Q C N2C",
+    hits: [
+      { table: "normal", label: "Normal Attack DMG", count: 4, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 3, type: CH },
+      { table: "normal", label: "DMG per Star Jade", count: 4, type: CH },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "DMG Per Gem", count: 10, type: BU },
+    ],
+    buffs: [{ kind: "dmgBonus", from: "passive2", re: /gain a (\d+)% Geo DMG Bonus/, types: [N, CH, SK, BU] }],
+  },
   Yoimiya: {
     // KQM: "her entire Normal Attack string repeated 3 times" in Niwabi Fire-Dance (E), the highest-damage combo in
     // most teams; her Burst "should only be used when it is available (typically every 2 or 3 rotations)": 0.4.
