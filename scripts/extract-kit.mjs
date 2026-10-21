@@ -2102,6 +2102,34 @@ const CARRIES = {
       { kind: "dmgBonusPerEm", from: "passive2", re: /are increased by ([\d.]+)%/, max: /maximum DMG Bonus obtainable this way is (\d+)%/, types: [CH, BU], labels: ["Wreath Arrow DMG", "Clusterbloom Arrow DMG", "Tanglevine Shaft DMG", "Secondary Tanglevine Shaft DMG"] },
     ],
   },
+  Lyney: {
+    // #230. DotGG's Lyney quick guide (dotgg.gg/genshin-impact-lyney-quick-character-guide/, 2024-05-01), "General
+    // Rotation": "Healer doing healing & other supports > Lyney's Charged ATK x4 > Elemental Burst > Elemental Skill >
+    // Repeat" (traveler.gg gives the same); KQM's quick guide: "at least 3–4 Charged Shots per combo". So 4 Prop Arrows
+    // (Charge Level 2), Q, E. Each Prop Arrow summons a Grin-Malkin Hat; "Only 1 Hat can exist at any given time" and
+    // "Creating a Grin-Malkin Hat while another one already exists on the field will destroy it [and] cause it to fire
+    // a Pyrotechnic Strike immediately" (wiki Card Force Translocation, Gameplay Notes): arrows 2-4 and the Burst's Hat
+    // each fire the previous one (4), and his Skill explodes the Burst's Hat "equal to that of a Pyrotechnic Strike"
+    // ("considered Charged Attack DMG"): 5 strikes, all read as Charged Attack DMG (the replaced ones' type: estimate).
+    // Passive 1's +80% ATK: the 4 arrow Hats (KQM: the Burst's Hat "cannot benefit from Lyney's A1"). Prop Surplus:
+    // 1 per arrow fired above 60% HP (KQM: "fire up to five Charged Shots from above 60% Max HP") + 1 from the Burst = 5,
+    // the max, spent by the Skill. Left out: Spiritbreath Thorn (Pneuma, enemy-dependent). Rotation: his Burst cooldown.
+    combo: "4[CS] Q E",
+    hits: [
+      { table: "normal", label: "Prop Arrow DMG", count: 4, type: CH },
+      { table: "normal", label: "Pyrotechnic Strike DMG", count: 5, type: CH },
+      { from: "passive1", re: /increase DMG dealt by (\d+)% of his ATK/, count: 4, type: CH, addOn: true },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Explosive Firework DMG", count: 1, type: BU },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK, tag: "propSurplus" },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "skill", label: "Skill DMG Bonus", stacks: 5, hits: "propSurplus" },
+      // Passive 2 against "opponents affected by Pyro" (his own Pyro): KQM, "Lyney will not gain the buff if he triggers
+      // Vaporize or Melt", so not with them active (estimate: off for the whole rotation then).
+      { kind: "dmgBonusByMembers", from: "passive2", base: /Increases the DMG dealt by (\d+)%/, per: /additional (\d+)%/, max: /up to (\d+)% increased DMG/, elements: ["Pyro"], unless: ["vaporize", "melt"] },
+    ],
+  },
   Yoimiya: {
     // KQM: "her entire Normal Attack string repeated 3 times" in Niwabi Fire-Dance (E), the highest-damage combo in
     // most teams; her Burst "should only be used when it is available (typically every 2 or 3 rotations)": 0.4.
@@ -2638,6 +2666,12 @@ function readCarry(id, spec) {
           ...(b.fightingSpirit ? { fightingSpirit: true } : {}),
           ...(b.when ? { when: b.when } : {}),
         };
+      }
+      case "dmgBonusByMembers": {
+        // A DMG bonus that grows per teammate of `elements` (Lyney's passive 2, #230): base, +per each, capped; index =
+        // number of such teammates (0-3). `unless`: reactions that take it away.
+        const base = num(b.from, b.base) / 100, per = num(b.from, b.per) / 100, max = num(b.from, b.max) / 100;
+        return { kind: b.kind, values: [0, 1, 2, 3].map((n) => round(Math.min(max, base + per * n))), elements: b.elements, ...(b.unless ? { unless: b.unless } : {}) };
       }
       case "dmgBonusByTypes": {
         const m = text(b.from).match(b.re);
