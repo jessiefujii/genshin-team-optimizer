@@ -532,7 +532,9 @@ function readSecretRite(id, spec) {
 // DMG, at most once per cooldown that shortens with more Natlanese members (data/kit-overrides.json
 // rules.nightsoulBurst). Every effect it triggers is the character's own, so only the carry's counts:
 //   target "self", kind atkPct: the carry's ATK % (Mavuika, Varesa), value x stacks up
-//   target "self", no kind: an upgrade to the carry's own kit (Kinich, Mualani, Chasca), scored like Secret Rite
+//   target "self", no kind: an upgrade to the carry's own kit (Mualani, Chasca), scored like Secret Rite
+//   inDamage: the upgrade is in the carry's damage model instead (Kinich's Hunter's Experience, #288: CARRIES), so the
+//   scorer adds no flat points for it
 //   duration / max stacks: how long each stack lasts and how many can be up; no duration = one-off (Chasca's shot)
 //   target "own": a support's effect on their own stats or resources; recorded, not scored (sub-DPS damage is
 //   Phase 3, resources are the energy check's job)
@@ -542,7 +544,7 @@ const NIGHTSOUL_BURST = {
   Iansan: { from: "passive2", target: "own", note: "Warming Up (her own resource)" },
   Ifa: { from: "passive2", target: "own", note: "his own EM" },
   Kachina: { from: "passive1", target: "own", note: "her own Geo DMG" },
-  Kinich: { from: "passive2", target: "self", duration: /lasts (\d+)s/, max: /Max (\d+) stacks/ },
+  Kinich: { from: "passive2", target: "self", duration: /lasts (\d+)s/, max: /Max (\d+) stacks/, inDamage: true },
   Mavuika: { from: "passive1", target: "self", kind: "atkPct", re: /ATK increases by (\d+)% for/, duration: /for (\d+)s/ },
   Mualani: { from: "passive2", target: "self", duration: /lasts for (\d+)s/, max: /Max (\d+) stacks/ },
   Ororon: { from: "passive1", target: "own", note: "gains Nightsoul points" },
@@ -574,6 +576,7 @@ function readNightsoulBurst(id, spec) {
     ...(spec.kind ? { kind: spec.kind, value: num(spec.re) / 100 } : {}),
     duration: spec.duration ? num(spec.duration) : null,
     maxStacks: spec.max ? num(spec.max) : 1,
+    ...(spec.inDamage ? { inDamage: true } : {}),
     source,
   };
 }
@@ -1483,6 +1486,8 @@ function readSubDps(id, specs) {
 //     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
 //     its flat estimate for hits without it), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
 //     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
+//     ofRow ({ table, label }: the hit deals that row's share of its own row, as Razor's Soul Companion; with `as`, its
+//     own label)
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
 //   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
 //   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
@@ -1500,6 +1505,8 @@ function readSubDps(id, specs) {
 //     their own direct Lunar hits, #135), lunarReactionBonus (Reaction DMG Bonus to their direct hits of that Lunar
 //     reaction: Flins), baseDmgMultiplier (labels: Nefer's Veil of Falsehood), emBonus. A buff's `when` ({ reaction,
 //     ascendantGleam, secretRite, noHealer }) gates it like a hit's.
+//   A hit's `nightsoulBursts` (#288): one per party Nightsoul Burst in the rotation, on that many of the hits with
+//   that label at most (Kinich's Hunter's Experience on his next Cannon); damage.ts counts them. Give it count 0.
 //   A hit's `additive` marks a Reaction Additive Base DMG Bonus to a Lunar hit (Zibai's passive 1, #146).
 //   missing: parts of the rotation not modeled yet, so the damage is too low (none left since #135)
 // The rotation lasts as long as a sourced length (data/kit-overrides.json `rotations`, #103: a default, plus lengths
@@ -1960,14 +1967,38 @@ const CARRIES = {
   },
   Kinich: {
     // E, hold E swings x6 (Loop Shots), Q. Nightsoul points: 2 per second for 10s, 3 per Loop Shot, 4 from a Blind
-    // Spot = 42, so 2 Scalespiker Cannons (20 points each, "Nightsoul Point Limit"). Worked out from his kit.
+    // Spot = 42, so 2 Scalespiker Cannons (20 points each, "Nightsoul Point Limit"). Worked out from his kit, for teams
+    // without Burning or Burgeon: KQM gives no count for them.
+    combo: "E 6N 2E Q (kit estimate)",
     hits: [
       { table: "skill", label: "Loop Shot DMG", count: 6, type: SK },
       { table: "skill", label: "Scalespiker Cannon DMG", count: 2, type: SK },
+      // Passive 2, Hunter's Experience (#288): "After a nearby party member triggers a Nightsoul Burst, Kinich will gain 1
+      // stack of Hunter's Experience that lasts 15s. Max 2 stacks", consumed by his next Scalespiker Cannon, "each stack
+      // consumed increasing the DMG dealt by this Cannon shot by 320% of Kinich's ATK". A Cannon's own DMG, so addOn.
+      { from: "passive2", re: /increasing the DMG dealt by this Cannon shot by (\d+)% of Kinich's ATK/, count: 0, type: SK, addOn: true, nightsoulBursts: "Scalespiker Cannon DMG" },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
       { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
     ],
     buffs: [],
+    combos: [
+      {
+        // KeqingMains Kinich quick guide (pasted by Jessie 2026-10-20): "shE N2E Q E 3[N2E]" (shE = Short Hold Skill)
+        // "utilizes Kinich's A1 Passive to gain Nightsoul points during his Burst animation in order to immediately fire
+        // an extra Scalespiker Cannon", and should "only be done when his Burst is available". His A1 gives 7 points
+        // when a Desolation target takes Burning or Burgeon DMG, so the 5 Cannons need one of them (#286); every
+        // KQM sample rotation for him is a Burning team. 8 Loop Shots, 5 Cannons, 1 Burst.
+        combo: "shE N2E Q E 3[N2E]",
+        when: [{ reaction: "burning" }, { reaction: "burgeon" }],
+        hits: [
+          { table: "skill", label: "Loop Shot DMG", count: 8, type: SK },
+          { table: "skill", label: "Scalespiker Cannon DMG", count: 5, type: SK },
+          { from: "passive2", re: /increasing the DMG dealt by this Cannon shot by (\d+)% of Kinich's ATK/, count: 0, type: SK, addOn: true, nightsoulBursts: "Scalespiker Cannon DMG" },
+          { table: "burst", label: "Skill DMG", count: 1, type: BU },
+          { table: "burst", label: "Dragon Breath DMG", count: "rate", type: BU },
+        ],
+      },
+    ],
   },
   Neuvillette: {
     // KeqingMains quick guide (fetched 2026-10-12): "Neuvillette can perform 2–4 Charged Attacks per rotation"; its
@@ -2051,13 +2082,18 @@ const CARRIES = {
   Tighnari: {
     // KQM: "E Q 3CS" (Charged Shots: Wreath Arrows; "Upon hit, the Wreath Arrow will create 4 Clusterbloom Arrows").
     // His Burst fires 6 Tanglevine Shafts and a secondary wave (genshin-db: "fire 6 Tanglevine Shafts"; one each).
+    // Hits that apply Dendro (and so Spread, #221), from KQM's Tighnari evidence page
+    // (library.keqingmains.com/evidence/characters/dendro/tighnari, linked by Jessie 2026-10-20): "CA Lv.1 and CA Lv.2
+    // Wreath Arrow have no ICD, CA Lv.2 Clusterbloom Arrow have 2.5s/4 Hits ICD"; "E has no ICD and Q Tanglevine Shaft
+    // and Secondary Tanglevine Shaft DMG have normal ICD" (2.5s/3 hits). On one opponent: every Wreath Arrow and the
+    // Skill; 1 in 4 Clusterbloom Arrows (each Wreath Arrow's 4 land well inside 2.5s); the 1st and 4th of each 6 shafts.
     combo: "E Q 3CS",
     hits: [
-      { table: "skill", label: "Skill DMG", count: 1, type: SK },
-      { table: "burst", label: "Tanglevine Shaft DMG", count: 6, type: BU },
-      { table: "burst", label: "Secondary Tanglevine Shaft DMG", count: 6, type: BU },
-      { table: "normal", label: "Wreath Arrow DMG", count: 3, type: CH },
-      { table: "normal", label: "Clusterbloom Arrow DMG", count: 12, type: CH },
+      { table: "skill", label: "Skill DMG", count: 1, reacting: 1, type: SK },
+      { table: "burst", label: "Tanglevine Shaft DMG", count: 6, reacting: 2, type: BU },
+      { table: "burst", label: "Secondary Tanglevine Shaft DMG", count: 6, reacting: 2, type: BU },
+      { table: "normal", label: "Wreath Arrow DMG", count: 3, reacting: 3, type: CH },
+      { table: "normal", label: "Clusterbloom Arrow DMG", count: 12, reacting: 3, type: CH },
     ],
     buffs: [
       // Passive 1: +50 EM for 4s after each Wreath Arrow: up through his Charged Shots.
@@ -2471,6 +2507,28 @@ const CARRIES = {
     ],
     buffs: [],
   },
+  Razor: {
+    // #231. KQM's Multi-Optimization guide (keqingmains.com/misc/multi-optimization/, 2023-06-26), its Physical Razor
+    // config: "The assumed rotation is tE Q tE 3x(N4D N3tED)", with these hit weights (both Noblesse states summed;
+    // its C6 target left out, C0): N1-N3 6 each, N4 3, Press 5, Burst 1, Soul Companion on N1-N3 6 each and on N4 3.
+    // Normal Attacks are Physical; the Wolf Within's Soul Companion hits deal "% Normal Attack DMG" (genshin-db) as
+    // Electro, tagged Elemental Burst (wiki Lightning Fang attack table). No rotation length: his 20s Burst cooldown.
+    combo: "tE Q tE 3x(N4D N3tED)",
+    goblet: "Physical",
+    hits: [
+      { table: "skill", label: "Press Skill DMG", count: 5, type: SK },
+      { table: "burst", label: "Burst DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "2-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "3-Hit DMG", count: 6, type: N, element: "Physical" },
+      { table: "normal", label: "4-Hit DMG", count: 3, type: N, element: "Physical" },
+      { table: "normal", label: "1-Hit DMG", as: "Soul Companion 1-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "2-Hit DMG", as: "Soul Companion 2-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "3-Hit DMG", as: "Soul Companion 3-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 6, type: BU },
+      { table: "normal", label: "4-Hit DMG", as: "Soul Companion 4-Hit DMG", ofRow: { table: "burst", label: "Soul Companion DMG" }, count: 3, type: BU },
+    ],
+    buffs: [],
+  },
   Eula: {
     // #222. KQM quick guide: "tE Q N4 hE N4", "Eula's default Burst combo, granting her the highest number of Lightfall
     // stacks (~13 without Attack SPD)". Her Normal Attacks and Lightfall Sword are Physical; Skill and Burst casts Cryo.
@@ -2580,9 +2638,14 @@ function readCarry(id, spec) {
         count = r.hits;
       } else if (typeof count === "object") count = tableValue(tableAttrs(count.table), count.label, id);
       if (h.reacting !== undefined && !(h.reacting >= 0 && h.reacting <= count)) throw new Error(`${id}: "${h.label}" reacting ${h.reacting} of ${count}`);
-      const scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+      let scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+      // ofRow: a hit dealing a share of another (Razor's Soul Companion, "% Normal Attack DMG"): that row's value.
+      if (h.ofRow) {
+        const share = tableValue(tableAttrs(h.ofRow.table), h.ofRow.label, id);
+        scaling = Object.fromEntries(Object.entries(scaling).map(([k, v]) => [k, round(v * share)]));
+      }
       hits.push({
-        label: h.from ? `${h.from} bonus` : h.label,
+        label: h.from ? `${h.from} bonus` : (h.as ?? h.label),
         type: h.type,
         scaling,
         count,
@@ -2591,6 +2654,7 @@ function readCarry(id, spec) {
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
         ...(h.addOn ? { addOn: true } : {}),
+        ...(h.nightsoulBursts ? { nightsoulBursts: h.nightsoulBursts } : {}),
         ...(h.element ? { element: h.element } : {}),
         ...(h.byTeammates ? { byTeammates: { elements: h.byTeammates.elements, ...(h.byTeammates.members ? { members: h.byTeammates.members.map(round) } : {}), ...(h.byTeammates.types ? { types: h.byTeammates.types.map(round) } : {}) } } : {}),
         ...(h.when ? { when: h.when } : {}),
@@ -2846,6 +2910,62 @@ const benchmarkSets = {
 };
 for (const [id, b] of Object.entries(benchmarkSets)) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
 
+// Weapon passives on the holder's own hits (#40, #206), read from genshin-db's passive text at each refinement (R1-R5):
+// `values` per refinement. A team-conditional one has `when`: energy (the value is per point of the party's combined
+// max Energy, capped at `max`), teammatesSkill (another member uses their Skill), geo (a member deals Geo DMG while
+// active), hpChanges (party HP goes up or down: a healer in the team). Static stats a weapon gives (Uraku's DEF) are on
+// the character screen, so an imported build already has them; DMG bonuses by type aren't.
+const WATATSUMI = [
+  {
+    kind: "dmgBonus", types: ["burst"], when: { energy: true },
+    re: /combined maximum Energy capacity, the Elemental Burst DMG of the character equipping this weapon is increased by ([\d.]+)%/,
+    max: /A maximum of ([\d.]+)% increased Elemental Burst DMG/,
+  },
+];
+const WEAPONS = {
+  Akuoumaru: WATATSUMI,
+  "Mouun's Moon": WATATSUMI,
+  "Wavebreaker's Fin": WATATSUMI,
+  "Mountain-Bracing Bolt": [
+    { kind: "dmgBonus", types: ["skill"], re: /and increases Elemental Skill DMG by ([\d.]+)%/ },
+    { kind: "dmgBonus", types: ["skill"], when: { teammatesSkill: true }, re: /Elemental Skill DMG will also increase by ([\d.]+)% for/ },
+  ],
+  "Uraku Misugiri": [
+    { kind: "dmgBonus", types: ["normal"], re: /Normal Attack DMG is increased by ([\d.]+)%/ },
+    { kind: "dmgBonus", types: ["skill"], re: /Elemental Skill DMG is increased by ([\d.]+)%/ },
+    // "the aforementioned effects increase by 100%": the same values again.
+    { kind: "dmgBonus", types: ["normal"], when: { geo: true }, re: /Normal Attack DMG is increased by ([\d.]+)%(?=.*increase by 100%)/ },
+    { kind: "dmgBonus", types: ["skill"], when: { geo: true }, re: /Elemental Skill DMG is increased by ([\d.]+)%(?=.*increase by 100%)/ },
+  ],
+  "Splendor of Tranquil Waters": [
+    // Each "for 6s. Max N stacks", taken at full stacks while the team's HP keeps changing (estimate).
+    { kind: "dmgBonus", types: ["skill"], when: { hpChanges: true }, re: /Elemental Skill DMG dealt will be increased by ([\d.]+)% for 6s/, stacks: /for 6s\. Max (\d+) stacks/ },
+    { kind: "hpPct", when: { hpChanges: true }, re: /Max HP will be increased by ([\d.]+)% for 6s/, stacks: /Max HP will be increased by [\d.]+% for 6s\. Max (\d+) stacks/ },
+  ],
+};
+const weapons = {};
+for (const [name, specs] of Object.entries(WEAPONS)) {
+  const w = genshindb.weapons(name);
+  if (!w || w.name !== name) throw new Error(`${name}: no such weapon in genshin-db`);
+  const texts = [w.r1, w.r2, w.r3, w.r4, w.r5].map((r) => r.description.replace(/\s+/g, " "));
+  const read = (re, text) => {
+    const m = text.match(re);
+    if (!m) throw new Error(`${name}: pattern ${re} not found in its passive text: ${text}`);
+    return Number(m[1]);
+  };
+  weapons[name] = specs.map((s) => {
+    const stacks = s.stacks ? read(s.stacks, texts[0]) : 1;
+    return {
+      kind: s.kind,
+      ...(s.types ? { types: s.types } : {}),
+      values: texts.map((t) => round((read(s.re, t) / 100) * stacks)),
+      ...(s.max ? { max: texts.map((t) => read(s.max, t) / 100) } : {}),
+      ...(s.when ? { when: s.when } : {}),
+      source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}`,
+    };
+  });
+}
+
 // Level 90 base HP/ATK/DEF (character only), for a sub-DPS's benchmark build when the player has none (#158), and the
 // level 90 ascension stat (#166: genshin-db substatType and its value; EM is flat, the rest are fractions).
 // genshin-db matches names loosely, so the name is checked; the Traveler's base stats are Lumine's.
@@ -3003,6 +3123,7 @@ writeFileSync(
       lunarBase,
       sets,
       benchmarkSets,
+      weapons,
       subDps,
       sustain,
       carries,
