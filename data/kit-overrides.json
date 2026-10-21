@@ -1228,5 +1228,425 @@
         "every": 3
       }
     }
+  },
+  "carryIcd": {
+    "_howTo": "Elemental application ICD per carry hit (#226), keyed \"table: label\" like the carry's hits in extract-kit.mjs CARRIES (every combo's hits with that key). \"none\": every hit applies. { tag, reset, every }: hits of one ICD tag (and type) share the counter; reset and every as in `icd` (default the Default ICD Type: 2.5s, every 3rd hit). windows: how many separate timer windows the tag's hits fall in per rotation (uses further apart than the reset), default 1 (\"first\": one per use). hits: hits per count when the talent row sums several. extract-kit.mjs icdReacting turns these into each hit's `reacting`. source: Genshin Impact Wiki, Internal Cooldown/Data (https://genshin-impact.fandom.com/wiki/Internal_Cooldown/Data, fandom API action=parse, fetched 2026-10-20): its ICD Tag and ICD Type columns, and its \"Most Melee Characters: Normal Attack, Default\", \"Most Polearm Characters: Charged Attack, Thrusting Attack\" (0.5s, \"Only the 1st is 1\"), \"Most Sword/Claymore Characters: Charged Attack, tag Normal Attack, Default\", \"Most Catalyst/Bow Characters: Charged Attack (No ICD)\" and \"All Characters: Plunging Attack (No ICD)\" rows for the characters without a row of their own. Not in that table, so on damage.ts's flat share: Skirk, Flins, Varesa's Rush and Volcano Kablam, Clorinde's and Wriothesley's Surging Blade, Gaming's Man Chai; also Freminet (his Skill hits' timing), Hydro Traveler's Dewdrops (1.5s, only the first: how many windows a hold lasts is unsourced), Chasca (finite sequences).",
+    "Hu Tao": {
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack": {
+        "tag": "Charged Attack",
+        "reset": 0.5,
+        "every": "first"
+      },
+      "skill: Blood Blossom DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Raiden Shogun": {
+      "skill: Skill DMG": "none",
+      "skill: Coordinated ATK DMG": {
+        "tag": "Elemental Skill"
+      },
+      "burst: Musou no Hitotachi Base DMG": "none",
+      "burst: 1-Hit DMG": {
+        "tag": "Musou Isshin Attack"
+      },
+      "burst: 2-Hit DMG": {
+        "tag": "Musou Isshin Attack"
+      },
+      "burst: 3-Hit DMG": {
+        "tag": "Musou Isshin Attack"
+      },
+      "burst: Charged Attack DMG": {
+        "tag": "Musou Isshin Attack"
+      }
+    },
+    "Kamisato Ayaka": {
+      "skill: Skill DMG": "none",
+      "burst: Cutting DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Bloom DMG": "none",
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack DMG": {
+        "tag": "Charged Attack",
+        "reset": 0.5,
+        "every": "first",
+        "hits": 3
+      }
+    },
+    "Alhaitham": {
+      "skill: Rush Attack DMG": "none",
+      "burst: Single-Instance DMG": {
+        "tag": "Elemental Burst"
+      },
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack DMG": {
+        "tag": "Charged Attack",
+        "reset": 2,
+        "every": "first"
+      },
+      "skill: 3-Mirror Projection Attack DMG": {
+        "tag": "Elemental Skill",
+        "reset": 12,
+        "every": 2
+      }
+    },
+    "Klee": {
+      "normal: 1-Hit DMG": {
+        "tag": "Klee Pyro DMG"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Klee Pyro DMG"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Klee Pyro DMG"
+      },
+      "skill: Jumpy Dumpty DMG": {
+        "tag": "Klee Pyro DMG"
+      },
+      "normal: Charged Attack DMG": "none",
+      "burst: Sparks 'n' Splash DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Yoimiya": {
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 4-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 5-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Neuvillette": {
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Waterfall DMG": {
+        "tag": "Elemental Burst"
+      },
+      "skill: Skill DMG": "none",
+      "normal: Charged Attack: Equitable Judgment": {
+        "tag": "Charged Attack"
+      }
+    },
+    "Ganyu": {
+      "skill: Skill DMG": "none",
+      "normal: Frostflake Arrow DMG": "none",
+      "normal: Frostflake Arrow Bloom DMG": "none"
+    },
+    "Kamisato Ayato": {
+      "skill: Shunsuiken 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "skill: Shunsuiken 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "skill: Shunsuiken 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "skill: Water Illusion DMG": {
+        "tag": "Elemental Skill",
+        "windows": 2
+      },
+      "burst: Bloomwater Blade DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Yanfei": {
+      "normal: 1-Hit DMG": {
+        "tag": "Yanfei Pyro DMG"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Yanfei Pyro DMG"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Yanfei Pyro DMG"
+      },
+      "normal: Charged Attack": "none",
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Cyno": {
+      "skill: Skill DMG": {
+        "tag": "Elemental Skill Thrusting",
+        "reset": 0.2,
+        "every": "first"
+      },
+      "skill: Mortuary Rite DMG": "none",
+      "burst: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: 4-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: 5-Hit DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Tartaglia": {
+      "burst: Skill DMG: Ranged": "none",
+      "skill: Stance Change DMG": "none",
+      "skill: 1-Hit DMG": {
+        "tag": "Foul Legacy"
+      },
+      "skill: 2-Hit DMG": {
+        "tag": "Foul Legacy"
+      },
+      "skill: 3-Hit DMG": {
+        "tag": "Foul Legacy"
+      },
+      "skill: Charged Attack DMG": {
+        "tag": "Charged Attack"
+      },
+      "skill: Riptide Slash": "none"
+    },
+    "Aloy": {
+      "normal: 1-Hit DMG": {
+        "tag": "Rushing Ice Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Rushing Ice Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Rushing Ice Attack"
+      },
+      "skill: Freeze Bomb DMG": "none",
+      "skill: Chillwater Bomblet DMG": {
+        "tag": "Elemental Skill"
+      },
+      "burst: Skill DMG": "none"
+    },
+    "Diluc": {
+      "burst: Slashing DMG": {
+        "tag": "Elemental Burst",
+        "reset": 5,
+        "every": 5
+      },
+      "burst: DoT": {
+        "tag": "Elemental Burst",
+        "reset": 5,
+        "every": 5
+      },
+      "burst: Explosion DMG": {
+        "tag": "Elemental Burst",
+        "reset": 5,
+        "every": 5
+      },
+      "skill: 1-Hit DMG": "none",
+      "skill: 2-Hit DMG": "none",
+      "skill: 3-Hit DMG": "none",
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Keqing": {
+      "skill: Lightning Stiletto DMG": "none",
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Consecutive Slash DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Last Attack DMG": {
+        "tag": "Elemental Burst"
+      },
+      "skill: Thunderclap Slash DMG": {
+        "tag": "Elemental Skill"
+      },
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Kaveh": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none",
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Kinich": {
+      "skill: Loop Shot DMG": {
+        "tag": "Loop Shot",
+        "reset": 2,
+        "every": "first"
+      },
+      "skill: Scalespiker Cannon DMG": {
+        "tag": "Scalespiker Cannon",
+        "reset": 1.2,
+        "every": "first"
+      },
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Dragon Breath DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Clorinde": {
+      "skill: Swift Hunt DMG": {
+        "tag": "Normal Attack"
+      },
+      "skill: Impale the Night DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Wriothesley": {
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 4-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 5-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack DMG": "none",
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst",
+        "hits": 5
+      }
+    },
+    "Mualani": {
+      "skill: Sharky's Bite Base DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Arlecchino": {
+      "skill: Spike DMG": {
+        "tag": "Elemental Skill",
+        "reset": 10,
+        "every": 3
+      },
+      "skill: Cleave DMG": "none",
+      "normal: Charged Attack DMG": {
+        "tag": "Charged Attack",
+        "reset": 0.5,
+        "every": "first"
+      },
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 4-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 5-Hit DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Varesa": {
+      "normal: Fiery Passion Charged Attack DMG": "none",
+      "normal: Charged Attack DMG": "none",
+      "normal: Fiery Passion Low/High Plunge DMG": "none",
+      "normal: Low/High Plunge DMG": "none"
+    },
+    "Gaming": {
+      "skill: Plunging Attack: Charmed Cloudstrider DMG": "none"
+    },
+    "Mavuika": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none",
+      "skill: Flamestrider Charged Attack Cyclic DMG": {
+        "tag": "Flamestrider"
+      },
+      "skill: Flamestrider Charged Attack Final DMG": {
+        "tag": "Flamestrider"
+      }
+    },
+    "Eula": {
+      "skill: Press DMG": "none",
+      "skill: Hold DMG": "none",
+      "skill: Icewhirl Brand DMG": {
+        "tag": "Elemental Skill"
+      },
+      "burst: Skill DMG": "none"
+    },
+    "Nefer": {
+      "skill: Skill DMG": {
+        "tag": "Elemental Skill",
+        "windows": 2
+      },
+      "skill: Phantasm Performance 1-Hit DMG (Nefer)": {
+        "tag": "Charged Attack"
+      },
+      "skill: Phantasm Performance 2-Hit DMG (Nefer)": {
+        "tag": "Charged Attack"
+      },
+      "burst: 1-Hit DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: 2-Hit DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Traveler (Hydro)": {
+      "skill: Torrent Surge DMG": "none",
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst",
+        "reset": 8,
+        "every": 4
+      }
+    }
   }
 }
