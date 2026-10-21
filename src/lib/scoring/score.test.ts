@@ -209,7 +209,7 @@ describe("scoreTeam", () => {
     // His passive 1 counts by the damage it adds (#134): Swirl and Crystallize stacks; Kazuha's Swirls by their own
     // damage (#205). No flat points either way.
     expect(s.breakdown.filter((l) => l.rule === "Reactions")).toEqual([
-      { rule: "Reactions", points: 0, reason: "Swirl, Crystallize add ~+19% to Neuvillette's damage" },
+      { rule: "Reactions", points: 0, reason: "Swirl, Crystallize add ~+20% to Neuvillette's damage" },
       { rule: "Reactions", points: 0, reason: "Swirl: ~2778 damage per second (Kaedehara Kazuha ~0.5/s)" },
     ]);
   });
@@ -1064,7 +1064,8 @@ describe("effects.json in scoring", () => {
 
   test("a Favonius weapon's particles lower the team's ER needs (#37)", () => {
     const favonius: EffectTag = { source: "weapon", id: "Favonius Sword", roles: ["battery"] };
-    const ids = ["Neuvillette", "Ineffa", "Columbina", "Sucrose"];
+    // Flins carries: in Neuvillette's sourced 24.5s rotation (#119) the gain rounds away (172% either way).
+    const ids = ["Flins", "Ineffa", "Columbina", "Sucrose"];
     const need = (t: ScoringCharacter[], id: string) => scoreTeam(t).energy.find((e) => e.id === id)!.need!;
     expect(need(geared({ Sucrose: [favonius] }, ...ids), "Sucrose")).toBeLessThan(need(team(...ids), "Sucrose"));
   });

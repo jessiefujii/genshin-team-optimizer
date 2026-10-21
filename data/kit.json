@@ -6026,6 +6026,7 @@
   "carries": {
     "Hu Tao": {
       "rotationSeconds": 15,
+      "combo": "E 7[N2CJ] (Q)",
       "hits": [
         {
           "label": "1-Hit DMG",
@@ -6088,10 +6089,70 @@
             "noHealer": true
           }
         }
+      ],
+      "combos": [
+        {
+          "combo": "E 7.5[N1CJ] (Q)",
+          "when": [
+            {
+              "reaction": "vaporize",
+              "elements": {
+                "Cryo": 2
+              }
+            },
+            {
+              "reaction": "vaporize",
+              "members": [
+                [
+                  "Thoma"
+                ],
+                [
+                  "Sucrose",
+                  "Kaedehara Kazuha"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.788544
+              },
+              "count": 7.5
+            },
+            {
+              "label": "Charged Attack",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.2866
+              },
+              "count": 7.5
+            },
+            {
+              "label": "Blood Blossom DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.088
+              },
+              "count": 2
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 4.70344
+              },
+              "count": 0.5
+            }
+          ]
+        }
       ]
     },
     "Raiden Shogun": {
       "rotationSeconds": 18,
+      "combo": "E Q 3[N3C] N1C",
       "hits": [
         {
           "label": "Skill DMG",
@@ -6180,10 +6241,71 @@
           "kind": "dmgBonusFromEr",
           "perPercent": 0.004
         }
+      ],
+      "combos": [
+        {
+          "combo": "E Q 6[JP], with Xianyun",
+          "when": [
+            {
+              "members": [
+                [
+                  "Xianyun"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.9924
+              },
+              "count": 1
+            },
+            {
+              "label": "Coordinated ATK DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.714
+              },
+              "count": 7
+            },
+            {
+              "label": "Musou no Hitotachi Base DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.8136
+              },
+              "count": 1,
+              "tag": "initial"
+            },
+            {
+              "label": "Low/High Plunge DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.933586
+              },
+              "count": 6,
+              "tag": "isshin"
+            },
+            {
+              "label": "Plunge DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.174572
+              },
+              "count": 6,
+              "collision": true,
+              "tag": "isshin"
+            }
+          ]
+        }
       ]
     },
     "Xiao": {
       "rotationSeconds": 18,
+      "combo": "E E Q 10[JhP]",
       "hits": [
         {
           "label": "Skill DMG",
@@ -6200,6 +6322,15 @@
             "atk": 3.75499
           },
           "count": 10
+        },
+        {
+          "label": "Plunge DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 1.503452
+          },
+          "count": 10,
+          "collision": true
         }
       ],
       "buffs": [
@@ -6223,6 +6354,56 @@
             "burst"
           ],
           "note": "passive 1: 5% + 5% per 3s up to 25% over the 15s Burst, about 15% on average"
+        }
+      ],
+      "combos": [
+        {
+          "combo": "E E Q 11[JhP] 2[JlP]",
+          "when": [
+            {
+              "members": [
+                [
+                  "Xianyun",
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 4.2976
+              },
+              "count": 2
+            },
+            {
+              "label": "Low/High Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 3.75499
+              },
+              "count": 11
+            },
+            {
+              "label": "Low/High Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 3.006267
+              },
+              "count": 2
+            },
+            {
+              "label": "Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 1.503452
+              },
+              "count": 13,
+              "collision": true
+            }
+          ]
         }
       ]
     },
@@ -7688,6 +7869,7 @@
           "seconds": 20
         }
       ],
+      "combo": "E C 5[N3D] N3",
       "hits": [
         {
           "label": "Spike DMG",
@@ -7719,8 +7901,7 @@
           "scaling": {
             "atk": 0.872681
           },
-          "count": 3,
-          "instances": 1
+          "count": 6
         },
         {
           "label": "2-Hit DMG",
@@ -7728,8 +7909,7 @@
           "scaling": {
             "atk": 0.95729
           },
-          "count": 3,
-          "instances": 1
+          "count": 6
         },
         {
           "label": "3-Hit DMG",
@@ -7737,34 +7917,7 @@
           "scaling": {
             "atk": 1.201274
           },
-          "count": 3,
-          "instances": 1
-        },
-        {
-          "label": "4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.364868
-          },
-          "count": 3,
-          "instances": 2
-        },
-        {
-          "label": "5-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.285709
-          },
-          "count": 3,
-          "instances": 1
-        },
-        {
-          "label": "Skill DMG",
-          "type": "burst",
-          "scaling": {
-            "atk": 6.2968
-          },
-          "count": 1
+          "count": 6
         }
       ],
       "buffs": [
@@ -7773,6 +7926,429 @@
           "ratio": 2.212,
           "start": 1.45,
           "use": 0.075
+        }
+      ],
+      "combos": [
+        {
+          "combo": "E C 2[N6] N3",
+          "when": [
+            {
+              "members": [
+                [
+                  "Citlali",
+                  "Escoffier"
+                ],
+                [
+                  "Escoffier",
+                  "Layla",
+                  "Nicole"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 3
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 3
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 3
+            },
+            {
+              "label": "4-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.364868
+              },
+              "count": 2,
+              "instances": 2
+            },
+            {
+              "label": "5-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.285709
+              },
+              "count": 2
+            },
+            {
+              "label": "6-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.568577
+              },
+              "count": 2
+            }
+          ]
+        },
+        {
+          "combo": "E C 2[N5D] N5",
+          "when": [
+            {
+              "members": [
+                [
+                  "Citlali"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 3
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 3
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 3
+            },
+            {
+              "label": "4-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.364868
+              },
+              "count": 3,
+              "instances": 2
+            },
+            {
+              "label": "5-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.285709
+              },
+              "count": 3
+            }
+          ]
+        },
+        {
+          "combo": "E 7[N2C] N2",
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ],
+                [
+                  "Yelan"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 7
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 8
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 8
+            }
+          ]
+        },
+        {
+          "combo": "E 5[N3C] N1",
+          "when": [
+            {
+              "members": [
+                [
+                  "Yelan"
+                ],
+                [
+                  "Lan Yan"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 5
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 6
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 5
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 5
+            }
+          ]
+        },
+        {
+          "combo": "E C N3 4[N3D] N1",
+          "when": [
+            {
+              "members": [
+                [
+                  "Mona"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 6
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 5
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 5
+            }
+          ]
+        },
+        {
+          "combo": "E C 6[N3D] N3",
+          "when": [
+            {
+              "members": [
+                [
+                  "Columbina"
+                ],
+                [
+                  "Ineffa"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Spike DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.25228
+              },
+              "count": 1
+            },
+            {
+              "label": "Cleave DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.27052
+              },
+              "count": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.66848
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.872681
+              },
+              "count": 7
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.95729
+              },
+              "count": 7
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.201274
+              },
+              "count": 7
+            }
+          ]
         }
       ]
     },
@@ -7883,7 +8459,22 @@
       ]
     },
     "Neuvillette": {
-      "rotationSeconds": 18,
+      "rotationSeconds": 26.5,
+      "rotationTeams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 28
+        }
+      ],
+      "combo": "E C E C Q 2[C]",
       "hits": [
         {
           "label": "Skill DMG",
@@ -7915,7 +8506,7 @@
           "scaling": {
             "hp": 0.134458
           },
-          "count": 24
+          "count": 32
         }
       ],
       "buffs": [
@@ -7957,6 +8548,7 @@
     },
     "Kamisato Ayaka": {
       "rotationSeconds": 20,
+      "combo": "EDQ 2(N2C N2CD) E",
       "hits": [
         {
           "label": "Skill DMG",
@@ -7964,7 +8556,7 @@
           "scaling": {
             "atk": 4.0664
           },
-          "count": 1
+          "count": 2
         },
         {
           "label": "Cutting DMG",
@@ -7988,7 +8580,7 @@
           "scaling": {
             "atk": 0.84007
           },
-          "count": 3
+          "count": 4
         },
         {
           "label": "2-Hit DMG",
@@ -7996,7 +8588,7 @@
           "scaling": {
             "atk": 0.894438
           },
-          "count": 3
+          "count": 4
         },
         {
           "label": "Charged Attack DMG",
@@ -8004,7 +8596,7 @@
           "scaling": {
             "atk": 3.03834
           },
-          "count": 3
+          "count": 4
         }
       ],
       "buffs": [
@@ -8024,6 +8616,78 @@
             "charged",
             "skill",
             "burst"
+          ]
+        }
+      ],
+      "combos": [
+        {
+          "combo": "ED N1 Q N3CD 2[N2C] ED N1C",
+          "when": [
+            {
+              "members": [
+                [
+                  "Yelan"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 4.0664
+              },
+              "count": 2
+            },
+            {
+              "label": "Cutting DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.9091
+              },
+              "count": 19
+            },
+            {
+              "label": "Bloom DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.86365
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.84007
+              },
+              "count": 5
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.894438
+              },
+              "count": 3
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.150493
+              },
+              "count": 1
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 3.03834
+              },
+              "count": 4
+            }
           ]
         }
       ]
@@ -10062,6 +10726,138 @@
           ],
           "labels": [
             "Icewhirl Brand DMG"
+          ]
+        }
+      ],
+      "combos": [
+        {
+          "combo": "tE Q N3 hE N4 D N2",
+          "when": [
+            {
+              "members": [
+                [
+                  "Mika"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Press DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.4888
+              },
+              "count": 1
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 4.1752
+              },
+              "count": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.648572
+              },
+              "count": 3,
+              "element": "Physical"
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.718724
+              },
+              "count": 3,
+              "element": "Physical"
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 2.087022
+              },
+              "count": 2,
+              "instances": 2,
+              "element": "Physical"
+            },
+            {
+              "label": "4-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 2.069484
+              },
+              "count": 1,
+              "element": "Physical"
+            },
+            {
+              "label": "Hold DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 4.1752
+              },
+              "count": 1
+            },
+            {
+              "label": "Icewhirl Brand DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.632
+              },
+              "count": 2
+            },
+            {
+              "label": "Lightfall Sword Base DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.74344
+              },
+              "count": 1,
+              "element": "Physical",
+              "tag": "lightfall"
+            },
+            {
+              "label": "Lightfall Sword Base DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.74344
+              },
+              "count": 0.5,
+              "element": "Physical"
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "addPerStack",
+              "value": 1.37776,
+              "stacks": 15,
+              "tag": "lightfall"
+            },
+            {
+              "kind": "resShred",
+              "value": 0.24,
+              "elements": [
+                "Physical"
+              ],
+              "labels": [
+                "Lightfall Sword Base DMG"
+              ]
+            },
+            {
+              "kind": "resShred",
+              "value": 0.24,
+              "elements": [
+                "Cryo"
+              ],
+              "labels": [
+                "Icewhirl Brand DMG"
+              ]
+            }
           ]
         }
       ],

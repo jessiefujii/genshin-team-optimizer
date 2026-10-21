@@ -1,5 +1,5 @@
 {
-  "median": 141211.1,
+  "median": 143175.2,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -35,7 +35,7 @@
         "Ineffa",
         "Xilonen"
       ],
-      "value": 130191.1
+      "value": 130621
     },
     "Chasca": {
       "team": [
@@ -134,7 +134,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 227173.7
+      "value": 242510.8
     },
     "Kamisato Ayato": {
       "team": [
@@ -242,7 +242,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 180101.3
+      "value": 163417.4
     },
     "Ningguang": {
       "team": [
@@ -395,7 +395,7 @@
         "Xianyun",
         "Furina"
       ],
-      "value": 118987.6
+      "value": 165953
     },
     "Yanfei": {
       "team": [

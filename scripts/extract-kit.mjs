@@ -1486,6 +1486,7 @@ function readSubDps(id, specs) {
 //     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
 //     its flat estimate for hits without it), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
 //     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
+//     collision (a plunge's collision hit: no flat team bonus, as Xianyun's is for the shockwave only),
 //     ofRow ({ table, label }: the hit deals that row's share of its own row, as Razor's Soul Companion; with `as`, its
 //     own label)
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
@@ -1534,11 +1535,20 @@ const mavuikaHits = ({ cyclic, cyclicReacting, final = 0, finalReacting }) => [
   { table: "skill", label: "Flamestrider Charged Attack Cyclic DMG", count: cyclic, reacting: cyclicReacting, type: CH, fightingSpirit: "ca" },
   ...(final ? [{ table: "skill", label: "Flamestrider Charged Attack Final DMG", count: final, reacting: finalReacting, type: CH, fightingSpirit: "ca" }] : []),
 ];
+// Arlecchino's combos (#119): her Skill (Spike, then the Cleave when she claims the Directive), `ca` Charged Attacks,
+// strings[n] Normal Attack n-Hits (the 4-Hit row is two hits) and her Burst.
+const arlecchinoHits = ({ ca, strings }) => [
+  { table: "skill", label: "Spike DMG", count: 1, type: SK },
+  { table: "skill", label: "Cleave DMG", count: 1, type: SK },
+  { table: "normal", label: "Charged Attack DMG", count: ca, type: CH },
+  ...Object.entries(strings).map(([n, count]) => ({ table: "normal", label: `${n}-Hit DMG`, count, type: N, ...(n === "4" ? { instances: 2 } : {}) })),
+];
 const CARRIES = {
   "Hu Tao": {
     // E, N2C x7, Q every other rotation. KeqingMains quick guide (fetched 2026-10-12): N2C is "optimal for most Hu Tao
     // teams", "around 7N2CJ" at C0; Burst "every other rotation", since building Energy for it each rotation costs
     // damage. Blood Blossom ticks every 4s for 8s ("Blood Blossom Duration").
+    combo: "E 7[N2CJ] (Q)",
     hits: [
       { table: "normal", label: "1-Hit DMG", count: 7, type: N },
       { table: "normal", label: "2-Hit DMG", count: 7, type: N },
@@ -1560,11 +1570,33 @@ const CARRIES = {
         when: { noHealer: true },
       },
     ],
+    combos: [
+      {
+        // #119. KQM's Hu Tao quick guide (https://keqingmains.com/q/hu-tao-quickguide/, fetched 2026-10-20): "At
+        // Constellation 0, N1CJ is Hu Tao's best combo to use in Freeze/Melt teams and VV Vape teams with Thoma and
+        // without C6 Xingqiu"; N1C: "players should aim for 7 or 8" (midpoint 7.5). Freeze/Melt is its Vapemelt
+        // archetype ("Hu Tao, a Hydro unit, and two Cryo units"), still amplified by Vaporize here; its VV Vape team is
+        // Hu Tao, Xingqiu, Sucrose, Thoma (Anemo: the two its teammate list names for Swirling Pyro, Sucrose and
+        // Kazuha). Skill and Burst as in the default.
+        combo: "E 7.5[N1CJ] (Q)",
+        when: [
+          { reaction: "vaporize", elements: { Cryo: 2 } },
+          { reaction: "vaporize", members: [["Thoma"], ["Sucrose", "Kaedehara Kazuha"]] },
+        ],
+        hits: [
+          { table: "normal", label: "1-Hit DMG", count: 7.5, type: N },
+          { table: "normal", label: "Charged Attack", count: 7.5, type: CH },
+          { table: "skill", label: "Blood Blossom DMG", count: 2, type: SK },
+          { table: "burst", label: "Skill DMG", count: 0.5, type: BU },
+        ],
+      },
+    ],
   },
   "Raiden Shogun": {
     // E, Q, 3[N3C] N1C in Musou Isshin (its Normal/Charged Attacks count as Elemental Burst DMG): one of KeqingMains'
     // quick guide combos (fetched 2026-10-12). The Eye's coordinated attacks: one every 0.9s while she attacks during
     // Musou Isshin's 7s. Resolve: 60, the max (KQM: "quite common to reach maximum Resolve stacks").
+    combo: "E Q 3[N3C] N1C",
     hits: [
       { table: "skill", label: "Skill DMG", count: 1, type: SK },
       { table: "skill", label: "Coordinated ATK DMG", count: 7, type: SK },
@@ -1580,16 +1612,53 @@ const CARRIES = {
       { kind: "dmgBonusPerEnergy", table: "skill", label: "Elemental Burst DMG Bonus", types: [BU] }, // x her own Energy Cost
       { kind: "dmgBonusFromEr", from: "passive2", re: /([\d.]+)% Electro DMG Bonus/ }, // per 1% ER over 100%
     ],
+    combos: [
+      {
+        // #119. KQM's Raiden quick guide (keqingmains.com/q/raiden-quickguide/, fetched 2026-10-21), Xianyun: "Xianyun
+        // enables Raiden to use Plunging Attacks"; "Raiden's most notable Plunging Attack combos consist of "6[JP]" and
+        // "3[N1CJP] N1C"" (Jessie, 2026-10-21: the first). Her plunges "are considered Elemental Burst damage", so
+        // Xianyun's plunge bonus "does not buff" them. 6 plunge impacts (the shockwave),
+        // read as high plunges with Xianyun's raised jump (estimate), and each plunge's collision hit ("Plunge DMG";
+        // Jessie, 2026-10-21: all of them connect, estimate). Skill, Eye and initial slash as the default.
+        combo: "E Q 6[JP], with Xianyun",
+        when: [{ members: [["Xianyun"]] }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "skill", label: "Coordinated ATK DMG", count: 7, type: SK },
+          { table: "burst", label: "Musou no Hitotachi Base DMG", count: 1, type: BU, resolve: "initial" },
+          { table: "burst", label: "Low/High Plunge DMG", pick: 1, count: 6, type: BU, resolve: "isshin" },
+          { table: "burst", label: "Plunge DMG", count: 6, type: BU, resolve: "isshin", collision: true },
+        ],
+      },
+    ],
   },
   Xiao: {
-    // E, E, Q, plunge x10 (high plunges). Bane of All Evil's bonus; his passive 1 ramps 5% -> 25% over 15s (avg 15%).
+    // E, E, Q, plunge x10 (high plunges), each with its collision hit ("Plunge DMG"; Jessie, 2026-10-21: all of them
+    // connect, estimate). Bane of All Evil's bonus; his passive 1 ramps 5% -> 25% over 15s (avg 15%).
+    combo: "E E Q 10[JhP]",
     hits: [
       { table: "skill", label: "Skill DMG", count: 2, type: SK },
       { table: "normal", label: "Low/High Plunge DMG", pick: 1, count: 10, type: PL },
+      { table: "normal", label: "Plunge DMG", count: 10, type: PL, collision: true }, // each plunge's collision hit
     ],
     buffs: [
       { kind: "dmgBonus", table: "burst", label: "Normal/Charged/Plunging Attack DMG Bonus", types: [N, CH, PL] },
       { kind: "dmgBonus", value: 0.15, types: [N, CH, PL, SK, BU], note: "passive 1: 5% + 5% per 3s up to 25% over the 15s Burst, about 15% on average" },
+    ],
+    combos: [
+      {
+        // #119. KQM's Xiao quick guide (https://keqingmains.com/q/xiao-quickguide/, fetched 2026-10-20), JP (Plunge
+        // Spam): "It can also be the best combo in teams where ramping buffs expire early, like with Xianyun or
+        // Furina. The optimal combo of this type consists of 11 High Plunges and 2 Low Plunges."
+        combo: "E E Q 11[JhP] 2[JlP]",
+        when: [{ members: [["Xianyun", "Furina"]] }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 2, type: SK },
+          { table: "normal", label: "Low/High Plunge DMG", pick: 1, count: 11, type: PL },
+          { table: "normal", label: "Low/High Plunge DMG", pick: 0, count: 2, type: PL },
+          { table: "normal", label: "Plunge DMG", count: 13, type: PL, collision: true }, // one per plunge
+        ],
+      },
     ],
   },
   Wriothesley: {
@@ -1954,16 +2023,58 @@ const CARRIES = {
     ],
   },
   Arlecchino: {
-    // E, CA (absorbs the Blood-Debt Directive: Bond of Life up to 145% of Max HP), N5 x3, Q.
-    hits: [
-      { table: "skill", label: "Spike DMG", count: 1, type: SK },
-      { table: "skill", label: "Cleave DMG", count: 1, type: SK },
-      { table: "normal", label: "Charged Attack DMG", count: 1, type: CH },
-      ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG", "4-Hit DMG", "5-Hit DMG"].map((label) => ({ table: "normal", label, count: 3, type: N, instances: label === "4-Hit DMG" ? 2 : 1 })),
-      { table: "burst", label: "Skill DMG", count: 1, type: BU },
-    ],
+    // #119. KQM's Arlecchino quick guide (https://keqingmains.com/q/arlecchino-quickguide/, fetched 2026-10-20): "N3D
+    // Arlecchino's most recommended combo for general use"; its Bennett flex, Geo and Overloaded sample rotations end
+    // "Arlecchino C 5[N3D] N3" (N1C or N3C first in some). E, CA (absorbs the Blood-Debt Directive: Bond of Life up to
+    // 145% of Max HP), 6 N3 strings. No Burst (Jessie, 2026-10-21): the guide's sample rotations don't cast it, its one hit is "not
+    // particularly noteworthy", it is "best reserved as an emergency heal", and "it is still ideal to avoid using her
+    // Burst" (it also clears her surplus Bond of Life); only C6 makes it "well worth using offensively". Team combos
+    // below; her main reaction is none, so they stay unamplified.
+    combo: "E C 5[N3D] N3",
+    hits: arlecchinoHits({ ca: 1, strings: { 1: 6, 2: 6, 3: 6 } }),
     // Masque of the Red Death: each Normal Attack hit adds ATK x the row's ratio x her Bond of Life %, and uses 7.5% of it.
     buffs: [{ kind: "masque", table: "normal", label: "Masque of the Red Death Increase", start: { from: "combat2", re: /within 35s after using her Elemental Skill is (\d+)% of her Max HP/ }, use: { from: "combat1", re: /This will consume ([\d.]+)% of said current Bond of Life/ } }],
+    // The same guide's sample rotations by team (#119), first match wins. Members only: no reaction, so none amplify.
+    combos: [
+      {
+        // Forward Melt with Escoffier, Layla or Nicole: "Arlecchino C 2[N6] N3" (Citlali/Nicole/Sucrose,
+        // Citlali/Bennett/Escoffier or Layla, Escoffier/Bennett/Venti).
+        combo: "E C 2[N6] N3",
+        when: [{ members: [["Citlali", "Escoffier"], ["Escoffier", "Layla", "Nicole"]] }],
+        hits: arlecchinoHits({ ca: 1, strings: { 1: 3, 2: 3, 3: 3, 4: 2, 5: 2, 6: 2 } }),
+      },
+      {
+        // Forward Melt with Citlali: "Arlecchino C 2[N5D] N5" (Citlali/Bennett/Xilonen, Sucrose or Kazuha).
+        combo: "E C 2[N5D] N5",
+        when: [{ members: [["Citlali"]] }],
+        hits: arlecchinoHits({ ca: 1, strings: { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3 } }),
+      },
+      {
+        // Furina, Yelan, Xilonen: "Arlecchino 7[N2C] N2" ("This team allows Arlecchino to use N2C to achieve more Vape
+        // hits than her usual combo"); the first Charged Attack claims the Directive.
+        combo: "E 7[N2C] N2",
+        when: [{ members: [["Furina"], ["Yelan"]] }],
+        hits: arlecchinoHits({ ca: 7, strings: { 1: 8, 2: 8 } }),
+      },
+      {
+        // Yelan, Bennett, Lan Yan: "Arlecchino 5[N3C] N1".
+        combo: "E 5[N3C] N1",
+        when: [{ members: [["Yelan"], ["Lan Yan"]] }],
+        hits: arlecchinoHits({ ca: 5, strings: { 1: 6, 2: 5, 3: 5 } }),
+      },
+      {
+        // Mona with Bennett or Nicole: "Arlecchino C N3 > Mona N1 E > Arlecchino 4[N3D] N1".
+        combo: "E C N3 4[N3D] N1",
+        when: [{ members: [["Mona"]] }],
+        hits: arlecchinoHits({ ca: 1, strings: { 1: 6, 2: 5, 3: 5 } }),
+      },
+      {
+        // Columbina, Ineffa, Xilonen: "Arlecchino C 6[N3D] N3".
+        combo: "E C 6[N3D] N3",
+        when: [{ members: [["Columbina"], ["Ineffa"]] }],
+        hits: arlecchinoHits({ ca: 1, strings: { 1: 7, 2: 7, 3: 7 } }),
+      },
+    ],
   },
   Kinich: {
     // E, hold E swings x6 (Loop Shots), Q. Nightsoul points: 2 per second for 10s, 3 per Loop Shot, 4 from a Blind
@@ -2001,14 +2112,19 @@ const CARRIES = {
     ],
   },
   Neuvillette: {
-    // KeqingMains quick guide (fetched 2026-10-12): "Neuvillette can perform 2–4 Charged Attacks per rotation"; its
-    // 3-CA rotation, "Q > Team > C E C > Team > C E", is "Easier for managing buff and ability uptimes" (the 4-CA one,
-    // for teams where he deals most of the damage, is #119). So Q, E x2, CA x3 (Equitable Judgment, 3s each).
+    // #119. KQM's full Neuvillette guide (https://keqingmains.com/neuvillette/, fetched 2026-10-20), Combos: "4
+    // Charged Attacks: Neuvillette's default combo. Recommended for nearly all scenarios, especially in teams where
+    // Neuvillette deals the vast majority of the damage, such as Furina teams. Usually a variation of E > Team > C E
+    // C Q > Team > 2[C]". Jessie (2026-10-21): 4 Charged Attacks for every team without its own combo (the quick
+    // guide's 3-CA "Q > Team > C E C > Team > C E" is no longer used). Q, E x2, 4 Equitable Judgments at the wiki's 8
+    // hits each (As Water Seeks Equilibrium: "a maximum of 8 times per use", once per 0.4s over its 3s): 32. Rotation
+    // lengths: kit-overrides.json rotations (KQM's ER calculator, 4-CA rotations).
+    combo: "E C E C Q 2[C]",
     hits: [
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
       { table: "burst", label: "Waterfall DMG", count: 2, type: BU }, // "2 waterfalls will descend"
       { table: "skill", label: "Skill DMG", count: 2, type: SK },
-      { table: "normal", label: "Charged Attack: Equitable Judgment", count: "rate", type: CH },
+      { table: "normal", label: "Charged Attack: Equitable Judgment", count: 32, type: CH },
     ],
     buffs: [
       // Passive 1: a stack per kind of reaction the party triggers from the list (they "exist independently"), max 3:
@@ -2027,18 +2143,42 @@ const CARRIES = {
     ],
   },
   "Kamisato Ayaka": {
-    // E, Q, dash, N2C x3. Passive 1: +30% Normal/Charged DMG after the Skill; passive 2: +18% Cryo DMG after the dash.
+    // #119. Traveler.gg's Ayaka guide (traveler.gg/kamisato-ayaka-full-character-guide-builds-teams/, 2026-02-22,
+    // found by web search for non-KQM sources, Jessie 2026-10-21), team rotations: "Ayaka EDQ 2(N2C N2CD)E" (Furina,
+    // Escoffier, Shenhe), "Ayaka EDQ N2C > ... > Ayaka N2C N2CD N2CED" (Shenhe, Kokomi), "Ayaka EDQ 2(N2C) > ... > Ayaka
+    // D 2(N2C) E" (Escoffier, Shenhe, Ganyu): 2 Skills, her Burst, 4 N2C; KQM's guide: she uses her Skill twice per
+    // rotation. Passive 1: +30% Normal/Charged DMG after the Skill; passive 2: +18% Cryo DMG after the dash.
+    combo: "EDQ 2(N2C N2CD) E",
     hits: [
-      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "skill", label: "Skill DMG", count: 2, type: SK },
       { table: "burst", label: "Cutting DMG", count: "rate", type: BU },
       { table: "burst", label: "Bloom DMG", count: 1, type: BU },
-      { table: "normal", label: "1-Hit DMG", count: 3, type: N },
-      { table: "normal", label: "2-Hit DMG", count: 3, type: N },
-      { table: "normal", label: "Charged Attack DMG", count: 3, type: CH },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 4, type: CH },
     ],
     buffs: [
       { kind: "dmgBonus", from: "passive1", re: /deal (\d+)% increased DMG for/, types: [N, CH] },
       { kind: "dmgBonus", from: "passive2", re: /Gains (\d+)% Cryo DMG Bonus/, types: [N, CH, SK, BU] },
+    ],
+    combos: [
+      {
+        // #119. KQM's Ayaka quick guide (https://keqingmains.com/q/ayaka-quickguide/, fetched 2026-10-20): "N3C Ayaka
+        // should incorporate a third Normal Attack when paired with characters who have on-attack effects, like Yelan or
+        // Xingqiu"; its Furina, Escoffier, Yelan sample rotation: "Ayaka ED N1 Q N3CD 2[N2C] > Yelan N1 E N1 > Ayaka
+        // ED N1C". Two Skills, 5 N1, 3 N2, 1 N3, 4 Charged Attacks. Yelan teams only (no Xingqiu sample).
+        combo: "ED N1 Q N3CD 2[N2C] ED N1C",
+        when: [{ members: [["Yelan"]] }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 2, type: SK },
+          { table: "burst", label: "Cutting DMG", count: "rate", type: BU },
+          { table: "burst", label: "Bloom DMG", count: 1, type: BU },
+          { table: "normal", label: "1-Hit DMG", count: 5, type: N },
+          { table: "normal", label: "2-Hit DMG", count: 3, type: N },
+          { table: "normal", label: "3-Hit DMG", count: 1, type: N },
+          { table: "normal", label: "Charged Attack DMG", count: 4, type: CH },
+        ],
+      },
     ],
   },
   Alhaitham: {
@@ -2588,6 +2728,32 @@ const CARRIES = {
       { kind: "resShred", table: "skill", label: "Physical RES Decrease", elements: ["Physical"], labels: ["Lightfall Sword Base DMG"] },
       { kind: "resShred", table: "skill", label: "Cryo RES Decrease", elements: ["Cryo"], labels: ["Icewhirl Brand DMG"] },
     ],
+    combos: [
+      {
+        // #119. KQM's Eula quick guide (https://keqingmains.com/q/eula-quickguide/, fetched 2026-10-20): "tE Q N3 hE N4
+        // D N2 ... should only be used if Eula is buffed by at least 27% Attack SPD (i.e., Pines, Mika, C2 Jean)", 15
+        // Lightfall stacks. Mika teams (C0: Pines and C2 Jean are past the model). Same Skill and Burst hits.
+        combo: "tE Q N3 hE N4 D N2",
+        when: [{ members: [["Mika"]] }],
+        hits: [
+          { table: "skill", label: "Press DMG", count: 1, type: SK },
+          { table: "burst", label: "Skill DMG", count: 1, type: BU },
+          { table: "normal", label: "1-Hit DMG", count: 3, type: N, element: "Physical" },
+          { table: "normal", label: "2-Hit DMG", count: 3, type: N, element: "Physical" },
+          { table: "normal", label: "3-Hit DMG", count: 2, instances: 2, type: N, element: "Physical" },
+          { table: "normal", label: "4-Hit DMG", count: 1, type: N, element: "Physical" },
+          { table: "skill", label: "Hold DMG", count: 1, type: SK },
+          { table: "skill", label: "Icewhirl Brand DMG", count: 2, type: SK },
+          { table: "burst", label: "Lightfall Sword Base DMG", count: 1, type: BU, element: "Physical", tag: "lightfall" },
+          { table: "burst", label: "Lightfall Sword Base DMG", count: 0.5, type: BU, element: "Physical" },
+        ],
+        buffs: [
+          { kind: "addPerStack", table: "burst", label: "DMG Per Stack", stacks: 15, hits: "lightfall" },
+          { kind: "resShred", table: "skill", label: "Physical RES Decrease", elements: ["Physical"], labels: ["Lightfall Sword Base DMG"] },
+          { kind: "resShred", table: "skill", label: "Cryo RES Decrease", elements: ["Cryo"], labels: ["Icewhirl Brand DMG"] },
+        ],
+      },
+    ],
   },
   Chasca: {
     // #233. KQM quick guide, normal combo: "E C[6 6 6 6 4]" ("4 rounds of 6 Shells and one round of 3-4 Shells"): 28
@@ -2686,6 +2852,7 @@ function readCarry(id, spec) {
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
         ...(h.addOn ? { addOn: true } : {}),
+        ...(h.collision ? { collision: true } : {}),
         ...(h.nightsoulBursts ? { nightsoulBursts: h.nightsoulBursts } : {}),
         ...(h.element ? { element: h.element } : {}),
         ...(h.byTeammates ? { byTeammates: { elements: h.byTeammates.elements, ...(h.byTeammates.members ? { members: h.byTeammates.members.map(round) } : {}), ...(h.byTeammates.types ? { types: h.byTeammates.types.map(round) } : {}) } } : {}),
