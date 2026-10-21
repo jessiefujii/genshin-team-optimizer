@@ -1,5 +1,5 @@
 {
-  "median": 151406.2,
+  "median": 154021.8,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -31,11 +31,11 @@
     "Arlecchino": {
       "team": [
         "Arlecchino",
-        "Columbina",
-        "Ineffa",
+        "Durin",
+        "Albedo",
         "Xilonen"
       ],
-      "value": 149858.5
+      "value": 155089.7
     },
     "Chasca": {
       "team": [
@@ -179,7 +179,7 @@
         "Albedo",
         "Xilonen"
       ],
-      "value": 226931.5
+      "value": 232554.1
     },
     "Lohen": {
       "team": [
@@ -338,10 +338,10 @@
       "team": [
         "Traveler (Cryo)",
         "Yae Miko",
-        "Odette",
-        "Alyosha"
+        "Nicole",
+        "Odette"
       ],
-      "value": 101092.4
+      "value": 105657.5
     },
     "Varesa": {
       "team": [
@@ -356,10 +356,10 @@
       "team": [
         "Varka",
         "Prune",
-        "Odette",
-        "Escoffier"
+        "Nicole",
+        "Durin"
       ],
-      "value": 118475.8
+      "value": 129571
     },
     "Vesna": {
       "team": [
@@ -368,7 +368,7 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 68620.3
+      "value": 64686.9
     },
     "Wanderer": {
       "team": [
@@ -431,7 +431,7 @@
         "Xilonen",
         "Columbina"
       ],
-      "value": 177068.6
+      "value": 179347.7
     }
   }
 }
