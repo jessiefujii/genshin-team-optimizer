@@ -14,6 +14,8 @@ export type ScoringCharacter = CharacterTags & {
   stats?: CharacterStats;
   talents?: CharacterBuild["talents"]; // from the same build as stats
   effects?: EffectTag[];
+  sets?: CharacterBuild["artifactSets"]; // the build's active set bonuses: their own 4pc buffs in carry damage (#206)
+  weaponBuild?: CharacterBuild["weapon"]; // the build's weapon: its passive on their own hits (damage.ts weaponBuffs, #40)
   built?: boolean; // false = the player marked them not built: left out of the search, suggested for building
   belowMinimum?: string[]; // why their build misses the search's minimum (#133): left out like built: false
 };
@@ -26,8 +28,10 @@ export interface ScoreLine {
 
 export interface ScoredTeam {
   members: [string, string, string, string];
-  carry: string | null;
-  score: number;
+  mainDps: string | null; // who deals the most damage: the on-field carry, or an off-field DPS who out-damages them (#96)
+  onField: string | null; // the on-field carry the rotation and buffs are built around
+  score: number; // team damage against the guide-team reference: 100 = the median carry's best guide team (#202)
+  damage: { perSecond: number; factor: number; guideRatio: number | null }; // guideRatio: vs this carry's best guide team
   breakdown: ScoreLine[];
   activeReactions: Reaction[];
   defaultBuilds: string[]; // members with no build, scored as if built to the benchmark

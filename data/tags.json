@@ -13,6 +13,10 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "families": [
       "moonsign"
     ],
@@ -37,6 +41,9 @@
     ],
     "energyNeed": "low",
     "erTarget": 100,
+    "scalesOn": [
+      "DEF"
+    ],
     "buffs": [
       {
         "stat": "EM +125 after burst",
@@ -77,16 +84,6 @@
       "EM"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Lauma",
-          "Xingqiu"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -113,15 +110,6 @@
       "ATK"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Xiangling"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -145,6 +133,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 180,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "ATK",
@@ -179,6 +170,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -201,15 +195,6 @@
       "DEF"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Gorou"
-        ],
-        "note": "Mono-Geo with Gorou"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -289,7 +274,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Barbara",
@@ -310,7 +298,10 @@
       "actions": [
         "E"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Beidou",
@@ -327,6 +318,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 170,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "stellar"
     ],
@@ -370,7 +364,10 @@
       ],
       "buffSeconds": 12
     },
-    "notes": "Buff applies to whoever stands in the burst circle."
+    "notes": "Buff applies to whoever stands in the burst circle.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Candace",
@@ -400,7 +397,10 @@
         "Q"
       ],
       "buffSeconds": 9
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Charlotte",
@@ -421,7 +421,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Chasca",
@@ -474,16 +477,6 @@
         "talent": "passive"
       }
     ],
-    "teamPrefs": [
-      {
-        "kind": "composition",
-        "onlyElements": [
-          "Pyro",
-          "Electro"
-        ],
-        "note": "Full buff only in all-Pyro/Electro teams"
-      }
-    ],
     "rotation": {
       "slot": "buffer",
       "actions": [
@@ -492,7 +485,10 @@
       ],
       "buffSeconds": 6
     },
-    "notes": "Full buff only when the team is all Pyro and Electro."
+    "notes": "Full buff only when the team is all Pyro and Electro.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Chiori",
@@ -505,6 +501,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 140,
+    "scalesOn": [
+      "DEF"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -528,6 +527,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 130,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -550,6 +552,10 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "Pyro and Hydro RES shred",
@@ -616,6 +622,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 170,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -695,15 +704,6 @@
       "stellar"
     ],
     "revelation": true,
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Nahida"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -741,7 +741,10 @@
         "Q"
       ]
     },
-    "notes": "Shield regenerates from Benison stacks."
+    "notes": "Shield regenerates from Benison stacks.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Dehya",
@@ -755,6 +758,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "HP"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -780,15 +786,6 @@
       "ATK"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Xingqiu"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -825,7 +822,10 @@
         "hold E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Dori",
@@ -847,7 +847,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Durin",
@@ -864,6 +867,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "Pyro RES shred (White Flame form)",
@@ -899,6 +905,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 170,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -920,6 +929,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "Hydro and Cryo RES shred, up to 55% with 4 Hydro/Cryo",
@@ -993,7 +1005,10 @@
         "Q"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Fischl",
@@ -1011,6 +1026,9 @@
     ],
     "energyNeed": "low",
     "erTarget": 120,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "hexerei"
     ],
@@ -1042,16 +1060,6 @@
     "families": [
       "moonsign"
     ],
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Aino",
-          "Ineffa"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1079,16 +1087,6 @@
       "ATK"
     ],
     "keyTalent": "skill",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Xingqiu",
-          "Fischl"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1114,6 +1112,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 180,
+    "scalesOn": [
+      "HP"
+    ],
     "buffs": [
       {
         "stat": "DMG bonus from party HP changes",
@@ -1204,15 +1205,6 @@
         "talent": "skill"
       }
     ],
-    "teamPrefs": [
-      {
-        "kind": "composition",
-        "minElements": {
-          "Geo": 3
-        },
-        "note": "Full buff needs 3 Geo characters"
-      }
-    ],
     "rotation": {
       "slot": "buffer",
       "actions": [
@@ -1221,7 +1213,10 @@
       ],
       "buffSeconds": 12
     },
-    "notes": "Full buff needs 3 Geo characters."
+    "notes": "Full buff needs 3 Geo characters.",
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Hu Tao",
@@ -1277,7 +1272,10 @@
         "E"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Ifa",
@@ -1315,7 +1313,10 @@
         "N x3",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Illuga",
@@ -1350,7 +1351,10 @@
       ],
       "buffSeconds": 20
     },
-    "notes": "Geo buffer; his burst buff lasts 20s."
+    "notes": "Geo buffer; his burst buff lasts 20s.",
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Ineffa",
@@ -1369,6 +1373,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "EM (ATK-based)",
@@ -1401,6 +1408,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "EM +100 while HP > 70%",
@@ -1439,7 +1449,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Kachina",
@@ -1453,6 +1466,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 110,
+    "scalesOn": [
+      "DEF"
+    ],
     "families": [
       "nightsoul"
     ],
@@ -1496,7 +1512,10 @@
         "Q"
       ],
       "buffSeconds": 8
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Kaeya",
@@ -1512,6 +1531,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -1568,15 +1590,6 @@
       "HP"
     ],
     "keyTalent": "skill",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Nahida"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1629,15 +1642,6 @@
       "ATK"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Fischl"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -1665,16 +1669,6 @@
     "keyTalent": "skill",
     "families": [
       "nightsoul"
-    ],
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Emilie",
-          "Xiangling"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
     ],
     "rotation": {
       "slot": "carry",
@@ -1706,7 +1700,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Klee",
@@ -1728,15 +1725,6 @@
     "keyTalent": "normal",
     "families": [
       "hexerei"
-    ],
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Furina"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
     ],
     "rotation": {
       "slot": "carry",
@@ -1772,7 +1760,10 @@
         "Q"
       ],
       "buffSeconds": 6
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Kuki Shinobu",
@@ -1794,12 +1785,14 @@
         "E"
       ]
     },
-    "notes": "Common Hyperbloom trigger; build EM."
+    "notes": "Common Hyperbloom trigger; build EM.",
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Lan Yan",
     "roles": [
-      "main-dps",
       "sub-dps",
       "shielder",
       "buffer"
@@ -1839,6 +1832,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "EM"
+    ],
     "buffs": [
       {
         "stat": "Bloom-type reaction DMG (EM-based), Bloom CRIT",
@@ -1883,7 +1879,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Linnea",
@@ -1902,6 +1901,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 120,
+    "scalesOn": [
+      "DEF"
+    ],
     "buffs": [
       {
         "stat": "Geo RES shred",
@@ -1942,6 +1944,10 @@
     ],
     "energyNeed": "high",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK",
+      "EM"
+    ],
     "buffs": [
       {
         "stat": "DEF shred",
@@ -1998,6 +2004,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "ATK by number of elements in the team",
@@ -2028,15 +2037,6 @@
       "ATK"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Xiangling"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2129,15 +2129,6 @@
     "families": [
       "nightsoul"
     ],
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Furina"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2171,7 +2162,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Mona",
@@ -2203,7 +2197,10 @@
         "Q"
       ],
       "buffSeconds": 5
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Mualani",
@@ -2252,6 +2249,10 @@
     ],
     "energyNeed": "low",
     "erTarget": 120,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "EM share to the active character",
@@ -2315,16 +2316,6 @@
     "families": [
       "moonsign"
     ],
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Lauma",
-          "Aino"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2355,15 +2346,6 @@
       "HP"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Raiden Shogun"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2402,7 +2384,10 @@
       ],
       "buffSeconds": 20
     },
-    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family)."
+    "notes": "ATK buffer with a shield; the buff is stronger for Hexerei characters (see the hexerei family).",
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Nilou",
@@ -2416,14 +2401,23 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
-    "teamPrefs": [
+    "scalesOn": [
+      "HP"
+    ],
+    "buffs": [
       {
-        "kind": "composition",
-        "onlyElements": [
-          "Hydro",
-          "Dendro"
+        "stat": "Bountiful Core DMG (HP-based)",
+        "scope": "team",
+        "reactions": [
+          "bloom"
         ],
-        "note": "Bountiful Cores only in all-Hydro/Dendro teams"
+        "talent": "passive"
+      },
+      {
+        "stat": "EM from Golden Chalice's Bounty",
+        "scope": "team",
+        "affects": "EM",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -2502,6 +2496,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 130,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "stellar"
     ],
@@ -2527,6 +2524,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "nightsoul"
     ],
@@ -2551,6 +2551,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 180,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "DMG bonus from ATK over 2,000",
@@ -2592,7 +2595,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Raiden Shogun",
@@ -2615,15 +2621,6 @@
       "ATK"
     ],
     "keyTalent": "burst",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Xiangling"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2674,6 +2671,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "buffs": [
       {
         "stat": "CRIT Rate (her CRIT-based)",
@@ -2714,15 +2714,6 @@
     "families": [
       "stellar"
     ],
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Yae Miko"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2754,7 +2745,10 @@
         "E"
       ]
     },
-    "notes": "Off-field E jellyfish, or on-field with Q for N x10."
+    "notes": "Off-field E jellyfish, or on-field with Q for N x10.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Sayu",
@@ -2773,7 +2767,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Sethos",
@@ -2831,7 +2828,10 @@
         "hold E"
       ],
       "buffSeconds": 10
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Shikanoin Heizou",
@@ -2871,6 +2871,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "HP"
+    ],
     "buffs": [
       {
         "stat": "Elemental Skill DMG (HP-based)",
@@ -2900,16 +2903,6 @@
       "ATK"
     ],
     "keyTalent": "skill",
-    "teamPrefs": [
-      {
-        "kind": "composition",
-        "onlyElements": [
-          "Hydro",
-          "Cryo"
-        ],
-        "note": "Only Hydro and Cryo teammates"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -2950,7 +2943,10 @@
         "Q"
       ],
       "buffSeconds": 8
-    }
+    },
+    "scalesOn": [
+      "EM"
+    ]
   },
   {
     "id": "Tartaglia",
@@ -2969,15 +2965,6 @@
       "ATK"
     ],
     "keyTalent": "skill",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Nahida"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3008,7 +2995,10 @@
         "Q",
         "E"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Tighnari",
@@ -3028,17 +3018,6 @@
       "EM"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Yae Miko",
-          "Nahida",
-          "Fischl"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3051,9 +3030,9 @@
   {
     "id": "Traveler (Anemo)",
     "roles": [
-      "main-dps"
+      "sub-dps"
     ],
-    "fieldTime": "on",
+    "fieldTime": "flex",
     "reactions": [
       "swirl"
     ],
@@ -3087,6 +3066,10 @@
     ],
     "energyNeed": "medium",
     "erTarget": 170,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3115,7 +3098,10 @@
         "Q"
       ]
     },
-    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine."
+    "notes": "Custom id: genshin-db lists the Traveler as Aether/Lumine.",
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Traveler (Geo)",
@@ -3128,6 +3114,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 150,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3175,6 +3164,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 160,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "nightsoul"
     ],
@@ -3271,27 +3263,6 @@
     "families": [
       "hexerei"
     ],
-    "teamPrefs": [
-      {
-        "kind": "composition",
-        "minElements": {
-          "Anemo": 2
-        },
-        "othersShareElement": true,
-        "family": {
-          "family": "hexerei",
-          "min": 2
-        },
-        "note": "Mono-element Hexerei team with one other Anemo character, e.g. mono-Pyro Hexerei"
-      },
-      {
-        "kind": "partner",
-        "ids": [
-          "Durin"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3315,6 +3286,10 @@
     ],
     "energyNeed": "high",
     "erTarget": 180,
+    "scalesOn": [
+      "EM",
+      "ATK"
+    ],
     "families": [
       "hexerei"
     ],
@@ -3349,15 +3324,6 @@
     "keyTalent": "skill",
     "families": [
       "stellar"
-    ],
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Odette"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
     ],
     "rotation": {
       "slot": "carry",
@@ -3409,7 +3375,10 @@
         "E"
       ]
     },
-    "notes": "Stellar-Swirl enabler, healer and RES shredder."
+    "notes": "Stellar-Swirl enabler, healer and RES shredder.",
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Wanderer",
@@ -3456,15 +3425,6 @@
       "stellar"
     ],
     "revelation": true,
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Furina"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3488,6 +3448,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3522,7 +3485,10 @@
         "Q"
       ],
       "buffSeconds": 16
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Xiao",
@@ -3538,16 +3504,6 @@
       "ATK"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Xianyun",
-          "Faruzan"
-        ],
-        "note": "Xianyun's plunge buff or Faruzan's Anemo buff"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3586,7 +3542,10 @@
         "Q"
       ],
       "buffSeconds": 15
-    }
+    },
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Xingqiu",
@@ -3603,6 +3562,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 200,
+    "scalesOn": [
+      "ATK"
+    ],
     "rotation": {
       "slot": "setup",
       "actions": [
@@ -3634,7 +3596,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "ATK"
+    ]
   },
   {
     "id": "Yae Miko",
@@ -3650,6 +3615,9 @@
     ],
     "energyNeed": "medium",
     "erTarget": 140,
+    "scalesOn": [
+      "ATK"
+    ],
     "families": [
       "stellar"
     ],
@@ -3684,15 +3652,6 @@
       "ATK"
     ],
     "keyTalent": "normal",
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Xingqiu"
-        ],
-        "note": "off-field sub-DPS in 2 of the top 3 genshin-builds teams (#57)"
-      }
-    ],
     "rotation": {
       "slot": "carry",
       "actions": [
@@ -3723,7 +3682,10 @@
         "E",
         "Q"
       ]
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Yelan",
@@ -3740,6 +3702,9 @@
     ],
     "energyNeed": "high",
     "erTarget": 190,
+    "scalesOn": [
+      "HP"
+    ],
     "buffs": [
       {
         "stat": "DMG bonus that ramps over 15s",
@@ -3837,7 +3802,10 @@
         "E"
       ],
       "buffSeconds": 12
-    }
+    },
+    "scalesOn": [
+      "DEF"
+    ]
   },
   {
     "id": "Zhongli",
@@ -3864,7 +3832,10 @@
         "hold E"
       ],
       "buffSeconds": 20
-    }
+    },
+    "scalesOn": [
+      "HP"
+    ]
   },
   {
     "id": "Zibai",
@@ -3886,15 +3857,6 @@
     "keyTalent": "skill",
     "families": [
       "moonsign"
-    ],
-    "teamPrefs": [
-      {
-        "kind": "partner",
-        "ids": [
-          "Columbina"
-        ],
-        "note": "Columbina buffs Lunar reactions"
-      }
     ],
     "rotation": {
       "slot": "carry",

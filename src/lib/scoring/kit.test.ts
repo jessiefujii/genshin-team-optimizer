@@ -9,7 +9,9 @@ const characters = kit.characters as Record<string, KitEntry>;
 
 test("every tagged buffer has a kit entry with readable values", () => {
   const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0).map((c) => c.id);
-  expect(Object.keys(characters).sort()).toEqual(buffers.sort());
+  // Plus kit bonuses to the team's reaction damage from non-buffers while they're on field (Kaveh's Painted Dome, #256;
+  // Mizuki's Dreamdrifter Swirl and Stellar Swirl bonus, #235).
+  expect(Object.keys(characters).sort()).toEqual([...buffers, "Kaveh", "Yumemizuki Mizuki"].sort());
   for (const [id, c] of Object.entries(characters)) {
     if (c.missing) continue;
     expect(c.buffs.length, id).toBeGreaterThan(0);
@@ -133,3 +135,21 @@ for (const [id, c] of Object.entries(overrides.characters as Record<string, { wh
   for (const s of c.slots.filter((s) => !s.text.trim())) test.todo(`kit-overrides: ${id} ${s.talent || "(which talent?)"}: ${c.why}`);
 }
 if (!overrides.rules.nightsoulBurst.whoCanTrigger.trim()) test.todo("kit-overrides: rules.nightsoulBurst: who can trigger it");
+
+// Reaction bonuses to a transformative reaction's own damage (#256): Nilou's only in an all-Dendro/Hydro team, Kaveh's
+// only while he is the on-field carry, Baizhu's per 1,000 Max HP.
+test("reactionBonusesFor reads the team's kit bonuses to reaction damage (#256)", async () => {
+  const { reactionBonusesFor } = await import("./kit");
+  const { loadScoringCharacters } = await import("./load");
+  const all = loadScoringCharacters();
+  const team = (...ids: string[]) => ids.map((id) => all.find((c) => c.id === id)!);
+  const nilou = team("Kaveh", "Nilou", "Yelan", "Furina");
+  // Nilou at the 35,000 HP buffer benchmark: 9% x 5 = 45%; Kaveh's 46.7% at 12s of 20s.
+  expect(reactionBonusesFor("bloom", nilou[0], nilou).bonus).toBeCloseTo(0.45 + 0.467296 * 0.6, 4);
+  expect(reactionBonusesFor("bloom", nilou[1], nilou).bonus).toBeCloseTo(0.45, 4); // Kaveh off field
+  const mixed = team("Kaveh", "Nilou", "Bennett", "Furina"); // Pyro breaks Nilou's condition
+  expect(reactionBonusesFor("bloom", mixed[0], mixed).bonus).toBeCloseTo(0.467296 * 0.6, 4);
+  expect(reactionBonusesFor("hyperbloom", nilou[0], nilou).bonus).toBe(0);
+  const lauma = team("Nahida", "Lauma", "Xingqiu", "Kuki Shinobu");
+  expect(reactionBonusesFor("hyperbloom", lauma[0], lauma).additive).toBeGreaterThan(0); // flat from her EM
+});

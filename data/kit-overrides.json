@@ -394,6 +394,20 @@
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Aino, fetched 2026-10-10: \"Water balls are fired every 1.5 seconds and up to 9 can be fired during the skill's duration.\""
       }
     },
+    "Traveler (Anemo)": {
+      "skill: Initial Cutting DMG": {
+        "hits": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Palm_Vortex, fetched 2026-10-18 (Gameplay Notes): \"When the skill button is held, Initial Cutting DMG ticks 2 times (at 0.35s and 0.5s)\"; KQM's guide (https://keqingmains.com/anemo-traveler/) plays \"a quick 3-hit Skill\": these 2 ticks and the Storm."
+      },
+      "burst: Tornado DMG": {
+        "hits": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gust_Surge, fetched 2026-10-18 (Gameplay Notes): \"Tornado DMG and Additional Elemental DMG can strike up to 9 times: once every 0.5 seconds from 2 to 6 seconds after activating Gust Surge.\""
+      },
+      "burst: Additional Elemental DMG": {
+        "hits": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gust_Surge, fetched 2026-10-18 (Gameplay Notes): \"Tornado DMG and Additional Elemental DMG can strike up to 9 times: once every 0.5 seconds from 2 to 6 seconds after activating Gust Surge.\" Every hit taken as absorbed, as Kazuha's (estimate)."
+      }
+    },
     "Citlali": {
       "skill: Frostfall Storm DMG": {
         "hits": 6,
@@ -404,6 +418,18 @@
       "skill: Gravity Ripple: Continuous DMG": {
         "every": 2,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-11 (talent page): \"Gravity Ripple attacks once every 2 seconds.\""
+      },
+      "skill: Gravity Interference: Lunar-Charged DMG": {
+        "every": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-12 (talent page): \"Columbina will gain the New Moon's Omen effect for 2s, continuously accumulating Gravity. 20 Gravity can be accumulated every 2s. You can have up to 60 Gravity\" and \"Once Gravity is accumulated to its limit, a special Gravity Interference will be triggered.\" So one every 6s while the team keeps triggering Lunar reactions (worked out here, not a wiki number)."
+      },
+      "skill: Gravity Interference: Lunar-Bloom DMG": {
+        "every": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-12 (talent page): \"Columbina will gain the New Moon's Omen effect for 2s, continuously accumulating Gravity. 20 Gravity can be accumulated every 2s. You can have up to 60 Gravity\" and \"Once Gravity is accumulated to its limit, a special Gravity Interference will be triggered.\" So one every 6s while the team keeps triggering Lunar reactions (worked out here, not a wiki number)."
+      },
+      "skill: Gravity Interference: Lunar-Crystallize DMG": {
+        "every": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Eternal_Tides, fetched 2026-10-12 (talent page): \"Columbina will gain the New Moon's Omen effect for 2s, continuously accumulating Gravity. 20 Gravity can be accumulated every 2s. You can have up to 60 Gravity\" and \"Once Gravity is accumulated to its limit, a special Gravity Interference will be triggered.\" So one every 6s while the team keeps triggering Lunar reactions (worked out here, not a wiki number)."
       }
     },
     "Collei": {
@@ -469,7 +495,9 @@
         "source": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority: see alternatives (#175).",
         "alternatives": [
           {
-            "when": { "topElement": "Cryo" },
+            "when": {
+              "topElement": "Cryo"
+            },
             "hits": 12,
             "source": "Jessie's in-game test, 2026-10-13 (#175): Ascendant Gleam team with 2 Cryo members and 1 other Moonsign member (plus Jahoda), Cryo applied by Escoffier's Burst, 3 runs: 12 robot hits per Burst (both robots together). Passive 1 (Plan to Get Paid, genshin-db): among Pyro, Hydro, Electro and Cryo party members, \"the element with the highest number of characters determines the enhancement effect\"; Cryo: \"The attack interval ... is reduced by 10%\"; ties go \"Pyro, Hydro, Electro, then Cryo\"."
           }
@@ -638,10 +666,188 @@
         "hits": 6.5,
         "source": "KeqingMains Alhaitham quick guide, https://keqingmains.com/q/alhaitham-quickguide/ (pasted by Jessie 2026-10-11), ER assumptions: \"Rotations vary from 21–26s\", \"Alhaitham triggers 6–7 Projection Attacks per rotation\". The midpoint, to match his rotation length (rotations: 23.5s, the midpoint of the same range, #103); counted them all as 3-Mirror."
       }
+    },
+    "Kaedehara Kazuha": {
+      "burst: DoT": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kazuha_Slash, fetched 2026-10-16 (Gameplay Notes): \"The Autumn Whirlwind field deals DMG every 2 seconds for a total of 5 times.\""
+      },
+      "burst: Additional Elemental DMG": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kazuha_Slash, fetched 2026-10-16 (Gameplay Notes): the field's 5 hits (\"every 2 seconds for a total of 5 times\"), each with the absorbed element. Every hit taken as absorbed (estimate: the wiki doesn't say when absorption happens)."
+      }
+    },
+    "Sucrose": {
+      "burst: DoT": {
+        "hits": 3,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Forbidden_Creation_-_Isomer_75_/_Type_II, fetched 2026-10-16 (Gameplay Notes): \"The Elemental Burst has a total of three pulses.\""
+      },
+      "burst: Additional Elemental DMG": {
+        "hits": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Forbidden_Creation_-_Isomer_75_/_Type_II, fetched 2026-10-16 (Gameplay Notes): \"Elemental Absorption does not occur until after the first pulse\": 2 of the 3 pulses."
+      }
+    },
+    "Shenhe": {
+      "burst: DoT": {
+        "hits": 12,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Divine_Maiden's_Deliverance, fetched 2026-10-16 (Gameplay Notes): \"The DoT hits 12 times.\" (C0; C2 adds 6)"
+      }
+    },
+    "Sangonomiya Kokomi": {
+      "skill: Ripple DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kurage's_Oath, fetched 2026-10-16 (Gameplay Notes): \"The Bake-Kurage ticks every 2 seconds, for a total of 7 times before its 12s duration ends.\""
+      }
+    },
+    "Kuki Shinobu": {
+      "burst: Single Instance DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Gyoei_Narukami_Kariyama_Rite, fetched 2026-10-16 (Gameplay Notes): \"7 instances of damage if she has more than 50% Max HP. 12 Instances of damage if she has 50% or less Max HP.\" (above 50%)"
+      }
+    },
+    "Zhongli": {
+      "skill: Stone Stele/Resonance DMG": {
+        "hits": 5,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dominus_Lapidis, fetched 2026-10-16 (Gameplay Notes): \"From 2 s after creating the Stone Stele, it resonates with itself and nearby Geo Constructs every 2 seconds\": over the 12s Hold CD, 5 resonances per Hold. The 5 is worked out here, not a wiki number."
+      }
+    },
+    "Baizhu": {
+      "burst: Spiritvein DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Holistic_Revivification, fetched 2026-10-16 (Gameplay Notes): \"Throughout the whole duration of the Pulsing Clarity state, a total of 6 shields will be created\"; one Spiritvein strike per shield (estimate)."
+      }
+    },
+    "Diona": {
+      "burst: Continuous Field DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Signature_Mix, fetched 2026-10-16 (Gameplay Notes): \"Drunken Mist first activates 2s after casting and every 2s afterwards for a total of 6 activations dealing Cryo DMG\""
+      }
+    },
+    "Mona": {
+      "skill: DoT": {
+        "hits": 4,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Mirror_Reflection_of_Doom, fetched 2026-10-16 (Gameplay Notes): \"It deals Hydro DMG every second (DoT) for a total of 4 times, followed by a final AoE Hydro DMG Explosion.\""
+      }
+    },
+    "Yaoyao": {
+      "skill: White Jade Radish DMG": {
+        "hits": 10,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Raphanus_Sky_Cluster, fetched 2026-10-16 (Gameplay Notes): \"Yuegui: Throwing Mode throws 1 radish every second for a total of 10 radishes over the full duration.\""
+      }
+    },
+    "Layla": {
+      "burst: Starlight Slug DMG": {
+        "hits": 8,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Dream_of_the_Star-Stream_Shaker, fetched 2026-10-16 (Gameplay Notes): \"A Starlight Slug is fired once every 1.5 seconds. A total of 8 Starlight Slugs can be fired throughout this skill's duration.\""
+      }
+    },
+    "Barbara": {
+      "skill: Droplet DMG": {
+        "hits": 2,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Let_the_Show_Begin%E2%99%AA, fetched 2026-10-16 (Gameplay Notes): \"This skill deals 2 instances of damage at the start of the skill.\""
+      }
+    },
+    "Charlotte": {
+      "burst: Kamera DMG": {
+        "hits": 8,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Still_Photo:_Comprehensive_Confirmation, fetched 2026-10-16 (Gameplay Notes): \"Newsflash Field's DMG and healing effects activate a total of 8 times.\""
+      }
+    },
+    "Kirara": {
+      "burst: Cat Grass Cardamom Explosion DMG": {
+        "hits": 6,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Secret_Art:_Surprise_Dispatch, fetched 2026-10-16 (Gameplay Notes): \"The Special Delivery Package generates 6 Cat Grass Cardamoms.\""
+      }
+    },
+    "Qiqi": {
+      "skill: Herald of Frost DMG": {
+        "hits": 9,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Adeptus_Art:_Herald_of_Frost, fetched 2026-10-16 (Gameplay Notes): \"After its initial hit, Herald of Frost will deal damage 9 times over its duration\""
+      }
+    },
+    "Sayu": {
+      "burst: Muji-Muji Daruma DMG": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yoohoo_Art:_Mujina_Flurry, fetched 2026-10-16 (Gameplay Notes): \"After performing the initial attack and heal upon skill activation, the Muji-Muji Daruma will attack or heal ... 7 more times (once per ~1.7 seconds)\"; all 7 taken as attacks (it attacks while nearby characters are above 70% HP; estimate)."
+      }
+    },
+    "Xinyan": {
+      "burst: Pyro DoT": {
+        "hits": 7,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Riff_Revolution, fetched 2026-10-16 (Gameplay Notes): \"The DoT portion of Riff Revolution can hit up to 7 times\""
+      }
+    },
+    "Klee": {
+      "carry: Sparks 'n' Splash DMG": {
+        "hits": 24,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Sparks_'n'_Splash, fetched 2026-10-16 (Gameplay Notes): \"Sparks 'n' Splash can be triggered once every 1.8 seconds, resulting in 6 instances ... Each Sparks 'n' Splash sends 4 sparks\": 24 on one opponent."
+      }
     }
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Aloy": {
+      "seconds": 13.35,
+      "source": "KeqingMains Aloy freeze calc (\"Aloy Weapon Calcs\", linked from https://keqingmains.com/aloy/; sheet 1tqQ3ZXky1vrSElLZPgi_qM94q9pX2eGbZpPXOasfjbc, \"Aloy freeze\" tab), fetched 2026-10-18: \"Rotation Duration\" 13.35 (C19) for \"7 N3RR 1 E 1 Q\"."
+    },
+    "Vesna": {
+      "seconds": 18.48,
+      "source": "HoYoLAB C0 Vesna performance test (Vesna, Odette, Faruzan, Vodyanitsa), https://www.hoyolab.com/article/46785086, fetched 2026-10-18: \"Rotation time: 18.48 seconds\" for one full team rotation. (Its Vesna string is E twice, Q, E, 2[N1C], E, 2[N1C], E: four Windborne Swords; the spec keeps GameWith's five, which the wiki's three Lv. 3 casts allow.)"
+    },
+    "Yumemizuki Mizuki": {
+      "seconds": 15,
+      "source": "KeqingMains Mizuki quick guide, https://keqingmains.com/q/mizuki-quickguide/, fetched 2026-10-18: one Skill per rotation (sample rotations \"Mizuki E (Q)\"), Burst \"every other rotation\"; its ER calculator (sheet 13p-qXUhZqw3HNuhTsszj7iAzqoQB2jpgcRYzUzpHu_4) has \"Rotation length 30\" with 2 Mizuki Skills per Burst and a 15s Skill cooldown: 15s per rotation."
+    },
+    "Tartaglia": {
+      "seconds": 25.5,
+      "source": "KeqingMains Tartaglia guide, https://keqingmains.com/tartaglia/, fetched 2026-10-18: \"The downtime results in 24–27s rotations when executed properly\" (midpoint)."
+    },
+    "Arataki Itto": {
+      "seconds": 22,
+      "source": "KeqingMains Itto Mastersheet (linked from https://keqingmains.com/q/itto-quickguide/; sheet 1mLqhh2OROZ1TItzkvSeEoGIbwsqahXJJ-fD6kS1wlfA, Itto tab), fetched 2026-10-18: its combo's rotation is 22 s (\"Total damage 618415.96 | 28109.82 dps\"). The quick guide's \"on-field combo lasts about 16s\" is his field time, not the rotation."
+    },
+    "Wanderer": {
+      "seconds": 20,
+      "source": "KeqingMains Wanderer calcs, linked as \"Calcs Here\" from https://keqingmains.com/wanderer/ (sheet 1e2e5ITnHVbT8tyJBqgfO89BWbPX5HcDxMdUm98ECZ0M, Calculator tab), fetched 2026-10-18: \"Rotation Length 20.00\"."
+    },
+    "Klee": {
+      "source": "KeqingMains Klee quick guide, https://keqingmains.com/q/klee-quickguide/, fetched 2026-10-17. No default stated: Burst cooldown.",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Chevreuse"
+                ]
+              ]
+            }
+          ],
+          "seconds": 17,
+          "source": "same guide, Klee Overload (Klee, Chevreuse/Bennett, Fischl/Durin, Pyro/Electro): \"Overload teams with 16-18s rotations require R4+ Sacrificial Bow\" (midpoint). Chevreuse only: Bennett and Fischl also share a Furina team."
+        }
+      ]
+    },
+    "Traveler (Hydro)": {
+      "seconds": 16,
+      "source": "KeqingMains Hydro Traveler quick guide, https://keqingmains.com/q/hydro-traveler-quickguide/, fetched 2026-10-16: \"the Hold Skill effectively has a 16s interval between uses\"."
+    },
+    "Mualani": {
+      "seconds": 16,
+      "source": "KeqingMains Mualani quick guide, https://keqingmains.com/q/mualani-quickguide/, fetched 2026-10-16: \"a typical Mualani rotation of ~16s\"."
+    },
+    "Noelle": {
+      "seconds": 23.5,
+      "source": "KeqingMains Noelle quick guide, https://keqingmains.com/q/noelle-quickguide/, fetched 2026-10-16: \"22-25s rotations with safe particle generation\" (midpoint)."
+    },
+    "Kamisato Ayato": {
+      "seconds": 25,
+      "source": "KeqingMains Ayato quick guide, https://keqingmains.com/q/ayato-quickguide/, fetched 2026-10-16: \"He usually casts two Elemental Skills per rotation, leading to ~24–26s rotations\" (midpoint). Left out: ~20s with 4pc Thundering Fury (an artifact set, not a team)."
+    },
+    "Navia": {
+      "seconds": 18,
+      "source": "KeqingMains Navia quick guide, https://keqingmains.com/q/navia-quickguide/, fetched 2026-10-16: she \"can shorten the rotation time to 16.5s\", but her Skill cooldown \"catches up after ~4 rotations\" and \"Navia then swaps to 18s rotations\"."
+    },
     "Flins": {
       "seconds": 17.5,
       "source": "KeqingMains Flins quick guide, https://keqingmains.com/q/flins-quickguide/, fetched 2026-10-13: \"Flins–Fischl teams usually run a 17-18s rotation\" (midpoint). Left out: 12s with 4pc Thundering Fury (an artifact set, not a team).",
@@ -755,6 +961,685 @@
           "source": "same guide (Kuki Shinobu, Furina, Nahida): \"This team runs a 30s split field time rotation\""
         }
       ]
+    },
+    "Neuvillette": {
+      "seconds": 26.5,
+      "source": "KeqingMains Neuvillette ER calculator (\"Neuvillette ERc (6.3)\", linked from https://keqingmains.com/neuvillette/; sheet 1OhaSLT5Pgeq7gIeDWtxN_dW8WFvjGhS8RpZDy_7mVdw), fetched 2026-10-21: \"Rotation length\" of its 29 non-Furina team tabs (Columbina, Nilou, Yelan, Tartaglia, Xiangling, Fischl, Ororon, Ayaka teams): 20 to 30, median 26.5, for the 4-CA default combo (Jessie, 2026-10-21, #119).",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 28,
+          "source": "KeqingMains Neuvillette ER calculator (\"Neuvillette ERc (6.3)\", linked from https://keqingmains.com/neuvillette/; sheet 1OhaSLT5Pgeq7gIeDWtxN_dW8WFvjGhS8RpZDy_7mVdw), fetched 2026-10-20: \"Rotation length\" of its Furina team tabs, for the guide's 4-CA rotations: 28 (Kazuha/Xilonen, Lynette/Xilonen, Kazuha/Kachina, Xilonen/Fischl, Kazuha/Zhongli, Nahida/Xiangling, Kazuha/Ororon, Lynette/Ororon), 27 (Kazuha/Fischl), 26 (Jean/Xilonen, Lynette/Kachina, Lisa/Xilonen, Nahida/Raiden): the median, 28 (#119)."
+        }
+      ]
+    }
+  },
+  "icd": {
+    "_howTo": "Elemental application ICD per sub-DPS source (#190), keyed like hitRates (\"talent: label\"). \"none\": every hit applies its element. { reset, every }: the timer in seconds, and the hit counter (every: 3 applies on hits 1, 4, 7...; \"first\": only the first hit until the timer resets). Sources left out use the standard ICD (2.5s / every 3rd hit). source: Genshin Impact Wiki, Internal Cooldown/Data (https://genshin-impact.fandom.com/wiki/Internal_Cooldown/Data, fandom API, fetched 2026-10-14). Not in that table, from each talent page's Advanced Properties instead (fandom API, fetched 2026-10-21, #193): Ineffa, Durin, Jahoda, Alyosha, Lauma, Odette. Alyosha's Fulgurite Hunting Field and Tugarin share one 1.6s tag; each source keeps its own timer here (estimate). Odette's Coda Stellar-Conduct/Stellar Swirl DMG is 0U (applies no element): left standard.",
+    "Albedo": {
+      "skill: Skill DMG": "none",
+      "burst: Burst DMG": "none"
+    },
+    "Amber": {
+      "skill: Explosion DMG": "none",
+      "burst: Total Fiery Rain DMG": {
+        "reset": 1,
+        "every": 3
+      }
+    },
+    "Beidou": {
+      "skill: Base DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Chiori": {
+      "skill: Upward Sweep Attack DMG": {
+        "reset": 1.9,
+        "every": "first"
+      },
+      "skill: Tamoto DMG": {
+        "reset": 1.9,
+        "every": "first"
+      },
+      "burst: Skill DMG": "none"
+    },
+    "Chongyun": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Citlali": {
+      "skill: Obsidian Tzitzimitl DMG": "none",
+      "skill: Frostfall Storm DMG": {
+        "reset": 1.5,
+        "every": "first"
+      },
+      "burst: Ice Storm DMG": "none"
+    },
+    "Columbina": {
+      "skill: Skill DMG": "none",
+      "skill: Gravity Ripple: Continuous DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Collei": {
+      "skill: Skill DMG": "none",
+      "burst: Explosion DMG": {
+        "reset": 3,
+        "every": "first"
+      },
+      "burst: Leap DMG": {
+        "reset": 3,
+        "every": "first"
+      }
+    },
+    "Dehya": {
+      "skill: Indomitable Flame DMG": "none",
+      "skill: Field DMG": "none",
+      "burst: Incineration Drive DMG": "none"
+    },
+    "Emilie": {
+      "skill: Skill DMG": "none",
+      "skill: Level 1 Lumidouce Case Attack DMG": {
+        "reset": 2,
+        "every": "first"
+      },
+      "skill: Spiritbreath Thorn DMG": "none"
+    },
+    "Escoffier": {
+      "skill: Skill DMG": {
+        "reset": 1.5,
+        "every": "first"
+      },
+      "skill: Frosty Parfait DMG": {
+        "reset": 1.5,
+        "every": "first"
+      },
+      "skill: Surging Blade DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Fischl": {
+      "skill: Summoning DMG": "none",
+      "skill: Oz's ATK DMG": {
+        "reset": 5,
+        "every": 4
+      },
+      "burst: Falling Thunder DMG": {
+        "reset": 5,
+        "every": 4
+      }
+    },
+    "Furina": {
+      "skill: Ousia Bubble DMG": "none",
+      "skill: Gentilhomme Usher DMG": {
+        "reset": 30,
+        "every": 2
+      },
+      "skill: Surintendante Chevalmarin DMG": {
+        "reset": 30,
+        "every": 2
+      },
+      "skill: Mademoiselle Crabaletta DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Kachina": {
+      "burst: Skill DMG": "none"
+    },
+    "Kaeya": {
+      "skill: Skill DMG": "none"
+    },
+    "Lisa": {
+      "skill: Stack 3 Conductive Hold DMG": "none"
+    },
+    "Nahida": {
+      "skill: Hold DMG": "none",
+      "skill: Tri-Karma Purification DMG": {
+        "reset": 1,
+        "every": "first"
+      }
+    },
+    "Nilou": {
+      "burst: Skill DMG": "none",
+      "burst: Lingering Aeon DMG": "none"
+    },
+    "Ororon": {
+      "burst: Ritual DMG": {
+        "reset": 3,
+        "every": "first"
+      },
+      "burst: Soundwave Collision DMG": {
+        "reset": 3,
+        "every": "first"
+      }
+    },
+    "Prune": {
+      "skill: Ring-A-Ding-Ding! Hexhunter Chime DMG": "none",
+      "burst: Skill DMG": "none",
+      "burst: Witchlure Bell DMG": "none"
+    },
+    "Rosaria": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none",
+      "burst: Ice Lance DoT": "none"
+    },
+    "Sigewinne": {
+      "skill: Bolstering Bubblebalm DMG": {
+        "reset": 2,
+        "every": "first"
+      },
+      "burst: Skill DMG": {
+        "reset": 1.9,
+        "every": "first"
+      }
+    },
+    "Traveler (Dendro)": {
+      "skill: Skill DMG": "none"
+    },
+    "Traveler (Pyro)": {
+      "burst: Skill DMG": "none"
+    },
+    "Venti": {
+      "skill: Press DMG": "none",
+      "burst: DoT": {
+        "reset": 1,
+        "every": 3
+      }
+    },
+    "Xiangling": {
+      "skill: Flame DMG": "none",
+      "burst: Pyronado DMG": "none"
+    },
+    "Xingqiu": {
+      "skill: Skill DMG": "none"
+    },
+    "Yae Miko": {
+      "burst: Skill DMG": "none",
+      "burst: Tenko Thunderbolt DMG": "none"
+    },
+    "Yelan": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none",
+      "burst: Exquisite Throw DMG": {
+        "reset": 2,
+        "every": 3
+      }
+    },
+    "Ineffa": {
+      "skill: Skill DMG": "none",
+      "skill: Birgitta Discharge DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Durin": {
+      "skill: Transmutation: Confirmation of Purity DMG": "none",
+      "burst: Principle of Purity: As the Light Shifts DMG": {
+        "reset": 2.5,
+        "every": 3
+      },
+      "burst: Dragon of White Flame DMG": {
+        "reset": 1.5,
+        "every": "first"
+      }
+    },
+    "Jahoda": {
+      "skill: Filled Treasure Flask DMG": "none",
+      "burst: Skill DMG": "none",
+      "burst: Purrsonal Coordinated Assistance Robot DMG": {
+        "reset": 15,
+        "every": 4
+      }
+    },
+    "Alyosha": {
+      "skill: Press DMG": "none",
+      "burst: Fulgurite Hunting Field DMG": {
+        "reset": 1.6,
+        "every": "first"
+      },
+      "burst: Tugarin DMG": {
+        "reset": 1.6,
+        "every": "first"
+      }
+    },
+    "Lauma": {
+      "skill: Press DMG": "none",
+      "skill: Frostgrove Sanctuary Attack DMG": "none"
+    },
+    "Odette": {
+      "skill: Skill DMG": "none",
+      "skill: \"Plume\" Dance Move DMG": "none",
+      "skill: \"Wing\" Dance Move DMG": "none",
+      "burst: Slash DMG": {
+        "reset": 2.5,
+        "every": 3
+      },
+      "burst: Final Slash DMG": {
+        "reset": 2.5,
+        "every": 3
+      }
+    }
+  },
+  "carryIcd": {
+    "_howTo": "Elemental application ICD per carry hit (#226), keyed \"table: label\" like the carry's hits in extract-kit.mjs CARRIES (every combo's hits with that key). \"none\": every hit applies. { tag, reset, every }: hits of one ICD tag (and type) share the counter; reset and every as in `icd` (default the Default ICD Type: 2.5s, every 3rd hit). windows: how many separate timer windows the tag's hits fall in per rotation (uses further apart than the reset), default 1 (\"first\": one per use). hits: hits per count when the talent row sums several. extract-kit.mjs icdReacting turns these into each hit's `reacting`. source: Genshin Impact Wiki, Internal Cooldown/Data (https://genshin-impact.fandom.com/wiki/Internal_Cooldown/Data, fandom API action=parse, fetched 2026-10-20): its ICD Tag and ICD Type columns, and its \"Most Melee Characters: Normal Attack, Default\", \"Most Polearm Characters: Charged Attack, Thrusting Attack\" (0.5s, \"Only the 1st is 1\"), \"Most Sword/Claymore Characters: Charged Attack, tag Normal Attack, Default\", \"Most Catalyst/Bow Characters: Charged Attack (No ICD)\" and \"All Characters: Plunging Attack (No ICD)\" rows for the characters without a row of their own. Not in that table, so on damage.ts's flat share: Skirk, Flins, Varesa's Rush and Volcano Kablam, Clorinde's and Wriothesley's Surging Blade, Gaming's Man Chai; also Freminet (his Skill hits' timing), Hydro Traveler's Dewdrops (1.5s, only the first: how many windows a hold lasts is unsourced), Chasca (finite sequences).",
+    "Hu Tao": {
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack": {
+        "tag": "Charged Attack",
+        "reset": 0.5,
+        "every": "first"
+      },
+      "skill: Blood Blossom DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Raiden Shogun": {
+      "skill: Skill DMG": "none",
+      "skill: Coordinated ATK DMG": {
+        "tag": "Elemental Skill"
+      },
+      "burst: Musou no Hitotachi Base DMG": "none",
+      "burst: 1-Hit DMG": {
+        "tag": "Musou Isshin Attack"
+      },
+      "burst: 2-Hit DMG": {
+        "tag": "Musou Isshin Attack"
+      },
+      "burst: 3-Hit DMG": {
+        "tag": "Musou Isshin Attack"
+      },
+      "burst: Charged Attack DMG": {
+        "tag": "Musou Isshin Attack"
+      }
+    },
+    "Kamisato Ayaka": {
+      "skill: Skill DMG": "none",
+      "burst: Cutting DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Bloom DMG": "none",
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack DMG": {
+        "tag": "Charged Attack",
+        "reset": 0.5,
+        "every": "first",
+        "hits": 3
+      }
+    },
+    "Alhaitham": {
+      "skill: Rush Attack DMG": "none",
+      "burst: Single-Instance DMG": {
+        "tag": "Elemental Burst"
+      },
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack DMG": {
+        "tag": "Charged Attack",
+        "reset": 2,
+        "every": "first"
+      },
+      "skill: 3-Mirror Projection Attack DMG": {
+        "tag": "Elemental Skill",
+        "reset": 12,
+        "every": 2
+      }
+    },
+    "Klee": {
+      "normal: 1-Hit DMG": {
+        "tag": "Klee Pyro DMG"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Klee Pyro DMG"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Klee Pyro DMG"
+      },
+      "skill: Jumpy Dumpty DMG": {
+        "tag": "Klee Pyro DMG"
+      },
+      "normal: Charged Attack DMG": "none",
+      "burst: Sparks 'n' Splash DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Yoimiya": {
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 4-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 5-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Neuvillette": {
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Waterfall DMG": {
+        "tag": "Elemental Burst"
+      },
+      "skill: Skill DMG": "none",
+      "normal: Charged Attack: Equitable Judgment": {
+        "tag": "Charged Attack"
+      }
+    },
+    "Ganyu": {
+      "skill: Skill DMG": "none",
+      "normal: Frostflake Arrow DMG": "none",
+      "normal: Frostflake Arrow Bloom DMG": "none"
+    },
+    "Kamisato Ayato": {
+      "skill: Shunsuiken 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "skill: Shunsuiken 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "skill: Shunsuiken 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "skill: Water Illusion DMG": {
+        "tag": "Elemental Skill",
+        "windows": 2
+      },
+      "burst: Bloomwater Blade DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Yanfei": {
+      "normal: 1-Hit DMG": {
+        "tag": "Yanfei Pyro DMG"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Yanfei Pyro DMG"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Yanfei Pyro DMG"
+      },
+      "normal: Charged Attack": "none",
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Cyno": {
+      "skill: Skill DMG": {
+        "tag": "Elemental Skill Thrusting",
+        "reset": 0.2,
+        "every": "first"
+      },
+      "skill: Mortuary Rite DMG": "none",
+      "burst: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: 4-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: 5-Hit DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Tartaglia": {
+      "burst: Skill DMG: Ranged": "none",
+      "skill: Stance Change DMG": "none",
+      "skill: 1-Hit DMG": {
+        "tag": "Foul Legacy"
+      },
+      "skill: 2-Hit DMG": {
+        "tag": "Foul Legacy"
+      },
+      "skill: 3-Hit DMG": {
+        "tag": "Foul Legacy"
+      },
+      "skill: Charged Attack DMG": {
+        "tag": "Charged Attack"
+      },
+      "skill: Riptide Slash": "none"
+    },
+    "Aloy": {
+      "normal: 1-Hit DMG": {
+        "tag": "Rushing Ice Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Rushing Ice Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Rushing Ice Attack"
+      },
+      "skill: Freeze Bomb DMG": "none",
+      "skill: Chillwater Bomblet DMG": {
+        "tag": "Elemental Skill"
+      },
+      "burst: Skill DMG": "none"
+    },
+    "Diluc": {
+      "burst: Slashing DMG": {
+        "tag": "Elemental Burst",
+        "reset": 5,
+        "every": 5
+      },
+      "burst: DoT": {
+        "tag": "Elemental Burst",
+        "reset": 5,
+        "every": 5
+      },
+      "burst: Explosion DMG": {
+        "tag": "Elemental Burst",
+        "reset": 5,
+        "every": 5
+      },
+      "skill: 1-Hit DMG": "none",
+      "skill: 2-Hit DMG": "none",
+      "skill: 3-Hit DMG": "none",
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Keqing": {
+      "skill: Lightning Stiletto DMG": "none",
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Consecutive Slash DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Last Attack DMG": {
+        "tag": "Elemental Burst"
+      },
+      "skill: Thunderclap Slash DMG": {
+        "tag": "Elemental Skill"
+      },
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Kaveh": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none",
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Kinich": {
+      "skill: Loop Shot DMG": {
+        "tag": "Loop Shot",
+        "reset": 2,
+        "every": "first"
+      },
+      "skill: Scalespiker Cannon DMG": {
+        "tag": "Scalespiker Cannon",
+        "reset": 1.2,
+        "every": "first"
+      },
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: Dragon Breath DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Clorinde": {
+      "skill: Swift Hunt DMG": {
+        "tag": "Normal Attack"
+      },
+      "skill: Impale the Night DMG": {
+        "tag": "Normal Attack"
+      },
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Wriothesley": {
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 4-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 5-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: Charged Attack DMG": "none",
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst",
+        "hits": 5
+      }
+    },
+    "Mualani": {
+      "skill: Sharky's Bite Base DMG": "none",
+      "burst: Skill DMG": "none"
+    },
+    "Arlecchino": {
+      "skill: Spike DMG": {
+        "tag": "Elemental Skill",
+        "reset": 10,
+        "every": 3
+      },
+      "skill: Cleave DMG": "none",
+      "normal: Charged Attack DMG": {
+        "tag": "Charged Attack",
+        "reset": 0.5,
+        "every": "first"
+      },
+      "normal: 1-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 2-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 3-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 4-Hit DMG": {
+        "tag": "Normal Attack"
+      },
+      "normal: 5-Hit DMG": {
+        "tag": "Normal Attack"
+      }
+    },
+    "Varesa": {
+      "normal: Fiery Passion Charged Attack DMG": "none",
+      "normal: Charged Attack DMG": "none",
+      "normal: Fiery Passion Low/High Plunge DMG": "none",
+      "normal: Low/High Plunge DMG": "none"
+    },
+    "Gaming": {
+      "skill: Plunging Attack: Charmed Cloudstrider DMG": "none"
+    },
+    "Mavuika": {
+      "skill: Skill DMG": "none",
+      "burst: Skill DMG": "none",
+      "skill: Flamestrider Charged Attack Cyclic DMG": {
+        "tag": "Flamestrider"
+      },
+      "skill: Flamestrider Charged Attack Final DMG": {
+        "tag": "Flamestrider"
+      }
+    },
+    "Eula": {
+      "skill: Press DMG": "none",
+      "skill: Hold DMG": "none",
+      "skill: Icewhirl Brand DMG": {
+        "tag": "Elemental Skill"
+      },
+      "burst: Skill DMG": "none"
+    },
+    "Nefer": {
+      "skill: Skill DMG": {
+        "tag": "Elemental Skill",
+        "windows": 2
+      },
+      "skill: Phantasm Performance 1-Hit DMG (Nefer)": {
+        "tag": "Charged Attack"
+      },
+      "skill: Phantasm Performance 2-Hit DMG (Nefer)": {
+        "tag": "Charged Attack"
+      },
+      "burst: 1-Hit DMG": {
+        "tag": "Elemental Burst"
+      },
+      "burst: 2-Hit DMG": {
+        "tag": "Elemental Burst"
+      }
+    },
+    "Traveler (Hydro)": {
+      "skill: Torrent Surge DMG": "none",
+      "burst: Skill DMG": {
+        "tag": "Elemental Burst",
+        "reset": 8,
+        "every": 4
+      }
     }
   }
 }
