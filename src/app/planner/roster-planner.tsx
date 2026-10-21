@@ -6,7 +6,7 @@ import { characterEffects } from "@/lib/scoring/effects";
 import { control, quietChip } from "@/lib/ui/elements";
 import ResultsList from "./results-list";
 import RosterGrid from "./roster-grid";
-import type { BuildCatalog, PlannerCharacter } from "./types";
+import type { BuildCatalog, MemberGear, PlannerCharacter } from "./types";
 import UidImport from "./uid-import";
 import { useRoster } from "./use-roster";
 import { useTeamSearch } from "./use-team-search";
@@ -80,11 +80,17 @@ export default function RosterPlanner({
     [characters, roster, catalog],
   );
   const ownedIds = owned.map((c) => c.id);
-  // Each built member's weapon, for the team detail (#180).
+  // Each built member's weapon (#180) and artifact sets (#181), for the team detail.
   const weapons = useMemo(() => {
-    const out = new Map<string, { name: string; icon?: string; refinement: number }>();
+    const out = new Map<string, MemberGear>();
     for (const [id, e] of Object.entries(roster))
-      if (e.build) out.set(id, { name: e.build.weapon.id, icon: catalog.weaponIcons[e.build.weapon.id], refinement: e.build.weapon.refinement });
+      if (e.build)
+        out.set(id, {
+          name: e.build.weapon.id,
+          icon: catalog.weaponIcons[e.build.weapon.id],
+          refinement: e.build.weapon.refinement,
+          sets: e.build.artifactSets.map((s) => ({ ...s, icon: catalog.setIcons[s.set] })),
+        });
     return out;
   }, [roster, catalog]);
 

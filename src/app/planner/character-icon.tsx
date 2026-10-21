@@ -21,7 +21,8 @@ export default function CharacterIcon({ icon, size, className = "" }: { icon?: s
   return <EnkaIcon icon={icon} size={size} className={`rounded-full ${className}`} />;
 }
 
-// title: the weapon's name, shown on hover where the name isn't written next to it.
+// title: the weapon's or set's name, shown on hover where the name isn't written next to it.
 export function WeaponIcon({ icon, size, title, className = "" }: { icon?: string; size: number; title?: string; className?: string }) {
   return <EnkaIcon icon={icon} size={size} title={title} className={`rounded ${className}`} />;
 }
+export const ArtifactIcon = WeaponIcon; // an artifact set's icon (#181): same square shape
