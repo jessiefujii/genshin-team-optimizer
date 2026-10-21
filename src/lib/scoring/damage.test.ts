@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
 import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite, setBuffs, setsOf, weaponBuffs, weaponDmgBonus } from "./damage";
-import { NO_TEAM_BUFFS } from "./kit";
+import { NO_TEAM_BUFFS, teamBuffStats } from "./kit";
 import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
@@ -173,6 +173,19 @@ describe("carry damage (#101)", () => {
     test("Zibai's passive 1 is a Reaction Additive Base DMG Bonus, added after the Lunar coefficient (#146)", () => {
       const zibai = carries.Zibai as unknown as { hits: { label: string; lunar?: string; additive?: boolean }[] };
       expect(zibai.hits.find((h) => h.label === "passive1 bonus")).toMatchObject({ lunar: "lunar-crystallize", additive: true });
+    });
+
+    test("Illuga's Nightingale's Song adds to Zibai's Lunar-Crystallize hits, on 21 of her 26 hits (#186)", () => {
+      const team = ["Zibai", "Illuga", "Linnea", "Columbina"].map((id) => byId.get(id)!);
+      const active: Reaction[] = ["crystallize", "lunar-crystallize"];
+      const tb = teamBuffStats(team[0], active, team);
+      // Benchmark EM 800 x (384.06% Burst + 160% passive 2 at 3+ Hydro/Geo members) x 21 stacks / 26 Geo hits.
+      expect(tb.lunarAdditive?.["lunar-crystallize"]).toBeCloseTo((800 * 5.44064 * 21) / 26, 3);
+      const zibai = (buffs: typeof tb) => carryDamage(team[0], active, team, buffs)!.perSecond;
+      expect(zibai(tb)).toBeGreaterThan(zibai({ ...tb, lunarAdditive: undefined }) * 1.1);
+      // Only Zibai's direct Lunar hits: a team without Illuga has none.
+      const zhongli = ["Zibai", "Zhongli", "Linnea", "Columbina"].map((id) => byId.get(id)!);
+      expect(teamBuffStats(zhongli[0], active, zhongli).lunarAdditive).toBeUndefined();
     });
 
     test("modelsAscendantGleam: carries whose own Ascendant Gleam upgrade is in their damage (#150)", () => {

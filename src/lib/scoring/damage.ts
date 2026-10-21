@@ -570,16 +570,17 @@ function computeCarryDamage(
   // (Genshin Impact Wiki, Superconduct, fetched 2026-10-16: "reduces the Physical RES of all enemies in the AoE by 40%
   // for 12 seconds"; while the team has it, taken as up throughout).
   const superconduct = active.includes("superconduct") ? 0.4 : 0;
-  const byType = new Map<string, { bonus: number; flat: number; amp: number; catalyze: number; res: number; def: number }>();
-  const typed = (el: Element | "Physical") => {
-    if (el === c.element) return { bonus: s.dmgBonus, flat: teamBuffs.flat, amp, catalyze, res: teamBuffs.resShred, def: teamBuffs.defShred };
+  type Typed = { bonus: number; flat: number; amp: number; catalyze: number; res: number; def: number; lunarAdditive?: TeamBuffStats["lunarAdditive"] };
+  const byType = new Map<string, Typed>();
+  const typed = (el: Element | "Physical"): Typed => {
+    if (el === c.element) return { bonus: s.dmgBonus, flat: teamBuffs.flat, amp, catalyze, res: teamBuffs.resShred, def: teamBuffs.defShred, lunarAdditive: teamBuffs.lunarAdditive };
     let v = byType.get(el);
     if (!v) {
       const view = { ...c, element: el as Element };
       const tb = teamBuffs === NO_TEAM_BUFFS ? NO_TEAM_BUFFS : teamBuffStats(view, c.reactions.filter((r) => active.includes(r)), team, teamBuffs.burstShares);
       const r = reaction ?? mainReactionOf(c);
       const own = el === "Physical" ? s.physicalDmgBonus : 0;
-      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, amp: amplifyGain(view, em, active, r, setReactionBonus(set, r)), catalyze: catalyzeDamage(view, em, active, r, setReactionBonus(set, r)), res: tb.resShred + (el === "Physical" ? superconduct : 0), def: tb.defShred }));
+      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, amp: amplifyGain(view, em, active, r, setReactionBonus(set, r)), catalyze: catalyzeDamage(view, em, active, r, setReactionBonus(set, r)), res: tb.resShred + (el === "Physical" ? superconduct : 0), def: tb.defShred, lunarAdditive: tb.lunarAdditive }));
     }
     return v;
   };
@@ -625,7 +626,10 @@ function computeCarryDamage(
       if (h.additive) return perHit * count * resFactor;
       // Teammates' Base DMG bonuses add to the carry's own (#88: one "% Reaction Base DMG Bonus" term).
       const base = lunarBase + (teamBuffs.lunarBase?.[h.lunar] ?? 0);
-      return LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + base) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar)) * resFactor;
+      // Teammates' Reaction Additive Base DMG Bonus (Illuga's Lunar-Crystallize bonus, #186): per hit instance, after the
+      // coefficient, Base DMG and EM terms (the formula above), before RES and crit. Not teammates' flat Geo DMG.
+      const added = (t.lunarAdditive?.[h.lunar] ?? 0) * count * (h.instances ?? 1);
+      return (LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + base) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar)) + added) * resFactor;
     }
     if (!h.addOn) perHit += t.catalyze * (h.instances ?? 1) * reactingShare(h);
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
