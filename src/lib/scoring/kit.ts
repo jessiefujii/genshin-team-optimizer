@@ -26,6 +26,7 @@ export interface KitBuff {
   burst?: boolean; // comes from the Burst (or a passive it triggers): up only in the rotations its Energy funds (#207)
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
+  carryReactions?: string[]; // the carry triggers one of these (Albedo's Burst EM, only where he Bursts: #186)
   lunar?: string; // lunarAdditiveFromEm: the direct Lunar reaction hits it adds to (Illuga's Lunar-Crystallize, #186)
   stacks?: number; // used one per hit of the carry's, this many per use (Illuga's Nightingale's Song, #186)
   cd?: number | null;
@@ -287,6 +288,7 @@ function stackShare(buff: KitBuff, carry: ScoringCharacter, carryReactions: read
 function applicable(buff: KitBuff, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): KitBuff | null {
   if (buff.elements && !buff.elements.includes(carry.element)) return null;
   if (buff.teamOnly && !team.elements.every((e) => buff.teamOnly!.includes(e))) return null;
+  if (buff.carryReactions && !buff.carryReactions.some((r) => carryReactions.includes(r as Reaction))) return null;
   if (buff.steps) buff = { ...buff, value: stepValue(buff, team) };
   if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return null;
   if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return null;
@@ -713,6 +715,7 @@ export function memberBuffStats(
       if (b.reactions || !wide.kinds.includes(b.kind) || seen.has(b.kind)) continue;
       if (b.elements && !b.elements.includes(m.element)) continue;
       if (b.teamOnly && !shape.elements.every((e) => b.teamOnly!.includes(e))) continue;
+      if (b.carryReactions && !b.carryReactions.some((r) => carry.reactions.includes(r as Reaction) && active.includes(r as Reaction))) continue;
       if (b.appliesTo && !(talent && b.appliesTo.includes(talent))) continue;
       seen.add(b.kind);
       // Gated by this hit's talent above, so it counts in full on it.
