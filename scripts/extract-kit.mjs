@@ -3463,6 +3463,27 @@ const SETS = {
   "Unfinished Reverie": [
     { kind: "dmgBonus", re: /it will increase by 10% instead until it reaches (\d+)%/, when: { reaction: "burning" } },
   ],
+  // Support sets' party effects as stats in damage (#206, kit.ts partyGearStats), `scope`: party (every member, the
+  // wearer too), active (the on-field carry). Triggers the model doesn't track (the wearer's Burst or Skill hitting) are
+  // taken as kept up: estimate.
+  "Noblesse Oblige": [{ kind: "atkPct", party: true, scope: "party", re: /increases all party members' ATK by (\d+)%/, estimate: "after the wearer's Burst" }],
+  "Tenacity of the Millelith": [{ kind: "atkPct", party: true, scope: "party", re: /the ATK of all nearby party members is increased by (\d+)%/, estimate: "while the wearer's Skill hits" }],
+  // "Decreases opponent's Elemental RES to the element infused in the Swirl": hits of the elements the wearer swirls.
+  "Viridescent Venerer": [
+    { kind: "resShred", party: true, scope: "party", re: /Elemental RES to the element infused in the Swirl by (\d+)%/, when: { swirled: true } },
+    { kind: "resShred", party: true, scope: "party", element: "Cryo", re: /will also decrease their Cryo RES by (\d+)%/, when: { reaction: "stellar-swirl" } },
+  ],
+  "Deepwood Memories": [{ kind: "resShred", party: true, scope: "party", element: "Dendro", re: /the targets' Dendro RES will be decreased by (\d+)%/, estimate: "after the wearer's Skill or Burst hits" }],
+  // "Only one form of Elemental DMG Bonus can be gained in this manner at any one time": the carry's element when it
+  // crystallizes, else the team's first aura element (kit.ts crystallizedElement).
+  "Archaic Petra": [
+    { kind: "dmgBonus", party: true, scope: "party", re: /all party members gain a (\d+)% DMG Bonus for that particular element/, when: { crystallized: true }, estimate: "with a shard picked up" },
+  ],
+  // "the Elemental Types involved in the elemental reaction": the wearer's element and those it reacts with in the team.
+  "Scroll of the Hero of Cinder City": [
+    { kind: "dmgBonus", party: true, scope: "party", re: /all nearby party members gain a (\d+)% Elemental DMG Bonus/, when: { reactionElements: true }, estimate: "once the wearer reacts" },
+    { kind: "dmgBonus", party: true, scope: "party", re: /all nearby party members gain an additional (\d+)% Elemental DMG Bonus/, when: { reactionElements: true, nightsoul: true }, estimate: "once the wearer reacts" },
+  ],
 };
 const sets = {};
 for (const [name, values] of Object.entries(SETS)) {
@@ -3491,6 +3512,7 @@ for (const [name, values] of Object.entries(SETS)) {
       ...(v.types ? { types: v.types } : {}),
       ...(v.element ? { element: v.element } : {}),
       ...(v.reactions ? { reactions: v.reactions } : {}),
+      ...(v.scope ? { scope: v.scope } : {}),
       ...(v.when ? { when: v.when } : {}),
       source: `${pieces}pc: "${m[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}${v.estimate ? ` (taken as up ${v.estimate}: estimate)` : ""}`,
     };
@@ -3593,6 +3615,7 @@ const WATATSUMI = [
   },
 ];
 const WIDSITH_UPTIME = /a random theme song for (\d+)s\. This can only occur once every (\d+)s/;
+const MILLENNIAL = /for (\d+)s\. "Millennial Movement: [^"]+" increases [^.]+\. Once this effect is triggered, you will not gain Sigils of \w+ for (\d+)s/;
 const WEAPONS = {
   Akuoumaru: WATATSUMI,
   "Mouun's Moon": WATATSUMI,
@@ -3705,6 +3728,44 @@ const WEAPONS = {
     { kind: "dmgBonus", uptime: WIDSITH_UPTIME, songs: 3, re: /Aria: Increases all Elemental DMG by ([\d.]+)%/ },
     { kind: "em", flat: true, uptime: WIDSITH_UPTIME, songs: 3, re: /Interlude: Elemental Mastery is increased by ([\d.]+)/ },
   ],
+  // Support weapons' party effects as stats in damage (#206, kit.ts partyGearStats); `scope` as for SETS: party, others
+  // (every member but the holder), active (the on-field carry, not the holder). "Millennial Movement" buffs of the same
+  // type don't stack (`group`); each is up 12s, then no Sigils for 20s: 12s of every 20s, the Sigils taken as quick to
+  // gather (estimate).
+  "Elegy for the End": [
+    { kind: "atkPct", party: true, scope: "party", group: "Millennial Movement", uptime: MILLENNIAL, songs: 1, re: /"Millennial Movement: Farewell Song" increases Elemental Mastery by \d+ and increases ATK by ([\d.]+)%/ },
+  ],
+  "Freedom-Sworn": [
+    { kind: "atkPct", party: true, scope: "party", group: "Millennial Movement", uptime: MILLENNIAL, songs: 1, when: { holderReacts: true }, re: /Plunging Attack DMG by [\d.]+% and increases ATK by ([\d.]+)%/ },
+    { kind: "dmgBonus", party: true, scope: "party", group: "Millennial Movement", types: ["normal", "charged", "plunge"], uptime: MILLENNIAL, songs: 1, when: { holderReacts: true }, re: /increases Normal, Charged and Plunging Attack DMG by ([\d.]+)%/ },
+  ],
+  "Song of Broken Pines": [
+    { kind: "atkPct", party: true, scope: "party", group: "Millennial Movement", uptime: MILLENNIAL, songs: 1, re: /increases Normal ATK SPD by [\d.]+% and increases ATK by ([\d.]+)%/ },
+  ],
+  // "the new character taking the field": the carry the holder swaps to, 10s of every 20s.
+  "Thrilling Tales of Dragon Slayers": [
+    { kind: "atkPct", party: true, scope: "active", uptime: /ATK increased by [\d.]+% for (\d+)s\. This effect can only occur once every (\d+)s/, songs: 1, re: /the new character taking the field has their ATK increased by ([\d.]+)%/ },
+  ],
+  // The Leaf goes to whoever picks it up: the on-field carry, 12s of every 20s, after the holder's Dendro reaction.
+  Moonpiercer: [
+    { kind: "atkPct", party: true, scope: "active", uptime: /grant the character [\d.]+% ATK for (\d+)s\. Only 1 Leaf can be generated this way every (\d+)s/, songs: 1, when: { holderReacts: true }, re: /When picked up, the Leaf will grant the character ([\d.]+)% ATK/ },
+  ],
+  // "The equipping character will gain 24% of their Elemental Mastery as bonus ATK for 12s, with nearby party members
+  // gaining 30% of this buff", every 10s: always up. Flat ATK from the holder's EM.
+  "Makhaira Aquamarine": [{ kind: "atkFromHolderEm", party: true, scope: "others", ofShare: /nearby party members gaining (\d+)% of this buff/, re: /gain ([\d.]+)% of their Elemental Mastery as bonus ATK/ }],
+  "Wandering Evenstar": [{ kind: "atkFromHolderEm", party: true, scope: "others", ofShare: /nearby party members gaining (\d+)% of this buff/, re: /gain ([\d.]+)% of their Elemental Mastery as bonus ATK/ }],
+  // At 2 Ode to Flowers stacks (the holder's Normal or Plunging Attacks: kept up, estimate): 8% per 1,000 DEF, capped.
+  "Peak Patrol Song": [
+    { kind: "dmgBonusPerDef", party: true, scope: "party", re: /All Elemental DMG Bonus by ([\d.]+)% for every 1,000 DEF/, max: /up to a maximum of ([\d.]+)%/ },
+  ],
+  // "nearby party members of an Elemental Type involved in the elemental reaction" of the holder's.
+  "Hakushin Ring": [{ kind: "dmgBonus", party: true, scope: "party", when: { reactionElements: true }, re: /receive a ([\d.]+)% Elemental DMG Bonus for their element/ }],
+  // With Moondrifts (Lunar-Crystallize) "all other nearby party members": Geo DMG (its Lunar-Crystallize part is Reaction
+  // Bonus, still effects.json points).
+  "Golden Frostbound Oath": [
+    { kind: "dmgBonus", party: true, scope: "others", elements: ["Geo"], when: { reactions: ["lunar-crystallize"] }, re: /Frost Fae's Mischief effect: Geo DMG dealt increases by ([\d.]+)%/ },
+  ],
+  "Crane's Echoing Call": [{ kind: "dmgBonus", party: true, scope: "party", types: ["plunge"], re: /all nearby party members' Plunging Attacks will deal ([\d.]+)% increased DMG/ }],
 };
 const weapons = {};
 for (const [name, specs] of Object.entries(WEAPONS)) {
@@ -3722,11 +3783,16 @@ for (const [name, specs] of Object.entries(WEAPONS)) {
     const up = s.uptime ? texts[0].match(s.uptime) : null;
     if (s.uptime && !up) throw new Error(`${name}: uptime pattern ${s.uptime} not found in its passive text: ${texts[0]}`);
     const share = up ? Number(up[1]) / Number(up[2]) / s.songs : 1;
+    // `ofShare`: the party gets that share of the holder's own buff (Makhaira's 30%).
+    const of = (t) => (s.ofShare ? read(s.ofShare, t) / 100 : 1);
     return {
       kind: s.kind,
       ...(s.types ? { types: s.types } : {}),
-      values: texts.map((t) => round((read(s.re, t) / (s.flat ? 1 : 100)) * stacks * share * (s.negative ? -1 : 1))),
-      ...(s.max ? { max: texts.map((t) => read(s.max, t) / 100) } : {}),
+      values: texts.map((t) => round((read(s.re, t) / (s.flat ? 1 : 100)) * stacks * share * of(t) * (s.negative ? -1 : 1))),
+      ...(s.max ? { max: texts.map((t) => round(read(s.max, t) / 100)) } : {}),
+      ...(s.party ? { party: true, scope: s.scope } : {}),
+      ...(s.group ? { group: s.group } : {}),
+      ...(s.elements ? { elements: s.elements } : {}),
       ...(s.when ? { when: s.when } : {}),
       source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}${s.full ? " (taken at full stacks / up throughout: estimate)" : ""}${up ? ` x ${up[1]}s/${up[2]}s / ${s.songs} songs (estimate)` : ""}`,
     };

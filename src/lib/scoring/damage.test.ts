@@ -1,7 +1,9 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
 import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite, setBuffs, setsOf, weaponBuffs, weaponDmgBonus } from "./damage";
-import { NO_TEAM_BUFFS, partySetBuffs, teamBuffStats } from "./kit";
+import { NO_TEAM_BUFFS, memberBuffStats, partySetBuffs, teamBuffStats } from "./kit";
+import { characterEffects } from "./effects";
+import { scoreTeam } from "./score";
 import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
@@ -570,5 +572,49 @@ describe("set bonuses on the wearer's own damage (#206)", () => {
     const raiden = { ...get("Raiden Shogun"), stats: STATS };
     const fate = { ...raiden, sets: [{ set: "Emblem of Severed Fate", pieces: 4 as const }] };
     expect(carryDamage(fate)!.perSecond).toBeGreaterThan(carryDamage({ ...raiden, sets: [] })!.perSecond);
+  });
+});
+
+describe("support gear's party effects in damage (#206)", () => {
+  const get = (id: string) => byId.get(id)!;
+  const STATS = { atk: 2000, baseAtk: 800, hp: 30000, def: 900, critRate: 50, critDmg: 100, energyRecharge: 200, elementalMastery: 100, elementalDmgBonus: 0 };
+  const geared = (id: string, gear: { set?: string; weapon?: string; refinement?: number }): ScoringCharacter => {
+    const build = { weapon: { id: gear.weapon ?? "none", level: 90, refinement: gear.refinement ?? 1 }, artifactSets: gear.set ? [{ set: gear.set, pieces: 4 as const }] : [] };
+    return { ...get(id), stats: STATS, sets: build.artifactSets, weaponBuild: gear.weapon ? build.weapon : undefined, effects: characterEffects(id, 0, build as never) };
+  };
+  const carryGets = (team: ScoringCharacter[], active: Reaction[] = []) => teamBuffStats(team[0], [], team, undefined, active);
+  const memberGets = (m: ScoringCharacter, team: ScoringCharacter[], active: Reaction[] = []) => memberBuffStats(m, team[0], active, team);
+
+  test("Noblesse's ATK reaches the carry and the other members; a benchmark Bennett wears nothing", () => {
+    const noblesse = [get("Hu Tao"), geared("Bennett", { set: "Noblesse Oblige" }), get("Xingqiu"), get("Zhongli")];
+    const plain = [get("Hu Tao"), get("Bennett"), get("Xingqiu"), get("Zhongli")];
+    expect(carryGets(noblesse).atkPct - carryGets(plain).atkPct).toBeCloseTo(0.2, 5);
+    expect(memberGets(noblesse[2], noblesse).atkPct - memberGets(plain[2], plain).atkPct).toBeCloseTo(0.2, 5);
+  });
+
+  test("Millennial Movement ATK doesn't stack; Thrilling Tales is the carry's only", () => {
+    const one = [get("Hu Tao"), geared("Sucrose", { weapon: "Elegy for the End" }), get("Xingqiu"), get("Zhongli")];
+    const two = [get("Hu Tao"), geared("Sucrose", { weapon: "Elegy for the End" }), get("Xingqiu"), geared("Zhongli", { weapon: "Song of Broken Pines" })];
+    expect(carryGets(one).atkPct).toBeGreaterThan(carryGets([get("Hu Tao"), get("Sucrose"), get("Xingqiu"), get("Zhongli")]).atkPct);
+    expect(carryGets(two).atkPct).toBeCloseTo(carryGets(one).atkPct, 5);
+    // 24% ATK at R1 for 10s of every 20s, for "the new character taking the field": the carry, not Xingqiu.
+    const ttds = [get("Hu Tao"), geared("Bennett", { weapon: "Thrilling Tales of Dragon Slayers" }), get("Xingqiu"), get("Zhongli")];
+    const base = [get("Hu Tao"), get("Bennett"), get("Xingqiu"), get("Zhongli")];
+    expect(carryGets(ttds).atkPct - carryGets(base).atkPct).toBeCloseTo(0.12, 5);
+    expect(memberGets(ttds[2], ttds).atkPct).toBeCloseTo(memberGets(base[2], base).atkPct, 5);
+  });
+
+  test("VV shreds the swirled elements only, while the team Swirls", () => {
+    const vv = [get("Hu Tao"), geared("Kaedehara Kazuha", { set: "Viridescent Venerer" }), get("Xingqiu"), get("Zhongli")];
+    const plain = [get("Hu Tao"), get("Kaedehara Kazuha"), get("Xingqiu"), get("Zhongli")];
+    const swirl: Reaction[] = ["swirl", "vaporize"];
+    expect(carryGets(vv, swirl).resShred - carryGets(plain, swirl).resShred).toBeCloseTo(0.4, 5);
+    expect(carryGets(vv, ["vaporize"]).resShred).toBeCloseTo(carryGets(plain, ["vaporize"]).resShred, 5);
+    expect(memberGets(vv[3], vv, swirl).resShred).toBeCloseTo(memberGets(plain[3], plain, swirl).resShred, 5); // Zhongli: Geo
+  });
+
+  test("for a modeled carry the gear's effects.json line scores 0, in team damage", () => {
+    const t = [get("Hu Tao"), geared("Bennett", { set: "Noblesse Oblige" }), get("Xingqiu"), get("Zhongli")];
+    expect(scoreTeam(t).breakdown.find((l) => /^Bennett .*Noblesse Oblige.*in team damage/.test(l.reason))).toMatchObject({ points: 0 });
   });
 });

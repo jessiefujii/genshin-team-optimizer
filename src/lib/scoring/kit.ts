@@ -4,7 +4,7 @@
 import kitJson from "../../../data/kit.json";
 import type { Element, Reaction } from "../../types/tags";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, resShredGain } from "./benchmark";
-import { canTrigger, reactionShare, TRANSFORMATIVE } from "./reactions";
+import { canTrigger, reactionElements, reactionShare, TRANSFORMATIVE } from "./reactions";
 import type { ScoringCharacter } from "./types";
 
 export interface KitBuff {
@@ -74,7 +74,7 @@ type PartySetEffect = {
 };
 const PARTY_SETS = Object.fromEntries(
   Object.entries((kitJson as unknown as { sets: Record<string, { party?: boolean }[]> }).sets)
-    .map(([name, effects]) => [name, effects.filter((e) => e.party) as PartySetEffect[]])
+    .map(([name, effects]) => [name, effects.filter((e) => e.party && ((e as PartySetEffect).kind === "em" || (e as PartySetEffect).kind === "gleamingMoon")) as PartySetEffect[]])
     .filter(([, effects]) => effects.length > 0),
 ) as Record<string, PartySetEffect[]>;
 // Whether a set has party-wide effects in damage (#306): score.ts then drops its effects.json flat points.
@@ -599,6 +599,7 @@ export function teamBuffStats(
 ): TeamBuffStats {
   const out = { ...NO_TEAM_BUFFS };
   familyBuffStats(carry, carry, active, team, out);
+  partyGearStats(carry, carry, active, team, out);
   for (const s of team) {
     const entry = KIT[s.id];
     if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
@@ -664,6 +665,7 @@ export function memberBuffStats(
   const out = { ...NO_TEAM_BUFFS };
   byKey.set(key, out);
   familyBuffStats(m, carry, active, team, out);
+  partyGearStats(m, carry, active, team, out);
   for (const s of team) {
     const wide = PARTY_WIDE[s.id];
     const entry = KIT[s.id];
@@ -746,6 +748,111 @@ function familyBuffStats(m: ScoringCharacter, carry: ScoringCharacter, active: r
       }
     }
   }
+}
+
+// Support gear's party effects as stats (#206, extract-kit SETS / WEAPONS `party`, with a `scope`): ATK %, flat ATK from
+// the holder's EM, DMG Bonus (by hit type, or per 1,000 of the holder's DEF) and RES shred, on the hits they reach, from
+// the members whose build has the gear (imported builds: a benchmark support has none). EM and Reaction Bonus stay
+// effects.json points, as for kit buffs. Scope: party (every member, the holder too), others (all but the holder), active
+// (the on-field carry, not the holder: Thrilling Tales' "new character taking the field"). One of each set or weapon,
+// and one per Millennial Movement `group` and kind ("buffs of the same type will not stack"); RES shred of one element
+// doesn't stack either (VV: "RES debuffs of the same elemental type do not stack"): the largest counts. `when`:
+// reaction(s) (the team triggers it, one of them), holderReacts (the holder triggers one of the team's reactions), swirled
+// (VV: an aura element, while the team Swirls), crystallized (Petra: the crystallized element), reactionElements (Scroll,
+// Hakushin: the elements in the holder's reactions with this team), nightsoul (the holder has Nightsoul's Blessing).
+type GearWhen = {
+  reaction?: Reaction;
+  reactions?: Reaction[];
+  holderReacts?: boolean;
+  swirled?: boolean;
+  crystallized?: boolean;
+  reactionElements?: boolean;
+  nightsoul?: boolean;
+};
+type GearEffect = {
+  kind: string;
+  party?: boolean;
+  scope?: "party" | "others" | "active";
+  value?: number; // a set's
+  values?: number[]; // a weapon's, by refinement
+  max?: number[];
+  types?: string[];
+  element?: string;
+  elements?: string[];
+  group?: string;
+  when?: GearWhen;
+};
+const GEAR_KINDS = new Set(["atkPct", "atkFromHolderEm", "dmgBonus", "dmgBonusPerDef", "resShred"]);
+const partyGear = (all: Record<string, GearEffect[]>) =>
+  Object.fromEntries(
+    Object.entries(all)
+      .map(([id, effects]) => [id, effects.filter((e) => e.party && GEAR_KINDS.has(e.kind))])
+      .filter(([, effects]) => effects.length > 0),
+  ) as Record<string, GearEffect[]>;
+const GEAR_SETS = partyGear((kitJson as unknown as { sets: Record<string, GearEffect[]> }).sets);
+const GEAR_WEAPONS = partyGear((kitJson as unknown as { weapons: Record<string, GearEffect[]> }).weapons);
+// Whether this gear's party stats are in damage (#206): score.ts then scores only the rest of its effects.json buffs.
+export const partyGearModeled = (source: string, id: string) => !!(source === "set" ? GEAR_SETS : source === "weapon" ? GEAR_WEAPONS : {})[id];
+
+const AURA_ELEMENTS = ["Pyro", "Hydro", "Electro", "Cryo"];
+// Archaic Petra's one element: the carry's when it can crystallize, else the team's first aura element.
+const crystallizedElement = (carry: ScoringCharacter, team: readonly ScoringCharacter[]) =>
+  AURA_ELEMENTS.includes(carry.element) ? carry.element : AURA_ELEMENTS.find((e) => team.some((x) => x.element === e));
+// The elements in the holder's reactions with this team (Scroll, Hakushin): theirs and those it reacts with.
+function holderReactionElements(holder: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): string[] {
+  const out = new Set<string>();
+  for (const r of holder.reactions.filter((x) => active.includes(x))) {
+    const els = reactionElements(r);
+    if (!els.includes(holder.element)) continue;
+    for (const e of els) if (e === holder.element || team.some((x) => x.element === e)) out.add(e);
+  }
+  return [...out];
+}
+
+function gearFits(w: GearWhen, holder: ScoringCharacter, m: ScoringCharacter, carry: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]) {
+  return (
+    (!w.reaction || active.includes(w.reaction)) &&
+    (!w.reactions || w.reactions.some((r) => active.includes(r))) &&
+    (!w.holderReacts || holder.reactions.some((r) => active.includes(r))) &&
+    (!w.swirled || (active.includes("swirl") && AURA_ELEMENTS.includes(m.element))) &&
+    (!w.crystallized || ((active.includes("crystallize") || active.includes("lunar-crystallize")) && m.element === crystallizedElement(carry, team))) &&
+    (!w.reactionElements || holderReactionElements(holder, active, team).includes(m.element)) &&
+    (!w.nightsoul || !!holder.families?.includes("nightsoul"))
+  );
+}
+
+function partyGearStats(m: ScoringCharacter, carry: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], into: TeamBuffStats) {
+  const seen = new Set<string>();
+  const shred = new Map<string, number>(); // by element: the largest
+  for (const s of team) {
+    const gear: { id: string; e: GearEffect; value: number; max?: number }[] = [];
+    for (const { set, pieces } of setsOf(s, active, team)) if (pieces >= 4) for (const e of GEAR_SETS[set] ?? []) gear.push({ id: set, e, value: e.value! });
+    const w = s.weaponBuild;
+    const r = w ? Math.min(5, Math.max(1, w.refinement)) - 1 : 0;
+    for (const e of (w && GEAR_WEAPONS[w.id]) || []) gear.push({ id: w!.id, e, value: e.values![r], max: e.max?.[r] });
+    if (gear.length === 0) continue;
+    const stats = bufferStats(s, KIT[s.id]?.base ?? null, KIT[s.id]?.buildFor);
+    for (const { id, e, value, max } of gear) {
+      const scope = e.scope ?? "party";
+      if ((scope === "others" && m.id === s.id) || (scope === "active" && (m.id !== carry.id || m.id === s.id))) continue;
+      const elements = e.element ? [e.element] : e.elements;
+      if (elements && !elements.includes(m.element)) continue;
+      if (e.when && !gearFits(e.when, s, m, carry, active, team)) continue;
+      if (e.kind === "resShred") {
+        shred.set(m.element, Math.max(shred.get(m.element) ?? 0, value));
+        continue;
+      }
+      const key = `${e.group ?? id}|${e.kind}|${e.types?.join(",") ?? ""}|${e.when?.nightsoul ? "nightsoul" : ""}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (e.kind === "atkPct") into.atkPct += value;
+      else if (e.kind === "atkFromHolderEm") into.atk += value * stats.em;
+      else if (e.kind === "dmgBonusPerDef") into.dmgBonus += Math.min(max ?? Infinity, (value * stats.def) / 1000);
+      else if (e.types) for (const t of e.types) addByHit(into, t, 0, value);
+      else into.dmgBonus += value;
+    }
+  }
+  for (const v of shred.values()) into.resShred += v;
 }
 
 // The team's kit bonuses to a transformative reaction's own damage (#256), for score.ts transformativeLines: Reaction

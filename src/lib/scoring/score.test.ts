@@ -1113,8 +1113,9 @@ describe("effects.json in scoring", () => {
   });
 
   test("the same effect on two members counts once", () => {
-    const result = lines(geared({ Bennett: [noblesse], Zhongli: [noblesse] }, "Hu Tao", "Bennett", "Xingqiu", "Zhongli"), "Effects");
-    expect(result.map((l) => l.reason)).toEqual(["Bennett 4pc Noblesse Oblige: ATK for Hu Tao"]);
+    // A carry without a damage model: for a modeled one Noblesse's ATK is in team damage (#206, kit.ts partyGearStats).
+    const result = lines(geared({ Bennett: [noblesse], Zhongli: [noblesse] }, "Diluc (no model)", "Bennett", "Xingqiu", "Zhongli"), "Effects");
+    expect(result.map((l) => l.reason)).toEqual(["Bennett 4pc Noblesse Oblige: ATK for Diluc (no model)"]);
   });
 
   test("the carry's own 'active' effects don't count; its team ones do", () => {

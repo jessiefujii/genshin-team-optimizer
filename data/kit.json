@@ -2162,6 +2162,92 @@
         },
         "source": "4pc: \"it will increase by 10% instead until it reaches 50%\""
       }
+    ],
+    "Noblesse Oblige": [
+      {
+        "kind": "atkPct",
+        "party": true,
+        "value": 0.2,
+        "scope": "party",
+        "source": "4pc: \"increases all party members' ATK by 20%\" (taken as up after the wearer's Burst: estimate)"
+      }
+    ],
+    "Tenacity of the Millelith": [
+      {
+        "kind": "atkPct",
+        "party": true,
+        "value": 0.2,
+        "scope": "party",
+        "source": "4pc: \"the ATK of all nearby party members is increased by 20%\" (taken as up while the wearer's Skill hits: estimate)"
+      }
+    ],
+    "Viridescent Venerer": [
+      {
+        "kind": "resShred",
+        "party": true,
+        "value": 0.4,
+        "scope": "party",
+        "when": {
+          "swirled": true
+        },
+        "source": "4pc: \"Elemental RES to the element infused in the Swirl by 40%\""
+      },
+      {
+        "kind": "resShred",
+        "party": true,
+        "value": 0.4,
+        "element": "Cryo",
+        "scope": "party",
+        "when": {
+          "reaction": "stellar-swirl"
+        },
+        "source": "4pc: \"will also decrease their Cryo RES by 40%\""
+      }
+    ],
+    "Deepwood Memories": [
+      {
+        "kind": "resShred",
+        "party": true,
+        "value": 0.3,
+        "element": "Dendro",
+        "scope": "party",
+        "source": "4pc: \"the targets' Dendro RES will be decreased by 30%\" (taken as up after the wearer's Skill or Burst hits: estimate)"
+      }
+    ],
+    "Archaic Petra": [
+      {
+        "kind": "dmgBonus",
+        "party": true,
+        "value": 0.35,
+        "scope": "party",
+        "when": {
+          "crystallized": true
+        },
+        "source": "4pc: \"all party members gain a 35% DMG Bonus for that particular element\" (taken as up with a shard picked up: estimate)"
+      }
+    ],
+    "Scroll of the Hero of Cinder City": [
+      {
+        "kind": "dmgBonus",
+        "party": true,
+        "value": 0.12,
+        "scope": "party",
+        "when": {
+          "reactionElements": true
+        },
+        "source": "4pc: \"all nearby party members gain a 12% Elemental DMG Bonus\" (taken as up once the wearer reacts: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "party": true,
+        "value": 0.28,
+        "scope": "party",
+        "when": {
+          "reactionElements": true,
+          "nightsoul": true
+        },
+        "source": "4pc: \"all nearby party members gain an additional 28% Elemental DMG Bonus\" (taken as up once the wearer reacts: estimate)"
+      }
     ]
   },
   "benchmarkSets": {
@@ -3121,6 +3207,223 @@
           53.333333
         ],
         "source": "R1: \"Interlude: Elemental Mastery is increased by 240.\" x 10s/30s / 3 songs (estimate)"
+      }
+    ],
+    "Elegy for the End": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "party": true,
+        "scope": "party",
+        "group": "Millennial Movement",
+        "source": "R1: \"\"Millennial Movement: Farewell Song\" increases Elemental Mastery by 100 and increases ATK by 20%\" x 12s/20s / 1 songs (estimate)"
+      }
+    ],
+    "Freedom-Sworn": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "party": true,
+        "scope": "party",
+        "group": "Millennial Movement",
+        "when": {
+          "holderReacts": true
+        },
+        "source": "R1: \"Plunging Attack DMG by 16% and increases ATK by 20%\" x 12s/20s / 1 songs (estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal",
+          "charged",
+          "plunge"
+        ],
+        "values": [
+          0.096,
+          0.12,
+          0.144,
+          0.168,
+          0.192
+        ],
+        "party": true,
+        "scope": "party",
+        "group": "Millennial Movement",
+        "when": {
+          "holderReacts": true
+        },
+        "source": "R1: \"increases Normal, Charged and Plunging Attack DMG by 16%\" x 12s/20s / 1 songs (estimate)"
+      }
+    ],
+    "Song of Broken Pines": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "party": true,
+        "scope": "party",
+        "group": "Millennial Movement",
+        "source": "R1: \"increases Normal ATK SPD by 12% and increases ATK by 20%\" x 12s/20s / 1 songs (estimate)"
+      }
+    ],
+    "Thrilling Tales of Dragon Slayers": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "party": true,
+        "scope": "active",
+        "source": "R1: \"the new character taking the field has their ATK increased by 24%\" x 10s/20s / 1 songs (estimate)"
+      }
+    ],
+    "Moonpiercer": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.096,
+          0.12,
+          0.144,
+          0.168,
+          0.192
+        ],
+        "party": true,
+        "scope": "active",
+        "when": {
+          "holderReacts": true
+        },
+        "source": "R1: \"When picked up, the Leaf will grant the character 16% ATK\" x 12s/20s / 1 songs (estimate)"
+      }
+    ],
+    "Makhaira Aquamarine": [
+      {
+        "kind": "atkFromHolderEm",
+        "values": [
+          0.072,
+          0.09,
+          0.108,
+          0.126,
+          0.144
+        ],
+        "party": true,
+        "scope": "others",
+        "source": "R1: \"gain 24% of their Elemental Mastery as bonus ATK\""
+      }
+    ],
+    "Wandering Evenstar": [
+      {
+        "kind": "atkFromHolderEm",
+        "values": [
+          0.072,
+          0.09,
+          0.108,
+          0.126,
+          0.144
+        ],
+        "party": true,
+        "scope": "others",
+        "source": "R1: \"gain 24% of their Elemental Mastery as bonus ATK\""
+      }
+    ],
+    "Peak Patrol Song": [
+      {
+        "kind": "dmgBonusPerDef",
+        "values": [
+          0.08,
+          0.1,
+          0.12,
+          0.14,
+          0.16
+        ],
+        "max": [
+          0.256,
+          0.32,
+          0.384,
+          0.448,
+          0.512
+        ],
+        "party": true,
+        "scope": "party",
+        "source": "R1: \"All Elemental DMG Bonus by 8% for every 1,000 DEF\""
+      }
+    ],
+    "Hakushin Ring": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.1,
+          0.125,
+          0.15,
+          0.175,
+          0.2
+        ],
+        "party": true,
+        "scope": "party",
+        "when": {
+          "reactionElements": true
+        },
+        "source": "R1: \"receive a 10% Elemental DMG Bonus for their element\""
+      }
+    ],
+    "Golden Frostbound Oath": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "party": true,
+        "scope": "others",
+        "elements": [
+          "Geo"
+        ],
+        "when": {
+          "reactions": [
+            "lunar-crystallize"
+          ]
+        },
+        "source": "R1: \"Frost Fae's Mischief effect: Geo DMG dealt increases by 20%\""
+      }
+    ],
+    "Crane's Echoing Call": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "plunge"
+        ],
+        "values": [
+          0.28,
+          0.41,
+          0.54,
+          0.67,
+          0.8
+        ],
+        "party": true,
+        "scope": "party",
+        "source": "R1: \"all nearby party members' Plunging Attacks will deal 28% increased DMG\""
       }
     ]
   },
