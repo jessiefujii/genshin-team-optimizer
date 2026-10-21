@@ -3563,7 +3563,8 @@ for (const [id, bySet] of Object.entries(holderStates.setStacks)) {
 // the team; none: always). Only sets in SETS: a carry whose guide picks another (Itto, Navia, Noelle: Husk,
 // Nighttime Whispers; Eula: Pale Flame; Klee: Rising Winds; Tartaglia: Nymph's Dream; Heizou, Wanderer: Viridescent
 // Venerer, a team set; Keqing: Marechaussee or Night by team; Kaveh: Deepwood Memories) has none yet.
-const kqm = (page, quote) => `KQM ${page.replace(/-quickguide$/, "")} quick guide (keqingmains.com/q/${page}, accessed 2026-10-20): "${quote}"`;
+const kqmOn = (date, page, quote) => `KQM ${page.replace(/-quickguide$/, "")} quick guide (keqingmains.com/q/${page}, accessed ${date}): "${quote}"`;
+const kqm = (page, quote) => kqmOn("2026-10-20", page, quote);
 const benchmarkSets = {
   Ganyu: [{ set: "Blizzard Strayer", when: { reaction: "freeze" }, source: kqm("ganyu-quickguide", "This set is Ganyu's best-in-slot against freezable enemies") }],
   Freminet: [{ set: "Blizzard Strayer", when: { reaction: "freeze" }, source: kqm("freminet-quickguide", "4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle") }],
@@ -3597,6 +3598,65 @@ const benchmarkSets = {
   Lyney: [{ set: "Marechaussee Hunter", source: kqm("lyney-quickguide", "Marechaussee Hunter By far Lyney's best artifact set. Lyney pairs well with this set's condition") }],
   Tighnari: [{ set: "Wanderer's Troupe", source: kqm("tighnari-quickguide", "4-piece Wanderer's Troupe (4WT) Provides an unconditional buff to his Charged Shots") }],
 };
+// Benchmark carries' weapons (#206, Jessie 2026-10-21: "Best 4★"; "if a best weapon is a 3 star make sure to use it"):
+// the first non-5-star weapon in the carry's KQM quick guide weapon list, at the refinement it names (else R1); game8
+// for carries without a KQM page (Vesna, Cryo Traveler). Only their holder passive counts (WEAPONS): the benchmark's
+// generic stats stand in for the weapon's base ATK and secondary stat. A weapon whose passive does nothing in damage
+// (Favonius, Sacrificial, The Viridescent Hunt's cyclones, Sacrificial Jade off-field) is listed with nothing to add.
+const benchmarkWeapons = {
+  Alhaitham: { weapon: "Wolf-Fang", refinement: 5, source: kqmOn("2026-10-21", "alhaitham-quickguide", "best 4-star option, performing similarly to Mistsplitter Reforged") },
+  Aloy: { weapon: "Sacrificial Bow", refinement: 4, source: kqmOn("2026-10-21", "aloy-quickguide", "At high refinements (R4+), Sacrificial Bow can allow for a second Skill cast") },
+  "Arataki Itto": { weapon: "Serpent Spine", refinement: 5, source: kqmOn("2026-10-21", "itto-quickguide", "Serpent Spine is a strong option for its CRIT Rate secondary stat and DMG% passive") },
+  Arlecchino: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-21", "arlecchino-quickguide", "A good option from the Battle Pass, particularly in single-target scenarios.") },
+  Chasca: { weapon: "Flower-Wreathed Feathers", refinement: 1, source: kqmOn("2026-10-21", "chasca-quickguide", "This banner-exclusive weapon is a very strong option for Chasca, but refinements are hard to acquire.") },
+  Clorinde: { weapon: "The Black Sword", refinement: 1, source: kqmOn("2026-10-21", "clorinde-quickguide", "A strong 4-star option, especially in teams where ATK buffs are plentiful") },
+  Cyno: { weapon: "Ballad of the Fjords", refinement: 1, source: kqmOn("2026-10-21", "cyno-quickguide", "Ballad of the Fjords is Cyno's second-best option in Quickbloom teams, even at R1.") },
+  Diluc: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-21", "diluc-quickguide", "If you can keep up the stacks on its passive, Serpent Spine is Diluc's best 4-star option.") },
+  Eula: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-21", "eula-quickguide", "The quintessential 4-star Claymore, offering CRIT Rate and additional DMG% to top it off.") },
+  Flins: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-21", "flins-quickguide", "Flins's general best 4-star option, especially at high refinement where it can even compete with his other 5-star choices.") },
+  Freminet: { weapon: "Tidal Shadow", refinement: 5, source: kqmOn("2026-10-21", "freminet-quickguide", "R5 Tidal Shadow is one of Freminet's best 4-star options") },
+  Gaming: { weapon: "Fruitful Hook", refinement: 1, source: kqmOn("2026-10-21", "gaming-quickguide", "Fruitful Hook is an extremely powerful option for Gaming.") },
+  Ganyu: { weapon: "Prototype Crescent", refinement: 5, source: kqmOn("2026-10-21", "ganyu-quickguide", "Its 72% ATK buff at R5 is extremely valuable in Freeze teams") },
+  "Hu Tao": { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-21", "hu-tao-quickguide", "Deathmatch is a strong and reliable option due to the healthy amount of CRIT Rate it provides") },
+  "Kamisato Ayaka": { weapon: "Finale of the Deep", refinement: 1, source: kqmOn("2026-10-21", "ayaka-quickguide", "Finale of the Deep is Ayaka's strongest free-to-play weapon.") },
+  "Kamisato Ayato": { weapon: "Calamity of Eshu", refinement: 1, source: kqmOn("2026-10-21", "ayato-quickguide", "Calamity of Eshu is a strong option, beating out Black Sword in shielded teams.") },
+  Kaveh: { weapon: "Favonius Greatsword", refinement: 1, source: kqmOn("2026-10-21", "kaveh-quickguide", "Favonius Greatsword shows considerable synergy with Kaveh's kit due to his high ER needs and his on-field playstyle.") },
+  Keqing: { weapon: "Lion's Roar", refinement: 1, source: kqmOn("2026-10-21", "keqing-quickguide", "Keqing's trademark 4-star option.") },
+  Kinich: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-21", "kinich-quickguide", "a superb option at higher refinements and with a strong shielder") },
+  Klee: { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-21", "klee-quickguide", "Klee's best generalist 4-star.") },
+  Lyney: { weapon: "Song of Stillness", refinement: 1, source: kqmOn("2026-10-21", "lyney-quickguide", "Song of Stillness works well with Lyney, who needs healers in his team.") },
+  Mavuika: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-21", "mavuika-quickguide", "high-refinement Serpent Spine can compete against 5-star CRIT weapons.") },
+  Mualani: { weapon: "Sacrificial Jade", refinement: 1, source: kqmOn("2026-10-21", "mualani-quickguide", "Sacrificial Jade offers CRIT Rate, HP%, and EM, all stats Mualani appreciates") },
+  Navia: { weapon: "Serpent Spine", refinement: 5, source: kqmOn("2026-10-21", "navia-quickguide", "An excellent choice for Navia since it provides an abundance of DMG%.") },
+  Nefer: { weapon: "Dawning Frost", refinement: 5, source: kqmOn("2026-10-21", "nefer-quickguide", "Dawning Frost is a banner-exclusive weapon.") },
+  Neuvillette: { weapon: "Sacrificial Jade", refinement: 5, source: kqmOn("2026-10-21", "neuvillette-quickguide", "Obtained from the Battle Pass, it is Neuvillette's second-best weapon.") },
+  Ningguang: { weapon: "Solar Pearl", refinement: 1, source: kqmOn("2026-10-21", "ningguang-quickguide", "The most consistent 4-star option.") },
+  Noelle: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-21", "noelle-quickguide", "It performs well at R1 and benefits from refinements.") },
+  "Raiden Shogun": { weapon: "\"The Catch\"", refinement: 5, source: kqmOn("2026-10-21", "raiden-quickguide", "Refinement Rank 5 is worth the pain of fishing.") },
+  Razor: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-21", "razor-quickguide", "Razor's best 4-star option, especially with high refinements.") },
+  Sethos: { weapon: "Slingshot", refinement: 1, source: kqmOn("2026-10-21", "sethos-quickguide", "Slingshot is a powerhouse on Sethos, as it provides CRIT Rate and a huge amount of Charged Attack DMG%.") },
+  "Shikanoin Heizou": { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-21", "heizou-quickguide", "The Widsith is Heizou's best 4-star weapon.") },
+  Skirk: { weapon: "Calamity of Eshu", refinement: 1, source: kqmOn("2026-10-21", "skirk-quickguide", "Eshu is an excellent free-to-play option for Skirk if she can activate the passive.") },
+  Tartaglia: { weapon: "The Viridescent Hunt", refinement: 1, source: kqmOn("2026-10-21", "tartaglia-quickguide", "One of the strongest 4* options for Childe") },
+  Tighnari: { weapon: "The Viridescent Hunt", refinement: 1, source: kqmOn("2026-10-21", "tighnari-quickguide", "Stat sticks; their passives offer little.") },
+  "Traveler (Cryo)": { weapon: "Wolf-Fang", refinement: 1, source: `game8 Traveler (Cryo) best builds (https://game8.co/games/Genshin-Impact/archives/613906, accessed 2026-10-21): "Good generalist option from the battlepass that improves the Traveler's Elemental Skill performance."` },
+  "Traveler (Hydro)": { weapon: "Wolf-Fang", refinement: 1, source: kqmOn("2026-10-21", "hydro-traveler-quickguide", "A powerful Battle Pass option with a CRIT Rate secondary stat and buffs to Hydro Traveler's Skill and Burst.") },
+  Varesa: { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-21", "varesa-quickguide", "At high refinements, this weapon performs similarly to Kagura's Verity.") },
+  Vesna: { weapon: "Emberwell", refinement: 1, source: `game8 Vesna best builds (https://game8.co/games/Genshin-Impact/archives/606901, accessed 2026-10-21): "Vesna's best F2P option."` },
+  Wanderer: { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-21", "wanderer-quickguide", "he sadly doesn't benefit from the EM buff as much as other Catalyst users do.") },
+  Wriothesley: { weapon: "Clash of Kings", refinement: 5, source: kqmOn("2026-10-21", "wriothesley-quickguide", "Clash of Kings is Wriothesley's best 4-star weapon") },
+  Xiao: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-21", "xiao-quickguide", "A Battle Pass weapon and Xiao's best 4-star option.") },
+  Yanfei: { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-21", "yanfei-quickguide", "Yanfei's strongest 4-star option, and often surpassing many of her 5-star options at high refinements.") },
+  Yoimiya: { weapon: "Slingshot", refinement: 1, source: kqmOn("2026-10-21", "yoimiya-quickguide", "Slingshot is a 3-star Bow that performs better than every 4-star Bow") },
+  "Yumemizuki Mizuki": { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-21", "mizuki-quickguide", "Mizuki's best accessible option in general.") },
+  Zibai: { weapon: "Harbinger of Dawn", refinement: 1, source: kqmOn("2026-10-21", "zibai-quickguide", "Her best non-5-star weapon, provided its passive CRIT Rate buff remains active.") },
+};
+for (const [id, b] of Object.entries(benchmarkWeapons)) {
+  const w = genshindb.weapons(b.weapon);
+  if (!w || w.name !== b.weapon) throw new Error(`${id}: benchmark weapon ${b.weapon} isn't in genshin-db`);
+  if (Number(w.rarity) >= 5) throw new Error(`${id}: benchmark weapon ${b.weapon} is ${w.rarity}-star`);
+  if (!carries[id]) throw new Error(`${id}: a benchmark weapon for a character with no carry kit`);
+}
 for (const [id, options] of Object.entries(benchmarkSets)) {
   for (const b of options) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
   if (!carries[id]) throw new Error(`${id}: a benchmark set for a character with no carry kit`);
@@ -3765,6 +3825,39 @@ const WEAPONS = {
   "Golden Frostbound Oath": [
     { kind: "dmgBonus", party: true, scope: "others", elements: ["Geo"], when: { reactions: ["lunar-crystallize"] }, re: /Frost Fae's Mischief effect: Geo DMG dealt increases by ([\d.]+)%/ },
   ],
+  // Benchmark carries' guide weapons (#206, benchmarkWeapons below): their holder passives. Kept up where the carry's
+  // rotation does what they need (`full`: estimate). Left out: Calamity of Eshu's and "The Catch"'s CRIT Rate (only
+  // on some hit types), Finale of the Deep's flat ATK from a cleared Bond of Life, Emberwell's Stellar reaction DMG.
+  Deathmatch: [{ kind: "atkPct", re: /If there are fewer than 2 opponents nearby, ATK is increased by ([\d.]+)%/ }], // one opponent
+  // "lasts 6s and can trigger once every 12s", "extended by 6s if the equipping character hits an opponent with a
+  // Charged Attack": up throughout with a Charged Attack in each window (estimate).
+  "Clash of Kings": [
+    { kind: "atkPct", full: true, re: /increases their ATK by ([\d.]+)% and their Elemental Mastery/ },
+    { kind: "em", flat: true, full: true, re: /and their Elemental Mastery by ([\d.]+)\. This effect lasts/ },
+  ],
+  // "will be reduced by 1 stack when the character takes DMG": full stacks taken as kept (estimate; KQM: "with a strong shielder").
+  "Serpent Spine": [{ kind: "dmgBonus", full: true, re: /they will deal ([\d.]+)% more DMG/, stacks: /maximum of (\d+) stacks/ }],
+  "Calamity of Eshu": [{ kind: "dmgBonus", types: ["normal", "charged"], when: { shielded: true }, re: /DMG dealt by Normal and Charged Attacks is increased by ([\d.]+)%/ }],
+  "Dawning Frost": [
+    { kind: "em", flat: true, full: true, re: /after a Charged Attack hits an opponent, Elemental Mastery is increased by ([\d.]+)/ },
+    { kind: "em", flat: true, full: true, re: /after an Elemental Skill hits an opponent, Elemental Mastery is increased by ([\d.]+)/ },
+  ],
+  "The Black Sword": [{ kind: "dmgBonus", types: ["normal", "charged"], re: /Increases DMG dealt by Normal and Charged Attacks by ([\d.]+)%/ }],
+  "Finale of the Deep": [{ kind: "atkPct", full: true, re: /When using an Elemental Skill, ATK will be increased by ([\d.]+)%/ }],
+  "Song of Stillness": [{ kind: "dmgBonus", when: { healed: true }, re: /they will deal ([\d.]+)% more DMG for 8s/ }],
+  // Normal Attacks and Skill/Burst hits each turn on the other's bonus: both kept up in a mixed rotation (estimate).
+  "Solar Pearl": [
+    { kind: "dmgBonus", types: ["skill", "burst"], full: true, re: /Normal Attack hits increase Elemental Skill and Elemental Burst DMG by ([\d.]+)%/ },
+    { kind: "dmgBonus", types: ["normal"], full: true, re: /Elemental Burst hits increase Normal Attack DMG by ([\d.]+)%/ },
+  ],
+  // "hits a target within 0.3s of being fired": close range (KQM's Yoimiya and Sethos picks; estimate).
+  Slingshot: [{ kind: "dmgBonus", types: ["normal", "charged"], full: true, re: /within 0\.3s of being fired, increases DMG by ([\d.]+)%/ }],
+  "Prototype Crescent": [{ kind: "atkPct", full: true, re: /Charged Attack hits on weak points increase Movement SPD by [\d.]+% and ATK by ([\d.]+)%/ }],
+  "Ballad of the Fjords": [{ kind: "em", flat: true, when: { elementTypes: 3 }, re: /Elemental Mastery will be increased by ([\d.]+)/ }],
+  "Flower-Wreathed Feathers": [{ kind: "dmgBonus", types: ["charged"], full: true, re: /the DMG dealt by Charged Attacks increases by ([\d.]+)% every/, stacks: /stack up to (\d+) times/ }],
+  "Tidal Shadow": [{ kind: "atkPct", when: { healed: true }, re: /After the wielder is healed, ATK will be increased by ([\d.]+)%/ }],
+  Emberwell: [{ kind: "atkPct", when: { holderReacts: true }, re: /Triggering an Elemental Reaction increases the equipping character's ATK by ([\d.]+)%/ }],
+  '"The Catch"': [{ kind: "dmgBonus", types: ["burst"], re: /Increases Elemental Burst DMG by ([\d.]+)%/ }],
   "Crane's Echoing Call": [{ kind: "dmgBonus", party: true, scope: "party", types: ["plunge"], re: /all nearby party members' Plunging Attacks will deal ([\d.]+)% increased DMG/ }],
 };
 const weapons = {};
@@ -3956,6 +4049,7 @@ writeFileSync(
       lunarBase,
       sets,
       benchmarkSets,
+      benchmarkWeapons: Object.fromEntries(Object.entries(benchmarkWeapons).map(([id, { weapon, refinement, source }]) => [id, { weapon, refinement, source }])),
       holderStates,
       weapons,
       subDps,

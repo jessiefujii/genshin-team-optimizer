@@ -212,9 +212,17 @@ type WeaponWhen = {
   bondOfLife?: boolean;
   aura?: Element[];
   reactions?: Reaction[];
+  healed?: boolean; // a teammate heals the holder (Song of Stillness, Tidal Shadow: "After the wielder is healed", #206)
+  shielded?: boolean; // a teammate shields (Calamity of Eshu: "While characters are protected by a Shield", #206)
+  elementTypes?: number; // at least this many element types in the party (Ballad of the Fjords, #206)
 };
 type WeaponBuff = { kind: "dmgBonus" | "hpPct" | "atkPct" | "atkFromEm" | "critRate" | "em"; types?: HitType[]; values: number[]; max?: number[]; when?: WeaponWhen; party?: true };
 const WEAPONS = (kitJson as unknown as { weapons: Record<string, WeaponBuff[]> }).weapons;
+const BENCHMARK_WEAPONS = Object.fromEntries(
+  Object.entries((kitJson as unknown as { benchmarkWeapons: Record<string, { weapon: string; refinement: number }> }).benchmarkWeapons).map(
+    ([id, b]) => [id, { id: b.weapon, level: 90, refinement: b.refinement }],
+  ),
+) as Record<string, NonNullable<ScoringCharacter["weaponBuild"]>>;
 // The holder's weapon buffs that hold in this team, each with its value at the build's refinement:
 // - energy: per point of the party's combined max Energy (every member's Burst cost), capped;
 // - teammatesSkill: another member's rotation uses their Skill (an E in its KQM actions);
@@ -231,7 +239,8 @@ export function weaponBuffs(
   active: readonly Reaction[] = [],
   gleam = team.filter((m) => m.families?.includes("moonsign")).length >= 2,
 ): { kind: WeaponBuff["kind"]; types?: HitType[]; value: number }[] {
-  const w = c.weaponBuild;
+  // Without a build, a benchmark carry's guide weapon (#206, kit.json benchmarkWeapons: its passive only).
+  const w = c.weaponBuild ?? (c.stats ? undefined : BENCHMARK_WEAPONS[c.id]);
   if (!w) return [];
   const r = Math.min(5, Math.max(1, w.refinement)) - 1;
   const fits = (when: WeaponWhen = {}) =>
@@ -243,7 +252,10 @@ export function weaponBuffs(
     (!when.hpChanges || hpChanges(c, team)) &&
     (!when.bondOfLife || HOLDER.bondOfLife.includes(c.id)) &&
     (!when.aura || team.some((m) => when.aura!.includes(m.element))) &&
-    (!when.reactions || when.reactions.some((x) => active.includes(x)));
+    (!when.reactions || when.reactions.some((x) => active.includes(x))) &&
+    (!when.healed || team.some((m) => m !== c && healsInPlay(m))) &&
+    (!when.shielded || team.some((m) => m !== c && m.roles.includes("shielder"))) &&
+    (!when.elementTypes || new Set(team.map((m) => m.element)).size >= when.elementTypes);
   return (WEAPONS[w.id] ?? [])
     .filter((b) => !b.party && fits(b.when)) // party effects are kit.ts partyGearStats' (#206)
     .map((b) => {
