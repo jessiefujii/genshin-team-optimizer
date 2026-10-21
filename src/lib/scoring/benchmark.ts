@@ -68,6 +68,7 @@ export interface SubDpsBase {
 export interface SubDpsPriority {
   priority: Substat[][]; // groups in order; a group of several stats is a tie
   hpPctUntil?: number; // Yelan: "HP% (until 30,000 HP)" fills HP% only up to this total HP
+  emUntil?: number; // Yae Miko: "around 100-300 EM before focusing on ATK% stats" fills EM only up to this total EM
 }
 
 // genshin-db's % ascension stats (#166).
@@ -85,13 +86,15 @@ const ELEMENT_DMG_PROP: Record<string, string> = {
 
 // Places the 20 distributed rolls (#164/#165): `erRolls` ER rolls first (#173), then each priority group in order, one roll at a time across a tie, a stat
 // at most 2 per piece whose main stat differs. `hpWith(n)` is the total HP with n distributed HP% rolls, for an
-// `hpPctUntil` stop on the first HP% group.
+// `hpPctUntil` stop on the first HP% group; `emWith(n)` the total EM with n EM rolls, for an `emUntil` stop on the first
+// EM group (#304).
 export function distributeRolls(
   scale: ScaleStat,
   order: SubDpsPriority | undefined,
   hpWith?: (hpPctRolls: number) => number,
   erRolls = 0,
   erSands = false,
+  emWith?: (emRolls: number) => number,
 ): Record<Substat, number> {
   const rolls: Record<Substat, number> = { hp: 0, hpPct: 0, atk: 0, atkPct: 0, def: 0, defPct: 0, em: 0, er: 0, critRate: 0, critDmg: 0 };
   // Substat-type main stats: flower HP, plume ATK, then sands and circlet (EM build: sands, goblet and circlet EM).
@@ -99,8 +102,11 @@ export function distributeRolls(
   const mains: Substat[] = scale === "em" ? ["hp", "atk", sands, "em", "em"] : ["hp", "atk", sands, "critRate"];
   const cap = (s: Substat) => 2 * (5 - mains.filter((m) => m === s).length);
   let left = KQMS.distributed;
-  const fill = (group: Substat[], stopHpAt?: number) => {
-    const open = (s: Substat) => rolls[s] < cap(s) && !(s === "hpPct" && stopHpAt && hpWith && hpWith(rolls.hpPct) >= stopHpAt);
+  const fill = (group: Substat[], stopHpAt?: number, stopEmAt?: number) => {
+    const open = (s: Substat) =>
+      rolls[s] < cap(s) &&
+      !(s === "hpPct" && stopHpAt && hpWith && hpWith(rolls.hpPct) >= stopHpAt) &&
+      !(s === "em" && stopEmAt && emWith && emWith(rolls.em) >= stopEmAt);
     while (left > 0 && group.some(open)) {
       for (const s of group) {
         if (left > 0 && open(s)) {
@@ -113,7 +119,8 @@ export function distributeRolls(
   rolls.er = Math.min(erRolls, cap("er"), left);
   left -= rolls.er;
   const firstHp = order?.priority.findIndex((g) => g.includes("hpPct")) ?? -1;
-  order?.priority.forEach((group, i) => fill(group, i === firstHp ? order.hpPctUntil : undefined));
+  const firstEm = order?.priority.findIndex((g) => g.includes("em")) ?? -1;
+  order?.priority.forEach((group, i) => fill(group, i === firstHp ? order.hpPctUntil : undefined, i === firstEm ? order.emUntil : undefined));
   for (const s of ["critDmg", "critRate", ...(scale === "em" ? [] : [`${scale}Pct` as Substat])] as Substat[]) fill([s]);
   return rolls;
 }
@@ -132,7 +139,8 @@ export function subDpsBenchmark(base: SubDpsBase, scale: ScaleStat, order?: SubD
   const pctOf = (stat: "hp" | "atk" | "def", rolls: number) =>
     1 + (sandsOf(stat) ? main[`${stat}Pct`] : 0) + (fixed + rolls) * roll[`${stat}Pct`] + ascOf(PCT_PROP[stat]);
   const hpWith = (hpPctRolls: number) => base.hp * pctOf("hp", hpPctRolls) + main.hp + fixed * roll.hp;
-  const r = distributeRolls(scale, order, hpWith, erRolls, erSands);
+  const emWith = (emRolls: number) => (fixed + emRolls) * roll.em + ascOf("FIGHT_PROP_ELEMENT_MASTERY");
+  const r = distributeRolls(scale, order, hpWith, erRolls, erSands, emWith);
   const baseAtk = base.atk + BENCHMARK.buffer.weaponBaseAtk;
   // EM build: 800 EM (#158); with an ER sands, one EM main stat less.
   const em = (scale === "em" ? 800 - (erSands ? main.em : 0) : (fixed + r.em) * roll.em) + ascOf("FIGHT_PROP_ELEMENT_MASTERY");

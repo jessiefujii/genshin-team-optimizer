@@ -69,7 +69,44 @@ const SPEC = {
     cd: "CD",
   },
   Iansan: { talent: "burst", values: [{ kind: "atkFlat", label: "Max ATK Bonus", unit: "flat ATK (max)" }], duration: "Duration", cd: "CD" },
-  Illuga: { talent: "burst", values: [{ kind: "flatDmgFromEm", label: "Geo DMG Bonus", unit: "of Illuga's EM as flat Geo DMG", elements: ["Geo"] }], duration: "Duration", cd: "CD" },
+  // Nightingale's Song (#186): 21 stacks per Burst, one used per Geo hit of the active character, each adding a share of
+  // Illuga's EM: "Geo DMG Bonus", or on a hit that is Lunar-Crystallize DMG the "Lunar-Crystallize Reaction DMG Bonus"
+  // (Genshin Impact Wiki, Shadowless Reflection, fetched 2026-10-20: Utility "Lunar-Crystallize Additive Base DMG
+  // Bonus"). Passive 2 adds to both by the party's Hydro and Geo members (`plus`, read at the team's count; the text's
+  // "characters in the party" is read as counting Illuga, like Escoffier's). Geo Constructs' extra stacks: not counted.
+  Illuga: {
+    talent: "burst",
+    values: [
+      {
+        kind: "flatDmgFromEm",
+        label: "Geo DMG Bonus",
+        unit: "of Illuga's EM as flat Geo DMG (not on Lunar-Crystallize hits)",
+        elements: ["Geo"],
+        plus: { from: "passive2", re: /DMG is equal to (\d+)%\/(\d+)%\/(\d+)% of Illuga's Elemental Mastery\. If/, steps: { count: "members", of: ["Hydro", "Geo"] } },
+      },
+      {
+        kind: "lunarAdditiveFromEm",
+        label: "Lunar-Crystallize Reaction DMG Bonus",
+        unit: "of Illuga's EM as Additive Base DMG on the active character's direct Lunar-Crystallize hits",
+        elements: ["Geo"],
+        lunar: "lunar-crystallize",
+        plus: { from: "passive2", re: /Lunar-Crystallize reaction, increase in DMG is equal to (\d+)%\/(\d+)%\/(\d+)%/, steps: { count: "members", of: ["Hydro", "Geo"] } },
+      },
+    ],
+    stacks: "Nightingale's Song Stacks Gained from Elemental Burst",
+    duration: "Duration",
+    cd: "CD",
+    // Passive 1, Lightkeeper's Oath: "For Geo DMG dealt to opponents, CRIT Rate increases by 5% and CRIT DMG increases
+    // by 10%" for 20s after his Skill or Burst. Its CRIT DMG isn't counted: team buffs have no CRIT DMG yet.
+    also: [
+      {
+        from: "passive1",
+        values: [{ kind: "critRate", re: /CRIT Rate increases by (\d+)%/, unit: "CRIT Rate on Geo DMG", percent: true, elements: ["Geo"] }],
+        duration: /Lightkeeper's Oath effect for (\d+)s/,
+        cd: { talent: "burst", label: "CD" },
+      },
+    ],
+  },
   "Kujou Sara": { talent: "skill", values: [{ kind: "atkFromBase", label: "ATK Bonus Ratio", unit: "of Sara's base ATK" }], duration: "ATK Bonus Duration", cd: "CD" },
   Lauma: {
     talent: "burst",
@@ -291,19 +328,35 @@ function readBuffs(id, spec) {
         return Number(m[1]) / 100;
       })(),
     };
-    return spec.values.map((v) => ({
-      kind: v.kind,
-      value: round(tableValue(attrs, v.label, id) * (v.times ? tableValue(attrs, v.times, id) : 1)),
-      ...(fanfare ?? {}),
-      ...(v.cap ? { max: tableValue(attrs, v.cap, id) } : {}),
-      ...limits(v),
-      unit: v.unit,
-      source: `${spec.talent} talent "${v.label}"${v.times ? ` x "${v.times}"` : ""}, level ${TALENT_LEVEL}`,
-      duration,
-      cd,
-      uptime: uptime(duration, cd),
-      ...(fromBurst(id, spec.talent, talents) ? { burst: true } : {}),
-    }));
+    // `plus`: a passive that adds to the table value by the team's count (Illuga's passive 2, #186): every step is
+    // the table value plus that step's number, and `value` is the top one, as for a text value's `steps`.
+    const plusSteps = (v, base) => {
+      const ptext = talents[v.plus.from].description.replace(/\s+/g, " ");
+      const m = ptext.match(v.plus.re);
+      if (!m) throw new Error(`${id}: pattern ${v.plus.re} not found in ${v.plus.from}: ${ptext}`);
+      return { ...v.plus.steps, values: m.slice(1).map((n) => round(base + Number(n) / 100)) };
+    };
+    const stacks = spec.stacks ? tableValue(attrs, spec.stacks, id) : null;
+    return spec.values.map((v) => {
+      const value = round(tableValue(attrs, v.label, id) * (v.times ? tableValue(attrs, v.times, id) : 1));
+      const steps = v.plus ? plusSteps(v, value) : null;
+      return {
+        kind: v.kind,
+        value: steps ? steps.values[steps.values.length - 1] : value,
+        ...(steps ? { steps } : {}),
+        ...(v.lunar ? { lunar: v.lunar } : {}),
+        ...(stacks ? { stacks } : {}),
+        ...(fanfare ?? {}),
+        ...(v.cap ? { max: tableValue(attrs, v.cap, id) } : {}),
+        ...limits(v),
+        unit: v.unit,
+        source: `${spec.talent} talent "${v.label}"${v.times ? ` x "${v.times}"` : ""}, level ${TALENT_LEVEL}${v.plus ? `, plus ${v.plus.from} by the team` : ""}`,
+        duration,
+        cd,
+        uptime: uptime(duration, cd),
+        ...(fromBurst(id, spec.talent, talents) ? { burst: true } : {}),
+      };
+    });
   }
   const froms = [spec.from].flat();
   const texts = froms.map((f) => talents[f].description.replace(/\s+/g, " "));
@@ -878,12 +931,15 @@ function readStellar(id, spec) {
 //   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
 //       names the source; `label` still keys its hit rate and table values)
 //   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
+//   perRotation: cast once per rotation, so its cd is at least the carry's rotation length (Yae's totems last 14s of
+//     it before her Witch's Revelation, #304); an alternative can set it false
 //   icd: its elemental application ICD from kit-overrides.json `icd` (#190): "none" or { reset, every }; left out:
 //     the standard 2.5s / every 3rd hit
-//   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, source }]) are passed through as the source's
-//   `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that element
-//   has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
-//   (Jahoda's passive 1, #175).
+//   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, cd?, source }]) are passed through as the
+//   source's `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that
+//   element has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
+//   (Jahoda's passive 1, #175); when.radiance: the member's own Stellar family is active (their Witch's Revelation
+//   done: Yae's longer totems, #304).
 //   addScaling: a passive that adds a share of a stat to this hit's damage, read from its text, e.g.
 //       { from: "passive2", re: /increased by (\d+)% of Citlali's Elemental Mastery/, stat: "em" } (#172); `times`: it adds
 //       to each of a "×N" row's instances (Lan Yan's Burst, #252)
@@ -1264,7 +1320,20 @@ const SUBDPS = {
     { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Frostgrove Sanctuary Attack DMG", every: "rate", duration: "Frostgrove Sanctuary Duration", cd: "CD" },
   ],
-  Linnea: [{ talent: "skill", label: "Lumi Pound-Pound Pummeler DMG", every: "rate", duration: "Lumi Duration", cd: "CD" }],
+  Linnea: [
+    { talent: "skill", label: "Lumi Pound-Pound Pummeler DMG", every: "rate", duration: "Lumi Duration", cd: "CD" },
+    // With Moondrifts nearby, Lumi "will also deal AoE Geo DMG to nearby enemies, which will be considered
+    // Lunar-Crystallize Reaction DMG" (Skill text): her Heavy Overdrive Hammer (wiki, rate in kit-overrides.json; #186).
+    {
+      talent: "skill",
+      label: "Lumi Heavy Overdrive Hammer DMG",
+      every: "rate",
+      duration: "Lumi Duration",
+      cd: "CD",
+      lunar: "lunar-crystallize",
+      whenReaction: "lunar-crystallize",
+    },
+  ],
   Lisa: [
     { talent: "skill", label: "Stack 3 Conductive Hold DMG", hits: 1, cd: "Holding CD" },
     { talent: "burst", label: "Discharge DMG", hits: "rate", cd: "CD" },
@@ -1360,11 +1429,28 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Sword Rain DMG", onCarryNormal: true, every: "rate", hits: "rate", duration: "Duration", cd: "CD" },
   ],
+  // Off-field Yae is her three Sesshou Sakura (#304). KQM's quick guide (https://keqingmains.com/q/yae-quickguide/,
+  // fetched 2026-10-21): "Most of the time, Yae only uses her Elemental Skill and ignores her Burst", "Despite looking
+  // powerful, Yae's Burst is often a DPS loss", and in Alhaitham's team "Yae should skip her Burst entirely": her Burst
+  // (Skill DMG + 3 Tenko Thunderbolts, every 22s, about a third of her damage) is left out. With her Witch's Revelation
+  // (Edict of Cleansing, passive 4) "the duration of each Skill turret is permanently increased from 14 to 24s, allowing
+  // full uptime in most of Yae's teams without having to refresh her Skill", and "Yae's Burst no longer consumes her
+  // Skill totems": three totems always up, 8 strikes each per 24s (hitRates `alternatives`, when her Witch's Revelation
+  // is done). Without it, 5 per 14s (the wiki) and no Burst (Jessie, 2026-10-21: "she almost never uses her burst").
+  // Passive 2 Enlightened Blessing: "Every
+  // point of Elemental Mastery Yae Miko possesses will increase Sesshou Sakura DMG by 0.15%". Left out: passive 1's
+  // extra 40% ATK strike on recasting her Skill with 3 totems out (~3 per rotation, ~+3%, estimate) and passive 4's
+  // Superconduct/Stellar-Conduct-enhanced strikes (kit.json stellar).
   "Yae Miko": [
-    // Three Sesshou Sakura at level 3 ("A maximum of 3"), each striking as often as the wiki says.
-    { talent: "skill", label: "Sesshou Sakura DMG: Level 3", hits: "rate", times: /A maximum of (\d+) Sesshou Sakura/, cd: "Duration" },
-    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Tenko Thunderbolt DMG", hits: 3, cd: "CD" }, // one per Sesshou Sakura
+    {
+      talent: "skill",
+      label: "Sesshou Sakura DMG: Level 3",
+      hits: "rate",
+      times: /A maximum of (\d+) Sesshou Sakura/,
+      cd: "Duration",
+      perRotation: true, // before her Witch's Revelation: cast once per rotation, up for 14s of it
+      dmgBonusPer: [{ from: "passive2", re: /increase Sesshou Sakura DMG by ([\d.]+)%/, stat: "em" }],
+    },
   ],
   Yelan: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
@@ -1472,6 +1558,7 @@ function readSubDps(id, specs) {
       ...(s.lunar ? { lunar: s.lunar } : {}),
       ...(s.whenReaction ? { whenReaction: s.whenReaction } : {}),
       ...(s.pickOne ? { pickOne: s.pickOne } : {}),
+      ...(s.perRotation ? { perRotation: true } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
       ...(icds[`${s.talent}: ${s.label}`] ? { icd: icds[`${s.talent}: ${s.label}`] } : {}),
@@ -2275,6 +2362,25 @@ const CARRIES = {
       // Vaporize or Melt", so not with them active (estimate: off for the whole rotation then).
       { kind: "dmgBonusByMembers", from: "passive2", base: /Increases the DMG dealt by (\d+)%/, per: /additional (\d+)%/, max: /up to (\d+)% increased DMG/, elements: ["Pyro"], unless: ["vaporize", "melt"] },
     ],
+  },
+  Ningguang: {
+    // #232. KQM's Ningguang quick guide (keqingmains.com/q/ningguang-quickguide/, fetched 2026-10-21), "15s Rotation
+    // Teams" ("These teams execute 15-16s rotations"; Xilonen, Yae, Fischl, Chiori, Bennett samples): "Ningguang N1 ED
+    // N1C Q C N2C". Her combo, "N2C (N1W N1C)", is "Ningguang's best combo in most scenarios". Counted on one opponent:
+    // 4 Normal Attacks; 3 Charged Attacks; Star Jades, one per Normal Attack hit ("Upon hit, this grants Ningguang 1
+    // Star Jade"), all fired by the next Charged Attack: 2 + 0 + 2 = 4; the Jade Screen's hit; Starshatter cast with the
+    // Screen up (6 gems + 6 from the Screen), 10 of them hitting one opponent (the gem weight in KQM's Multi-Optimization
+    // Ningguang config, keqingmains.com/misc/multi-optimization/; it assumes C6, the Burst is the same: estimate).
+    // Passive 2: dashing through the Screen ("ED") gives 12% Geo DMG for 10s, read as on all her hits (estimate).
+    combo: "N1 ED N1C Q C N2C",
+    hits: [
+      { table: "normal", label: "Normal Attack DMG", count: 4, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 3, type: CH },
+      { table: "normal", label: "DMG per Star Jade", count: 4, type: CH },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "burst", label: "DMG Per Gem", count: 10, type: BU },
+    ],
+    buffs: [{ kind: "dmgBonus", from: "passive2", re: /gain a (\d+)% Geo DMG Bonus/, types: [N, CH, SK, BU] }],
   },
   Yoimiya: {
     // KQM: "her entire Normal Attack string repeated 3 times" in Niwabi Fire-Dance (E), the highest-damage combo in
@@ -3144,12 +3250,19 @@ for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
 // wearer's HP goes up or down: a healer, or HP drain: holderStates), hpDrops (HP drain only), bondOfLife (their own kit
 // gives them a Bond of Life: holderStates), nightsoul (their kit has Nightsoul's Blessing: tags.json families),
 // noEnergy (no Energy Burst), weapons (the wearer's weapon type), moonsign (nascent: one Moonsign member, ascendant: two
-// or more; with a Lunar reaction active).
+// or more; with a Lunar reaction active), offField (the wearer isn't the on-field carry: a sub-DPS's own hits, #306).
+// Party-wide effects (`party: true`, #306; kit.ts partySetBuffs, on every member's hits): em (flat EM to all party
+// members) and gleamingMoon (a Lunar Reaction Bonus per different Gleaming Moon `effect` the party has, "Effects from
+// Gleaming Moon cannot stack": one wearer of a set is enough). Their `when`: moonsign (the party's Moonsign level only),
+// onField (the wearer is the on-field carry), lunar (the team triggers a Lunar reaction).
 // 2pc bonuses (`pieces: 2`) are only those the character screen doesn't show (DMG bonus by hit type, conditional DMG):
 // an imported build's final stats have the rest (ATK%, elemental DMG, EM, ER), and a benchmark build's generic
 // "elemental goblet + set" DMG bonus (benchmark.ts carryDmgBonus) stands in for its 2pc, so only imports get these.
 // Effects marked `estimate` are taken as up throughout the rotation where the text needs a trigger the model doesn't
 // track (a Skill cast before the hits): the source line says so.
+const GLEAMING_MOON = /All party members' Lunar Reaction DMG is increased by (\d+)% for each different Gleaming Moon effect/;
+const LUNAR = ["lunar-charged", "lunar-bloom", "lunar-crystallize"];
+const OWN_HITS = "by the wearer's own Elemental DMG";
 const SETS = {
   "Blizzard Strayer": [
     { kind: "critRate", re: /affected by Cryo, their CRIT Rate is increased by (\d+)%/, when: { aura: "Cryo" } },
@@ -3181,9 +3294,34 @@ const SETS = {
   ],
   "Night of the Sky's Unveiling": [
     // Gleaming Moon: Intent's CRIT Rate "when nearby party members trigger Lunar Reactions": 15% at Nascent Gleam, 30%
-    // at Ascendant Gleam. Its teamwide Lunar Reaction DMG +10% is effects.json's (a team buff), not counted here.
+    // at Ascendant Gleam. "If the equipping character is on the field": the carry's; the party's +10% Lunar Reaction DMG
+    // too (#306: was effects.json flat points).
     { kind: "critRate", re: /Increases CRIT Rate by (\d+)%\/\d+% when the party's Moonsign is Nascent Gleam/, when: { moonsign: "nascent" } },
     { kind: "critRate", re: /Increases CRIT Rate by \d+%\/(\d+)% when the party's Moonsign is Nascent Gleam\/Ascendant Gleam/, when: { moonsign: "ascendant" } },
+    { kind: "gleamingMoon", party: true, effect: /gain the Gleaming Moon: (\w+) effect/, re: GLEAMING_MOON, when: { onField: true, lunar: true } },
+  ],
+  "Silken Moon's Serenade": [
+    // Gleaming Moon: Devotion (#306), "When dealing Elemental DMG ... The equipping character can trigger this effect
+    // while off-field": taken as kept up by the wearer's own hits (its 8s; estimate: KQM's Illuga quick guide lists
+    // "Limited uptime on 4pc Silken Moon's Serenade set effect prior to C2", left out). Its EM is "all party members'",
+    // on no one's character screen. Genshin Impact Wiki, Silken Moon's Serenade (fetched 2026-10-21), Gameplay Notes:
+    // with Night of the Sky's Unveiling "a total 20% increase for Lunar Reaction DMG. Having more characters using these
+    // two artifact won't increase the Lunar Reaction DMG further."
+    { kind: "em", party: true, flat: true, re: /Increases all party members' Elemental Mastery by (\d+)\/\d+ when the party's Moonsign is Nascent Gleam/, when: { moonsign: "nascent" }, estimate: OWN_HITS },
+    { kind: "em", party: true, flat: true, re: /Increases all party members' Elemental Mastery by \d+\/(\d+) when the party's Moonsign is Nascent Gleam\/Ascendant Gleam/, when: { moonsign: "ascendant" }, estimate: OWN_HITS },
+    { kind: "gleamingMoon", party: true, effect: /gain the Gleaming Moon: (\w+) effect/, re: GLEAMING_MOON, estimate: OWN_HITS },
+  ],
+  "Aubade of Morningstar and Moon": [
+    // The wearer's own Lunar Reaction DMG, direct and reaction (Genshin Impact Wiki, Aubade of Morningstar and Moon,
+    // fetched 2026-10-21, Gameplay Notes: "boosts not only reaction based Lunar Reactions ... but also direct Lunar damage
+    // ... This bonus only applies to the equipping character"), as Reaction Bonus like the wiki's other "Lunar Reaction
+    // DMG" sets (Damage § Reaction DMG Bonus lists Night and Silken). Off-field: a sub-DPS. "This effect will disappear
+    // after the equipping character is active for 3s": their Skill and Burst casts are taken as shorter (estimate; KQM
+    // Linnea quick guide, accessed 2026-10-21: "she can effortlessly maintain the full 60% Lunar Reaction DMG Bonus while
+    // remaining off-field"; KQM Columbina: "In Ascendant Gleam teams, 4pc Aubade is Columbina's best set for personal
+    // damage from off-field thanks to the large 60% Lunar Reaction DMG buff").
+    { kind: "reactionBonus", reactions: LUNAR, re: /When the equipping character is off-field, Lunar Reaction DMG is increased by (\d+)%/, when: { offField: true }, estimate: "off-field" },
+    { kind: "reactionBonus", reactions: LUNAR, re: /at least Ascendant Gleam, Lunar Reaction DMG will be further increased by (\d+)%/, when: { offField: true, moonsign: "ascendant" }, estimate: "off-field" },
   ],
   "Marechaussee Hunter": [
     { kind: "dmgBonus", pieces: 2, types: ["normal", "charged"], re: /Normal and Charged Attack DMG \+(\d+)%/ },
@@ -3246,6 +3384,8 @@ for (const [name, values] of Object.entries(SETS)) {
     return {
       kind: v.kind,
       ...(pieces === 2 ? { pieces } : {}),
+      ...(v.party ? { party: true } : {}),
+      ...(v.effect ? { effect: read(v.effect, pieces)[1] } : {}),
       value: round((Number(m[1]) / (v.flat ? 1 : 100)) * of2pc * stacks),
       // A stacking effect whose stack count a character's kit sets (holderStates.setStacks): the value of one stack.
       ...(v.maxStacks ? { perStack: round((Number(m[1]) / 100) * of2pc), maxStacks: Number(read(v.maxStacks, pieces)[1]) } : {}),
@@ -3354,6 +3494,7 @@ const WATATSUMI = [
     max: /A maximum of ([\d.]+)% increased Elemental Burst DMG/,
   },
 ];
+const WIDSITH_UPTIME = /a random theme song for (\d+)s\. This can only occur once every (\d+)s/;
 const WEAPONS = {
   Akuoumaru: WATATSUMI,
   "Mouun's Moon": WATATSUMI,
@@ -3443,6 +3584,29 @@ const WEAPONS = {
   "Fruitful Hook": [
     { kind: "dmgBonus", types: ["normal", "charged", "plunge"], full: true, re: /Normal, Charged, and Plunging Attack DMG increased by ([\d.]+)% for 10s/ },
   ],
+  // Zibai Premium's weapons (#306). New kinds: critRate, em (flat). Conditions: hpKept (a teammate heals or shields the
+  // holder and nothing drains their HP: holderStates), holderReacts (the holder triggers one of the team's reactions),
+  // ascendantGleam (two Moonsign members). `uptime`: a share of the time read from the text, over `songs` outcomes.
+  // "When HP is above 90%": KQM Illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-21): "a
+  // shielder usually prevents Zibai's HP from decreasing, which allows her to make full use of R5 Harbinger of Dawn";
+  // KQM Linnea quick guide: "If your team requires consistent healing to maintain passives (like Harbinger of Dawn)".
+  "Harbinger of Dawn": [{ kind: "critRate", when: { hpKept: true }, re: /When HP is above 90%, increases CRIT Rate by ([\d.]+)%/ }],
+  // "Upon causing an Elemental Reaction ... can be triggered even if the equipping character is off-field" (Linnea's
+  // Lunar-Crystallize hits; KQM Linnea quick guide: "a passive that increases EM after triggering an Elemental
+  // Reaction"): its 12s taken as kept up (estimate).
+  "Snare Hook": [
+    { kind: "em", flat: true, when: { holderReacts: true }, re: /Upon causing an Elemental Reaction, increases Elemental Mastery by ([\d.]+) for 12s/ },
+    { kind: "em", flat: true, when: { holderReacts: true, ascendantGleam: true }, re: /Elemental Mastery from this effect is further increased by ([\d.]+)/ },
+  ],
+  // "When the character takes the field, they will gain a random theme song for 10s. This can only occur once every
+  // 30s": each of the 3 songs a third of the time, up 10s of every 30s (the holder taken as taking the field at least
+  // once every 30s: estimate). Recitative's ATK is of base ATK; Aria's "all Elemental DMG" doesn't reach Lunar hits.
+  // KQM Columbina quick guide (accessed 2026-10-21): "While the ATK% buff is useless, Columbina can use the other 2 buffs".
+  "The Widsith": [
+    { kind: "atkPct", uptime: WIDSITH_UPTIME, songs: 3, re: /Recitative: ATK is increased by ([\d.]+)%/ },
+    { kind: "dmgBonus", uptime: WIDSITH_UPTIME, songs: 3, re: /Aria: Increases all Elemental DMG by ([\d.]+)%/ },
+    { kind: "em", flat: true, uptime: WIDSITH_UPTIME, songs: 3, re: /Interlude: Elemental Mastery is increased by ([\d.]+)/ },
+  ],
 };
 const weapons = {};
 for (const [name, specs] of Object.entries(WEAPONS)) {
@@ -3456,13 +3620,17 @@ for (const [name, specs] of Object.entries(WEAPONS)) {
   };
   weapons[name] = specs.map((s) => {
     const stacks = s.stacks ? read(s.stacks, texts[0]) : 1;
+    // `uptime` (#306): seconds up over seconds between triggers, split over `songs` outcomes (The Widsith).
+    const up = s.uptime ? texts[0].match(s.uptime) : null;
+    if (s.uptime && !up) throw new Error(`${name}: uptime pattern ${s.uptime} not found in its passive text: ${texts[0]}`);
+    const share = up ? Number(up[1]) / Number(up[2]) / s.songs : 1;
     return {
       kind: s.kind,
       ...(s.types ? { types: s.types } : {}),
-      values: texts.map((t) => round((read(s.re, t) / 100) * stacks * (s.negative ? -1 : 1))),
+      values: texts.map((t) => round((read(s.re, t) / (s.flat ? 1 : 100)) * stacks * share * (s.negative ? -1 : 1))),
       ...(s.max ? { max: texts.map((t) => read(s.max, t) / 100) } : {}),
       ...(s.when ? { when: s.when } : {}),
-      source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}${s.full ? " (taken at full stacks / up throughout: estimate)" : ""}`,
+      source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}${s.full ? " (taken at full stacks / up throughout: estimate)" : ""}${up ? ` x ${up[1]}s/${up[2]}s / ${s.songs} songs (estimate)` : ""}`,
     };
   });
 }

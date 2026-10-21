@@ -4,12 +4,13 @@ import { useState } from "react";
 import type { RotationStep } from "@/lib/scoring/rotation";
 import type { ScoredTeam } from "@/lib/scoring/types";
 import { elementChip, quietChip } from "@/lib/ui/elements";
-import CharacterIcon from "./character-icon";
-import type { PlannerCharacter } from "./types";
+import CharacterIcon, { ArtifactIcon, WeaponIcon } from "./character-icon";
+import type { MemberGear, PlannerCharacter } from "./types";
 
 interface Props {
   teams: ScoredTeam[];
   byId: Map<string, PlannerCharacter>;
+  weapons: Map<string, MemberGear>; // built members' weapons and sets (#180, #181)
 }
 
 // Consecutive steps by the same character become one block: "Xingqiu Q, E".
@@ -25,7 +26,7 @@ function groupSteps(steps: RotationStep[]) {
 
 const reactionLabel = (r: string) => r.replace(/(^|-)(\w)/g, (_, dash, c) => (dash ? " " : "") + c.toUpperCase());
 
-export default function ResultsList({ teams, byId }: Props) {
+export default function ResultsList({ teams, byId, weapons }: Props) {
   const [open, setOpen] = useState<string | null>(null);
 
   return (
@@ -83,6 +84,31 @@ export default function ResultsList({ teams, byId }: Props) {
                     "No main DPS"
                   )}
                 </p>
+                {team.members.some((id) => weapons.has(id)) && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-zinc-500">Weapons and sets</p>
+                    <ul className="mt-1 space-y-1 text-xs" aria-label="Weapons and sets">
+                      {team.members.map((id) => {
+                        const w = weapons.get(id);
+                        return (
+                          w && (
+                            <li key={id} className="flex flex-wrap items-center gap-1">
+                              <span className="text-zinc-500">{id}:</span>
+                              <WeaponIcon icon={w.icon} size={20} />
+                              {w.name} R{w.refinement}
+                              {w.sets.map((s) => (
+                                <span key={s.set} className="ml-2 inline-flex items-center gap-1">
+                                  <ArtifactIcon icon={s.icon} size={20} />
+                                  {s.set} {s.pieces}pc
+                                </span>
+                              ))}
+                            </li>
+                          )
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
                 <div className="mt-2">
                   <p className="text-xs font-medium text-zinc-500">Rotation</p>
                   <ol className="mt-1 flex flex-wrap items-center gap-1 text-xs" aria-label="Rotation">

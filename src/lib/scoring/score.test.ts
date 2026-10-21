@@ -110,6 +110,21 @@ describe("scoreTeam", () => {
     expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+86% to Gaming's damage");
   });
 
+  test("Spread and Aggravate need the Quicken aura, which Hydro eats (#303)", () => {
+    const reasons = (...ids: string[]) => score(...ids).breakdown.map((l) => l.reason);
+    const spread = (...ids: string[]) => Number(reasons(...ids).find((r) => r.startsWith("Spread adds"))?.match(/\+(\d+)%/)?.[1] ?? 0);
+    const own = (who: string, ...ids: string[]) => dps(reasons(...ids).find((r) => r.startsWith(`${who}'s own hits`)));
+    // No Hydro or Pyro: the Quicken aura is up throughout, every applying hit Spreads (as before #303; ICDs #226, sets #206).
+    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(80);
+    // Furina's Hydro turns the Quicken aura into Bloom: Alhaitham Spreads about half the time, and Yae Aggravates less.
+    const furina = spread("Alhaitham", "Furina", "Xilonen", "Yae Miko");
+    expect(furina).toBeGreaterThan(30);
+    expect(furina).toBeLessThan(70);
+    expect(own("Yae Miko", "Alhaitham", "Furina", "Xilonen", "Yae Miko")).toBeLessThan(31193); // 31193 before #303
+    // Kazuha's Anemo doesn't touch Quicken: Clorinde keeps her full Aggravate there.
+    expect(reasons("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toContain("Aggravate, Quicken add ~+27% to Clorinde's damage, on top of the passive"); // ICDs (#226)
+  });
+
   test("Dendro Cores: Electro pops them into Hyperbloom, none with a Lunar-Bloom converter (#253)", () => {
     const reasons = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions").map((l) => l.reason);
     const hyper = reasons("Alhaitham", "Xingqiu", "Kuki Shinobu", "Nahida");
@@ -228,9 +243,10 @@ describe("scoreTeam", () => {
     const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Moonsign");
     // Two Moonsign members (Aino, Ineffa) reach Ascendant Gleam: Flins's own kit upgrade (his thundercloud hit and
     // passive 1's +20%) is in his damage model (#150), so the line says what it adds with 0 points, not twice (#245);
-    // so is his guide's Night of the Sky's Unveiling going from 15% to 30% CRIT Rate (#206).
+    // so is his guide's Night of the Sky's Unveiling going from 15% to 30% CRIT Rate (#206). 71% -> 73% with Night's
+    // Gleaming Moon +10% Lunar Reaction DMG in his hits (#306), the unlocked ones included.
     expect(lines("Flins", "Aino", "Ineffa", "Xilonen")).toEqual([
-      { rule: "Moonsign", points: 0, reason: "Ascendant Gleam adds ~+71% to Flins's damage" },
+      { rule: "Moonsign", points: 0, reason: "Ascendant Gleam adds ~+73% to Flins's damage" },
     ]);
     // One Moonsign member is only Nascent Gleam.
     expect(lines("Flins", "Bennett", "Xingqiu", "Xilonen")).toEqual([]);

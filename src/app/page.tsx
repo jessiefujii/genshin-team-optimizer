@@ -18,8 +18,12 @@ function loadBuildCatalog(): BuildCatalog {
   const names = (fn: (q: string, o: object) => unknown) => fn("names", { matchCategories: true }) as string[];
   const weapons: BuildCatalog["weapons"] = {};
   const weaponRarity: BuildCatalog["weaponRarity"] = {};
+  const weaponIcons: BuildCatalog["weaponIcons"] = {};
   const every = names(genshindb.weapons).map((n) => genshindb.weapons(n)!);
-  for (const w of every) weaponRarity[w.name] = w.rarity;
+  for (const w of every) {
+    weaponRarity[w.name] = w.rarity;
+    if (w.images?.filename_icon) weaponIcons[w.name] = w.images.filename_icon;
+  }
   const all = every
     .filter((w) => w.rarity >= 3) // 1-2 star weapons are never used
     .sort((a, b) => b.rarity - a.rarity || a.name.localeCompare(b.name));
@@ -27,7 +31,15 @@ function loadBuildCatalog(): BuildCatalog {
     const list = (weapons[w.weaponText] ??= []);
     if (!list.includes(w.name)) list.push(w.name); // some weapons (Prized Isshin Blade) are listed per variant
   }
-  return { weapons, sets: [...new Set(names(genshindb.artifacts))].sort((a, b) => a.localeCompare(b)), weaponRarity };
+  const sets = [...new Set(names(genshindb.artifacts))].sort((a, b) => a.localeCompare(b));
+  // A set's icon in game is its flower; one-piece sets (Prayers) only have a circlet.
+  const setIcons: BuildCatalog["setIcons"] = {};
+  for (const s of sets) {
+    const img = genshindb.artifacts(s)?.images;
+    const icon = img?.filename_flower ?? img?.filename_circlet;
+    if (icon) setIcons[s] = icon;
+  }
+  return { weapons, sets, weaponRarity, weaponIcons, setIcons };
 }
 
 export default function Home() {
@@ -39,6 +51,15 @@ export default function Home() {
       <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
         Tick the characters you own; the best teams update as you go. Your roster is saved in this browser.
       </p>
+      {/* Jump links to the planner's sections (#182): useful on phones, where the two columns stack. */}
+      <nav aria-label="Sections" className="mt-2 flex gap-4 text-sm lg:hidden">
+        <a href="#roster-heading" className="text-blue-700 hover:underline dark:text-blue-400">
+          My roster
+        </a>
+        <a href="#results-heading" className="text-blue-700 hover:underline dark:text-blue-400">
+          Best teams
+        </a>
+      </nav>
       <div className="mt-6">
         <RosterPlanner characters={characters} catalog={catalog} />
       </div>
