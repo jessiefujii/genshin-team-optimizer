@@ -1,5 +1,5 @@
 {
-  "median": 149420.5,
+  "median": 149116.8,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -8,7 +8,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 201631.5
+      "value": 185820.2
     },
     "Aloy": {
       "team": [
@@ -49,11 +49,11 @@
     "Clorinde": {
       "team": [
         "Clorinde",
-        "Fischl",
-        "Nahida",
-        "Furina"
+        "Furina",
+        "Xilonen",
+        "Kujou Sara"
       ],
-      "value": 149430.7
+      "value": 133979.7
     },
     "Cyno": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 172191.9
+      "value": 161616.6
     },
     "Diluc": {
       "team": [
@@ -231,18 +231,18 @@
         "Nefer",
         "Furina",
         "Lauma",
-        "Kuki Shinobu"
+        "Ineffa"
       ],
-      "value": 124460.6
+      "value": 124345.8
     },
     "Neuvillette": {
       "team": [
         "Neuvillette",
-        "Ineffa",
-        "Nahida",
-        "Furina"
+        "Escoffier",
+        "Furina",
+        "Shenhe"
       ],
-      "value": 183688.1
+      "value": 173698
     },
     "Ningguang": {
       "team": [
@@ -251,7 +251,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 132086.8
+      "value": 109417.2
     },
     "Noelle": {
       "team": [
@@ -287,7 +287,7 @@
         "Ineffa",
         "Yae Miko"
       ],
-      "value": 148353
+      "value": 135047.6
     },
     "Sethos": {
       "team": [
@@ -305,7 +305,7 @@
         "Kuki Shinobu",
         "Traveler (Dendro)"
       ],
-      "value": 64700.3
+      "value": 59547.6
     },
     "Skirk": {
       "team": [
@@ -341,7 +341,7 @@
         "Odette",
         "Alyosha"
       ],
-      "value": 88438.7
+      "value": 76589
     },
     "Varesa": {
       "team": [

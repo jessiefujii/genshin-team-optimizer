@@ -64,8 +64,8 @@ const built = all
 
 describe("coverage gate", () => {
   // #203 brings both to 0. Until then they may only shrink: a new character without a damage profile fails here.
-  const NO_DAMAGE_PROFILE = 5;
-  const MAIN_DPS_WITHOUT_CARRY_KIT = 5;
+  const NO_DAMAGE_PROFILE = 4;
+  const MAIN_DPS_WITHOUT_CARRY_KIT = 4;
   const NO_PARTICLE_COUNT = 5;
   const NO_SUSTAIN_COVERAGE = 5;
 
@@ -191,6 +191,8 @@ const KNOWN_DROPS: Record<string, string> = {
   // Zibai out-damages her and takes the field, and that reading (no Hydro: no Lunar-Crystallize) has less team damage
   // (24.9k vs 26.2k per second): 15.45 -> 14.34.
   "Xilonen, Zibai, Yoimiya, Yun Jin": "#306: a stronger Zibai becomes the main DPS; her reading is lower",
+  // A stronger Yanfei out-damages Ningguang (#232) and takes the field; her reading scores lower: 2.73 -> 2.69.
+  "Ororon, Yanfei, Dahlia, Ningguang": "#232: a stronger Yanfei becomes the main DPS; her reading is lower",
 };
 const drops = (() => {
   const out: string[] = [];

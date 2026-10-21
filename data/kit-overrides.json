@@ -634,7 +634,18 @@
     "Yae Miko": {
       "skill: Sesshou Sakura DMG: Level 3": {
         "hits": 5,
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yae_Miko, fetched 2026-10-10: \"The Sesshou Sakura can strike 5 times over their 14 seconds duration.\""
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Yae_Miko, fetched 2026-10-10: \"The Sesshou Sakura can strike 5 times over their 14 seconds duration.\" Before her Witch's Revelation (#304).",
+        "alternatives": [
+          {
+            "when": {
+              "radiance": true
+            },
+            "hits": 8,
+            "cd": 24,
+            "source": "KQM, Yae Miko Quick Guide, https://keqingmains.com/q/yae-quickguide/, fetched 2026-10-21: Edict of Cleansing (Witch's Revelation): \"the duration of each Skill turret is permanently increased from 14 to 24s\"; \"Each turret will fire up to 8 shots, for a maximum of 24 total shots, for its duration\" (#304).",
+            "perRotation": false
+          }
+        ]
       }
     },
     "Kinich": {
@@ -984,6 +995,10 @@
           "source": "KeqingMains Neuvillette ER calculator (\"Neuvillette ERc (6.3)\", linked from https://keqingmains.com/neuvillette/; sheet 1OhaSLT5Pgeq7gIeDWtxN_dW8WFvjGhS8RpZDy_7mVdw), fetched 2026-10-20: \"Rotation length\" of its Furina team tabs, for the guide's 4-CA rotations: 28 (Kazuha/Xilonen, Lynette/Xilonen, Kazuha/Kachina, Xilonen/Fischl, Kazuha/Zhongli, Nahida/Xiangling, Kazuha/Ororon, Lynette/Ororon), 27 (Kazuha/Fischl), 26 (Jean/Xilonen, Lynette/Kachina, Lisa/Xilonen, Nahida/Raiden): the median, 28 (#119)."
         }
       ]
+    },
+    "Ningguang": {
+      "seconds": 15.5,
+      "source": "KQM Ningguang quick guide, https://keqingmains.com/q/ningguang-quickguide/, fetched 2026-10-21: \"15s Rotation Teams\", \"These teams execute 15-16s rotations\" (midpoint), for her \"N1 ED N1C Q C N2C\" combo (#232)."
     }
   },
   "icd": {
@@ -1160,10 +1175,6 @@
     },
     "Xingqiu": {
       "skill: Skill DMG": "none"
-    },
-    "Yae Miko": {
-      "burst: Skill DMG": "none",
-      "burst: Tenko Thunderbolt DMG": "none"
     },
     "Yelan": {
       "skill: Skill DMG": "none",

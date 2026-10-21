@@ -80,6 +80,13 @@ export default function RosterPlanner({
     [characters, roster, catalog],
   );
   const ownedIds = owned.map((c) => c.id);
+  // Each built member's weapon, for the team detail (#180).
+  const weapons = useMemo(() => {
+    const out = new Map<string, { name: string; icon?: string; refinement: number }>();
+    for (const [id, e] of Object.entries(roster))
+      if (e.build) out.set(id, { name: e.build.weapon.id, icon: catalog.weaponIcons[e.build.weapon.id], refinement: e.build.weapon.refinement });
+    return out;
+  }, [roster, catalog]);
 
   // Drop filters for characters that are no longer owned.
   const include = mustInclude.filter((id) => roster[id]).slice(0, 4);
@@ -129,7 +136,7 @@ export default function RosterPlanner({
         ) : (
           <div className={search.status === "searching" ? "opacity-60" : ""}>
             <WorthBuilding suggestions={search.suggestions} byId={byId} />
-            <ResultsList teams={search.teams} byId={byId} />
+            <ResultsList teams={search.teams} byId={byId} weapons={weapons} />
           </div>
         )}
       </section>

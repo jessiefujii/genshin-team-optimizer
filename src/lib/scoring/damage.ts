@@ -506,7 +506,8 @@ export function carryDamage(
   team: readonly ScoringCharacter[] = [c],
   buffs: TeamBuffStats = NO_TEAM_BUFFS,
   noGleam = false,
-  // The share of the carry's Vaporize or Melt hits the team's aura can feed (score.ts auraShares, #239); 1 alone.
+  // The share of the carry's Vaporize or Melt hits the team's aura can feed (score.ts auraShares, #239), or of their
+  // Spread or Aggravate hits that find a Quicken aura (score.ts computeAuraBudget, #303); 1 alone.
   ampShare = 1,
 ): CarryDamage | null {
   // Readings with team buffs aren't cached: they're cheap, and one more entry per team ran the compare out of memory.
@@ -577,7 +578,7 @@ function computeCarryDamage(
   }
   const main = reaction ?? mainReactionOf(c);
   const amp = amplifyGain(c, em, active, main, setReactionBonus(set, main)) * ampShare;
-  const catalyze = catalyzeDamage(c, em, active, main, setReactionBonus(set, main));
+  const catalyze = catalyzeDamage(c, em, active, main, setReactionBonus(set, main)) * ampShare; // Quicken uptime (#303)
   // A hit of another damage type (#222): its own DMG Bonus (Physical: the build's; another element: none of the carry's),
   // the team buffs that reach that type (read as if it were the carry's element, so a Cryo-only buff skips Physical
   // hits), and its own reactions (Physical hits don't react). ATK and CRIT buffs reach every hit alike.
