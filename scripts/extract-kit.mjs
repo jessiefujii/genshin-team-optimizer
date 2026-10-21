@@ -1541,7 +1541,6 @@ const arlecchinoHits = ({ ca, strings }) => [
   { table: "skill", label: "Cleave DMG", count: 1, type: SK },
   { table: "normal", label: "Charged Attack DMG", count: ca, type: CH },
   ...Object.entries(strings).map(([n, count]) => ({ table: "normal", label: `${n}-Hit DMG`, count, type: N, ...(n === "4" ? { instances: 2 } : {}) })),
-  { table: "burst", label: "Skill DMG", count: 1, type: BU },
 ];
 const CARRIES = {
   "Hu Tao": {
@@ -2021,9 +2020,11 @@ const CARRIES = {
     // #119. KQM's Arlecchino quick guide (https://keqingmains.com/q/arlecchino-quickguide/, fetched 2026-10-20): "N3D
     // Arlecchino's most recommended combo for general use"; its Bennett flex, Geo and Overloaded sample rotations end
     // "Arlecchino C 5[N3D] N3" (N1C or N3C first in some). E, CA (absorbs the Blood-Debt Directive: Bond of Life up to
-    // 145% of Max HP), 6 N3 strings. The Burst is kept from the earlier model (E, CA, N5 x3, Q); the guide's sample
-    // rotations don't cast it. Team combos below; her main reaction is none, so they stay unamplified.
-    combo: "E C 5[N3D] N3 Q",
+    // 145% of Max HP), 6 N3 strings. No Burst (Jessie, 2026-10-21): the guide's sample rotations don't cast it, its one hit is "not
+    // particularly noteworthy", it is "best reserved as an emergency heal", and "it is still ideal to avoid using her
+    // Burst" (it also clears her surplus Bond of Life); only C6 makes it "well worth using offensively". Team combos
+    // below; her main reaction is none, so they stay unamplified.
+    combo: "E C 5[N3D] N3",
     hits: arlecchinoHits({ ca: 1, strings: { 1: 6, 2: 6, 3: 6 } }),
     // Masque of the Red Death: each Normal Attack hit adds ATK x the row's ratio x her Bond of Life %, and uses 7.5% of it.
     buffs: [{ kind: "masque", table: "normal", label: "Masque of the Red Death Increase", start: { from: "combat2", re: /within 35s after using her Elemental Skill is (\d+)% of her Max HP/ }, use: { from: "combat1", re: /This will consume ([\d.]+)% of said current Bond of Life/ } }],
@@ -2032,38 +2033,38 @@ const CARRIES = {
       {
         // Forward Melt with Escoffier, Layla or Nicole: "Arlecchino C 2[N6] N3" (Citlali/Nicole/Sucrose,
         // Citlali/Bennett/Escoffier or Layla, Escoffier/Bennett/Venti).
-        combo: "E C 2[N6] N3 Q",
+        combo: "E C 2[N6] N3",
         when: [{ members: [["Citlali", "Escoffier"], ["Escoffier", "Layla", "Nicole"]] }],
         hits: arlecchinoHits({ ca: 1, strings: { 1: 3, 2: 3, 3: 3, 4: 2, 5: 2, 6: 2 } }),
       },
       {
         // Forward Melt with Citlali: "Arlecchino C 2[N5D] N5" (Citlali/Bennett/Xilonen, Sucrose or Kazuha).
-        combo: "E C 2[N5D] N5 Q",
+        combo: "E C 2[N5D] N5",
         when: [{ members: [["Citlali"]] }],
         hits: arlecchinoHits({ ca: 1, strings: { 1: 3, 2: 3, 3: 3, 4: 3, 5: 3 } }),
       },
       {
         // Furina, Yelan, Xilonen: "Arlecchino 7[N2C] N2" ("This team allows Arlecchino to use N2C to achieve more Vape
         // hits than her usual combo"); the first Charged Attack claims the Directive.
-        combo: "E 7[N2C] N2 Q",
+        combo: "E 7[N2C] N2",
         when: [{ members: [["Furina"], ["Yelan"]] }],
         hits: arlecchinoHits({ ca: 7, strings: { 1: 8, 2: 8 } }),
       },
       {
         // Yelan, Bennett, Lan Yan: "Arlecchino 5[N3C] N1".
-        combo: "E 5[N3C] N1 Q",
+        combo: "E 5[N3C] N1",
         when: [{ members: [["Yelan"], ["Lan Yan"]] }],
         hits: arlecchinoHits({ ca: 5, strings: { 1: 6, 2: 5, 3: 5 } }),
       },
       {
         // Mona with Bennett or Nicole: "Arlecchino C N3 > Mona N1 E > Arlecchino 4[N3D] N1".
-        combo: "E C N3 4[N3D] N1 Q",
+        combo: "E C N3 4[N3D] N1",
         when: [{ members: [["Mona"]] }],
         hits: arlecchinoHits({ ca: 1, strings: { 1: 6, 2: 5, 3: 5 } }),
       },
       {
         // Columbina, Ineffa, Xilonen: "Arlecchino C 6[N3D] N3".
-        combo: "E C 6[N3D] N3 Q",
+        combo: "E C 6[N3D] N3",
         when: [{ members: [["Columbina"], ["Ineffa"]] }],
         hits: arlecchinoHits({ ca: 1, strings: { 1: 7, 2: 7, 3: 7 } }),
       },

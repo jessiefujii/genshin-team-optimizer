@@ -7800,7 +7800,7 @@
           "seconds": 20
         }
       ],
-      "combo": "E C 5[N3D] N3 Q",
+      "combo": "E C 5[N3D] N3",
       "hits": [
         {
           "label": "Spike DMG",
@@ -7849,14 +7849,6 @@
             "atk": 1.201274
           },
           "count": 6
-        },
-        {
-          "label": "Skill DMG",
-          "type": "burst",
-          "scaling": {
-            "atk": 6.2968
-          },
-          "count": 1
         }
       ],
       "buffs": [
@@ -7869,7 +7861,7 @@
       ],
       "combos": [
         {
-          "combo": "E C 2[N6] N3 Q",
+          "combo": "E C 2[N6] N3",
           "when": [
             {
               "members": [
@@ -7958,19 +7950,11 @@
                 "atk": 1.568577
               },
               "count": 2
-            },
-            {
-              "label": "Skill DMG",
-              "type": "burst",
-              "scaling": {
-                "atk": 6.2968
-              },
-              "count": 1
             }
           ]
         },
         {
-          "combo": "E C 2[N5D] N5 Q",
+          "combo": "E C 2[N5D] N5",
           "when": [
             {
               "members": [
@@ -8045,19 +8029,11 @@
                 "atk": 1.285709
               },
               "count": 3
-            },
-            {
-              "label": "Skill DMG",
-              "type": "burst",
-              "scaling": {
-                "atk": 6.2968
-              },
-              "count": 1
             }
           ]
         },
         {
-          "combo": "E 7[N2C] N2 Q",
+          "combo": "E 7[N2C] N2",
           "when": [
             {
               "members": [
@@ -8110,19 +8086,11 @@
                 "atk": 0.95729
               },
               "count": 8
-            },
-            {
-              "label": "Skill DMG",
-              "type": "burst",
-              "scaling": {
-                "atk": 6.2968
-              },
-              "count": 1
             }
           ]
         },
         {
-          "combo": "E 5[N3C] N1 Q",
+          "combo": "E 5[N3C] N1",
           "when": [
             {
               "members": [
@@ -8183,19 +8151,11 @@
                 "atk": 1.201274
               },
               "count": 5
-            },
-            {
-              "label": "Skill DMG",
-              "type": "burst",
-              "scaling": {
-                "atk": 6.2968
-              },
-              "count": 1
             }
           ]
         },
         {
-          "combo": "E C N3 4[N3D] N1 Q",
+          "combo": "E C N3 4[N3D] N1",
           "when": [
             {
               "members": [
@@ -8253,19 +8213,11 @@
                 "atk": 1.201274
               },
               "count": 5
-            },
-            {
-              "label": "Skill DMG",
-              "type": "burst",
-              "scaling": {
-                "atk": 6.2968
-              },
-              "count": 1
             }
           ]
         },
         {
-          "combo": "E C 6[N3D] N3 Q",
+          "combo": "E C 6[N3D] N3",
           "when": [
             {
               "members": [
@@ -8326,14 +8278,6 @@
                 "atk": 1.201274
               },
               "count": 7
-            },
-            {
-              "label": "Skill DMG",
-              "type": "burst",
-              "scaling": {
-                "atk": 6.2968
-              },
-              "count": 1
             }
           ]
         }
