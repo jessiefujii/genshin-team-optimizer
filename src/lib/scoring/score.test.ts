@@ -102,10 +102,12 @@ describe("scoreTeam", () => {
     const klee = reasons("Klee", "Albedo", "Bennett", "Columbina");
     expect(klee.some((r) => r.startsWith("Vaporize adds") && r.endsWith("to Klee's damage"))).toBe(true);
     expect(klee.find((r) => r.startsWith("Columbina's own hits"))).not.toMatch(/with Vaporize/);
-    // Two Hydro sources leave Hu Tao her full share (with her guide's Crimson Witch: +15% Vaporize, #206).
-    expect(reasons("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toContain("Vaporize adds ~+70% to Hu Tao's damage");
-    // Gaming's main reaction is Melt; his Vaporize teams amplify by Vaporize (his Vaporize combo).
-    expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+70% to Gaming's damage");
+    // Two Hydro sources leave Hu Tao her full share: every Charged Attack and Blood Blossom, 5 of her 14 Normal Attack
+    // hits (#226: carryIcd, Thrusting Attack ICD and the Default one), with her guide's Crimson Witch: +15% Vaporize (#206).
+    expect(reasons("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toContain("Vaporize adds ~+78% to Hu Tao's damage");
+    // Gaming's main reaction is Melt; his Vaporize teams amplify by Vaporize (his Vaporize combo). Plunging Attacks
+    // have no ICD (#226): all 7 react.
+    expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+86% to Gaming's damage");
   });
 
   test("Dendro Cores: Electro pops them into Hyperbloom, none with a Lunar-Bloom converter (#253)", () => {
@@ -120,7 +122,7 @@ describe("scoreTeam", () => {
   test("a modeled carry's reactions are inside their damage, with a 0-point line saying what they add (#134, #202)", () => {
     const reactions = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions");
     expect(reactions("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toEqual([
-      { rule: "Reactions", points: 0, reason: "Vaporize adds ~+70% to Hu Tao's damage" }, // Crimson Witch's 15% (#206)
+      { rule: "Reactions", points: 0, reason: "Vaporize adds ~+78% to Hu Tao's damage" }, // ICDs (#226), Crimson Witch (#206)
     ]);
     // Clorinde's Dark-Shattering Flame needs any Electro-related reaction (#141): its own line, at full value with
     // Overloaded alone; Aggravate then adds only what it adds on top. Overloaded's own damage is a 0-point line too (#205).
@@ -131,7 +133,8 @@ describe("scoreTeam", () => {
     ]);
     expect(reactions("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+75% damage" },
-      { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+54% to Clorinde's damage, on top of the passive" },
+      // 1 in 3 of her Swift Hunt and Impale hits applies Electro (one Normal Attack ICD, #226), 2 of 5 Burst hits.
+      { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+27% to Clorinde's damage, on top of the passive" },
       // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
       { rule: "Reactions", points: 0, reason: "Swirl: ~2381 damage per second (Kaedehara Kazuha ~0.5/s)" },
     ]);
@@ -982,9 +985,10 @@ describe("talent levels (#25)", () => {
   });
 
   test("Electro enablers partner a Dendro carry's Spread (#61)", () => {
-    // Alhaitham and Tighnari are modeled, so their Spread counts by damage (#134).
+    // Alhaitham and Tighnari are modeled, so their Spread counts by damage (#134). Alhaitham's hits that apply Dendro
+    // (#226): 7 of 20 Normal Attack hits, 4 of 10 Burst hits, every other Projection Attack.
     expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
-      "Spread adds ~+118% to Alhaitham's damage", // his guide's Gilded Dreams needs a reaction (#206)
+      "Spread adds ~+80% to Alhaitham's damage", // ICDs (#226); his guide's Gilded Dreams needs a reaction (#206)
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
       // 1 in 4 Clusterbloom Arrows applies Dendro (#221); his guide's Wanderer's Troupe raises his Charged Attacks (#206).
@@ -995,11 +999,11 @@ describe("talent levels (#25)", () => {
   test("flat reaction damage is weighed against hits with the team's buffs (#157)", () => {
     const spread = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Spread adds"))?.reason;
     // Bennett's ATK raises Alhaitham's hits but not Spread's flat damage, so Spread adds a smaller share.
-    // (With his guide's Gilded Dreams, whose ATK and EM need a reaction, #206.)
-    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+118% to Alhaitham's damage");
-    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+101% to Alhaitham's damage");
+    // (ICDs, #226; with his guide's Gilded Dreams, whose ATK and EM need a reaction, #206.)
+    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+80% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+68% to Alhaitham's damage");
     // Lauma's flat DMG is for Bloom-type reactions, not his hits: no change.
-    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+118% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+80% to Alhaitham's damage");
     // Vaporize multiplies the whole hit, so ATK buffs leave its share alone.
     const vape = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Vaporize adds"))?.reason;
     expect(vape("Hu Tao", "Xingqiu", "Bennett", "Zhongli")).toBe(vape("Hu Tao", "Xingqiu", "Yelan", "Zhongli"));

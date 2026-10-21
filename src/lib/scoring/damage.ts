@@ -322,8 +322,9 @@ const AMPLIFY: Partial<Record<Reaction, Partial<Record<Element, number>>>> = {
   vaporize: { Hydro: 2, Pyro: 1.5 },
   melt: { Pyro: 2, Cryo: 1.5 },
 };
-// A combo picked for a reaction (#114) amplifies by that reaction, and its hits with a sourced `reacting` count use
-// that share instead of the flat one.
+// A combo picked for a reaction (#114) amplifies by that reaction, and its hits with a `reacting` count use that share
+// instead of the flat one: sourced, or from the hit's ICD (kit-overrides.json carryIcd, #226: the hits that apply
+// their element). The flat share is the fallback for hits with neither.
 const AMPLIFY_SHARE = 0.7; // reactions.ts: amplifying, main reaction
 // The extra damage a hit that reacts gains (2x Melt with EM: about 1.5 more), or 0 when the reaction doesn't amplify.
 // `bonus`: Reaction Bonus (Crimson Witch's 15%), added to the EM bonus (wiki, Damage § Amplifying Reaction, #206).
@@ -336,7 +337,7 @@ export function amplifyGain(c: ScoringCharacter, em: number, active: readonly Re
 }
 // Spread and Aggravate add flat damage to each hit that reacts (Genshin Impact Wiki, Damage § Catalyze Damage Bonus,
 // fetched 2026-10-12): 1.25 (Spread) or 1.15 (Aggravate) x the level 90 Level Multiplier, 1446.85, x (1 + 5 x EM /
-// (EM + 1200)), then the hit's DMG bonuses. Which hits react: the same share as Vaporize and Melt (#129).
+// (EM + 1200)), then the hit's DMG bonuses. Which hits react: the same share as Vaporize and Melt (#129, #226).
 const CATALYZE: Partial<Record<Reaction, { element: Element; coefficient: number }>> = {
   spread: { element: "Dendro", coefficient: 1.25 },
   aggravate: { element: "Electro", coefficient: 1.15 },
