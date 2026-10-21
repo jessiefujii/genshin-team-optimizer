@@ -745,7 +745,8 @@ interface SubDpsSource {
   whenReaction?: Reaction; // only while the team triggers it
   when?: { ascendantGleam?: boolean; reaction?: Reaction }; // like a carry hit's `when` (Jahoda's robots, #100)
   // Other rates for teams that fit: the first whose `when` matches replaces hits/every/duration (Jahoda, #175).
-  alternatives?: { when: { topElement?: Element }; hits?: number; every?: number; duration?: number }[];
+  alternatives?: { when: { topElement?: Element; radiance?: boolean }; hits?: number; every?: number; duration?: number; cd?: number; perRotation?: boolean }[];
+  perRotation?: boolean; // cast once per rotation: the cd is at least the carry's rotation (Yae's totems before her quest, #304)
   dmgBonusPerStat?: Partial<Record<ScaleStat, number>>; // DMG Bonus per point of a stat (Dendro Traveler, #172)
   // More DMG on the first `stacks` hits per use, by a share of a stat, capped (Durin's Primordial Fusion, #195).
   boost?: { stacks: number; perPoint: number; stat: ScaleStat; max: number };
@@ -863,7 +864,13 @@ export function topElement(members: readonly ScoringCharacter[]): Element | unde
 
 // Hits per second of one source, averaged over its cooldown; 0 when it can't fire in this team.
 function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
-  const alt = source.alternatives?.find((a) => !a.when.topElement || a.when.topElement === topElement(ctx.members));
+  // radiance: their own Stellar family is active, i.e. their Witch's Revelation done (the team is quest-adjusted:
+  // questView, #124): Yae's 24s totems (#304).
+  const alt = source.alternatives?.find(
+    (a) =>
+      (!a.when.topElement || a.when.topElement === topElement(ctx.members)) &&
+      (!a.when.radiance || !!sub.families?.includes("stellar")),
+  );
   const s = alt ? { ...source, ...alt, when: source.when } : source;
   if (s.onCarryNormal && !normalAttacks(carry)) return 0; // Xingqiu's rain swords need the carry's Normal Attacks
   if (s.needsReaction && ctx.active.length === 0) return 0; // Nahida's Tri-Karma needs a reaction
@@ -872,10 +879,11 @@ function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamC
   if (s.when?.reaction && !ctx.active.includes(s.when.reaction)) return 0;
   if (s.when?.ascendantGleam && ctx.members.filter((m) => m.families?.includes("moonsign")).length < 2) return 0;
   const perUse = s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1;
+  const cd = s.perRotation ? Math.max(s.cd, carryRotationSeconds(carry, ctx.active, ctx.members) ?? s.cd) : s.cd;
   // Furina's Salon bonus needs members above 50% HP, which takes another healer (#130).
   const healed = ctx.members.some((m) => m !== sub && m.roles.includes("healer"));
   const times = s.timesNeedsHealer && !healed ? 1 : (s.times ?? 1);
-  return ((s.hits ?? 1) * perUse * times) / s.cd;
+  return ((s.hits ?? 1) * perUse * times) / cd;
 }
 
 // For each `pickOne` group, the source that fires (#151): Columbina's Gravity Interference takes the type of the Lunar
