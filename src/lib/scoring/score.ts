@@ -921,8 +921,9 @@ function appliedShare(s: SubDpsSource): number {
 // (Hydro on Pyro, Pyro on Cryo: "2x unit modifier") and 0.5U when weak. The carry's own reacting hits on the same aura
 // are served first, as far as the aura reaches, and the applications that fed them can't react (#239); the sub-DPS share
 // what's left. Members without a sub-DPS entry (Bennett) add no supply
-// (estimate). Spread and Aggravate don't use this budget: the Quicken aura isn't consumed the same way.
+// (estimate). Spread and Aggravate don't consume the Quicken aura; they take the share of time it is up (`quicken` below, #303).
 const AMPLIFYING: Partial<Record<Reaction, Element>> = { vaporize: "Hydro", melt: "Pyro" }; // the strong-side trigger
+const CATALYZING: Partial<Record<Reaction, Element>> = { spread: "Dendro", aggravate: "Electro" }; // the trigger on Quicken
 function applicationsPerSecond(x: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext): number {
   if (x === carry) {
     const rates = carryHitRates(carry, ctx.active, ctx.members);
@@ -946,7 +947,8 @@ function applicationsPerSecond(x: ScoringCharacter, carry: ScoringCharacter, ctx
 function auraShares(ctx: TeamContext, carry: ScoringCharacter): Map<ScoringCharacter, Map<Reaction, number>> {
   return auraBudget(ctx, carry).subs;
 }
-// The share of the carry's own Vaporize or Melt hits their pair's aura feeds (#239); 1 when nothing else claims it.
+// The share of the carry's own Vaporize or Melt hits their pair's aura feeds (#239), or of their Spread or Aggravate
+// hits that find a Quicken aura (#303); 1 when nothing else claims it.
 function carryAmpShare(ctx: TeamContext, carry: ScoringCharacter): number {
   return auraBudget(ctx, carry).carry;
 }
@@ -1068,6 +1070,27 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
       if (used > cap) for (const p of mine) p.reactions *= cap / used;
     }
   }
+  // Spread and Aggravate (#303): a Dendro or Electro hit on a Quicken aura; they "will not consume the Quicken Aura"
+  // (wiki Quicken, fetched 2026-10-21) nor the hit's element, so the same hit can still Bloom or Quicken. What limits
+  // them is the aura being there: it lasts gauge x 5 + 6 seconds, 10s from 0.8U (wiki Elemental Gauge Theory/Advanced
+  // Mechanics § Quicken), and "Inflicting Pyro or Hydro on a Quicken Aura will consume it to trigger Burning or Bloom"
+  // (wiki Quicken; KQM Library, Additive Reactions: it "acts as a Dendro aura when being reacted with Pyro or Hydro").
+  // Hydro on it takes 0.5U (0.5x, as on Dendro), so 1.6 Hydro applications end one; a Pyro application ends it (Burning
+  // eats it at 0.4U/s or more: estimate). Hydro and Pyro spent amplifying first don't reach it ("Vaporize will occur
+  // first, and Bloom will occur if Hydro was not fully consumed": wiki Simultaneous Reaction Priority). Taking those
+  // as random arrivals at rate c, an aura lasts (1 - e^(-10c)) / c on average, and the Quicken pairs above make one
+  // each reaction: uptime = min(1, Quickens per second x that), the share of Spread and Aggravate hits that find it
+  // (estimate). Every Spread or Aggravate hit, the carry's and sub-DPS', gets it. Before, every applying Dendro or
+  // Electro hit counted next to a Hydro teammate, and the same Dendro hit both Spread and fed Bloom (Alhaitham with
+  // Furina, #303). When Dendro or Electro has no modeled applier (no sub-DPS entry), 1 stays as the stand-in.
+  const quickens = pairs.filter((p) => p.r === "quicken").reduce((s, p) => s + p.reactions, 0);
+  const amplified = (e: Element) => pairs.filter((p) => p.trigger === e && AMPLIFYING[p.r]).reduce((s, p) => s + p.reactions, 0);
+  const reaching = (e: Element) => Math.max(0, (apps.get(e) ?? 0) - amplified(e));
+  const eaten = reaching("Hydro") / (0.8 / 0.5) + reaching("Pyro");
+  const lasts = eaten > 0 ? (1 - Math.exp(-QUICKEN_SECONDS * eaten)) / eaten : QUICKEN_SECONDS;
+  const modeled = (full.get("Dendro") ?? 0) > 0 && (full.get("Electro") ?? 0) > 0;
+  const quicken = modeled ? Math.min(1, quickens * lasts) : 1;
+  if (own && CATALYZING[own.reaction as Reaction] === carry.element && ctx.active.includes(own.reaction as Reaction)) carryShare = quicken;
   const transformative: Trigger[] = [];
   for (const p of pairs) {
     const share = Math.min(1, p.reactions / p.asked);
@@ -1134,9 +1157,10 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   // Crystallize shards per second for survival (#208): Geo on any aura but Hydro's when it turns Lunar-Crystallize.
   const crystals = pairs.filter((p) => p.r === "crystallize" && !(p.aura === "Hydro" && ctx.active.includes("lunar-crystallize")));
   const crystallize = { perSecond: crystals.reduce((s, p) => s + p.reactions, 0), geo: [...new Set(crystals.flatMap((p) => p.members))] };
-  return { subs: out, carry: carryShare, transformative, appsOf, indirect, crystallize };
+  return { subs: out, carry: carryShare, quicken, transformative, appsOf, indirect, crystallize };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
+const QUICKEN_SECONDS = 0.8 * 5 + 6; // a Quicken aura from 0.8U (wiki Quicken § Duration)
 const CRYSTALLIZE_PER_SECOND = 1;
 // A converter turns these into their Lunar or Stellar form (Moonsign Benediction, Stellar Jubilee): with the converted
 // reaction in the team, the base one doesn't happen. Stellar Swirl is the Cryo Swirl only (reactions.ts: Anemo + Cryo).
@@ -1323,6 +1347,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
   let lead: { m: ScoringCharacter; dps: number } | null = null;
   const needs = energyNeeds(ctx.members, carry, carryRotationSeconds(carry, ctx.active, ctx.members));
   const auras = auraShares(ctx, carry);
+  const quicken = auraBudget(ctx, carry).quicken;
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
     if (m === carry || !entry) continue;
@@ -1368,9 +1393,9 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
         let extra = 0;
         let best: Reaction | null = null;
         // Each reaction's extra damage on this hit's reacting share: its applying hits (ICD), times the aura budget's
-        // share for Vaporize and Melt (Spread and Aggravate: all applying hits).
+        // share for Vaporize and Melt, or the Quicken aura's uptime for Spread and Aggravate (#303).
         for (const r of reactions) {
-          const share = appliedShare(s) * (AMPLIFYING[r] ? (auras.get(m)?.get(r) ?? 0) : 1);
+          const share = appliedShare(s) * (AMPLIFYING[r] ? (auras.get(m)?.get(r) ?? 0) : CATALYZING[r] ? quicken : 1);
           const add = share * (base * amplifyGain(m, stat.em, ctx.active, r) + catalyzeDamage(m, stat.em, ctx.active, r));
           if (add > extra) [extra, best] = [add, r];
         }

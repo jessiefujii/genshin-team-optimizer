@@ -1,5 +1,5 @@
 {
-  "median": 143175.2,
+  "median": 141103.9,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -53,7 +53,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 145125.9
+      "value": 121277
     },
     "Cyno": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 184031
+      "value": 170931.2
     },
     "Diluc": {
       "team": [
@@ -157,11 +157,11 @@
     "Keqing": {
       "team": [
         "Keqing",
-        "Baizhu",
+        "Ineffa",
         "Furina",
-        "Yelan"
+        "Xilonen"
       ],
-      "value": 139834.5
+      "value": 130108.6
     },
     "Kinich": {
       "team": [
@@ -231,18 +231,18 @@
         "Nefer",
         "Furina",
         "Lauma",
-        "Kuki Shinobu"
+        "Ineffa"
       ],
-      "value": 113319.2
+      "value": 112108.6
     },
     "Neuvillette": {
       "team": [
         "Neuvillette",
-        "Ineffa",
-        "Nahida",
-        "Furina"
+        "Escoffier",
+        "Furina",
+        "Shenhe"
       ],
-      "value": 163417.4
+      "value": 155132.9
     },
     "Ningguang": {
       "team": [
@@ -305,7 +305,7 @@
         "Kuki Shinobu",
         "Traveler (Dendro)"
       ],
-      "value": 64700.3
+      "value": 59547.6
     },
     "Skirk": {
       "team": [
