@@ -1767,22 +1767,485 @@
         },
         "source": "4pc: \"If the opponent is Frozen, CRIT Rate is increased by an additional 20%\""
       }
+    ],
+    "Crimson Witch of Flames": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.075,
+        "perStack": 0.075,
+        "maxStacks": 3,
+        "element": "Pyro",
+        "source": "4pc: \"increases the 2-Piece Set Bonus by 50% of its starting value\""
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.15,
+        "reactions": [
+          "vaporize",
+          "melt"
+        ],
+        "source": "4pc: \"Increases Vaporize and Melt DMG by 15%\""
+      }
+    ],
+    "Emblem of Severed Fate": [
+      {
+        "kind": "dmgBonusFromEr",
+        "value": 0.25,
+        "max": 0.75,
+        "types": [
+          "burst"
+        ],
+        "source": "4pc: \"Increases Elemental Burst DMG by 25% of Energy Recharge\""
+      }
+    ],
+    "Gilded Dreams": [
+      {
+        "kind": "atkPctPerSame",
+        "value": 0.14,
+        "max": 3,
+        "when": {
+          "wearerReacts": true
+        },
+        "source": "4pc: \"ATK is increased by 14% for each party member whose Elemental Type is the same\""
+      },
+      {
+        "kind": "emPerOther",
+        "value": 50,
+        "max": 3,
+        "when": {
+          "wearerReacts": true
+        },
+        "source": "4pc: \"Elemental Mastery is increased by 50 for every party member with a different Elemental Type\""
+      }
+    ],
+    "Fragment of Harmonic Whimsy": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.54,
+        "when": {
+          "bondOfLife": true
+        },
+        "source": "4pc: \"this character deals 18% increased DMG for 6s\" x3 stacks"
+      }
+    ],
+    "Thundering Fury": [
+      {
+        "kind": "reactionBonus",
+        "value": 0.2,
+        "reactions": [
+          "aggravate"
+        ],
+        "source": "4pc: \"the DMG Bonus conferred by Aggravate by 20%\""
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.2,
+        "reactions": [
+          "lunar-charged"
+        ],
+        "source": "4pc: \"the DMG caused by Lunar-Charged and Stellar-Conduct by 20%\""
+      }
+    ],
+    "Night of the Sky's Unveiling": [
+      {
+        "kind": "critRate",
+        "value": 0.15,
+        "when": {
+          "moonsign": "nascent"
+        },
+        "source": "4pc: \"Increases CRIT Rate by 15%/30% when the party's Moonsign is Nascent Gleam\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.3,
+        "when": {
+          "moonsign": "ascendant"
+        },
+        "source": "4pc: \"Increases CRIT Rate by 15%/30% when the party's Moonsign is Nascent Gleam/Ascendant Gleam\""
+      }
+    ],
+    "Marechaussee Hunter": [
+      {
+        "kind": "dmgBonus",
+        "pieces": 2,
+        "value": 0.15,
+        "types": [
+          "normal",
+          "charged"
+        ],
+        "source": "2pc: \"Normal and Charged Attack DMG +15%\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.36,
+        "when": {
+          "hpChanges": true
+        },
+        "source": "4pc: \"CRIT Rate will be increased by 12% for 5s\" x3 stacks"
+      }
+    ],
+    "Finale of the Deep Galleries": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.6,
+        "types": [
+          "normal"
+        ],
+        "when": {
+          "noEnergy": true
+        },
+        "source": "4pc: \"has 0 Elemental Energy, Normal Attack DMG is increased by 60%\""
+      }
+    ],
+    "Long Night's Oath": [
+      {
+        "kind": "dmgBonus",
+        "pieces": 2,
+        "value": 0.25,
+        "types": [
+          "plunge"
+        ],
+        "source": "2pc: \"Plunging Attack DMG increased by 25%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.75,
+        "types": [
+          "plunge"
+        ],
+        "source": "4pc: \"Plunging Attacks deal 15% increased DMG for 6s\" x5 stacks"
+      }
+    ],
+    "Vermillion Hereafter": [
+      {
+        "kind": "atkPct",
+        "value": 0.08,
+        "source": "4pc: \"increasing their ATK by 8% for 16s\" (taken as up after their Burst: estimate)"
+      },
+      {
+        "kind": "atkPct",
+        "value": 0.4,
+        "when": {
+          "hpDrops": true
+        },
+        "source": "4pc: \"their ATK will further increase by 10%\" x4 stacks"
+      }
+    ],
+    "Obsidian Codex": [
+      {
+        "kind": "dmgBonus",
+        "pieces": 2,
+        "value": 0.15,
+        "when": {
+          "nightsoul": true
+        },
+        "source": "2pc: \"is on the field, their DMG dealt is increased by 15%\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.4,
+        "when": {
+          "nightsoul": true
+        },
+        "source": "4pc: \"consumes 1 Nightsoul point while on the field, CRIT Rate increases by 40%\""
+      }
+    ],
+    "Shimenawa's Reminiscence": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.5,
+        "types": [
+          "normal",
+          "charged",
+          "plunge"
+        ],
+        "source": "4pc: \"Normal/Charged/Plunging Attack DMG is increased by 50% for 10s\" (taken as up after their Skill: estimate)"
+      }
+    ],
+    "Golden Troupe": [
+      {
+        "kind": "dmgBonus",
+        "pieces": 2,
+        "value": 0.2,
+        "types": [
+          "skill"
+        ],
+        "source": "2pc: \"Increases Elemental Skill DMG by 20%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.25,
+        "types": [
+          "skill"
+        ],
+        "source": "4pc: \"Increases Elemental Skill DMG by 25%\""
+      }
+    ],
+    "Gladiator's Finale": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.35,
+        "types": [
+          "normal"
+        ],
+        "when": {
+          "weapons": [
+            "Sword",
+            "Claymore",
+            "Polearm"
+          ]
+        },
+        "source": "4pc: \"uses a Sword, Claymore or Polearm, increases their Normal Attack DMG by 35%\""
+      }
+    ],
+    "Wanderer's Troupe": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.35,
+        "types": [
+          "charged"
+        ],
+        "when": {
+          "weapons": [
+            "Catalyst",
+            "Bow"
+          ]
+        },
+        "source": "4pc: \"Increases Charged Attack DMG by 35% if the character uses a Catalyst or a Bow\""
+      }
+    ],
+    "Heart of Depth": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.3,
+        "types": [
+          "normal",
+          "charged"
+        ],
+        "source": "4pc: \"After using Elemental Skill, increases Normal Attack and Charged Attack DMG by 30%\" (taken as up after their Skill: estimate)"
+      }
+    ],
+    "Unfinished Reverie": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.5,
+        "when": {
+          "reaction": "burning"
+        },
+        "source": "4pc: \"it will increase by 10% instead until it reaches 50%\""
+      }
     ]
   },
   "benchmarkSets": {
-    "Ganyu": {
-      "set": "Blizzard Strayer",
-      "when": {
-        "reaction": "freeze"
+    "Ganyu": [
+      {
+        "set": "Blizzard Strayer",
+        "when": {
+          "reaction": "freeze"
+        },
+        "source": "KQM ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): \"This set is Ganyu's best-in-slot against freezable enemies\""
+      }
+    ],
+    "Freminet": [
+      {
+        "set": "Blizzard Strayer",
+        "when": {
+          "reaction": "freeze"
+        },
+        "source": "KQM freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
+      }
+    ],
+    "Kamisato Ayaka": [
+      {
+        "set": "Marechaussee Hunter",
+        "when": {
+          "members": [
+            "Furina"
+          ]
+        },
+        "source": "KQM ayaka quick guide (keqingmains.com/q/ayaka-quickguide, accessed 2026-10-20): \"4pc Marechaussee Hunter is Ayaka's recommended artifact set for most content when Furina is on the team\""
+      }
+    ],
+    "Skirk": [
+      {
+        "set": "Marechaussee Hunter",
+        "when": {
+          "members": [
+            "Furina"
+          ]
+        },
+        "source": "KQM skirk quick guide (keqingmains.com/q/skirk-quickguide, accessed 2026-10-20): \"Marechaussee offers plenty of CRIT Rate and a Normal Attack DMG Bonus, which makes it on-field Skirk's Best-in-Slot as long as she can maintain full stacks and never uses her regular Burst — in other words, in Furina teams with no split rotations\""
       },
-      "source": "KQM Ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-20): \"This set is Ganyu's best-in-slot against freezable enemies\""
-    },
-    "Freminet": {
-      "set": "Blizzard Strayer",
-      "when": {
-        "reaction": "freeze"
-      },
-      "source": "KQM Freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-20): \"4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle\""
+      {
+        "set": "Finale of the Deep Galleries",
+        "source": "KQM skirk quick guide (keqingmains.com/q/skirk-quickguide, accessed 2026-10-20): \"Galleries performs less than ~2% worse than Marechaussee for Skirk's on-field playstyle ... While it's her best generalist set\""
+      }
+    ],
+    "Hu Tao": [
+      {
+        "set": "Crimson Witch of Flames",
+        "source": "KQM hu-tao quick guide (keqingmains.com/q/hu-tao-quickguide, accessed 2026-10-20): \"4pc Crimson Witch of Flames (4CW) Very strong on Hu Tao as she is able to benefit from everything it provides\""
+      }
+    ],
+    "Diluc": [
+      {
+        "set": "Crimson Witch of Flames",
+        "source": "KQM diluc quick guide (keqingmains.com/q/diluc-quickguide, accessed 2026-10-20): \"the difference is small enough where 4CW remains the generally recommended set\""
+      }
+    ],
+    "Gaming": [
+      {
+        "set": "Crimson Witch of Flames",
+        "source": "KQM gaming quick guide (keqingmains.com/q/gaming-quickguide, accessed 2026-10-20): \"4pc Crimson Witch of Flames is Gaming's best artifact set for Melt and Vaporize teams\""
+      }
+    ],
+    "Raiden Shogun": [
+      {
+        "set": "Emblem of Severed Fate",
+        "source": "KQM raiden quick guide (keqingmains.com/q/raiden-quickguide, accessed 2026-10-20): \"4pc Emblem of Severed Fate (EoSF) Undisputed best-in-slot set\""
+      }
+    ],
+    "Alhaitham": [
+      {
+        "set": "Gilded Dreams",
+        "source": "KQM alhaitham quick guide (keqingmains.com/q/alhaitham-quickguide, accessed 2026-10-20): \"4pc Gilded Dreams is Alhaitham's general Best-in-Slot artifact set\""
+      }
+    ],
+    "Yumemizuki Mizuki": [
+      {
+        "set": "Gilded Dreams",
+        "source": "KQM mizuki quick guide (keqingmains.com/q/mizuki-quickguide, accessed 2026-10-20): \"4pc Gilded Dreams (GD) Mizuki's BiS artifact set for personal damage in SSW teams\""
+      }
+    ],
+    "Arlecchino": [
+      {
+        "set": "Fragment of Harmonic Whimsy",
+        "source": "KQM arlecchino quick guide (keqingmains.com/q/arlecchino-quickguide, accessed 2026-10-20): \"Arlecchino's general Best-in-Slot set grants DMG Bonus according to Bond of Life. She can easily maintain full stacks\""
+      }
+    ],
+    "Clorinde": [
+      {
+        "set": "Fragment of Harmonic Whimsy",
+        "source": "KQM clorinde quick guide (keqingmains.com/q/clorinde-quickguide, accessed 2026-10-20): \"It provides her with the highest personal damage in all her teams, as she easily stacks the 4pc effect\""
+      }
+    ],
+    "Cyno": [
+      {
+        "set": "Thundering Fury",
+        "source": "KQM cyno quick guide (keqingmains.com/q/cyno-quickguide, accessed 2026-10-20): \"4pc Thundering Fury is Cyno's Best-in-Slot artifact set\""
+      }
+    ],
+    "Flins": [
+      {
+        "set": "Night of the Sky's Unveiling",
+        "source": "KQM flins quick guide (keqingmains.com/q/flins-quickguide, accessed 2026-10-20): \"4pc Night of the Sky's Unveiling (NotSU) Flins's best artifact set\""
+      }
+    ],
+    "Nefer": [
+      {
+        "set": "Night of the Sky's Unveiling",
+        "source": "KQM nefer quick guide (keqingmains.com/q/nefer-quickguide, accessed 2026-10-20): \"Nefer's best-in-slot set by a significant margin\""
+      }
+    ],
+    "Zibai": [
+      {
+        "set": "Night of the Sky's Unveiling",
+        "source": "KQM zibai quick guide (keqingmains.com/q/zibai-quickguide, accessed 2026-10-20): \"By far Zibai's best artifact set\""
+      }
+    ],
+    "Neuvillette": [
+      {
+        "set": "Marechaussee Hunter",
+        "source": "KQM neuvillette quick guide (keqingmains.com/q/neuvillette-quickguide, accessed 2026-10-20): \"Marechaussee's Charged Attack DMG% and hefty CRIT Rate make it Neuvillette's BiS by a sizable margin\""
+      }
+    ],
+    "Wriothesley": [
+      {
+        "set": "Marechaussee Hunter",
+        "source": "KQM wriothesley quick guide (keqingmains.com/q/wriothesley-quickguide, accessed 2026-10-20): \"4pc MH only performs slightly behind 4pc DiDS in Stellar-Conduct teams, but it is the Best-in-Slot in Wriothesley's other playstyles\""
+      }
+    ],
+    "Xiao": [
+      {
+        "set": "Vermillion Hereafter",
+        "source": "KQM xiao quick guide (keqingmains.com/q/xiao-quickguide, accessed 2026-10-20): \"4pc Vermillion Hereafter One of Xiao's best artifact sets. His Burst's HP drain stacks a buff of up to 48% ATK\""
+      }
+    ],
+    "Kinich": [
+      {
+        "set": "Obsidian Codex",
+        "source": "KQM kinich quick guide (keqingmains.com/q/kinich-quickguide, accessed 2026-10-20): \"4pc Obsidian Codex Kinich's best set, offering 40% CRIT Rate and 15% DMG\""
+      }
+    ],
+    "Mavuika": [
+      {
+        "set": "Obsidian Codex",
+        "source": "KQM mavuika quick guide (keqingmains.com/q/mavuika-quickguide, accessed 2026-10-20): \"4pc Obsidian Codex is on-field Mavuika's Best-in-Slot\""
+      }
+    ],
+    "Mualani": [
+      {
+        "set": "Obsidian Codex",
+        "source": "KQM mualani quick guide (keqingmains.com/q/mualani-quickguide, accessed 2026-10-20): \"Easily Mualani's Best-in-Slot\""
+      }
+    ],
+    "Chasca": [
+      {
+        "set": "Obsidian Codex",
+        "source": "KQM chasca quick guide (keqingmains.com/q/chasca-quickguide, accessed 2026-10-20): \"4pc Obsidian Codex Chasca's best set\""
+      }
+    ],
+    "Varesa": [
+      {
+        "set": "Long Night's Oath",
+        "source": "KQM varesa quick guide (keqingmains.com/q/varesa-quickguide, accessed 2026-10-20): \"Varesa is able to easily stack its 4pc effect for a substantial 100% Plunge DMG Bonus. This set performs either better to around equal to 4pc Obsidian Codex\""
+      }
+    ],
+    "Yoimiya": [
+      {
+        "set": "Shimenawa's Reminiscence",
+        "source": "KQM yoimiya quick guide (keqingmains.com/q/yoimiya-quickguide, accessed 2026-10-20): \"4pc SR is the baseline recommendation for almost all of Yoimiya's possible teams\""
+      }
+    ],
+    "Kamisato Ayato": [
+      {
+        "set": "Heart of Depth",
+        "source": "KQM ayato quick guide (keqingmains.com/q/ayato-quickguide, accessed 2026-10-20): \"All of these sets perform similarly ... 4pc Heart of Depth is one of Ayato's best sets\""
+      }
+    ],
+    "Lyney": [
+      {
+        "set": "Marechaussee Hunter",
+        "source": "KQM lyney quick guide (keqingmains.com/q/lyney-quickguide, accessed 2026-10-20): \"Marechaussee Hunter By far Lyney's best artifact set. Lyney pairs well with this set's condition\""
+      }
+    ],
+    "Tighnari": [
+      {
+        "set": "Wanderer's Troupe",
+        "source": "KQM tighnari quick guide (keqingmains.com/q/tighnari-quickguide, accessed 2026-10-20): \"4-piece Wanderer's Troupe (4WT) Provides an unconditional buff to his Charged Shots\""
+      }
+    ]
+  },
+  "holderStates": {
+    "selfHpDrain": [
+      "Neuvillette",
+      "Xiao",
+      "Wriothesley",
+      "Hu Tao",
+      "Lyney"
+    ],
+    "partyHpDrain": [
+      "Furina"
+    ],
+    "bondOfLife": [
+      "Arlecchino",
+      "Clorinde",
+      "Sigewinne"
+    ],
+    "setStacks": {
+      "Gaming": {
+        "Crimson Witch of Flames": 3
+      }
     }
   },
   "weapons": {
@@ -1992,6 +2455,462 @@
           "hpChanges": true
         },
         "source": "R1: \"Max HP will be increased by 14% for 6s\" x2 stacks"
+      }
+    ],
+    "Haran Geppaku Futsu": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "when": {
+          "teammatesSkill": true
+        },
+        "source": "R1: \"each stack of Wavespike consumed will increase Normal Attack DMG by 20%\" x2 stacks"
+      }
+    ],
+    "Kagura's Verity": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.36,
+          0.45,
+          0.54,
+          0.63,
+          0.72
+        ],
+        "source": "R1: \"increasing the wielding character's Elemental Skill DMG by 12%\" x3 stacks (taken at full stacks / up throughout: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"gain a 12% All Elemental DMG Bonus when they possess 3 stacks\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Calamity Queller": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.192,
+          0.24,
+          0.288,
+          0.336,
+          0.384
+        ],
+        "source": "R1: \"causing ATK to increase by 3.2% per second\" x6 stacks (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Tome of the Eternal Flow": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "charged"
+        ],
+        "values": [
+          0.42,
+          0.54,
+          0.66,
+          0.78,
+          0.9
+        ],
+        "when": {
+          "hpChanges": true
+        },
+        "source": "R1: \"Charged Attack DMG will be increased by 14% for 4s\" x3 stacks"
+      }
+    ],
+    "Crimson Moon's Semblance": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.12,
+          0.16,
+          0.2,
+          0.24,
+          0.28
+        ],
+        "when": {
+          "bondOfLife": true
+        },
+        "source": "R1: \"when the equipping character has a Bond of Life, they gain a 12% DMG Bonus\""
+      },
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.24,
+          0.32,
+          0.4,
+          0.48,
+          0.56
+        ],
+        "when": {
+          "bondOfLife": true
+        },
+        "source": "R1: \"then gain an additional 24% DMG Bonus\""
+      }
+    ],
+    "Absolution": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.48,
+          0.6,
+          0.72,
+          0.84,
+          0.96
+        ],
+        "when": {
+          "bondOfLife": true
+        },
+        "source": "R1: \"increases the DMG the equipping character deals by 16% for 6s\" x3 stacks"
+      }
+    ],
+    "Thundering Pulse": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "source": "R1: \"Thunder Emblem increases Normal Attack DMG by 12/24/40%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Aqua Simulacra": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "source": "R1: \"the DMG dealt by the wielder of this weapon is increased by 20%\""
+      }
+    ],
+    "Polar Star": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"Elemental Skill and Elemental Burst DMG increased by 12%\""
+      },
+      {
+        "kind": "atkPct",
+        "values": [
+          0.48,
+          0.6,
+          0.72,
+          0.84,
+          0.96
+        ],
+        "source": "R1: \"ATK is increased by 10/20/30/48%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "\"The Catch\"": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "burst"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Increases Elemental Burst DMG by 16%\""
+      }
+    ],
+    "Rust": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "source": "R1: \"Increases Normal Attack DMG by 40%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "charged"
+        ],
+        "values": [
+          -0.1,
+          -0.1,
+          -0.1,
+          -0.1,
+          -0.1
+        ],
+        "source": "R1: \"decreases Charged Attack DMG by 10%\""
+      }
+    ],
+    "Hamayumi": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Increases Normal Attack DMG by 16%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "charged"
+        ],
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"and Charged Attack DMG by 12%\""
+      }
+    ],
+    "Kitain Cross Spear": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill"
+        ],
+        "values": [
+          0.06,
+          0.075,
+          0.09,
+          0.105,
+          0.12
+        ],
+        "source": "R1: \"Increases Elemental Skill DMG by 6%\""
+      }
+    ],
+    "Wolf-Fang": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"DMG dealt by Elemental Skill and Elemental Burst is increased by 16%\""
+      }
+    ],
+    "Dragon's Bane": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.24,
+          0.28,
+          0.32,
+          0.36
+        ],
+        "when": {
+          "aura": [
+            "Hydro",
+            "Pyro"
+          ]
+        },
+        "source": "R1: \"affected by Hydro or Pyro by 20%\""
+      }
+    ],
+    "Lion's Roar": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.24,
+          0.28,
+          0.32,
+          0.36
+        ],
+        "when": {
+          "aura": [
+            "Pyro",
+            "Electro"
+          ]
+        },
+        "source": "R1: \"affected by Pyro or Electro by 20%\""
+      }
+    ],
+    "Rainslasher": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.2,
+          0.24,
+          0.28,
+          0.32,
+          0.36
+        ],
+        "when": {
+          "aura": [
+            "Hydro",
+            "Electro"
+          ]
+        },
+        "source": "R1: \"affected by Hydro or Electro by 20%\""
+      }
+    ],
+    "Iron Sting": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"increases all DMG by 6% for 6s\" x2 stacks (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Fang of the Mountain King": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "values": [
+          0.6,
+          0.75,
+          0.9,
+          1.05,
+          1.2
+        ],
+        "when": {
+          "reactions": [
+            "burning",
+            "burgeon"
+          ]
+        },
+        "source": "R1: \"Elemental Skill and Burst DMG is increased by 10% for 6s\" x6 stacks"
+      }
+    ],
+    "Staff of the Scarlet Sands": [
+      {
+        "kind": "atkFromEm",
+        "values": [
+          0.84,
+          1.05,
+          1.26,
+          1.47,
+          1.68
+        ],
+        "source": "R1: \"gain 28% of their Elemental Mastery as bonus ATK. Max\" x3 stacks (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Primordial Jade Winged-Spear": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.224,
+          0.273,
+          0.322,
+          0.371,
+          0.42
+        ],
+        "source": "R1: \"On hit, increases ATK by 3.2% for 6s\" x7 stacks (taken at full stacks / up throughout: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"While in possession of the maximum possible stacks, DMG dealt is increased by 12%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Lumidouce Elegy": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.36,
+          0.46,
+          0.56,
+          0.66,
+          0.76
+        ],
+        "when": {
+          "reactions": [
+            "burning"
+          ]
+        },
+        "source": "R1: \"the DMG dealt is increased by 18%\" x2 stacks"
+      }
+    ],
+    "Fruitful Hook": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal",
+          "charged",
+          "plunge"
+        ],
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "source": "R1: \"Normal, Charged, and Plunging Attack DMG increased by 16% for 10s\" (taken at full stacks / up throughout: estimate)"
       }
     ]
   },
