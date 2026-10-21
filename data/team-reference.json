@@ -1,5 +1,5 @@
 {
-  "median": 149650.9,
+  "median": 151406.2,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -287,7 +287,7 @@
         "Ineffa",
         "Yae Miko"
       ],
-      "value": 135047.6
+      "value": 158956.8
     },
     "Sethos": {
       "team": [
@@ -341,16 +341,16 @@
         "Odette",
         "Alyosha"
       ],
-      "value": 76589
+      "value": 101092.4
     },
     "Varesa": {
       "team": [
         "Varesa",
-        "Iansan",
-        "Furina",
-        "Xianyun"
+        "Columbina",
+        "Ineffa",
+        "Xilonen"
       ],
-      "value": 169915.2
+      "value": 163782.3
     },
     "Varka": {
       "team": [
@@ -359,7 +359,7 @@
         "Odette",
         "Escoffier"
       ],
-      "value": 113829.9
+      "value": 118475.8
     },
     "Vesna": {
       "team": [
@@ -368,7 +368,7 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 64128.5
+      "value": 68620.3
     },
     "Wanderer": {
       "team": [
@@ -395,7 +395,7 @@
         "Xianyun",
         "Furina"
       ],
-      "value": 186294.2
+      "value": 182742.8
     },
     "Yanfei": {
       "team": [
@@ -420,9 +420,9 @@
         "Yumemizuki Mizuki",
         "Odette",
         "Traveler (Cryo)",
-        "Faruzan"
+        "Zhongli"
       ],
-      "value": 111209.3
+      "value": 114933.9
     },
     "Zibai": {
       "team": [

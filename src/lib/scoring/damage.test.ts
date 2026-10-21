@@ -188,6 +188,19 @@ describe("carry damage (#101)", () => {
       expect(teamBuffStats(zhongli[0], active, zhongli).lunarAdditive).toBeUndefined();
     });
 
+    test("Xianyun's flat Plunge DMG reaches Xiao's plunge shockwaves only, not his Skill hits (#299)", () => {
+      const team = ["Xiao", "Xianyun", "Faruzan", "Furina"].map((id) => byId.get(id)!);
+      const tb = teamBuffStats(team[0], [], team);
+      const plunge = tb.byHit?.plunge?.flat ?? 0;
+      expect(tb.flat).toBe(0);
+      expect(plunge).toBeGreaterThan(0);
+      const xiao = (buffs: typeof tb) => carryDamage(team[0], [], team, buffs)!.perSecond;
+      // Before #299 the same flat DMG went on every hit: his 2 Skill hits got it too.
+      const everyHit = { ...tb, flat: plunge, byHit: undefined };
+      expect(xiao(tb)).toBeLessThan(xiao(everyHit));
+      expect(xiao(tb)).toBeGreaterThan(xiao({ ...tb, byHit: undefined }));
+    });
+
     test("Sethos's Dusk Bolts: Charged Attack DMG, 18 a rotation, each with his Burst's EM part (#232)", () => {
       const sethos = carries.Sethos as unknown as { hits: { label: string; type: string; count: number; instances?: number; addOn?: boolean; scaling: Record<string, number> }[] };
       const bolts = sethos.hits.filter((h) => h.label !== "Skill DMG" && !h.addOn);

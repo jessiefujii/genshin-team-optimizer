@@ -3720,6 +3720,26 @@
           "cd": 6
         },
         {
+          "talent": "skill",
+          "label": "Choice Treasures Icy Paws (passive 4)",
+          "scaling": {
+            "atk": 0.71264
+          },
+          "hits": 3,
+          "every": 3.5,
+          "duration": 20,
+          "when": {
+            "reactions": [
+              "superconduct",
+              "stellar-conduct",
+              "swirl",
+              "stellar-swirl"
+            ],
+            "radiance": true
+          },
+          "cd": 6
+        },
+        {
           "talent": "burst",
           "label": "Skill DMG",
           "scaling": {
@@ -4381,7 +4401,16 @@
             "atk": 1.632
           },
           "hits": 1,
-          "cd": 30
+          "cd": 30,
+          "alternatives": [
+            {
+              "when": {
+                "radiance": true
+              },
+              "cd": 15,
+              "rateSource": "passive4: /Herald of Frost is reduced to (\\d+)s/"
+            }
+          ]
         },
         {
           "talent": "skill",
@@ -4391,7 +4420,16 @@
           },
           "hits": 9,
           "cd": 30,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Adeptus_Art:_Herald_of_Frost, fetched 2026-10-16 (Gameplay Notes): \"After its initial hit, Herald of Frost will deal damage 9 times over its duration\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Adeptus_Art:_Herald_of_Frost, fetched 2026-10-16 (Gameplay Notes): \"After its initial hit, Herald of Frost will deal damage 9 times over its duration\"",
+          "alternatives": [
+            {
+              "when": {
+                "radiance": true
+              },
+              "cd": 15,
+              "rateSource": "passive4: /Herald of Frost is reduced to (\\d+)s/"
+            }
+          ]
         },
         {
           "talent": "burst",
@@ -4400,6 +4438,20 @@
             "atk": 4.8416
           },
           "hits": 1,
+          "cd": 20
+        },
+        {
+          "talent": "burst",
+          "label": "Stellar-Conduct DMG",
+          "scaling": {
+            "atk": 5.054671
+          },
+          "hits": 1,
+          "when": {
+            "reaction": "stellar-conduct",
+            "radiance": true
+          },
+          "lunar": "stellar-conduct",
           "cd": 20
         }
       ]
@@ -5996,6 +6048,74 @@
           "cd": 15
         },
         {
+          "talent": "skill",
+          "label": "\"Plume\" Dance Move Stellar-Conduct DMG (Radiance)",
+          "scaling": {
+            "atk": 0.459408
+          },
+          "every": 4,
+          "duration": 14,
+          "when": {
+            "radiance": true
+          },
+          "lunar": "stellar-conduct",
+          "whenReaction": "stellar-conduct",
+          "pickOne": "odette-plume",
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-21: after Adagio: Coda at Dawn's Tolling, \"should she be in the Radiance: Stellar Glimmer state while her Dance Double is still on the field, the Dance Double's two dance move types will also deal additional AoE Cryo DMG of the corresponding Stellar Glimmer reaction type\"; one dance move every 2s, alternating (each every 4s). Duration: the Double's 20s less Coda's 6s window (estimate: Coda at the end of it)."
+        },
+        {
+          "talent": "skill",
+          "label": "\"Plume\" Dance Move Stellar Swirl DMG (Radiance)",
+          "scaling": {
+            "atk": 0.688976
+          },
+          "every": 4,
+          "duration": 14,
+          "when": {
+            "radiance": true
+          },
+          "lunar": "stellar-swirl",
+          "whenReaction": "stellar-swirl",
+          "pickOne": "odette-plume",
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-21: after Adagio: Coda at Dawn's Tolling, \"should she be in the Radiance: Stellar Glimmer state while her Dance Double is still on the field, the Dance Double's two dance move types will also deal additional AoE Cryo DMG of the corresponding Stellar Glimmer reaction type\"; one dance move every 2s, alternating (each every 4s). Duration: the Double's 20s less Coda's 6s window (estimate: Coda at the end of it)."
+        },
+        {
+          "talent": "skill",
+          "label": "\"Wing\" Dance Move Stellar-Conduct DMG (Radiance)",
+          "scaling": {
+            "atk": 0.549304
+          },
+          "every": 4,
+          "duration": 14,
+          "when": {
+            "radiance": true
+          },
+          "lunar": "stellar-conduct",
+          "whenReaction": "stellar-conduct",
+          "pickOne": "odette-wing",
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-21: after Adagio: Coda at Dawn's Tolling, \"should she be in the Radiance: Stellar Glimmer state while her Dance Double is still on the field, the Dance Double's two dance move types will also deal additional AoE Cryo DMG of the corresponding Stellar Glimmer reaction type\"; one dance move every 2s, alternating (each every 4s). Duration: the Double's 20s less Coda's 6s window (estimate: Coda at the end of it)."
+        },
+        {
+          "talent": "skill",
+          "label": "\"Wing\" Dance Move Stellar Swirl DMG (Radiance)",
+          "scaling": {
+            "atk": 0.823888
+          },
+          "every": 4,
+          "duration": 14,
+          "when": {
+            "radiance": true
+          },
+          "lunar": "stellar-swirl",
+          "whenReaction": "stellar-swirl",
+          "pickOne": "odette-wing",
+          "cd": 15,
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-21: after Adagio: Coda at Dawn's Tolling, \"should she be in the Radiance: Stellar Glimmer state while her Dance Double is still on the field, the Dance Double's two dance move types will also deal additional AoE Cryo DMG of the corresponding Stellar Glimmer reaction type\"; one dance move every 2s, alternating (each every 4s). Duration: the Double's 20s less Coda's 6s window (estimate: Coda at the end of it)."
+        },
+        {
           "talent": "burst",
           "label": "Slash DMG",
           "scaling": {
@@ -6368,6 +6488,16 @@
             "atk": 0.6392
           },
           "hits": 20,
+          "factor": {
+            "value": 0.35,
+            "when": {
+              "secretRite": true,
+              "carryReactions": [
+                "swirl",
+                "stellar-swirl"
+              ]
+            }
+          },
           "cd": 15,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Venti, fetched 2026-10-10: \"The Stormeye deals 20x Anemo DMG within 8 seconds.\"",
           "icd": {
@@ -6511,6 +6641,41 @@
               "rateSource": "KQM, Yae Miko Quick Guide, https://keqingmains.com/q/yae-quickguide/, fetched 2026-10-21: Edict of Cleansing (Witch's Revelation): \"the duration of each Skill turret is permanently increased from 14 to 24s\"; \"Each turret will fire up to 8 shots, for a maximum of 24 total shots, for its duration\" (#304)."
             }
           ]
+        },
+        {
+          "talent": "skill",
+          "label": "Edict of Cleansing enhanced strike (passive 4)",
+          "scaling": {
+            "atk": 0.8
+          },
+          "dmgBonusPerStat": {
+            "em": 0.0015
+          },
+          "every": 2.5,
+          "duration": 14,
+          "when": {
+            "reactions": [
+              "superconduct",
+              "stellar-conduct"
+            ],
+            "radiance": true
+          },
+          "cd": 14
+        },
+        {
+          "talent": "skill",
+          "label": "Edict of Cleansing Stellar-Conduct strike (Radiance)",
+          "scaling": {
+            "atk": 2
+          },
+          "every": 2.5,
+          "duration": 14,
+          "when": {
+            "reaction": "stellar-conduct",
+            "radiance": true
+          },
+          "lunar": "stellar-conduct",
+          "cd": 14
         }
       ]
     },
