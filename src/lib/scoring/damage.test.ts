@@ -12,6 +12,11 @@ import type { Reaction, ScoringCharacter } from "./types";
 const all = loadScoringCharacters();
 const byId = new Map(all.map((c) => [c.id, c]));
 const carries = (kit as unknown as { carries: Record<string, { missing?: string[] }> }).carries;
+// A benchmark carry's guide weapon (#206), for builds that should hold the same one.
+const benchWeapon = (id: string) => {
+  const b = (kit as unknown as { benchmarkWeapons: Record<string, { weapon: string; refinement: number }> }).benchmarkWeapons[id];
+  return { id: b.weapon, level: 90, refinement: b.refinement };
+};
 
 describe("carry damage (#101)", () => {
   test("every carry npm run compare measures has kit data", () => {
@@ -112,10 +117,16 @@ describe("carry damage (#101)", () => {
 
   describe("direct Lunar reaction DMG (#135)", () => {
     const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
-    // `sets`: the build's sets (default none; a carry without a build wears their guide's, #206).
-    const dps = (ids: string[], active: Reaction[], stats?: Partial<NonNullable<ScoringCharacter["stats"]>>, sets?: ScoringCharacter["sets"]) => {
+    // `sets`, `weapon`: the build's (default none; a carry without a build wears and holds their guide's, #206).
+    const dps = (
+      ids: string[],
+      active: Reaction[],
+      stats?: Partial<NonNullable<ScoringCharacter["stats"]>>,
+      sets?: ScoringCharacter["sets"],
+      weapon?: ScoringCharacter["weaponBuild"],
+    ) => {
       const c = byId.get(ids[0])!;
-      const built = stats ? { ...c, sets, stats: { atk: 2200, baseAtk: 950, hp: 16000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 120, elementalMastery: 100, elementalDmgBonus: 0, ...stats } } : c;
+      const built = stats ? { ...c, sets, weaponBuild: weapon, stats: { atk: 2200, baseAtk: 950, hp: 16000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 120, elementalMastery: 100, elementalDmgBonus: 0, ...stats } } : c;
       return carryDamage(built, active, team(...ids).map((m) => (m.id === c.id ? built : m)))!.perSecond;
     };
 
@@ -147,15 +158,16 @@ describe("carry damage (#101)", () => {
     });
 
     test("Flins' passive 2 EM counts for an imported build too (#149)", () => {
-      // A build with the benchmark's own stats (ATK 2200, EM 100, 60% DMG bonus) and set (his guide's Night of the Sky's
-      // Unveiling, #206) deals what no build does: Enka's EM leaves the passive out, so it's added either way.
+      // A build with the benchmark's own stats (ATK 2200, EM 100, 60% DMG bonus), set and weapon (his guides' Night of the
+      // Sky's Unveiling and Deathmatch, #206) deals what no build does: Enka's EM leaves the passive out, so it's added
+      // either way.
       const ids = ["Flins", "Ineffa", "Xingqiu", "Bennett"];
       for (const active of [[], ["lunar-charged"]] as Reaction[][]) {
         const night = [{ set: "Night of the Sky's Unveiling", pieces: 4 as const }];
         // The benchmark wears a CRIT DMG circlet when its set's CRIT Rate is up (a Lunar reaction, #279): 60 - 31.1 CRIT
         // Rate, 120 + 62.2 CRIT DMG.
         const crit = active.length ? { critRate: 28.9, critDmg: 182.2 } : {};
-        expect(dps(ids, active, { elementalDmgBonus: 60, ...crit }, night)).toBeCloseTo(dps(ids, active), 6);
+        expect(dps(ids, active, { elementalDmgBonus: 60, ...crit }, night, benchWeapon("Flins"))).toBeCloseTo(dps(ids, active), 6);
       }
     });
 
@@ -250,6 +262,7 @@ describe("carry damage (#101)", () => {
       ...raiden,
       // DMG bonus as the character screen shows it: 46.6% goblet + her passive 2 (0.4% per ER over 100%) at 250% ER.
       stats: { atk: 2600, baseAtk: 950, hp: 20000, def: 900, critRate: 60, critDmg: 120, energyRecharge: 250, elementalMastery: 0, elementalDmgBonus: 106.6 },
+      weaponBuild: benchWeapon("Raiden Shogun"), // the benchmark's own weapon (#206): only the stats differ
     };
     expect(carryDamage(built)!.perSecond).toBeGreaterThan(carryDamage(raiden)!.perSecond);
   });
@@ -318,9 +331,10 @@ describe("carry damage (#101)", () => {
     const eula = byId.get("Eula")!;
     // Flat DMG read for her element (Cryo) reaches her 5 Cryo hit instances only (Press, Burst cast, Hold, 2 Icewhirl
     // Brands); her Physical hits read their own team buffs, none here. Benchmark: no Cryo DMG Bonus (Physical goblet).
-    // The 2 Icewhirl Brands land under her own 24% Cryo RES shred (#204).
+    // The 2 Icewhirl Brands land under her own 24% Cryo RES shred (#204). Her benchmark weapon, Serpent Spine (#206), adds
+    // 30% DMG (5 stacks of 6%) to every hit.
     const gain = carryDamage(eula, [], [eula], { ...NO_TEAM_BUFFS, flat: 1000 })!.perSecond - carryDamage(eula, [], [eula])!.perSecond;
-    expect(gain).toBeCloseTo((1000 * (3 + 2 * (1 + resShredGain(0.24))) * expectedCrit(eula)) / 20, 6);
+    expect(gain).toBeCloseTo((1000 * (3 + 2 * (1 + resShredGain(0.24))) * 1.3 * expectedCrit(eula)) / 20, 6);
   });
 
   // #233: hits that take teammates' elements, counted by the team.
@@ -470,8 +484,9 @@ describe("weapon passives on the holder's hits (#40)", () => {
     expect(bonus(holding("Raiden Shogun", "Dragon's Bane"), [get("Kujou Sara")], "burst")).toBe(0);
     expect(bonus(holding("Neuvillette", "Tome of the Eternal Flow"), [], "charged")).toBeCloseTo(0.42); // his HP drain
     expect(bonus(holding("Raiden Shogun", '"The Catch"', 5), [], "burst")).toBeCloseTo(0.32);
+    // Against a weapon whose passive does nothing in damage (Favonius Lance).
     const sands = holding("Raiden Shogun", "Staff of the Scarlet Sands");
-    expect(carryDamage(sands)!.perSecond).toBeGreaterThan(carryDamage(get("Raiden Shogun"))!.perSecond);
+    expect(carryDamage(sands)!.perSecond).toBeGreaterThan(carryDamage(holding("Raiden Shogun", "Favonius Lance"))!.perSecond);
   });
 
   test("Zibai Premium's weapons (#306): Harbinger with a healer or shielder, Snare Hook by reaction and Moonsign", () => {
@@ -488,10 +503,14 @@ describe("weapon passives on the holder's hits (#40)", () => {
     expect(sum(holding("Columbina", "The Widsith", 4), [], [], "em")).toBeCloseTo(420 / 9); // 1 of 3 songs, 10s of 30s
   });
 
-  test("a benchmark character holds no weapon; a build's weapon raises its hits", () => {
-    expect(weaponBuffs(get("Raiden Shogun"), [get("Raiden Shogun")])).toEqual([]);
+  test("a benchmark carry holds their guide's weapon, a benchmark support none; a build's weapon raises its hits (#206)", () => {
+    // Raiden's KQM pick, R5 "The Catch": 16% x 2 Burst DMG at R5 (its Burst CRIT Rate is left out).
+    expect(weaponBuffs(get("Raiden Shogun"), [get("Raiden Shogun")])).toEqual([{ kind: "dmgBonus", types: ["burst"], value: 0.32 }]);
+    expect(weaponBuffs(get("Bennett"), [get("Bennett")])).toEqual([]);
+    // A build holds its own weapon, not the benchmark's.
+    expect(weaponBuffs(holding("Raiden Shogun", "Favonius Lance"), [get("Raiden Shogun")])).toEqual([]);
     const team = ["Bennett", "Xingqiu", "Xiangling"].map(get);
-    const raiden = get("Raiden Shogun");
+    const raiden = holding("Raiden Shogun", "Favonius Lance");
     const fin = holding("Raiden Shogun", "Wavebreaker's Fin");
     expect(carryDamage(fin, [], [fin, ...team])!.perSecond).toBeGreaterThan(carryDamage(raiden, [], [raiden, ...team])!.perSecond);
   });

@@ -2440,6 +2440,238 @@
       }
     ]
   },
+  "benchmarkWeapons": {
+    "Alhaitham": {
+      "weapon": "Wolf-Fang",
+      "refinement": 5,
+      "source": "KQM alhaitham quick guide (keqingmains.com/q/alhaitham-quickguide, accessed 2026-10-21): \"best 4-star option, performing similarly to Mistsplitter Reforged\""
+    },
+    "Aloy": {
+      "weapon": "Sacrificial Bow",
+      "refinement": 4,
+      "source": "KQM aloy quick guide (keqingmains.com/q/aloy-quickguide, accessed 2026-10-21): \"At high refinements (R4+), Sacrificial Bow can allow for a second Skill cast\""
+    },
+    "Arataki Itto": {
+      "weapon": "Serpent Spine",
+      "refinement": 5,
+      "source": "KQM itto quick guide (keqingmains.com/q/itto-quickguide, accessed 2026-10-21): \"Serpent Spine is a strong option for its CRIT Rate secondary stat and DMG% passive\""
+    },
+    "Arlecchino": {
+      "weapon": "Deathmatch",
+      "refinement": 1,
+      "source": "KQM arlecchino quick guide (keqingmains.com/q/arlecchino-quickguide, accessed 2026-10-21): \"A good option from the Battle Pass, particularly in single-target scenarios.\""
+    },
+    "Chasca": {
+      "weapon": "Flower-Wreathed Feathers",
+      "refinement": 1,
+      "source": "KQM chasca quick guide (keqingmains.com/q/chasca-quickguide, accessed 2026-10-21): \"This banner-exclusive weapon is a very strong option for Chasca, but refinements are hard to acquire.\""
+    },
+    "Clorinde": {
+      "weapon": "The Black Sword",
+      "refinement": 1,
+      "source": "KQM clorinde quick guide (keqingmains.com/q/clorinde-quickguide, accessed 2026-10-21): \"A strong 4-star option, especially in teams where ATK buffs are plentiful\""
+    },
+    "Cyno": {
+      "weapon": "Ballad of the Fjords",
+      "refinement": 1,
+      "source": "KQM cyno quick guide (keqingmains.com/q/cyno-quickguide, accessed 2026-10-21): \"Ballad of the Fjords is Cyno's second-best option in Quickbloom teams, even at R1.\""
+    },
+    "Diluc": {
+      "weapon": "Serpent Spine",
+      "refinement": 1,
+      "source": "KQM diluc quick guide (keqingmains.com/q/diluc-quickguide, accessed 2026-10-21): \"If you can keep up the stacks on its passive, Serpent Spine is Diluc's best 4-star option.\""
+    },
+    "Eula": {
+      "weapon": "Serpent Spine",
+      "refinement": 1,
+      "source": "KQM eula quick guide (keqingmains.com/q/eula-quickguide, accessed 2026-10-21): \"The quintessential 4-star Claymore, offering CRIT Rate and additional DMG% to top it off.\""
+    },
+    "Flins": {
+      "weapon": "Deathmatch",
+      "refinement": 1,
+      "source": "KQM flins quick guide (keqingmains.com/q/flins-quickguide, accessed 2026-10-21): \"Flins's general best 4-star option, especially at high refinement where it can even compete with his other 5-star choices.\""
+    },
+    "Freminet": {
+      "weapon": "Tidal Shadow",
+      "refinement": 5,
+      "source": "KQM freminet quick guide (keqingmains.com/q/freminet-quickguide, accessed 2026-10-21): \"R5 Tidal Shadow is one of Freminet's best 4-star options\""
+    },
+    "Gaming": {
+      "weapon": "Fruitful Hook",
+      "refinement": 1,
+      "source": "KQM gaming quick guide (keqingmains.com/q/gaming-quickguide, accessed 2026-10-21): \"Fruitful Hook is an extremely powerful option for Gaming.\""
+    },
+    "Ganyu": {
+      "weapon": "Prototype Crescent",
+      "refinement": 5,
+      "source": "KQM ganyu quick guide (keqingmains.com/q/ganyu-quickguide, accessed 2026-10-21): \"Its 72% ATK buff at R5 is extremely valuable in Freeze teams\""
+    },
+    "Hu Tao": {
+      "weapon": "Deathmatch",
+      "refinement": 1,
+      "source": "KQM hu-tao quick guide (keqingmains.com/q/hu-tao-quickguide, accessed 2026-10-21): \"Deathmatch is a strong and reliable option due to the healthy amount of CRIT Rate it provides\""
+    },
+    "Kamisato Ayaka": {
+      "weapon": "Finale of the Deep",
+      "refinement": 1,
+      "source": "KQM ayaka quick guide (keqingmains.com/q/ayaka-quickguide, accessed 2026-10-21): \"Finale of the Deep is Ayaka's strongest free-to-play weapon.\""
+    },
+    "Kamisato Ayato": {
+      "weapon": "Calamity of Eshu",
+      "refinement": 1,
+      "source": "KQM ayato quick guide (keqingmains.com/q/ayato-quickguide, accessed 2026-10-21): \"Calamity of Eshu is a strong option, beating out Black Sword in shielded teams.\""
+    },
+    "Kaveh": {
+      "weapon": "Favonius Greatsword",
+      "refinement": 1,
+      "source": "KQM kaveh quick guide (keqingmains.com/q/kaveh-quickguide, accessed 2026-10-21): \"Favonius Greatsword shows considerable synergy with Kaveh's kit due to his high ER needs and his on-field playstyle.\""
+    },
+    "Keqing": {
+      "weapon": "Lion's Roar",
+      "refinement": 1,
+      "source": "KQM keqing quick guide (keqingmains.com/q/keqing-quickguide, accessed 2026-10-21): \"Keqing's trademark 4-star option.\""
+    },
+    "Kinich": {
+      "weapon": "Serpent Spine",
+      "refinement": 1,
+      "source": "KQM kinich quick guide (keqingmains.com/q/kinich-quickguide, accessed 2026-10-21): \"a superb option at higher refinements and with a strong shielder\""
+    },
+    "Klee": {
+      "weapon": "The Widsith",
+      "refinement": 1,
+      "source": "KQM klee quick guide (keqingmains.com/q/klee-quickguide, accessed 2026-10-21): \"Klee's best generalist 4-star.\""
+    },
+    "Lyney": {
+      "weapon": "Song of Stillness",
+      "refinement": 1,
+      "source": "KQM lyney quick guide (keqingmains.com/q/lyney-quickguide, accessed 2026-10-21): \"Song of Stillness works well with Lyney, who needs healers in his team.\""
+    },
+    "Mavuika": {
+      "weapon": "Serpent Spine",
+      "refinement": 1,
+      "source": "KQM mavuika quick guide (keqingmains.com/q/mavuika-quickguide, accessed 2026-10-21): \"high-refinement Serpent Spine can compete against 5-star CRIT weapons.\""
+    },
+    "Mualani": {
+      "weapon": "Sacrificial Jade",
+      "refinement": 1,
+      "source": "KQM mualani quick guide (keqingmains.com/q/mualani-quickguide, accessed 2026-10-21): \"Sacrificial Jade offers CRIT Rate, HP%, and EM, all stats Mualani appreciates\""
+    },
+    "Navia": {
+      "weapon": "Serpent Spine",
+      "refinement": 5,
+      "source": "KQM navia quick guide (keqingmains.com/q/navia-quickguide, accessed 2026-10-21): \"An excellent choice for Navia since it provides an abundance of DMG%.\""
+    },
+    "Nefer": {
+      "weapon": "Dawning Frost",
+      "refinement": 5,
+      "source": "KQM nefer quick guide (keqingmains.com/q/nefer-quickguide, accessed 2026-10-21): \"Dawning Frost is a banner-exclusive weapon.\""
+    },
+    "Neuvillette": {
+      "weapon": "Sacrificial Jade",
+      "refinement": 5,
+      "source": "KQM neuvillette quick guide (keqingmains.com/q/neuvillette-quickguide, accessed 2026-10-21): \"Obtained from the Battle Pass, it is Neuvillette's second-best weapon.\""
+    },
+    "Ningguang": {
+      "weapon": "Solar Pearl",
+      "refinement": 1,
+      "source": "KQM ningguang quick guide (keqingmains.com/q/ningguang-quickguide, accessed 2026-10-21): \"The most consistent 4-star option.\""
+    },
+    "Noelle": {
+      "weapon": "Serpent Spine",
+      "refinement": 1,
+      "source": "KQM noelle quick guide (keqingmains.com/q/noelle-quickguide, accessed 2026-10-21): \"It performs well at R1 and benefits from refinements.\""
+    },
+    "Raiden Shogun": {
+      "weapon": "\"The Catch\"",
+      "refinement": 5,
+      "source": "KQM raiden quick guide (keqingmains.com/q/raiden-quickguide, accessed 2026-10-21): \"Refinement Rank 5 is worth the pain of fishing.\""
+    },
+    "Razor": {
+      "weapon": "Serpent Spine",
+      "refinement": 1,
+      "source": "KQM razor quick guide (keqingmains.com/q/razor-quickguide, accessed 2026-10-21): \"Razor's best 4-star option, especially with high refinements.\""
+    },
+    "Sethos": {
+      "weapon": "Slingshot",
+      "refinement": 1,
+      "source": "KQM sethos quick guide (keqingmains.com/q/sethos-quickguide, accessed 2026-10-21): \"Slingshot is a powerhouse on Sethos, as it provides CRIT Rate and a huge amount of Charged Attack DMG%.\""
+    },
+    "Shikanoin Heizou": {
+      "weapon": "The Widsith",
+      "refinement": 1,
+      "source": "KQM heizou quick guide (keqingmains.com/q/heizou-quickguide, accessed 2026-10-21): \"The Widsith is Heizou's best 4-star weapon.\""
+    },
+    "Skirk": {
+      "weapon": "Calamity of Eshu",
+      "refinement": 1,
+      "source": "KQM skirk quick guide (keqingmains.com/q/skirk-quickguide, accessed 2026-10-21): \"Eshu is an excellent free-to-play option for Skirk if she can activate the passive.\""
+    },
+    "Tartaglia": {
+      "weapon": "The Viridescent Hunt",
+      "refinement": 1,
+      "source": "KQM tartaglia quick guide (keqingmains.com/q/tartaglia-quickguide, accessed 2026-10-21): \"One of the strongest 4* options for Childe\""
+    },
+    "Tighnari": {
+      "weapon": "The Viridescent Hunt",
+      "refinement": 1,
+      "source": "KQM tighnari quick guide (keqingmains.com/q/tighnari-quickguide, accessed 2026-10-21): \"Stat sticks; their passives offer little.\""
+    },
+    "Traveler (Cryo)": {
+      "weapon": "Wolf-Fang",
+      "refinement": 1,
+      "source": "game8 Traveler (Cryo) best builds (https://game8.co/games/Genshin-Impact/archives/613906, accessed 2026-10-21): \"Good generalist option from the battlepass that improves the Traveler's Elemental Skill performance.\""
+    },
+    "Traveler (Hydro)": {
+      "weapon": "Wolf-Fang",
+      "refinement": 1,
+      "source": "KQM hydro-traveler quick guide (keqingmains.com/q/hydro-traveler-quickguide, accessed 2026-10-21): \"A powerful Battle Pass option with a CRIT Rate secondary stat and buffs to Hydro Traveler's Skill and Burst.\""
+    },
+    "Varesa": {
+      "weapon": "The Widsith",
+      "refinement": 1,
+      "source": "KQM varesa quick guide (keqingmains.com/q/varesa-quickguide, accessed 2026-10-21): \"At high refinements, this weapon performs similarly to Kagura's Verity.\""
+    },
+    "Vesna": {
+      "weapon": "Emberwell",
+      "refinement": 1,
+      "source": "game8 Vesna best builds (https://game8.co/games/Genshin-Impact/archives/606901, accessed 2026-10-21): \"Vesna's best F2P option.\""
+    },
+    "Wanderer": {
+      "weapon": "The Widsith",
+      "refinement": 1,
+      "source": "KQM wanderer quick guide (keqingmains.com/q/wanderer-quickguide, accessed 2026-10-21): \"he sadly doesn't benefit from the EM buff as much as other Catalyst users do.\""
+    },
+    "Wriothesley": {
+      "weapon": "Clash of Kings",
+      "refinement": 5,
+      "source": "KQM wriothesley quick guide (keqingmains.com/q/wriothesley-quickguide, accessed 2026-10-21): \"Clash of Kings is Wriothesley's best 4-star weapon\""
+    },
+    "Xiao": {
+      "weapon": "Deathmatch",
+      "refinement": 1,
+      "source": "KQM xiao quick guide (keqingmains.com/q/xiao-quickguide, accessed 2026-10-21): \"A Battle Pass weapon and Xiao's best 4-star option.\""
+    },
+    "Yanfei": {
+      "weapon": "The Widsith",
+      "refinement": 1,
+      "source": "KQM yanfei quick guide (keqingmains.com/q/yanfei-quickguide, accessed 2026-10-21): \"Yanfei's strongest 4-star option, and often surpassing many of her 5-star options at high refinements.\""
+    },
+    "Yoimiya": {
+      "weapon": "Slingshot",
+      "refinement": 1,
+      "source": "KQM yoimiya quick guide (keqingmains.com/q/yoimiya-quickguide, accessed 2026-10-21): \"Slingshot is a 3-star Bow that performs better than every 4-star Bow\""
+    },
+    "Yumemizuki Mizuki": {
+      "weapon": "The Widsith",
+      "refinement": 1,
+      "source": "KQM mizuki quick guide (keqingmains.com/q/mizuki-quickguide, accessed 2026-10-21): \"Mizuki's best accessible option in general.\""
+    },
+    "Zibai": {
+      "weapon": "Harbinger of Dawn",
+      "refinement": 1,
+      "source": "KQM zibai quick guide (keqingmains.com/q/zibai-quickguide, accessed 2026-10-21): \"Her best non-5-star weapon, provided its passive CRIT Rate buff remains active.\""
+    }
+  },
   "holderStates": {
     "selfHpDrain": [
       "Neuvillette",
@@ -3406,6 +3638,271 @@
           ]
         },
         "source": "R1: \"Frost Fae's Mischief effect: Geo DMG dealt increases by 20%\""
+      }
+    ],
+    "Deathmatch": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "source": "R1: \"If there are fewer than 2 opponents nearby, ATK is increased by 24%\""
+      }
+    ],
+    "Clash of Kings": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "source": "R1: \"increases their ATK by 20% and their Elemental Mastery\" (taken at full stacks / up throughout: estimate)"
+      },
+      {
+        "kind": "em",
+        "values": [
+          100,
+          125,
+          150,
+          175,
+          200
+        ],
+        "source": "R1: \"and their Elemental Mastery by 100. This effect lasts\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Serpent Spine": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5
+        ],
+        "source": "R1: \"they will deal 6% more DMG\" x5 stacks (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Calamity of Eshu": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal",
+          "charged"
+        ],
+        "values": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "when": {
+          "shielded": true
+        },
+        "source": "R1: \"DMG dealt by Normal and Charged Attacks is increased by 20%\""
+      }
+    ],
+    "Dawning Frost": [
+      {
+        "kind": "em",
+        "values": [
+          72,
+          90,
+          108,
+          126,
+          144
+        ],
+        "source": "R1: \"after a Charged Attack hits an opponent, Elemental Mastery is increased by 72.\" (taken at full stacks / up throughout: estimate)"
+      },
+      {
+        "kind": "em",
+        "values": [
+          48,
+          60,
+          72,
+          84,
+          96
+        ],
+        "source": "R1: \"after an Elemental Skill hits an opponent, Elemental Mastery is increased by 48.\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "The Black Sword": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal",
+          "charged"
+        ],
+        "values": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "source": "R1: \"Increases DMG dealt by Normal and Charged Attacks by 20%\""
+      }
+    ],
+    "Finale of the Deep": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "source": "R1: \"When using an Elemental Skill, ATK will be increased by 12%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Song of Stillness": [
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "when": {
+          "healed": true
+        },
+        "source": "R1: \"they will deal 16% more DMG for 8s\""
+      }
+    ],
+    "Solar Pearl": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "values": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "source": "R1: \"Normal Attack hits increase Elemental Skill and Elemental Burst DMG by 20%\" (taken at full stacks / up throughout: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal"
+        ],
+        "values": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "source": "R1: \"Elemental Burst hits increase Normal Attack DMG by 20%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Slingshot": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "normal",
+          "charged"
+        ],
+        "values": [
+          0.36,
+          0.42,
+          0.48,
+          0.54,
+          0.6
+        ],
+        "source": "R1: \"within 0.3s of being fired, increases DMG by 36%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Prototype Crescent": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.36,
+          0.45,
+          0.54,
+          0.63,
+          0.72
+        ],
+        "source": "R1: \"Charged Attack hits on weak points increase Movement SPD by 10% and ATK by 36%\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Ballad of the Fjords": [
+      {
+        "kind": "em",
+        "values": [
+          120,
+          150,
+          180,
+          210,
+          240
+        ],
+        "when": {
+          "elementTypes": 3
+        },
+        "source": "R1: \"Elemental Mastery will be increased by 120.\""
+      }
+    ],
+    "Flower-Wreathed Feathers": [
+      {
+        "kind": "dmgBonus",
+        "types": [
+          "charged"
+        ],
+        "values": [
+          0.36,
+          0.45,
+          0.54,
+          0.63,
+          0.72
+        ],
+        "source": "R1: \"the DMG dealt by Charged Attacks increases by 6% every\" x6 stacks (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Tidal Shadow": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ],
+        "when": {
+          "healed": true
+        },
+        "source": "R1: \"After the wielder is healed, ATK will be increased by 24%\""
+      }
+    ],
+    "Emberwell": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "when": {
+          "holderReacts": true
+        },
+        "source": "R1: \"Triggering an Elemental Reaction increases the equipping character's ATK by 16%\""
       }
     ],
     "Crane's Echoing Call": [
