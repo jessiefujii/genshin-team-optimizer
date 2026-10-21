@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
+import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
 import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setReactionBonus, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
@@ -327,11 +327,16 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
         continue;
       }
       // On the carry's own items, an 'active' buff only buffs the carry, which its final stats may already show.
-      const fit = e.buffs?.find(
-        (b) =>
-          (m !== carry || b.scope === "team") &&
-          !buffMisfit(b.holderElement ? { ...b, elements: [m.element] } : b, carry, ctx, emUseful),
-      );
+      const fits = (b: NonNullable<typeof e.buffs>[number]) =>
+        (m !== carry || b.scope === "team") && !buffMisfit(b.holderElement ? { ...b, elements: [m.element] } : b, carry, ctx, emUseful);
+      // Support gear whose party ATK, DMG Bonus and RES shred are in team damage (#206, kit.ts partyGearStats): for a
+      // modeled carry only its EM still scores here; with nothing else that fits, it shows at 0.
+      const gearInDamage = inDamage && partyGearModeled(e.source, e.id);
+      const fit = e.buffs?.find((b) => fits(b) && (!gearInDamage || b.affects === "EM"));
+      if (!fit && gearInDamage && e.buffs?.some(fits) && !inTeamDamage.includes(effectKey(e))) {
+        out.add("Effects", 0, () => `${effectName(m, e)}: party-wide, in team damage`);
+        inTeamDamage.push(effectKey(e));
+      }
       if (!fit || seen.includes(effectKey(e))) continue;
       seen.push(effectKey(e));
       out.add("Effects", POINTS.effectBuff, () => `${effectName(m, e)}: ${fit.stat} for ${carry.id}`);

@@ -213,7 +213,7 @@ type WeaponWhen = {
   aura?: Element[];
   reactions?: Reaction[];
 };
-type WeaponBuff = { kind: "dmgBonus" | "hpPct" | "atkPct" | "atkFromEm" | "critRate" | "em"; types?: HitType[]; values: number[]; max?: number[]; when?: WeaponWhen };
+type WeaponBuff = { kind: "dmgBonus" | "hpPct" | "atkPct" | "atkFromEm" | "critRate" | "em"; types?: HitType[]; values: number[]; max?: number[]; when?: WeaponWhen; party?: true };
 const WEAPONS = (kitJson as unknown as { weapons: Record<string, WeaponBuff[]> }).weapons;
 // The holder's weapon buffs that hold in this team, each with its value at the build's refinement:
 // - energy: per point of the party's combined max Energy (every member's Burst cost), capped;
@@ -245,7 +245,7 @@ export function weaponBuffs(
     (!when.aura || team.some((m) => when.aura!.includes(m.element))) &&
     (!when.reactions || when.reactions.some((x) => active.includes(x)));
   return (WEAPONS[w.id] ?? [])
-    .filter((b) => fits(b.when))
+    .filter((b) => !b.party && fits(b.when)) // party effects are kit.ts partyGearStats' (#206)
     .map((b) => {
       const energy = team.reduce((a, m) => a + (m.burstCost ?? 0), 0);
       const value = b.when?.energy ? Math.min(b.max![r], b.values[r] * energy) : b.values[r];
