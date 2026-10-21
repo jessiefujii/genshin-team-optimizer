@@ -3,8 +3,8 @@ import type { CharacterStats } from "../../types/build";
 import { loadScoringCharacters } from "./load";
 import { buildGaps } from "./score";
 import { findBestTeams } from "./search";
-import { suggestBuilds } from "./suggest";
-import type { ScoringCharacter } from "./types";
+import { pickSuggestions, suggestBuilds } from "./suggest";
+import type { ScoredTeam, ScoringCharacter } from "./types";
 
 const all = loadScoringCharacters();
 const byId = new Map(all.map((c) => [c.id, c]));
@@ -63,9 +63,11 @@ describe("not built characters in the search", () => {
 describe("suggestBuilds", () => {
   const ids = ["Hu Tao", "Xingqiu", "Yelan", "Zhongli", "Bennett", "Xiangling", "Kaedehara Kazuha", "Fischl"];
   const roster: ScoringCharacter[] = ids.map(get);
+  // Top 5: Xingqiu's best team here is #5 since Zhongli, Kazuha and Bennett deal their own damage (#203) and
+  // Kazuha's DMG bonus reaches Yelan's hits (#204).
   const search = (r: ScoringCharacter[]) => {
-    const top = findBestTeams(r, { limit: 3 });
-    return { top, suggestions: suggestBuilds(r, top, { limit: 3 }) };
+    const top = findBestTeams(r, { limit: 5 });
+    return { top, suggestions: suggestBuilds(r, top, { limit: 5 }) };
   };
 
   test("nothing to suggest when nobody falls short", () => {
@@ -91,12 +93,38 @@ describe("suggestBuilds", () => {
   });
 
   test("a weak build is suggested only when fixing it would make the list", () => {
-    // Xingqiu's 100% ER costs his teams points; at benchmark they climb back into the top 3.
+    // Xingqiu's 100% ER costs his teams points; at benchmark they climb back into the top 5.
     const weak = roster.map((c) => (c.id === "Xingqiu" ? { ...c, stats: { ...benchmark, energyRecharge: 100 } } : c));
     const { top, suggestions } = search(weak);
     for (const s of suggestions) {
       expect(s.team.score).toBeGreaterThan(top[top.length - 1].score);
       expect(top.some((t) => t.members.join("|") === s.team.members.join("|"))).toBe(false);
     }
+  });
+  test("a team needing two builds counts for each only with the other named (#284)", () => {
+    const r = roster.map((c) => (c.id === "Xingqiu" || c.id === "Bennett" ? { ...c, built: false } : c));
+    const suggestions = search(r).suggestions;
+    expect(suggestions.length).toBeGreaterThan(0);
+    for (const s of suggestions) {
+      const gappy = s.team.members.filter((id) => id === "Xingqiu" || id === "Bennett");
+      expect(gappy.sort()).toEqual([s.id, ...s.alsoNeeds].sort());
+    }
+    // Suggestions that need only that character come first.
+    const firstWithOthers = suggestions.findIndex((s) => s.alsoNeeds.length > 0);
+    if (firstWithOthers >= 0) expect(suggestions.slice(firstWithOthers).every((s) => s.alsoNeeds.length > 0)).toBe(true);
+  });
+});
+
+describe("pickSuggestions (#284)", () => {
+  const team = (members: string[], score: number) => ({ members, score }) as ScoredTeam;
+  const gaps = new Map([["A", ["marked not built"]], ["B", ["skill level 8 vs 9"]]]);
+
+  test("a member's team is the best one where they are the only gappy member", () => {
+    const both = team(["A", "B", "C", "D"], 130);
+    const onlyB = team(["B", "C", "D", "E"], 120);
+    const [a, b] = pickSuggestions(gaps, [both, onlyB], [], 20);
+    expect([a.id, a.team, a.alsoNeeds]).toEqual(["B", onlyB, []]);
+    // A has no team of their own: the shared one, naming B.
+    expect([b.id, b.team, b.alsoNeeds]).toEqual(["A", both, ["B"]]);
   });
 });

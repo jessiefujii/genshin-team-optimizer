@@ -48,7 +48,7 @@ export default function ResultsList({ teams, byId, weapons }: Props) {
                   {team.members.map((id) => (
                     <span
                       key={id}
-                      className={`${elementChip(byId.get(id)?.element ?? "")} inline-flex items-center gap-1 ${id === team.carry ? "font-semibold ring-1 ring-current" : ""}`}
+                      className={`${elementChip(byId.get(id)?.element ?? "")} inline-flex items-center gap-1 ${id === team.mainDps ? "font-semibold ring-1 ring-current" : ""}`}
                     >
                       <CharacterIcon icon={byId.get(id)?.icon} size={20} />
                       {id}
@@ -64,16 +64,21 @@ export default function ResultsList({ teams, byId, weapons }: Props) {
                 </span>
               </span>
               <span className="shrink-0 text-right">
-                <span className="block text-lg font-semibold tabular-nums">{team.score}</span>
+                <span className="block text-lg font-semibold tabular-nums">{Math.round(team.score)}</span>
                 <span className="text-xs text-zinc-500">{expanded ? "Hide" : "Why"}</span>
               </span>
             </button>
             {expanded && (
               <div className="border-t border-zinc-200 px-3 py-2 text-sm dark:border-zinc-800">
                 <p className="text-zinc-600 dark:text-zinc-400">
-                  {team.carry ? (
+                  {team.mainDps ? (
                     <>
-                      Carry: <span className="font-medium text-zinc-900 dark:text-zinc-100">{team.carry}</span>
+                      Main DPS: <span className="font-medium text-zinc-900 dark:text-zinc-100">{team.mainDps}</span>
+                      {team.onField && team.onField !== team.mainDps && (
+                        <>
+                          {" · "}On-field: <span className="font-medium text-zinc-900 dark:text-zinc-100">{team.onField}</span>
+                        </>
+                      )}
                     </>
                   ) : (
                     "No main DPS"
@@ -127,17 +132,22 @@ export default function ResultsList({ teams, byId, weapons }: Props) {
                           <th className="pr-3 text-left font-normal">Burst</th>
                           <th className="pr-3 text-right font-normal">Cost</th>
                           <th className="pr-3 text-right font-normal">ER target</th>
+                          <th className="pr-3 text-right font-normal" title="From this team's particles (#37)">Needs here</th>
                           <th className="text-right font-normal">ER</th>
                         </tr>
                       </thead>
                       <tbody>
                         {team.energy.map((e) => {
                           const low = e.target !== undefined && e.er !== undefined && e.er < e.target;
+                          const short = e.need !== undefined && e.target !== undefined && e.need > (e.er ?? e.target);
                           return (
                             <tr key={e.id}>
                               <td className="pr-3">{e.id}</td>
                               <td className="pr-3 text-right tabular-nums">{e.cost}</td>
                               <td className="pr-3 text-right tabular-nums">{e.target === undefined ? "not checked" : `${e.target}%`}</td>
+                              <td className={`pr-3 text-right tabular-nums ${short ? "text-red-700 dark:text-red-400" : ""}`}>
+                                {e.need === undefined ? "" : `${e.need}%`}
+                              </td>
                               <td
                                 className={`text-right tabular-nums ${e.er === undefined ? "text-zinc-400" : low ? "text-red-700 dark:text-red-400" : "text-green-700 dark:text-green-400"}`}
                               >
