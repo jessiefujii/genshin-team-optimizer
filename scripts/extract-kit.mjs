@@ -2382,6 +2382,23 @@ const CARRIES = {
     ],
     buffs: [{ kind: "dmgBonus", from: "passive2", re: /gain a (\d+)% Geo DMG Bonus/, types: [N, CH, SK, BU] }],
   },
+  Sethos: {
+    // #232. KQM's Sethos quick guide (keqingmains.com/q/sethos-quickguide/, fetched 2026-10-21), Normal Attack DPS
+    // ("Higher overall DPS over a sustained rotation" than his Charged Shot playstyle): "E Q 5[N2 (D/J)] N2 E", "15s
+    // rotations". In his Burst's Twilight Meditation his Normal Attacks are Dusk Bolts, "considered Charged Attack DMG",
+    // each "with DMG increased based on Sethos's Elemental Mastery" (the Burst's Dusk Bolt DMG Increase row): the wiki's
+    // Advanced Properties list 1-Hit, 2-Hit A and 2-Hit B as Dusk Bolts, so 6 N2 strings are 18 bolts. Passive 2's
+    // bonus is for Shadowpiercing Shots only, which he doesn't fire in this playstyle.
+    combo: "E Q 5[N2 (D/J)] N2 E",
+    hits: [
+      { table: "normal", label: "1-Hit DMG", count: 6, type: CH },
+      { table: "normal", label: "2-Hit DMG", count: 6, instances: 2, type: CH },
+      // Each bolt's EM part, on the hits above: crit and DMG Bonus, no Aggravate of its own (Cyno's passive 2 pattern).
+      { table: "burst", label: "Dusk Bolt DMG Increase", count: 18, type: CH, addOn: true },
+      { table: "skill", label: "Skill DMG", count: 2, type: SK },
+    ],
+    buffs: [],
+  },
   Yoimiya: {
     // KQM: "her entire Normal Attack string repeated 3 times" in Niwabi Fire-Dance (E), the highest-damage combo in
     // most teams; her Burst "should only be used when it is available (typically every 2 or 3 rotations)": 0.4.

@@ -188,6 +188,16 @@ describe("carry damage (#101)", () => {
       expect(teamBuffStats(zhongli[0], active, zhongli).lunarAdditive).toBeUndefined();
     });
 
+    test("Sethos's Dusk Bolts: Charged Attack DMG, 18 a rotation, each with his Burst's EM part (#232)", () => {
+      const sethos = carries.Sethos as unknown as { hits: { label: string; type: string; count: number; instances?: number; addOn?: boolean; scaling: Record<string, number> }[] };
+      const bolts = sethos.hits.filter((h) => h.label !== "Skill DMG" && !h.addOn);
+      expect(bolts.every((h) => h.type === "charged")).toBe(true);
+      expect(bolts.reduce((a, h) => a + h.count * (h.instances ?? 1), 0)).toBe(18);
+      expect(sethos.hits.find((h) => h.addOn)).toMatchObject({ count: 18, type: "charged", scaling: { em: expect.any(Number) } });
+      const team = ["Sethos", "Fischl", "Nahida", "Zhongli"].map((id) => byId.get(id)!);
+      expect(carryDamage(team[0], ["aggravate"], team)!.rotationSeconds).toBe(15);
+    });
+
     test("modelsAscendantGleam: carries whose own Ascendant Gleam upgrade is in their damage (#150)", () => {
       for (const id of ["Zibai", "Flins", "Nefer"]) expect(modelsAscendantGleam(id), id).toBe(true);
       expect(modelsAscendantGleam("Neuvillette")).toBe(false);

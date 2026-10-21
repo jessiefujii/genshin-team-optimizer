@@ -10377,6 +10377,49 @@
         }
       ]
     },
+    "Sethos": {
+      "rotationSeconds": 15,
+      "combo": "E Q 5[N2 (D/J)] N2 E",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.966628
+          },
+          "count": 6,
+          "reacting": 2
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.926038
+          },
+          "count": 6,
+          "instances": 2,
+          "reacting": 2
+        },
+        {
+          "label": "Dusk Bolt DMG Increase",
+          "type": "charged",
+          "scaling": {
+            "em": 3.33472
+          },
+          "count": 18,
+          "addOn": true
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.9652
+          },
+          "count": 2
+        }
+      ],
+      "buffs": []
+    },
     "Yoimiya": {
       "rotationSeconds": 15,
       "combo": "E 3[N5]",
@@ -12486,7 +12529,6 @@
     "Manekin",
     "Manekina",
     "Sandrone",
-    "Sethos",
     "Varka"
   ]
 }
