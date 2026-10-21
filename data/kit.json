@@ -13,6 +13,25 @@
         {
           "kind": "em",
           "value": 125,
+          "carryReactions": [
+            "vaporize",
+            "melt",
+            "aggravate",
+            "spread",
+            "burning",
+            "bloom",
+            "hyperbloom",
+            "burgeon",
+            "overloaded",
+            "electrocharged",
+            "superconduct",
+            "swirl",
+            "lunar-charged",
+            "lunar-bloom",
+            "lunar-crystallize",
+            "stellar-conduct",
+            "stellar-swirl"
+          ],
           "unit": "EM",
           "source": "passive2: \"Elemental Mastery of nearby party members by 125\"",
           "duration": 10,
@@ -5543,6 +5562,27 @@
             "atk": 6.2424
           },
           "hits": 1,
+          "when": {
+            "carryReactions": [
+              "vaporize",
+              "melt",
+              "aggravate",
+              "spread",
+              "burning",
+              "bloom",
+              "hyperbloom",
+              "burgeon",
+              "overloaded",
+              "electrocharged",
+              "superconduct",
+              "swirl",
+              "lunar-charged",
+              "lunar-bloom",
+              "lunar-crystallize",
+              "stellar-conduct",
+              "stellar-swirl"
+            ]
+          },
           "cd": 12,
           "icd": "none"
         },
@@ -5553,6 +5593,27 @@
             "atk": 1.224
           },
           "hits": 7,
+          "when": {
+            "carryReactions": [
+              "vaporize",
+              "melt",
+              "aggravate",
+              "spread",
+              "burning",
+              "bloom",
+              "hyperbloom",
+              "burgeon",
+              "overloaded",
+              "electrocharged",
+              "superconduct",
+              "swirl",
+              "lunar-charged",
+              "lunar-bloom",
+              "lunar-crystallize",
+              "stellar-conduct",
+              "stellar-swirl"
+            ]
+          },
           "cd": 12
         }
       ]

@@ -37,6 +37,12 @@ const COMBAT = { normal: "combat1", skill: "combat2", burst: "combat3" };
 //        element must be one of these (Chevreuse)
 // limits: elements (carry's element), appliesTo (carry's keyTalent, or 'plunge' for carries whose rotation plunges),
 //         reactions (one the carry deals), physical
+// The teams Albedo Bursts in (#186): KQM's Albedo quick guide (keqingmains.com/q/albedo-quickguide/, accessed
+// 2026-10-21) uses his Burst "in teams that benefit from EM like Burgeon, Lunar-Charged, or Lunar-Crystallize" and its
+// rotations agree: "Albedo E Q" with Klee's and Childe's Vaporize, Zibai's and Columbina's Lunar reactions; "Albedo E"
+// with Navia's Crystallize and the reactionless Arlecchino, Itto, Noelle and Ningguang teams. Read as: the carry
+// triggers a reaction that grows with EM (not Crystallize, Freeze or Quicken).
+const ALBEDO_BURST_TEAMS = ["vaporize", "melt", "aggravate", "spread", "burning", "bloom", "hyperbloom", "burgeon", "overloaded", "electrocharged", "superconduct", "swirl", "lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-conduct", "stellar-swirl"];
 const SPEC = {
   Alyosha: { talent: "skill", values: [{ kind: "atkPct", label: "Hunter's Precision ATK Bonus", unit: "ATK %" }], duration: "Hunter's Precision Duration", cd: "CD" },
   Bennett: { talent: "burst", values: [{ kind: "atkFromBase", label: "ATK Bonus Ratio", unit: "of Bennett's base ATK" }], duration: "Duration", cd: "CD" },
@@ -139,7 +145,8 @@ const SPEC = {
   Xilonen: { talent: "skill", values: [{ kind: "resShred", label: "Elemental RES Decrease", unit: "RES of the party's elements" }], duration: "Source Sample Activation Duration", cd: "CD" },
   "Yun Jin": { talent: "burst", values: [{ kind: "flatDmgFromDef", label: "DMG Increase", unit: "of Yun Jin's DEF as flat Normal Attack DMG", appliesTo: ["normal"] }], duration: "Duration", cd: "CD" },
 
-  Albedo: { from: "passive2", values: [{ kind: "em", re: /Elemental Mastery of nearby party members by (\d+)/, unit: "EM" }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
+  // His Burst triggers it (#186): only in the teams he Bursts in (ALBEDO_BURST_TEAMS).
+  Albedo: { from: "passive2", values: [{ kind: "em", re: /Elemental Mastery of nearby party members by (\d+)/, unit: "EM", carryReactions: ALBEDO_BURST_TEAMS }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
   Baizhu: {
     from: "passive2",
     values: [
@@ -267,6 +274,7 @@ const limits = (v) => ({
   ...(v.physical ? { physical: true } : {}),
   ...(v.condition ? { condition: v.condition } : {}),
   ...(v.teamOnly ? { teamOnly: v.teamOnly } : {}),
+  ...(v.carryReactions ? { carryReactions: v.carryReactions } : {}),
   ...(v.whileOnField ? { whileOnField: true } : {}),
   ...(v.perEm ? { perEm: v.perEm } : {}),
 });
@@ -1191,11 +1199,12 @@ const SUBDPS = {
       addScaling: [{ from: "passive2", re: /Elemental Burst DMG is increased by (\d+)% of her Elemental Mastery/, stat: "em" }],
     },
   ],
+  // Off-field Albedo is mostly his Solar Isotoma (#186); his Burst only where he casts it (ALBEDO_BURST_TEAMS).
   Albedo: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "Duration" },
     { talent: "skill", label: "Transient Blossom DMG", every: /generated once every (\d+)s/, duration: "Duration", cd: "Duration" },
-    { talent: "burst", label: "Burst DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Fatal Blossom DMG", hits: /(\d+) Fatal Blossoms/, cd: "CD" },
+    { talent: "burst", label: "Burst DMG", hits: 1, cd: "CD", when: { carryReactions: ALBEDO_BURST_TEAMS } },
+    { talent: "burst", label: "Fatal Blossom DMG", hits: /(\d+) Fatal Blossoms/, cd: "CD", when: { carryReactions: ALBEDO_BURST_TEAMS } },
   ],
   Alyosha: [
     { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
