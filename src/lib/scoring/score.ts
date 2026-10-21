@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
+import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
 import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setReactionBonus, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
@@ -538,6 +538,7 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   }
   const dealt = carry.reactions.filter((r) => ctx.active.includes(r));
   const usesEm = carry.scalesOn?.includes("EM") || usesEmReaction(carry, ctx);
+  const inDamage = modeledCarryDps(carry, ctx) !== null;
   for (const m of moonsign) {
     const g = GLEAM[m.id];
     if (m === carry || g?.target !== "party") continue;
@@ -548,11 +549,13 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     const sum = (kind: GleamValue["kind"]) =>
       fits.filter((v) => v.kind === kind).reduce((a, v) => a + v.value * (v.reactions ? reactionShare(carry, v.reactions, dealt) : 1), 0);
     // Linnea's extra Geo shred stacks on her base shred, so it is worth less than the same shred alone.
+    // For a modeled carry it is in team damage (#204, kit.ts familyBuffStats).
     const baseShred = KIT_BUFFS[m.id]?.buffs.filter((b) => b.kind === "resShred").reduce((a, b) => a + b.value, 0) ?? 0;
-    const gain =
-      (1 + critGain(sum("critRate"), sum("critDmg"))) * (1 + (usesEm ? emGain(sum("em")) : 0)) * (1 + resShredGain(sum("resShred"), baseShred)) - 1;
+    const shred = inDamage ? 0 : resShredGain(sum("resShred"), baseShred);
+    const gain = (1 + critGain(sum("critRate"), sum("critDmg"))) * (1 + (usesEm ? emGain(sum("em")) : 0)) * (1 + shred) - 1;
     const points = gainPoints(gain, POINTS.buffer);
     if (points > 0) out.add("Moonsign", points, () => `Ascendant Gleam: ${m.id} gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
+    else if (inDamage && sum("resShred") > 0) out.add("Moonsign", 0, () => `Ascendant Gleam: ${m.id}: in team damage`);
   }
 }
 
@@ -643,10 +646,18 @@ function secretRiteLines(ctx: TeamContext, carry: ScoringCharacter | null, out: 
   for (const m of hexerei) {
     const entry = SECRET_RITE[m.id];
     if (m === carry || entry?.target !== "party") continue;
-    const gain = partyValuesGain(entry.values, m, carry, ctx, dealt);
-    const points = gainPoints(gain, POINTS.buffer);
-    if (points > 0) out.add("Hexerei", points, () => `Secret Rite: ${m.id} gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
+    partyValueLine("Hexerei", `Secret Rite: ${m.id}`, entry.values, m, carry, ctx, dealt, out);
   }
+}
+
+// A member's family party values as a line (#204): for a modeled carry their DMG Bonus, ATK % and RES shred are in
+// team damage (kit.ts familyBuffStats), so the points are for the rest, and a line with nothing else says so at 0.
+function partyValueLine(rule: string, who: string, values: PartyValue[], m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext, dealt: Reaction[], out: Sink) {
+  const inDamage = modeledCarryDps(carry, ctx) !== null;
+  const gain = partyValuesGain(inDamage ? values.filter((v) => !FAMILY_IN_DAMAGE.has(v.kind)) : values, m, carry, ctx, dealt);
+  const points = gainPoints(gain, POINTS.buffer);
+  if (points > 0) out.add(rule, points, () => `${who} gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
+  else if (inDamage && partyValuesGain(values, m, carry, ctx, dealt) >= 0.005) out.add(rule, 0, () => `${who}: in team damage`);
 }
 
 // Values of one kind add up (Albedo's two Isotomas); different kinds multiply. Bonuses to different reactions
@@ -692,9 +703,7 @@ function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
   for (const m of stellar) {
     const entry = STELLAR[m.id];
     if (m === carry || entry?.target !== "party") continue;
-    const gain = partyValuesGain(entry.values, m, carry, ctx, dealt);
-    const points = gainPoints(gain, POINTS.buffer);
-    if (points > 0) out.add("Stellar", points, () => `${m.id}'s Stellar buff gives ${carry.id} ~+${Math.round(gain * 100)}% damage`);
+    partyValueLine("Stellar", `${m.id}'s Stellar buff`, entry.values, m, carry, ctx, dealt, out);
   }
 }
 
@@ -838,7 +847,7 @@ function carryTeamBuffs(carry: ScoringCharacter, ctx: TeamContext): TeamBuffStat
     if (v > 0) lunarBase[r] = v;
   }
   const burstShares = burstSharesFor(ctx, carry);
-  return { ...teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members, burstShares), lunarBase, burstShares };
+  return { ...teamBuffStats(carry, carry.reactions.filter((r) => ctx.active.includes(r)), ctx.members, burstShares, ctx.active), lunarBase, burstShares };
 }
 
 // Each sub-DPS's KQM stat priority for the benchmark build's substats (#164/#165).
@@ -1274,7 +1283,7 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   const carryReactions = carry.reactions.filter((r) => ctx.active.includes(r));
   const shreds = new Map<Element, number>();
   const shredOn = (element: Element) => {
-    if (!shreds.has(element)) shreds.set(element, resShredGain(teamBuffStats({ ...carry, element }, carryReactions, ctx.members, burstSharesFor(ctx, carry)).resShred));
+    if (!shreds.has(element)) shreds.set(element, resShredGain(teamBuffStats({ ...carry, element }, carryReactions, ctx.members, burstSharesFor(ctx, carry), ctx.active).resShred));
     return shreds.get(element)!;
   };
   let total = 0;

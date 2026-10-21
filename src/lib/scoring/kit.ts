@@ -419,6 +419,7 @@ function computeKitBuffValue(
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
     if (outsideDamage === true && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
+    if (offFieldOnly(s, b)) continue; // not the carry's (Sigewinne's Convalescence, #204)
     if (outsideDamage && b.reactions?.every((r) => TRANSFORMATIVE[r as Reaction])) continue;
     // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
     const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions) : 1;
@@ -575,7 +576,7 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
   for (const b of entry.buffs) {
     // A buff for some reactions only (Lauma's flat Bloom-type DMG) adds to that reaction's damage, not the carry's
     // hits: like Reaction Bonus, buffer points score it.
-    if (b.reactions) continue;
+    if (b.reactions || offFieldOnly(s, b)) continue;
     const buff = applicable(b, carry, carryReactions, shape);
     if (!buff) continue;
     const weight = (b.uptime ?? 1) * (b.burst ? burst : 1) * stackShare(b, carry, carryReactions, shape);
@@ -587,8 +588,17 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
   return out;
 }
 
-export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: readonly ScoringCharacter[], shares?: BurstShares): TeamBuffStats {
+// `active`: the team's reactions, for family bonuses that a teammate's reaction turns on (Fischl's ATK after Overloaded);
+// without it, the carry's own.
+export function teamBuffStats(
+  carry: ScoringCharacter,
+  carryReactions: readonly Reaction[],
+  team: readonly ScoringCharacter[],
+  shares?: BurstShares,
+  active: readonly Reaction[] = carryReactions,
+): TeamBuffStats {
   const out = { ...NO_TEAM_BUFFS };
+  familyBuffStats(carry, carry, active, team, out);
   for (const s of team) {
     const entry = KIT[s.id];
     if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
@@ -601,11 +611,14 @@ export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly 
   return out;
 }
 
+const offFieldOnly = (s: ScoringCharacter, b: KitBuff) => !!PARTY_WIDE[s.id]?.offField && PARTY_WIDE[s.id].kinds.includes(b.kind);
+
 // Kit buffs that reach every party member's hits, not only the on-field character's (#204), hand-tagged from the
 // talent text. teamBuffStats gives the carry every buff; these also reach sub-DPS hits (memberBuffStats). The rest
-// stay on-field only (Bennett's field, Yelan's and Iansan's active-character buffs, Xianyun's plunges...). Not
-// tagged yet for want of a check, so on-field only for now: Alyosha, Nicole, Illuga, Prune, Sigewinne.
-const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?: Reaction[]; note: string }> = {
+// stay on-field only (Bennett's field, Yelan's and Iansan's active-character buffs, Xianyun's plunges, Alyosha...).
+// offField: only off-field members' hits, never the on-field carry's (Sigewinne's Convalescence): kept out of the
+// carry's damage and buffer points (offFieldOnly).
+const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?: Reaction[]; offField?: boolean; note: string }> = {
   Faruzan: { kinds: ["dmgBonus"], note: "Prayerful Wind's Benefit: all nearby party members' Anemo DMG" },
   Furina: { kinds: ["dmgBonus"], note: "Let the People Rejoice: all nearby party members' DMG, by Fanfare" },
   "Kaedehara Kazuha": {
@@ -619,6 +632,16 @@ const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?
   Mona: { kinds: ["dmgBonus"], note: "Illusory Bubble's Omen: opponents take more DMG from every hit" },
   Rosaria: { kinds: ["critRate"], note: "Shadow Samaritan: CRIT Rate of all party members but Rosaria" },
   Shenhe: { kinds: ["flatDmgFromAtk"], note: "Icy Quill: all party members' Cryo hits (the quills are shared: estimate)" },
+  // Checked against the talent text (#204): Alyosha's Hunter's Precision raises ATK "when they are on the field", and
+  // Illuga's Burst reaches "nearby active party members", so those stay on-field only.
+  Nicole: { kinds: ["atkFromAtk"], note: "Grace of Kenosis: \"bestowing the Grace of Kenosis effect on nearby party members\"" },
+  Illuga: { kinds: ["critRate"], elements: ["Geo"], note: "Lightkeeper's Oath (passive 1): \"other nearby party members\", Geo DMG" },
+  Prune: { kinds: ["dmgBonusFromExcessAtk"], note: "Tolling Rally (passive 2): \"other nearby party members will gain the Tolling Rally effect\"" },
+  Sigewinne: {
+    kinds: ["flatDmg"],
+    offField: true,
+    note: "Convalescence (passive 1): \"the Elemental Skills of your nearby off-field party members other than Sigewinne\"",
+  },
 };
 
 // The party-wide kit buffs one member's hits get from their teammates (#204), as teamBuffStats gives the carry: same
@@ -640,6 +663,7 @@ export function memberBuffStats(
   if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
   byKey.set(key, out);
+  familyBuffStats(m, carry, active, team, out);
   for (const s of team) {
     const wide = PARTY_WIDE[s.id];
     const entry = KIT[s.id];
@@ -668,6 +692,60 @@ export function memberBuffStats(
     }
   }
   return out;
+}
+
+// Family team bonuses as stats (#204): the Secret Rite, Stellar and Ascendant Gleam party values that are DMG Bonus,
+// ATK % or RES shred (kit.json secretRite, stellar, ascendantGleam), on the hits they reach, with the conditions and
+// uptimes their points use (score.ts partyValueGain). EM and Reaction Bonus stay points, as for kit buffs (they'd count
+// twice); Nicole's Arcane Projections and Prune's own ATK are on their own hits and buff. Who a value reaches, from
+// the talent text: RES shred is on the enemy, so every member's hits of its element; Albedo's Isotomas and Sucrose's
+// Wind Spirits "nearby party members'"; Fischl's ATK "Fischl and other nearby active party members"; Prune's and
+// Venti's, the character whose Swirl triggered it (the carry).
+type FamilyValue = {
+  kind: string;
+  value: number;
+  max?: number;
+  perDef?: number;
+  elements?: string[];
+  reactions?: string[];
+  teamReactions?: string[];
+  hexereiOnly?: boolean;
+  radiance?: string;
+  uptime: number | null;
+};
+type FamilyEntry = { target: string; values?: FamilyValue[] };
+const FAMILY_PARTY: { family: "hexerei" | "stellar" | "moonsign"; entries: Record<string, FamilyEntry>; members: number }[] = [
+  { family: "hexerei", entries: kitJson.secretRite as Record<string, FamilyEntry>, members: 2 }, // Secret Rite
+  { family: "stellar", entries: kitJson.stellar as Record<string, FamilyEntry>, members: 1 }, // Radiance: by reaction
+  { family: "moonsign", entries: kitJson.ascendantGleam as unknown as Record<string, FamilyEntry>, members: 2 }, // Ascendant Gleam
+];
+const FAMILY_SCOPE: Record<string, "party" | "active" | "activeAndSelf"> = { Albedo: "party", Sucrose: "party", Fischl: "activeAndSelf" };
+// The family value kinds in damage, so a modeled carry's family lines score the rest (score.ts).
+export const FAMILY_IN_DAMAGE = new Set(["dmgBonus", "atkPct", "resShred"]);
+
+function familyBuffStats(m: ScoringCharacter, carry: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], into: TeamBuffStats) {
+  for (const { family, entries, members } of FAMILY_PARTY) {
+    if (team.filter((x) => x.families?.includes(family)).length < members) continue;
+    for (const s of team) {
+      const entry = entries[s.id];
+      if (entry?.target !== "party" || !s.families?.includes(family)) continue;
+      const stats = bufferStats(s, KIT[s.id]?.base ?? null, KIT[s.id]?.buildFor);
+      for (const v of entry.values ?? []) {
+        if (!FAMILY_IN_DAMAGE.has(v.kind)) continue;
+        const scope = v.kind === "resShred" ? "party" : (FAMILY_SCOPE[s.id] ?? "active");
+        if (scope === "active" ? m !== carry : scope === "activeAndSelf" ? m !== carry && m !== s : false) continue;
+        if (v.elements && !v.elements.includes(m.element)) continue;
+        if (v.reactions && !v.reactions.some((r) => carry.reactions.includes(r as Reaction) && active.includes(r as Reaction))) continue;
+        if (v.teamReactions && !v.teamReactions.some((r) => active.includes(r as Reaction))) continue;
+        if (v.radiance && !active.includes(v.radiance as Reaction)) continue;
+        if (v.hexereiOnly && !m.families?.includes("hexerei")) continue;
+        const value = (v.perDef ? Math.min(v.max ?? Infinity, (v.value * stats.def) / v.perDef) : v.value) * (v.uptime ?? 1);
+        if (v.kind === "dmgBonus") into.dmgBonus += value;
+        else if (v.kind === "atkPct") into.atkPct += value;
+        else into.resShred += value;
+      }
+    }
+  }
 }
 
 // The team's kit bonuses to a transformative reaction's own damage (#256), for score.ts transformativeLines: Reaction

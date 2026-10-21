@@ -4,7 +4,7 @@ import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { carryDamage } from "./damage";
-import { fightingSpiritBuilt, memberBuffStats } from "./kit";
+import { fightingSpiritBuilt, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
@@ -341,10 +341,12 @@ describe("scoreTeam", () => {
     expect(reasons("Varka", "Venti", "Bennett", "Durin").some((r) => r.startsWith("Secret Rite: Venti gives Varka"))).toBe(true);
     // One Hexerei member: no Secret Rite.
     expect(lines("Varka", "Kaedehara Kazuha", "Bennett", "Xiangling")).toEqual([]);
-    // Albedo's Silver Isotoma bonus only reaches Hexerei members, so a Hexerei carry gets more from him.
-    const albedo = (...ids: string[]) => lines(...ids).find((l) => l.reason.startsWith("Secret Rite: Albedo"))?.points ?? 0;
-    expect(albedo("Klee", "Albedo", "Sucrose", "Furina")).toBeGreaterThan(albedo("Hu Tao", "Albedo", "Sucrose", "Xingqiu"));
-    expect(albedo("Hu Tao", "Albedo", "Sucrose", "Xingqiu")).toBeGreaterThan(0);
+    // Albedo's Silver Isotoma and Sucrose's Large Wind Spirit only reach Hexerei members, so a Hexerei carry gets more
+    // DMG Bonus from them. For a modeled carry it is in their damage (#204, kit.ts familyBuffStats): 0 points.
+    const bonus = (...ids: string[]) => teamBuffStats(team(...ids)[0], [], team(...ids)).dmgBonus;
+    expect(bonus("Klee", "Albedo", "Sucrose", "Bennett")).toBeGreaterThan(bonus("Hu Tao", "Albedo", "Sucrose", "Bennett"));
+    expect(bonus("Hu Tao", "Albedo", "Sucrose", "Bennett")).toBeGreaterThan(bonus("Hu Tao", "Albedo", "Xingqiu", "Bennett"));
+    expect(lines("Hu Tao", "Albedo", "Sucrose", "Xingqiu").find((l) => l.reason === "Secret Rite: Albedo: in team damage")?.points).toBe(0);
     // Nicole's bigger Arcane Projections only reach Hexerei members.
     expect(reasons("Varka", "Nicole", "Venti", "Bennett").some((r) => r.startsWith("Secret Rite: Nicole gives Varka"))).toBe(true);
     expect(reasons("Hu Tao", "Nicole", "Mona", "Zhongli")).toEqual([]);
@@ -617,6 +619,27 @@ describe("sub-DPS (#96)", () => {
     // And the buff shows in their damage: Yelan with Furina beside her deals more than with Zhongli in that slot.
     const yelan = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.reason.startsWith("Yelan's own hits"))?.reason);
     expect(yelan("Hu Tao", "Yelan", "Furina", "Xingqiu")).toBeGreaterThan(yelan("Hu Tao", "Yelan", "Zhongli", "Xingqiu"));
+  });
+
+  test("checked party-wide buffs and family team bonuses reach the hits their text names (#204)", () => {
+    const buffsOn = (id: string, ids: string[], talent?: string) => {
+      const t = team(...ids);
+      return memberBuffStats(byId.get(id)!, t[0], score(...ids).activeReactions, t, talent);
+    };
+    // Nicole's Grace of Kenosis and Prune's Tolling Rally are for nearby party members; Illuga's CRIT Rate is for Geo DMG.
+    expect(buffsOn("Xingqiu", ["Hu Tao", "Xingqiu", "Nicole", "Zhongli"]).atk).toBeGreaterThan(0);
+    expect(buffsOn("Zhongli", ["Navia", "Zhongli", "Illuga", "Xilonen"]).critRate).toBeGreaterThan(0);
+    // Sigewinne's Convalescence is for off-field members' Skill DMG: Furina's Skill, not Neuvillette's hits.
+    const sige = ["Neuvillette", "Furina", "Sigewinne", "Kaedehara Kazuha"];
+    expect(buffsOn("Furina", sige, "skill").flat).toBeGreaterThan(0);
+    const carry = teamBuffStats(team(...sige)[0], [], team(...sige));
+    expect(carry.flat + (carry.byHit?.skill?.flat ?? 0)).toBe(0);
+    // Secret Rite (Durin and Fischl): Durin's extra Pyro RES shred is on the enemy, so Bennett's hits get it too; Fischl's
+    // ATK after Overloaded is for the active character and Fischl, not Bennett. Beidou isn't Hexerei: no Secret Rite.
+    const rite = ["Arlecchino", "Durin", "Fischl", "Bennett"];
+    expect(buffsOn("Bennett", rite).resShred).toBeGreaterThan(buffsOn("Bennett", ["Arlecchino", "Durin", "Beidou", "Bennett"]).resShred);
+    expect(buffsOn("Fischl", rite).atkPct).toBeGreaterThan(0);
+    expect(buffsOn("Bennett", rite).atkPct).toBe(0);
   });
 
   test("a support who out-damages the carry is not named main DPS (#266)", () => {
