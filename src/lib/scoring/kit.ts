@@ -45,6 +45,70 @@ interface KitCharacter {
 
 const KIT = kitJson.characters as Record<string, KitCharacter>;
 
+// A carry without a build reads as wearing their KQM guide's 4pc set (#279, #206, extract-kit benchmarkSets): the first
+// option that fits the team (the reaction it triggers, or one of `members` in it). A build's own sets always count.
+type BenchmarkSet = { set: string; when?: { reaction?: Reaction; members?: string[] } };
+const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet[]> }).benchmarkSets;
+export function setsOf(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[] = [c]): NonNullable<ScoringCharacter["sets"]> {
+  if (c.stats || c.sets) return c.sets ?? [];
+  const b = BENCHMARK_SETS[c.id]?.find(
+    ({ when: w }) => (!w?.reaction || active.includes(w.reaction)) && (!w?.members || team.some((m) => w.members!.includes(m.id))),
+  );
+  return b ? [{ set: b.set, pieces: 4 }] : [];
+}
+
+// Party-wide set effects (#306, extract-kit SETS `party`): Silken Moon's Serenade's EM to all party members, and the
+// Gleaming Moon sets' Lunar Reaction DMG, 10% per different Gleaming Moon effect in the party (Night's Intent, Silken's
+// Devotion; a second wearer of the same set adds nothing: "Effects from Gleaming Moon cannot stack"). On every member's
+// hits: the carry's (damage.ts), the sub-DPS's and the reactions' (score.ts), the buffers' EM-based buffs (bufferStats).
+// `when`: moonsign (the party's level: Nascent Gleam with one Moonsign member, Ascendant with two or more; `gleam`),
+// onField (the wearer is the on-field carry: Night's "if the equipping character is on the field"), lunar (the team
+// triggers a Lunar reaction: Night's "when nearby party members trigger Lunar Reactions"). The Lunar bonus is Reaction
+// Bonus (Genshin Impact Wiki, Damage § Reaction DMG Bonus, fetched 2026-10-21, lists both sets).
+type PartySetEffect = {
+  kind: "em" | "gleamingMoon";
+  party: true;
+  value: number;
+  effect?: string;
+  when?: { moonsign?: "nascent" | "ascendant"; onField?: boolean; lunar?: boolean };
+};
+const PARTY_SETS = Object.fromEntries(
+  Object.entries((kitJson as unknown as { sets: Record<string, { party?: boolean }[]> }).sets)
+    .map(([name, effects]) => [name, effects.filter((e) => e.party) as PartySetEffect[]])
+    .filter(([, effects]) => effects.length > 0),
+) as Record<string, PartySetEffect[]>;
+// Whether a set has party-wide effects in damage (#306): score.ts then drops its effects.json flat points.
+export const partySetModeled = (set: string) => set in PARTY_SETS;
+export function partySetBuffs(
+  team: readonly ScoringCharacter[],
+  active: readonly Reaction[] = [],
+  onField: ScoringCharacter | null = null,
+  gleam = team.filter((m) => m.families?.includes("moonsign")).length >= 2,
+): { em: number; lunar: number } {
+  const moonsign = team.some((m) => m.families?.includes("moonsign"));
+  const lunar = active.some((r) => r.startsWith("lunar-"));
+  let em = 0;
+  const effects = new Map<string, number>(); // Gleaming Moon effect -> its value
+  const seen = new Set<string>(); // one wearer's EM per set: the same effect doesn't stack (estimate for EM)
+  for (const m of team) {
+    for (const { set, pieces } of setsOf(m, active, team)) {
+      if (pieces < 4) continue;
+      for (const b of PARTY_SETS[set] ?? []) {
+        const w = b.when ?? {};
+        if (w.moonsign && (!moonsign || (w.moonsign === "ascendant") !== gleam)) continue;
+        if (w.onField && m !== onField) continue;
+        if (w.lunar && !lunar) continue;
+        if (b.kind === "gleamingMoon") effects.set(b.effect!, b.value);
+        else if (!seen.has(`${set}|${w.moonsign}`)) {
+          seen.add(`${set}|${w.moonsign}`);
+          em += b.value;
+        }
+      }
+    }
+  }
+  return { em, lunar: [...effects.values()].reduce((a, v) => a + v, 0) };
+}
+
 
 // Whether the carry's rotation has Normal Attacks (KQM "N", e.g. Hu Tao's "N2C x8", Clorinde's "6[N3E]"; not
 // Neuvillette's charged attack, Mavuika's "C8F" or Xiao's plunges): Xingqiu's, Yelan's and Beidou's hits need them.
@@ -128,15 +192,16 @@ export function atkPctGain(carry: ScoringCharacter, pct: number): number {
   return ((carry.stats?.baseAtk ?? BENCHMARK.carryBaseAtk) * pct) / atk;
 }
 
-// The buffer's own stats: from their build when the player has one, else the benchmark.
-function bufferStats(s: ScoringCharacter, base: KitCharacter["base"], buildFor: KitCharacter["buildFor"]) {
+// The buffer's own stats: from their build when the player has one, else the benchmark. `partyEm`: party-wide set EM
+// (Silken Moon's Serenade, #306), on no one's character screen: Illuga's EM-based buffs grow with it.
+function bufferStats(s: ScoringCharacter, base: KitCharacter["base"], buildFor: KitCharacter["buildFor"], partyEm = 0) {
   const b = BENCHMARK.buffer;
   return {
     baseAtk: s.stats?.baseAtk ?? (base?.atk ?? 0) + b.weaponBaseAtk,
     atk: s.stats?.atk ?? buildFor?.atk ?? b.atk,
     hp: s.stats?.hp ?? b.hp,
     def: s.stats?.def ?? b.def,
-    em: s.stats?.elementalMastery ?? (buildFor?.em === "built" ? BENCHMARK.carry.emBuilt : buildFor?.em) ?? b.em,
+    em: (s.stats?.elementalMastery ?? (buildFor?.em === "built" ? BENCHMARK.carry.emBuilt : buildFor?.em) ?? b.em) + partyEm,
   };
 }
 
@@ -147,6 +212,7 @@ interface TeamShape {
   fightingSpirit: number;
   nightsoulOthers: number; // Nightsoul members other than the buffer
   moonsign: number; // Moonsign members: two make Ascendant Gleam, which adds carry hits (stackShare, #186)
+  partyEm: number; // party-wide set EM (partySetBuffs, #306)
   healersOthers: number; // healers other than the buffer
 }
 
@@ -330,8 +396,9 @@ export function kitBuffValue(
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
     moonsign: team.filter((m) => m.families?.includes("moonsign")).length,
+    partyEm: partySetBuffs(team).em,
   };
-  const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${[...shape.elements].sort().join(",")}`;
+  const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${shape.partyEm}|${[...shape.elements].sort().join(",")}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
   const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage, burst);
   byReactions.set(key, value);
@@ -348,7 +415,7 @@ function computeKitBuffValue(
 ): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
-  const stats = bufferStats(s, entry.base, entry.buildFor);
+  const stats = bufferStats(s, entry.base, entry.buildFor, team.partyEm);
   const best = new Map<string, number>();
   for (const b of entry.buffs) {
     if (outsideDamage === true && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
@@ -468,6 +535,7 @@ function shapeOf(s: ScoringCharacter, carry: ScoringCharacter, team: readonly Sc
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
     moonsign: team.filter((m) => m.families?.includes("moonsign")).length,
+    partyEm: partySetBuffs(team).em,
   };
 }
 
@@ -477,12 +545,12 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
   if (!byCarry) statsCache.set(s, (byCarry = new WeakMap()));
   let byKey = byCarry.get(carry);
   if (!byKey) byCarry.set(carry, (byKey = new Map()));
-  const key = `${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${[...shape.elements].sort().join(",")}`;
+  const key = `${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${shape.partyEm}|${[...shape.elements].sort().join(",")}`;
   const cached = byKey.get(key);
   if (cached) return cached;
   const out = { ...NO_TEAM_BUFFS };
   const entry = KIT[s.id];
-  const stats = bufferStats(s, entry.base, entry.buildFor);
+  const stats = bufferStats(s, entry.base, entry.buildFor, shape.partyEm);
   // The buff kitBuffValue counts for each kind: the one worth most to this carry.
   const best = new Map<string, { buff: KitBuff; weight: number; g: number }>();
   for (const b of entry.buffs) {
@@ -561,13 +629,13 @@ export function memberBuffStats(
     for (const kind of ["resShred", "defShred"] as const) {
       const b = entry.buffs.find((x) => x.kind === kind && !x.reactions && (!x.elements || x.elements.includes(m.element)) && (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))));
       const funded = b?.burst ? (shares?.get(s) ?? 1) : 1;
-      if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor), shape0, (b.uptime ?? 1) * funded, out);
+      if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor, shape0.partyEm), shape0, (b.uptime ?? 1) * funded, out);
     }
     if (!wide) continue;
     if (wide.elements && !wide.elements.includes(m.element)) continue;
     if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
     const shape = shapeOf(s, carry, team);
-    const stats = bufferStats(s, entry.base, entry.buildFor);
+    const stats = bufferStats(s, entry.base, entry.buildFor, shape.partyEm);
     const seen = new Set<string>(); // one buff per kind, as bufferPart
     for (const b of entry.buffs) {
       if (b.reactions || !wide.kinds.includes(b.kind) || seen.has(b.kind)) continue;
@@ -594,11 +662,12 @@ export function reactionBonusesFor(
   let bonus = 0;
   let additive = 0;
   const elements = team.map((m) => m.element);
-  const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0, moonsign: 0 };
+  const partyEm = partySetBuffs(team).em; // Silken's EM on the members' EM-based bonuses (#306)
+  const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0, moonsign: 0, partyEm };
   for (const m of team) {
     const entry = KIT[m.id];
     if (!entry || entry.missing) continue;
-    const stats = bufferStats(m, entry.base, entry.buildFor);
+    const stats = bufferStats(m, entry.base, entry.buildFor, partyEm);
     for (const b of entry.buffs) {
       if (!b.reactions?.includes(r)) continue;
       if (b.teamOnly && !elements.every((e) => b.teamOnly!.includes(e))) continue;

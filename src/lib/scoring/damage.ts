@@ -4,7 +4,7 @@
 import kitJson from "../../../data/kit.json";
 import { BENCHMARK, defShredGain, resShredGain } from "./benchmark";
 import { burstShare } from "./energy";
-import { FIGHTING_SPIRIT_LIMIT, NO_TEAM_BUFFS, fightingSpirit, teamBuffStats, type TeamBuffStats } from "./kit";
+import { FIGHTING_SPIRIT_LIMIT, NO_TEAM_BUFFS, fightingSpirit, partySetBuffs, setsOf, teamBuffStats, type TeamBuffStats } from "./kit";
 import { mainReactionOf, TRANSFORMATIVE } from "./reactions";
 export { TRANSFORMATIVE };
 import type { Element, Reaction, ScoringCharacter } from "./types";
@@ -109,6 +109,7 @@ type SetWhen = {
   noEnergy?: boolean;
   weapons?: string[];
   moonsign?: "nascent" | "ascendant";
+  offField?: boolean; // the wearer isn't the on-field carry (Aubade of Morningstar and Moon, #306)
 };
 type SetBuff = {
   kind: "critRate" | "dmgBonus" | "atkPct" | "reactionBonus" | "dmgBonusFromEr" | "atkPctPerSame" | "emPerOther";
@@ -120,22 +121,17 @@ type SetBuff = {
   element?: Element; // only hits of this element (Crimson Witch's Pyro DMG)
   reactions?: (Reaction | LunarReaction)[];
   when?: SetWhen;
+  party?: true; // a party-wide effect (Silken's EM, Gleaming Moon): kit.ts partySetBuffs, not the wearer's alone (#306)
 };
 const SETS = (kitJson as unknown as { sets: Record<string, SetBuff[]> }).sets;
 const HOLDER = (kitJson as unknown as {
   holderStates: { selfHpDrain: string[]; partyHpDrain: string[]; bondOfLife: string[]; setStacks: Record<string, Record<string, number>> };
 }).holderStates;
-// A carry without a build reads as wearing their KQM guide's 4pc set (#279, #206, extract-kit benchmarkSets): the first
-// option that fits the team (the reaction it triggers, or one of `members` in it). A build's own sets always count.
+// A carry without a build reads as wearing their KQM guide's 4pc set (kit.ts setsOf, #279; there since #306, as the
+// party-wide set effects read it too).
 type BenchmarkSet = { set: string; when?: { reaction?: Reaction; members?: string[] } };
 const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet[]> }).benchmarkSets;
-export function setsOf(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[] = [c]): NonNullable<ScoringCharacter["sets"]> {
-  if (c.stats || c.sets) return c.sets ?? [];
-  const b = BENCHMARK_SETS[c.id]?.find(
-    ({ when: w }) => (!w?.reaction || active.includes(w.reaction)) && (!w?.members || team.some((m) => w.members!.includes(m.id))),
-  );
-  return b ? [{ set: b.set, pieces: 4 }] : [];
-}
+export { setsOf };
 // HP drain (holderStates): their own kit's, or a teammate's that drains the party (Furina's Salon Members).
 const hpDrops = (c: ScoringCharacter, team: readonly ScoringCharacter[]) =>
   HOLDER.selfHpDrain.includes(c.id) || team.some((m) => HOLDER.partyHpDrain.includes(m.id));
@@ -143,8 +139,9 @@ const hpDrops = (c: ScoringCharacter, team: readonly ScoringCharacter[]) =>
 // to keep the stacks, as for Splendor of Tranquil Waters, #40).
 export const hpChanges = (c: ScoringCharacter, team: readonly ScoringCharacter[]) => hpDrops(c, team) || team.some((m) => m.roles.includes("healer"));
 // Whether a set effect's condition holds for the wearer in this team (extract-kit SETS `when`): a set's trigger the
-// model doesn't track (a Skill cast, Nightsoul points spent, Bond of Life changing) is taken as kept up.
-function setFits(w: SetWhen | undefined, c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], gleam: boolean) {
+// model doesn't track (a Skill cast, Nightsoul points spent, Bond of Life changing) is taken as kept up. `onField`: the
+// wearer is the on-field carry (a sub-DPS's own hits: false, #306).
+function setFits(w: SetWhen | undefined, c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], gleam: boolean, onField: boolean) {
   if (!w) return true;
   const moonsign = team.filter((m) => m.families?.includes("moonsign")).length;
   const lunar = active.some((r) => r.startsWith("lunar-"));
@@ -158,17 +155,18 @@ function setFits(w: SetWhen | undefined, c: ScoringCharacter, active: readonly R
     (!w.nightsoul || !!c.families?.includes("nightsoul")) &&
     (!w.noEnergy || !c.burstCost) &&
     (!w.weapons || w.weapons.includes(c.weapon)) &&
+    (!w.offField || !onField) &&
     (!w.moonsign || (lunar && (w.moonsign === "ascendant" ? gleam : moonsign === 1 || (moonsign >= 2 && !gleam))))
   );
 }
 // The wearer's set effects that hold in this team, each at its value: a stack count from holderStates.setStacks, and
-// per-member effects (Gilded Dreams) by the other members' elements.
-export function setBuffs(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], gleam = false): SetBuff[] {
+// per-member effects (Gilded Dreams) by the other members' elements. Party-wide effects are partySetBuffs' (#306).
+export function setBuffs(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], gleam = false, onField = true): SetBuff[] {
   const out: SetBuff[] = [];
   const mates = team.filter((m) => m.id !== c.id);
   for (const { set, pieces } of setsOf(c, active, team)) {
     for (const b of SETS[set] ?? []) {
-      if (pieces < (b.pieces ?? 4) || (b.pieces === 2 && !c.stats) || !setFits(b.when, c, active, team, gleam)) continue;
+      if (b.party || pieces < (b.pieces ?? 4) || (b.pieces === 2 && !c.stats) || !setFits(b.when, c, active, team, gleam, onField)) continue;
       const stacks = b.perStack !== undefined ? HOLDER.setStacks[c.id]?.[set] : undefined;
       let value = stacks !== undefined ? b.perStack! * stacks : b.value;
       if (b.kind === "atkPctPerSame") value *= Math.min(b.max!, mates.filter((m) => m.element === c.element).length);
@@ -183,8 +181,9 @@ const sumSet = (buffs: readonly SetBuff[], kind: SetBuff["kind"]) => buffs.reduc
 // "Frozen" when the team Freezes, each taken as up on every hit: estimate; Marechaussee, Obsidian Codex, Night).
 export const setCritRate = (c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], gleam = false) =>
   sumSet(setBuffs(c, active, team, gleam), "critRate");
-// A set's Reaction Bonus for this reaction (Crimson Witch's Vaporize/Melt, Thundering Fury's Aggravate/Lunar-Charged).
-const setReactionBonus = (buffs: readonly SetBuff[], r: Reaction | LunarReaction | "none" | undefined) =>
+// A set's Reaction Bonus for this reaction (Crimson Witch's Vaporize/Melt, Thundering Fury's Aggravate/Lunar-Charged,
+// Aubade's Lunar reactions off-field).
+export const setReactionBonus = (buffs: readonly SetBuff[], r: Reaction | LunarReaction | "none" | undefined) =>
   buffs.reduce((a, b) => a + (b.kind === "reactionBonus" && r && b.reactions!.includes(r as Reaction) ? b.value : 0), 0);
 // A set's DMG bonus on a hit of this type and element, ER-based ones (Emblem) at the carry's ER.
 const setDmgBonus = (buffs: readonly SetBuff[], type: HitType, el: Element | "Physical", er: number) =>
@@ -203,6 +202,9 @@ export const freezeSetModeled = (c: ScoringCharacter) => !!BENCHMARK_SETS[c.id]?
 // Weapon passives on the holder's own hits (#40, extract-kit WEAPONS): `values` by refinement (R1-R5), `when` the team
 // condition. Only a build's weapon counts: a benchmark character holds none.
 type WeaponWhen = {
+  hpKept?: boolean; // a teammate heals or shields the holder, and no HP drain (Harbinger of Dawn's "HP is above 90%", #306)
+  holderReacts?: boolean; // the holder triggers one of the team's reactions (Snare Hook, #306)
+  ascendantGleam?: boolean; // two Moonsign members (Snare Hook's further EM)
   energy?: boolean;
   teammatesSkill?: boolean;
   geo?: boolean;
@@ -211,7 +213,7 @@ type WeaponWhen = {
   aura?: Element[];
   reactions?: Reaction[];
 };
-type WeaponBuff = { kind: "dmgBonus" | "hpPct" | "atkPct" | "atkFromEm"; types?: HitType[]; values: number[]; max?: number[]; when?: WeaponWhen };
+type WeaponBuff = { kind: "dmgBonus" | "hpPct" | "atkPct" | "atkFromEm" | "critRate" | "em"; types?: HitType[]; values: number[]; max?: number[]; when?: WeaponWhen };
 const WEAPONS = (kitJson as unknown as { weapons: Record<string, WeaponBuff[]> }).weapons;
 // The holder's weapon buffs that hold in this team, each with its value at the build's refinement:
 // - energy: per point of the party's combined max Energy (every member's Burst cost), capped;
@@ -220,16 +222,22 @@ const WEAPONS = (kitJson as unknown as { weapons: Record<string, WeaponBuff[]> }
 // - hpChanges: the holder's HP goes up or down: a healer in the team keeping the stacks full (estimate), or HP drain
 //   (their own kit's or Furina's, kit.json holderStates, #206);
 // - bondOfLife: their own kit gives them a Bond of Life (holderStates, #206);
-// - aura: a member applies one of these elements (Dragon's Bane, #206); reactions: the team triggers one of them.
+// - aura: a member applies one of these elements (Dragon's Bane, #206); reactions: the team triggers one of them;
+// - hpKept: a teammate heals (healsInPlay) or shields them and nothing drains their HP (#306, KQM: Harbinger of Dawn
+//   with a shielder or healer); holderReacts: they trigger one of the team's reactions; ascendantGleam.
 export function weaponBuffs(
   c: ScoringCharacter,
   team: readonly ScoringCharacter[],
   active: readonly Reaction[] = [],
+  gleam = team.filter((m) => m.families?.includes("moonsign")).length >= 2,
 ): { kind: WeaponBuff["kind"]; types?: HitType[]; value: number }[] {
   const w = c.weaponBuild;
   if (!w) return [];
   const r = Math.min(5, Math.max(1, w.refinement)) - 1;
   const fits = (when: WeaponWhen = {}) =>
+    (!when.hpKept || (!hpDrops(c, team) && team.some((m) => m !== c && (healsInPlay(m) || m.roles.includes("shielder"))))) &&
+    (!when.holderReacts || c.reactions.some((x) => active.includes(x))) &&
+    (!when.ascendantGleam || gleam) &&
     (!when.teammatesSkill || team.some((m) => m.id !== c.id && m.rotation.actions.some((a) => a.includes("E")))) &&
     (!when.geo || team.some((m) => m.element === "Geo")) &&
     (!when.hpChanges || hpChanges(c, team)) &&
@@ -251,6 +259,9 @@ export const weaponDmgBonus = (buffs: ReturnType<typeof weaponBuffs>, type: HitT
 // stacks), and ATK from EM (Staff of the Scarlet Sands' Skill-hit stacks).
 export const weaponAtk = (buffs: ReturnType<typeof weaponBuffs>, baseAtk: number, em: number) =>
   buffs.reduce((a, b) => a + (b.kind === "atkPct" ? b.value * baseAtk : b.kind === "atkFromEm" ? b.value * em : 0), 0);
+// The holder's weapon CRIT Rate or EM the character screen doesn't show (#306: Harbinger of Dawn, Snare Hook, Widsith).
+export const weaponSum = (buffs: ReturnType<typeof weaponBuffs>, kind: "critRate" | "em") =>
+  buffs.reduce((a, b) => a + (b.kind === kind ? b.value : 0), 0);
 
 // A benchmark carry whose set gives CRIT Rate wears a CRIT DMG circlet instead of a CRIT Rate one (#279: KQM's Ganyu
 // guide, Freeze stat priority "CRIT DMG ≥ ATK% > CRIT Rate" with Blizzard Strayer).
@@ -414,9 +425,10 @@ export function passiveEnabler(c: ScoringCharacter, active: readonly Reaction[])
 // with Cryo and Electro throughout (estimate; Cryo Traveler's Burst, #236).
 export const LUNAR_COEFFICIENT: Record<LunarReaction, number> = { "lunar-charged": 3, "lunar-bloom": 1, "lunar-crystallize": 1.6, "stellar-swirl": 1, "stellar-conduct": 2 };
 export const lunarEmBonus = (em: number) => (6 * em) / (em + 2000);
-// One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151).
-export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0) =>
-  LUNAR_COEFFICIENT[reaction] * talentValue * (1 + baseBonus) * (1 + lunarEmBonus(em));
+// One direct Lunar hit from its talent value (multiplier x stat), for sub-DPS hits too (#151). `bonus`: Reaction Bonus,
+// beside the EM bonus (the wiki formula above): the Gleaming Moon sets, the wearer's Aubade (#306).
+export const lunarHit = (reaction: LunarReaction, talentValue: number, em: number, baseBonus = 0, bonus = 0) =>
+  LUNAR_COEFFICIENT[reaction] * talentValue * (1 + baseBonus) * (1 + lunarEmBonus(em) + bonus);
 const reactingShare = (h: CarryHit) => (h.reacting === undefined ? AMPLIFY_SHARE : h.count ? h.reacting / h.count : 0);
 
 // The carry's combo for this team (#114): the first of kit.json's combos whose `when` fits, else the default.
@@ -524,9 +536,11 @@ function computeCarryDamage(
   const gleam = !noGleam && team.filter((m) => m.families?.includes("moonsign")).length >= 2;
   // The carry's own set effects in this team (#206), and teammates' CRIT Rate buffs (#157) with the set's.
   const set = setBuffs(c, active, team, gleam);
-  const critRate = teamBuffs.critRate + sumSet(set, "critRate");
+  const weapon = weaponBuffs(c, team, active, gleam); // the build's weapon passive (#40, #206)
+  // Party-wide set effects (#306, kit.ts partySetBuffs): Silken's EM, the Gleaming Moon Lunar Reaction Bonus.
+  const party = partySetBuffs(team, active, c, gleam);
+  const critRate = teamBuffs.critRate + sumSet(set, "critRate") + weaponSum(weapon, "critRate"); // Harbinger (#306)
   const dmgCirclet = critCirclet(c, set);
-  const weapon = weaponBuffs(c, team, active); // the build's weapon passive (#40, #206)
   const own = carryStats(c, kit.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
   const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
@@ -555,7 +569,8 @@ function computeCarryDamage(
   // shows 175.6 EM = 96 from substats + 80 from Night of the Sky's Unveiling 2pc). From his own ATK (build or
   // benchmark), not kit- or team-buffed ATK: KeqingMains' Flins guide says it "does not consider ATK buffs that
   // originate from a percentage of one character's stat".
-  let em = s.em + sumSet(set, "emPerOther"); // Gilded Dreams' EM per other-element member (#206)
+  // Gilded Dreams' EM per other-element member (#206); the weapon's and the party sets' EM (#306).
+  let em = s.em + sumSet(set, "emPerOther") + weaponSum(weapon, "em") + party.em;
   for (const b of buffs) {
     if (b.kind === "emFromAtk") em += Math.min(b.max, b.value * own.atk); // own ATK: no team buffs (#157)
     if (b.kind === "emBonus") em += b.value; // Nefer at 3 Veil of Falsehood stacks (#148)
@@ -591,7 +606,8 @@ function computeCarryDamage(
   // `perEm`: per that many points of the carry's EM (Mizuki's Skill, #235).
   const lunarBonus = (r: LunarReaction) =>
     buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? (b.perEm ? (b.value * em) / b.perEm : b.value) : 0), 0) +
-    setReactionBonus(set, r); // Thundering Fury's Lunar-Charged (#206)
+    setReactionBonus(set, r) + // Thundering Fury's Lunar-Charged (#206)
+    party.lunar; // Gleaming Moon (#306)
   // Base DMG Multiplier by hit label (Nefer's Veil of Falsehood, #148): multiplies the hit's base, Lunar or not.
   const baseMultiplier = (h: CarryHit) =>
     buffs.reduce((a, b) => a * (b.kind === "baseDmgMultiplier" && b.labels.includes(h.label) ? 1 + b.value : 1), 1);

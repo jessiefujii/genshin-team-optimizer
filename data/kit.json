@@ -1914,6 +1914,73 @@
           "moonsign": "ascendant"
         },
         "source": "4pc: \"Increases CRIT Rate by 15%/30% when the party's Moonsign is Nascent Gleam/Ascendant Gleam\""
+      },
+      {
+        "kind": "gleamingMoon",
+        "party": true,
+        "effect": "Intent",
+        "value": 0.1,
+        "when": {
+          "onField": true,
+          "lunar": true
+        },
+        "source": "4pc: \"All party members' Lunar Reaction DMG is increased by 10% for each different Gleaming Moon effect\""
+      }
+    ],
+    "Silken Moon's Serenade": [
+      {
+        "kind": "em",
+        "party": true,
+        "value": 60,
+        "when": {
+          "moonsign": "nascent"
+        },
+        "source": "4pc: \"Increases all party members' Elemental Mastery by 60/120 when the party's Moonsign is Nascent Gleam\" (taken as up by the wearer's own Elemental DMG: estimate)"
+      },
+      {
+        "kind": "em",
+        "party": true,
+        "value": 120,
+        "when": {
+          "moonsign": "ascendant"
+        },
+        "source": "4pc: \"Increases all party members' Elemental Mastery by 60/120 when the party's Moonsign is Nascent Gleam/Ascendant Gleam\" (taken as up by the wearer's own Elemental DMG: estimate)"
+      },
+      {
+        "kind": "gleamingMoon",
+        "party": true,
+        "effect": "Devotion",
+        "value": 0.1,
+        "source": "4pc: \"All party members' Lunar Reaction DMG is increased by 10% for each different Gleaming Moon effect\" (taken as up by the wearer's own Elemental DMG: estimate)"
+      }
+    ],
+    "Aubade of Morningstar and Moon": [
+      {
+        "kind": "reactionBonus",
+        "value": 0.2,
+        "reactions": [
+          "lunar-charged",
+          "lunar-bloom",
+          "lunar-crystallize"
+        ],
+        "when": {
+          "offField": true
+        },
+        "source": "4pc: \"When the equipping character is off-field, Lunar Reaction DMG is increased by 20%\" (taken as up off-field: estimate)"
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.4,
+        "reactions": [
+          "lunar-charged",
+          "lunar-bloom",
+          "lunar-crystallize"
+        ],
+        "when": {
+          "offField": true,
+          "moonsign": "ascendant"
+        },
+        "source": "4pc: \"at least Ascendant Gleam, Lunar Reaction DMG will be further increased by 40%\" (taken as up off-field: estimate)"
       }
     ],
     "Marechaussee Hunter": [
@@ -2963,6 +3030,88 @@
           0.32
         ],
         "source": "R1: \"Normal, Charged, and Plunging Attack DMG increased by 16% for 10s\" (taken at full stacks / up throughout: estimate)"
+      }
+    ],
+    "Harbinger of Dawn": [
+      {
+        "kind": "critRate",
+        "values": [
+          0.14,
+          0.175,
+          0.21,
+          0.245,
+          0.28
+        ],
+        "when": {
+          "hpKept": true
+        },
+        "source": "R1: \"When HP is above 90%, increases CRIT Rate by 14%\""
+      }
+    ],
+    "Snare Hook": [
+      {
+        "kind": "em",
+        "values": [
+          60,
+          75,
+          90,
+          105,
+          120
+        ],
+        "when": {
+          "holderReacts": true
+        },
+        "source": "R1: \"Upon causing an Elemental Reaction, increases Elemental Mastery by 60 for 12s\""
+      },
+      {
+        "kind": "em",
+        "values": [
+          60,
+          75,
+          90,
+          105,
+          120
+        ],
+        "when": {
+          "holderReacts": true,
+          "ascendantGleam": true
+        },
+        "source": "R1: \"Elemental Mastery from this effect is further increased by 60.\""
+      }
+    ],
+    "The Widsith": [
+      {
+        "kind": "atkPct",
+        "values": [
+          0.066667,
+          0.083333,
+          0.1,
+          0.116667,
+          0.133333
+        ],
+        "source": "R1: \"Recitative: ATK is increased by 60%\" x 10s/30s / 3 songs (estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "values": [
+          0.053333,
+          0.066667,
+          0.08,
+          0.093333,
+          0.106667
+        ],
+        "source": "R1: \"Aria: Increases all Elemental DMG by 48%\" x 10s/30s / 3 songs (estimate)"
+      },
+      {
+        "kind": "em",
+        "values": [
+          26.666667,
+          33.333333,
+          40,
+          46.666667,
+          53.333333
+        ],
+        "source": "R1: \"Interlude: Elemental Mastery is increased by 240.\" x 10s/30s / 3 songs (estimate)"
       }
     ]
   },

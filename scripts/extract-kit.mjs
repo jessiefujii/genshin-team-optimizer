@@ -3205,12 +3205,19 @@ for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
 // wearer's HP goes up or down: a healer, or HP drain: holderStates), hpDrops (HP drain only), bondOfLife (their own kit
 // gives them a Bond of Life: holderStates), nightsoul (their kit has Nightsoul's Blessing: tags.json families),
 // noEnergy (no Energy Burst), weapons (the wearer's weapon type), moonsign (nascent: one Moonsign member, ascendant: two
-// or more; with a Lunar reaction active).
+// or more; with a Lunar reaction active), offField (the wearer isn't the on-field carry: a sub-DPS's own hits, #306).
+// Party-wide effects (`party: true`, #306; kit.ts partySetBuffs, on every member's hits): em (flat EM to all party
+// members) and gleamingMoon (a Lunar Reaction Bonus per different Gleaming Moon `effect` the party has, "Effects from
+// Gleaming Moon cannot stack": one wearer of a set is enough). Their `when`: moonsign (the party's Moonsign level only),
+// onField (the wearer is the on-field carry), lunar (the team triggers a Lunar reaction).
 // 2pc bonuses (`pieces: 2`) are only those the character screen doesn't show (DMG bonus by hit type, conditional DMG):
 // an imported build's final stats have the rest (ATK%, elemental DMG, EM, ER), and a benchmark build's generic
 // "elemental goblet + set" DMG bonus (benchmark.ts carryDmgBonus) stands in for its 2pc, so only imports get these.
 // Effects marked `estimate` are taken as up throughout the rotation where the text needs a trigger the model doesn't
 // track (a Skill cast before the hits): the source line says so.
+const GLEAMING_MOON = /All party members' Lunar Reaction DMG is increased by (\d+)% for each different Gleaming Moon effect/;
+const LUNAR = ["lunar-charged", "lunar-bloom", "lunar-crystallize"];
+const OWN_HITS = "by the wearer's own Elemental DMG";
 const SETS = {
   "Blizzard Strayer": [
     { kind: "critRate", re: /affected by Cryo, their CRIT Rate is increased by (\d+)%/, when: { aura: "Cryo" } },
@@ -3242,9 +3249,34 @@ const SETS = {
   ],
   "Night of the Sky's Unveiling": [
     // Gleaming Moon: Intent's CRIT Rate "when nearby party members trigger Lunar Reactions": 15% at Nascent Gleam, 30%
-    // at Ascendant Gleam. Its teamwide Lunar Reaction DMG +10% is effects.json's (a team buff), not counted here.
+    // at Ascendant Gleam. "If the equipping character is on the field": the carry's; the party's +10% Lunar Reaction DMG
+    // too (#306: was effects.json flat points).
     { kind: "critRate", re: /Increases CRIT Rate by (\d+)%\/\d+% when the party's Moonsign is Nascent Gleam/, when: { moonsign: "nascent" } },
     { kind: "critRate", re: /Increases CRIT Rate by \d+%\/(\d+)% when the party's Moonsign is Nascent Gleam\/Ascendant Gleam/, when: { moonsign: "ascendant" } },
+    { kind: "gleamingMoon", party: true, effect: /gain the Gleaming Moon: (\w+) effect/, re: GLEAMING_MOON, when: { onField: true, lunar: true } },
+  ],
+  "Silken Moon's Serenade": [
+    // Gleaming Moon: Devotion (#306), "When dealing Elemental DMG ... The equipping character can trigger this effect
+    // while off-field": taken as kept up by the wearer's own hits (its 8s; estimate: KQM's Illuga quick guide lists
+    // "Limited uptime on 4pc Silken Moon's Serenade set effect prior to C2", left out). Its EM is "all party members'",
+    // on no one's character screen. Genshin Impact Wiki, Silken Moon's Serenade (fetched 2026-10-21), Gameplay Notes:
+    // with Night of the Sky's Unveiling "a total 20% increase for Lunar Reaction DMG. Having more characters using these
+    // two artifact won't increase the Lunar Reaction DMG further."
+    { kind: "em", party: true, flat: true, re: /Increases all party members' Elemental Mastery by (\d+)\/\d+ when the party's Moonsign is Nascent Gleam/, when: { moonsign: "nascent" }, estimate: OWN_HITS },
+    { kind: "em", party: true, flat: true, re: /Increases all party members' Elemental Mastery by \d+\/(\d+) when the party's Moonsign is Nascent Gleam\/Ascendant Gleam/, when: { moonsign: "ascendant" }, estimate: OWN_HITS },
+    { kind: "gleamingMoon", party: true, effect: /gain the Gleaming Moon: (\w+) effect/, re: GLEAMING_MOON, estimate: OWN_HITS },
+  ],
+  "Aubade of Morningstar and Moon": [
+    // The wearer's own Lunar Reaction DMG, direct and reaction (Genshin Impact Wiki, Aubade of Morningstar and Moon,
+    // fetched 2026-10-21, Gameplay Notes: "boosts not only reaction based Lunar Reactions ... but also direct Lunar damage
+    // ... This bonus only applies to the equipping character"), as Reaction Bonus like the wiki's other "Lunar Reaction
+    // DMG" sets (Damage § Reaction DMG Bonus lists Night and Silken). Off-field: a sub-DPS. "This effect will disappear
+    // after the equipping character is active for 3s": their Skill and Burst casts are taken as shorter (estimate; KQM
+    // Linnea quick guide, accessed 2026-10-21: "she can effortlessly maintain the full 60% Lunar Reaction DMG Bonus while
+    // remaining off-field"; KQM Columbina: "In Ascendant Gleam teams, 4pc Aubade is Columbina's best set for personal
+    // damage from off-field thanks to the large 60% Lunar Reaction DMG buff").
+    { kind: "reactionBonus", reactions: LUNAR, re: /When the equipping character is off-field, Lunar Reaction DMG is increased by (\d+)%/, when: { offField: true }, estimate: "off-field" },
+    { kind: "reactionBonus", reactions: LUNAR, re: /at least Ascendant Gleam, Lunar Reaction DMG will be further increased by (\d+)%/, when: { offField: true, moonsign: "ascendant" }, estimate: "off-field" },
   ],
   "Marechaussee Hunter": [
     { kind: "dmgBonus", pieces: 2, types: ["normal", "charged"], re: /Normal and Charged Attack DMG \+(\d+)%/ },
@@ -3307,6 +3339,8 @@ for (const [name, values] of Object.entries(SETS)) {
     return {
       kind: v.kind,
       ...(pieces === 2 ? { pieces } : {}),
+      ...(v.party ? { party: true } : {}),
+      ...(v.effect ? { effect: read(v.effect, pieces)[1] } : {}),
       value: round((Number(m[1]) / (v.flat ? 1 : 100)) * of2pc * stacks),
       // A stacking effect whose stack count a character's kit sets (holderStates.setStacks): the value of one stack.
       ...(v.maxStacks ? { perStack: round((Number(m[1]) / 100) * of2pc), maxStacks: Number(read(v.maxStacks, pieces)[1]) } : {}),
@@ -3415,6 +3449,7 @@ const WATATSUMI = [
     max: /A maximum of ([\d.]+)% increased Elemental Burst DMG/,
   },
 ];
+const WIDSITH_UPTIME = /a random theme song for (\d+)s\. This can only occur once every (\d+)s/;
 const WEAPONS = {
   Akuoumaru: WATATSUMI,
   "Mouun's Moon": WATATSUMI,
@@ -3504,6 +3539,29 @@ const WEAPONS = {
   "Fruitful Hook": [
     { kind: "dmgBonus", types: ["normal", "charged", "plunge"], full: true, re: /Normal, Charged, and Plunging Attack DMG increased by ([\d.]+)% for 10s/ },
   ],
+  // Zibai Premium's weapons (#306). New kinds: critRate, em (flat). Conditions: hpKept (a teammate heals or shields the
+  // holder and nothing drains their HP: holderStates), holderReacts (the holder triggers one of the team's reactions),
+  // ascendantGleam (two Moonsign members). `uptime`: a share of the time read from the text, over `songs` outcomes.
+  // "When HP is above 90%": KQM Illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-21): "a
+  // shielder usually prevents Zibai's HP from decreasing, which allows her to make full use of R5 Harbinger of Dawn";
+  // KQM Linnea quick guide: "If your team requires consistent healing to maintain passives (like Harbinger of Dawn)".
+  "Harbinger of Dawn": [{ kind: "critRate", when: { hpKept: true }, re: /When HP is above 90%, increases CRIT Rate by ([\d.]+)%/ }],
+  // "Upon causing an Elemental Reaction ... can be triggered even if the equipping character is off-field" (Linnea's
+  // Lunar-Crystallize hits; KQM Linnea quick guide: "a passive that increases EM after triggering an Elemental
+  // Reaction"): its 12s taken as kept up (estimate).
+  "Snare Hook": [
+    { kind: "em", flat: true, when: { holderReacts: true }, re: /Upon causing an Elemental Reaction, increases Elemental Mastery by ([\d.]+) for 12s/ },
+    { kind: "em", flat: true, when: { holderReacts: true, ascendantGleam: true }, re: /Elemental Mastery from this effect is further increased by ([\d.]+)/ },
+  ],
+  // "When the character takes the field, they will gain a random theme song for 10s. This can only occur once every
+  // 30s": each of the 3 songs a third of the time, up 10s of every 30s (the holder taken as taking the field at least
+  // once every 30s: estimate). Recitative's ATK is of base ATK; Aria's "all Elemental DMG" doesn't reach Lunar hits.
+  // KQM Columbina quick guide (accessed 2026-10-21): "While the ATK% buff is useless, Columbina can use the other 2 buffs".
+  "The Widsith": [
+    { kind: "atkPct", uptime: WIDSITH_UPTIME, songs: 3, re: /Recitative: ATK is increased by ([\d.]+)%/ },
+    { kind: "dmgBonus", uptime: WIDSITH_UPTIME, songs: 3, re: /Aria: Increases all Elemental DMG by ([\d.]+)%/ },
+    { kind: "em", flat: true, uptime: WIDSITH_UPTIME, songs: 3, re: /Interlude: Elemental Mastery is increased by ([\d.]+)/ },
+  ],
 };
 const weapons = {};
 for (const [name, specs] of Object.entries(WEAPONS)) {
@@ -3517,13 +3575,17 @@ for (const [name, specs] of Object.entries(WEAPONS)) {
   };
   weapons[name] = specs.map((s) => {
     const stacks = s.stacks ? read(s.stacks, texts[0]) : 1;
+    // `uptime` (#306): seconds up over seconds between triggers, split over `songs` outcomes (The Widsith).
+    const up = s.uptime ? texts[0].match(s.uptime) : null;
+    if (s.uptime && !up) throw new Error(`${name}: uptime pattern ${s.uptime} not found in its passive text: ${texts[0]}`);
+    const share = up ? Number(up[1]) / Number(up[2]) / s.songs : 1;
     return {
       kind: s.kind,
       ...(s.types ? { types: s.types } : {}),
-      values: texts.map((t) => round((read(s.re, t) / 100) * stacks * (s.negative ? -1 : 1))),
+      values: texts.map((t) => round((read(s.re, t) / (s.flat ? 1 : 100)) * stacks * share * (s.negative ? -1 : 1))),
       ...(s.max ? { max: texts.map((t) => read(s.max, t) / 100) } : {}),
       ...(s.when ? { when: s.when } : {}),
-      source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}${s.full ? " (taken at full stacks / up throughout: estimate)" : ""}`,
+      source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}${s.full ? " (taken at full stacks / up throughout: estimate)" : ""}${up ? ` x ${up[1]}s/${up[2]}s / ${s.songs} songs (estimate)` : ""}`,
     };
   });
 }
