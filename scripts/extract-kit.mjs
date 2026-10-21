@@ -2119,13 +2119,15 @@ const CARRIES = {
   Ganyu: {
     // KQM quick guide, Freeze (Citlali): "Ganyu E > ... > Ganyu C¹ EQ 4[C]": 2 Skills, 1 Burst, 5 Frostflake Arrows.
     // Trail of the Qilin deals its Skill DMG twice (KQM library: the dash "dealing AoE Cryo DMG"; the lotus "Blooms
-    // profusely when destroyed ... dealing AoE Cryo DMG"). Her Burst's Ice Shards are left out: of the 50 (wiki), how
-    // many hit one opponent isn't sourced.
+    // profusely when destroyed ... dealing AoE Cryo DMG"). Her Burst's Ice Shards on one opponent (#225): KQM's Ganyu
+    // guide (keqingmains.com/ganyu/, fetched 2026-10-21), "In single-target scenarios, it only targets the enemy once
+    // every five Ice Shards, resulting in 10 instances of Cryo damage (assuming no random Ice Shards hit)": 10 of 50.
     combo: "E C EQ 4[C]",
     hits: [
       { table: "skill", label: "Skill DMG", count: 4, type: SK },
       { table: "normal", label: "Frostflake Arrow DMG", count: 5, type: CH },
       { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 5, type: CH },
+      { table: "burst", label: "Ice Shard DMG", count: 10, type: BU },
     ],
     buffs: [
       // Passive 1: +20% CRIT Rate for the Frostflake Arrows (and blooms) after the first: 4 of 5.
@@ -2144,6 +2146,7 @@ const CARRIES = {
           { table: "skill", label: "Skill DMG", count: 2, type: SK },
           { table: "normal", label: "Frostflake Arrow DMG", count: 4, type: CH },
           { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 4, type: CH },
+          { table: "burst", label: "Ice Shard DMG", count: 10, type: BU }, // 10 of 50 on one opponent (KQM, above)
         ],
         buffs: [
           { kind: "critRate", from: "passive1", re: /increased by (\d+)% for/, share: 3 / 4, labels: ["Frostflake Arrow DMG", "Frostflake Arrow Bloom DMG"] },
