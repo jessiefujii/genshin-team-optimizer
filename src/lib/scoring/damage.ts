@@ -45,6 +45,7 @@ type CarryBuff =
   | { kind: "factor"; value: number; types: HitType[]; when?: When }
   | { kind: "critRate"; value: number; labels: string[] }
   | { kind: "dmgBonusByTypes"; values: number[]; elements: Element[]; labels: string[] } // by teammates' types (#233)
+  | { kind: "dmgBonusByMembers"; values: number[]; elements: Element[]; unless?: Reaction[] } // by teammates of those elements (#230)
   | { kind: "resShred"; value: number; elements: (Element | "Physical")[]; labels: string[] } // their own (Eula's Skill, #204)
   | { kind: "factorByReactions"; values: number[]; types: HitType[]; reactions: Reaction[] }
   | { kind: "atkPct"; value: number }
@@ -541,6 +542,7 @@ function computeCarryDamage(
       if (b.kind === "dmgBonusFromEr" && !c.stats) bonus += b.perPercent * Math.max(0, (s.er - 1) * 100);
       if (b.kind === "dmgBonusPerEm" && b.labels.includes(h.label)) bonus += Math.min(b.max, b.perEm * em);
       if (b.kind === "dmgBonusByTypes" && b.labels.includes(h.label)) bonus += at([0, ...b.values], typesOf(b.elements).length);
+      if (b.kind === "dmgBonusByMembers" && !(b.unless ?? []).some((r) => active.includes(r))) bonus += at(b.values, eligible(b.elements).length);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
       // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
       if (b.kind === "critRate" && b.labels.includes(h.label))

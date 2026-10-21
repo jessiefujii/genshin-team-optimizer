@@ -18,7 +18,7 @@ const byId = new Map(all.map((c) => [c.id, c]));
 // Diluc, Keqing and Tartaglia with no damage model (#203, #232 model them): the flat-point paths for carries not
 // modeled yet (reaction partners, buffer points) are tested on these copies. Same tags; only the id differs, so no
 // carry kit.
-for (const id of ["Diluc", "Keqing", "Tartaglia"]) byId.set(`${id} (no model)`, { ...byId.get(id)!, id: `${id} (no model)` });
+for (const id of ["Diluc", "Keqing", "Tartaglia", "Lyney"]) byId.set(`${id} (no model)`, { ...byId.get(id)!, id: `${id} (no model)` });
 const team = (...ids: string[]) =>
   ids.map((id) => {
     const c = byId.get(id);
@@ -1015,8 +1015,9 @@ describe("talent levels (#25)", () => {
 
   test("a hypercarry counts a third buffer (#51)", () => {
     const buffs = (s: ReturnType<typeof scoreTeam>) => s.breakdown.filter((l) => l.rule === "Buffs" && l.points > 0).length;
-    // Lyney is a hypercarry not modeled yet, so his buffers score points (Diluc with no model: a reaction carry).
-    expect(buffs(score("Lyney", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(3);
+    // A hypercarry with no damage model (Lyney's copy, modeled since #230) has his buffers score points (Diluc with no
+    // model: a reaction carry).
+    expect(buffs(score("Lyney (no model)", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(3);
     expect(buffs(score("Diluc (no model)", "Furina", "Kaedehara Kazuha", "Zhongli"))).toBe(2);
   });
 });

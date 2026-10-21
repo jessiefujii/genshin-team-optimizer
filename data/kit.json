@@ -3594,7 +3594,8 @@
             "atk": 4.87424
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -3604,7 +3605,11 @@
           },
           "every": 2,
           "duration": 14,
-          "cd": 18
+          "cd": 18,
+          "icd": {
+            "reset": 1.6,
+            "every": "first"
+          }
         },
         {
           "talent": "burst",
@@ -3614,7 +3619,11 @@
           },
           "every": 2,
           "duration": 14,
-          "cd": 18
+          "cd": 18,
+          "icd": {
+            "reset": 1.6,
+            "every": "first"
+          }
         }
       ]
     },
@@ -4064,7 +4073,8 @@
             "atk": 1.7952
           },
           "hits": 1,
-          "cd": 12
+          "cd": 12,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -4073,7 +4083,11 @@
             "atk": 5.5624
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": {
+            "reset": 2.5,
+            "every": 3
+          }
         },
         {
           "talent": "burst",
@@ -4090,7 +4104,11 @@
           "every": 1,
           "duration": 20,
           "cd": 18,
-          "rateSource": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide: \"When Durin is in the Confirmation of Purity state, his Burst immediately deals 3 instances of AoE Pyro damage and then deals AoE Pyro damage every 1s.\" (Dark Form: every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown)"
+          "rateSource": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide: \"When Durin is in the Confirmation of Purity state, his Burst immediately deals 3 instances of AoE Pyro damage and then deals AoE Pyro damage every 1s.\" (Dark Form: every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown)",
+          "icd": {
+            "reset": 1.5,
+            "every": "first"
+          }
         }
       ]
     },
@@ -4365,7 +4383,8 @@
             "atk": 1.4688
           },
           "hits": 1,
-          "cd": 16
+          "cd": 16,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4376,7 +4395,8 @@
           "every": 2,
           "duration": 20,
           "cd": 16,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\"",
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -4385,7 +4405,8 @@
             "atk": 11.5056
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4398,7 +4419,8 @@
           "lunar": "lunar-charged",
           "whenReaction": "lunar-charged",
           "cd": 16,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Ineffa, fetched 2026-10-10: \"Birgitta will quickly move close to an opponent and unleash Discharge attacks every 2s, dealing AoE Electro DMG.\"",
+          "icd": "none"
         }
       ],
       "lunarBaseBonus": {
@@ -4428,7 +4450,8 @@
             "atk": 3.604
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -4437,7 +4460,8 @@
             "atk": 3.5224
           },
           "hits": 1,
-          "cd": 18
+          "cd": 18,
+          "icd": "none"
         },
         {
           "talent": "burst",
@@ -4451,6 +4475,10 @@
           },
           "cd": 18,
           "rateSource": "Jessie's in-game test, 2026-10-13 (#100): Miliastra Wonderland training dummy, 3 runs, Ascendant Gleam team that isn't Cryo-majority, element applied by Columbina (Hydro) or Flins (Electro) before the Burst: 10 robot hits per Burst (both robots together), after the Burst's own cast hit. Only at Ascendant Gleam (KQM Jahoda guide, pasted by Jessie 2026-10-10: \"her Burst can only deal PHEC damage in Ascendant Gleam teams\"). Cryo-majority: see alternatives (#175).",
+          "icd": {
+            "reset": 15,
+            "every": 4
+          },
           "alternatives": [
             {
               "when": {
@@ -4548,7 +4576,8 @@
             "atk": 2.0672
           },
           "hits": 1,
-          "cd": 12
+          "cd": 12,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4560,7 +4589,8 @@
           "every": 2,
           "duration": 15,
           "cd": 12,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lauma, fetched 2026-10-10: \"The Frostgrove Sanctuary will follow the active character, dealing a single instance of AoE Dendro DMG to opponents within the array every 2s.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lauma, fetched 2026-10-10: \"The Frostgrove Sanctuary will follow the active character, dealing a single instance of AoE Dendro DMG to opponents within the array every 2s.\"",
+          "icd": "none"
         }
       ],
       "lunarBaseBonus": {
@@ -4787,7 +4817,8 @@
             "atk": 1.83736
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4798,7 +4829,8 @@
           "every": 4,
           "duration": 20,
           "cd": 15,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)"
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)",
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4809,7 +4841,8 @@
           "every": 4,
           "duration": 20,
           "cd": 15,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)"
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)",
+          "icd": "none"
         },
         {
           "talent": "skill",
@@ -4827,7 +4860,11 @@
             "atk": 5.618976
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": {
+            "reset": 2.5,
+            "every": 3
+          }
         },
         {
           "talent": "burst",
@@ -4836,7 +4873,11 @@
             "atk": 2.894624
           },
           "hits": 1,
-          "cd": 15
+          "cd": 15,
+          "icd": {
+            "reset": 2.5,
+            "every": 3
+          }
         }
       ]
     },
@@ -8263,6 +8304,86 @@
         }
       ]
     },
+    "Lyney": {
+      "rotationSeconds": 15,
+      "combo": "4[CS] Q E",
+      "hits": [
+        {
+          "label": "Prop Arrow DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.9376
+          },
+          "count": 4
+        },
+        {
+          "label": "Pyrotechnic Strike DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 3.604
+          },
+          "count": 5
+        },
+        {
+          "label": "passive1 bonus",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.8
+          },
+          "count": 4,
+          "addOn": true
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.618
+          },
+          "count": 1
+        },
+        {
+          "label": "Explosive Firework DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 7.038
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.8424
+          },
+          "count": 1,
+          "tag": "propSurplus"
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.9044,
+          "stacks": 5,
+          "tag": "propSurplus"
+        },
+        {
+          "kind": "dmgBonusByMembers",
+          "values": [
+            0.6,
+            0.8,
+            1,
+            1
+          ],
+          "elements": [
+            "Pyro"
+          ],
+          "unless": [
+            "vaporize",
+            "melt"
+          ]
+        }
+      ]
+    },
     "Yoimiya": {
       "rotationSeconds": 15,
       "combo": "E 3[N5]",
@@ -8364,6 +8485,14 @@
             "atk": 3.6992
           },
           "count": 5
+        },
+        {
+          "label": "Ice Shard DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 1.194624
+          },
+          "count": 10
         }
       ],
       "buffs": [
@@ -8415,6 +8544,14 @@
                 "atk": 3.6992
               },
               "count": 4
+            },
+            {
+              "label": "Ice Shard DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.194624
+              },
+              "count": 10
             }
           ],
           "buffs": [
@@ -9470,7 +9607,7 @@
     },
     "Kaveh": {
       "rotationSeconds": 20,
-      "combo": "EQ N3D N3 E N3D N4 E",
+      "combo": "EQ 2[N3D] N1 E 2[N3D] N2 E",
       "hits": [
         {
           "label": "Skill DMG",
@@ -9494,7 +9631,7 @@
           "scaling": {
             "atk": 1.39969
           },
-          "count": 4
+          "count": 6
         },
         {
           "label": "2-Hit DMG",
@@ -9502,7 +9639,7 @@
           "scaling": {
             "atk": 1.279405
           },
-          "count": 4
+          "count": 5
         },
         {
           "label": "3-Hit DMG",
@@ -9511,14 +9648,6 @@
             "atk": 1.548052
           },
           "count": 4
-        },
-        {
-          "label": "4-Hit DMG",
-          "type": "normal",
-          "scaling": {
-            "atk": 1.886599
-          },
-          "count": 1
         }
       ],
       "buffs": []
@@ -10151,7 +10280,6 @@
   },
   "carriesTodo": [
     "Lohen",
-    "Lyney",
     "Manekin",
     "Manekina",
     "Ningguang",

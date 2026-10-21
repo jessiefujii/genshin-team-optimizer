@@ -2102,6 +2102,34 @@ const CARRIES = {
       { kind: "dmgBonusPerEm", from: "passive2", re: /are increased by ([\d.]+)%/, max: /maximum DMG Bonus obtainable this way is (\d+)%/, types: [CH, BU], labels: ["Wreath Arrow DMG", "Clusterbloom Arrow DMG", "Tanglevine Shaft DMG", "Secondary Tanglevine Shaft DMG"] },
     ],
   },
+  Lyney: {
+    // #230. DotGG's Lyney quick guide (dotgg.gg/genshin-impact-lyney-quick-character-guide/, 2024-05-01), "General
+    // Rotation": "Healer doing healing & other supports > Lyney's Charged ATK x4 > Elemental Burst > Elemental Skill >
+    // Repeat" (traveler.gg gives the same); KQM's quick guide: "at least 3–4 Charged Shots per combo". So 4 Prop Arrows
+    // (Charge Level 2), Q, E. Each Prop Arrow summons a Grin-Malkin Hat; "Only 1 Hat can exist at any given time" and
+    // "Creating a Grin-Malkin Hat while another one already exists on the field will destroy it [and] cause it to fire
+    // a Pyrotechnic Strike immediately" (wiki Card Force Translocation, Gameplay Notes): arrows 2-4 and the Burst's Hat
+    // each fire the previous one (4), and his Skill explodes the Burst's Hat "equal to that of a Pyrotechnic Strike"
+    // ("considered Charged Attack DMG"): 5 strikes, all read as Charged Attack DMG (the replaced ones' type: estimate).
+    // Passive 1's +80% ATK: the 4 arrow Hats (KQM: the Burst's Hat "cannot benefit from Lyney's A1"). Prop Surplus:
+    // 1 per arrow fired above 60% HP (KQM: "fire up to five Charged Shots from above 60% Max HP") + 1 from the Burst = 5,
+    // the max, spent by the Skill. Left out: Spiritbreath Thorn (Pneuma, enemy-dependent). Rotation: his Burst cooldown.
+    combo: "4[CS] Q E",
+    hits: [
+      { table: "normal", label: "Prop Arrow DMG", count: 4, type: CH },
+      { table: "normal", label: "Pyrotechnic Strike DMG", count: 5, type: CH },
+      { from: "passive1", re: /increase DMG dealt by (\d+)% of his ATK/, count: 4, type: CH, addOn: true },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "burst", label: "Explosive Firework DMG", count: 1, type: BU },
+      { table: "skill", label: "Skill DMG", count: 1, type: SK, tag: "propSurplus" },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "skill", label: "Skill DMG Bonus", stacks: 5, hits: "propSurplus" },
+      // Passive 2 against "opponents affected by Pyro" (his own Pyro): KQM, "Lyney will not gain the buff if he triggers
+      // Vaporize or Melt", so not with them active (estimate: off for the whole rotation then).
+      { kind: "dmgBonusByMembers", from: "passive2", base: /Increases the DMG dealt by (\d+)%/, per: /additional (\d+)%/, max: /up to (\d+)% increased DMG/, elements: ["Pyro"], unless: ["vaporize", "melt"] },
+    ],
+  },
   Yoimiya: {
     // KQM: "her entire Normal Attack string repeated 3 times" in Niwabi Fire-Dance (E), the highest-damage combo in
     // most teams; her Burst "should only be used when it is available (typically every 2 or 3 rotations)": 0.4.
@@ -2119,13 +2147,15 @@ const CARRIES = {
   Ganyu: {
     // KQM quick guide, Freeze (Citlali): "Ganyu E > ... > Ganyu C¹ EQ 4[C]": 2 Skills, 1 Burst, 5 Frostflake Arrows.
     // Trail of the Qilin deals its Skill DMG twice (KQM library: the dash "dealing AoE Cryo DMG"; the lotus "Blooms
-    // profusely when destroyed ... dealing AoE Cryo DMG"). Her Burst's Ice Shards are left out: of the 50 (wiki), how
-    // many hit one opponent isn't sourced.
+    // profusely when destroyed ... dealing AoE Cryo DMG"). Her Burst's Ice Shards on one opponent (#225): KQM's Ganyu
+    // guide (keqingmains.com/ganyu/, fetched 2026-10-21), "In single-target scenarios, it only targets the enemy once
+    // every five Ice Shards, resulting in 10 instances of Cryo damage (assuming no random Ice Shards hit)": 10 of 50.
     combo: "E C EQ 4[C]",
     hits: [
       { table: "skill", label: "Skill DMG", count: 4, type: SK },
       { table: "normal", label: "Frostflake Arrow DMG", count: 5, type: CH },
       { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 5, type: CH },
+      { table: "burst", label: "Ice Shard DMG", count: 10, type: BU },
     ],
     buffs: [
       // Passive 1: +20% CRIT Rate for the Frostflake Arrows (and blooms) after the first: 4 of 5.
@@ -2144,6 +2174,7 @@ const CARRIES = {
           { table: "skill", label: "Skill DMG", count: 2, type: SK },
           { table: "normal", label: "Frostflake Arrow DMG", count: 4, type: CH },
           { table: "normal", label: "Frostflake Arrow Bloom DMG", count: 4, type: CH },
+          { table: "burst", label: "Ice Shard DMG", count: 10, type: BU }, // 10 of 50 on one opponent (KQM, above)
         ],
         buffs: [
           { kind: "critRate", from: "passive1", re: /increased by (\d+)% for/, share: 3 / 4, labels: ["Frostflake Arrow DMG", "Frostflake Arrow Bloom DMG"] },
@@ -2426,17 +2457,18 @@ const CARRIES = {
     ],
   },
   Kaveh: {
-    // KQM Kaveh guide, combo (2), for C0-1: "Kaveh EQ N3D N3 E N3D N4 E (N2)" ((N2) optional, "can be omitted to save
-    // rotation length": left out): 3 Skills, his Burst, 13 Normal Attacks in its Dendro infusion. His Bloom DMG
-    // (Painted Dome's Dendro Core bonus) stays outside damage (#145); passive 2's EM only feeds those reactions.
-    combo: "EQ N3D N3 E N3D N4 E",
+    // KQM Kaveh quick guide (keqingmains.com/q/kaveh-quickguide/, linked by Jessie 2026-10-20, #262): "Kaveh EQ 2[N3D]
+    // N1 E 2[N3D] N2 E (N2)", "For C1-C0 Kaveh" ((N2) optional, "can be omitted to save rotation length": left out). Its
+    // C2+ combo is "EQ N3D N4 E N4D N4 E (N2)". 3 Skills, his Burst, 15 Normal Attacks in its Dendro infusion; each is one
+    // hit at the standard 2.5s/3 hits ICD (wiki Schematic Setup, Advanced Properties). His Bloom DMG (Painted Dome's
+    // Dendro Core bonus) stays outside damage (#145); passive 2's EM only feeds those reactions.
+    combo: "EQ 2[N3D] N1 E 2[N3D] N2 E",
     hits: [
       { table: "skill", label: "Skill DMG", count: 3, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
-      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
-      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "1-Hit DMG", count: 6, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 5, type: N },
       { table: "normal", label: "3-Hit DMG", count: 4, type: N },
-      { table: "normal", label: "4-Hit DMG", count: 1, type: N },
     ],
     buffs: [],
   },
@@ -2688,6 +2720,12 @@ function readCarry(id, spec) {
           ...(b.fightingSpirit ? { fightingSpirit: true } : {}),
           ...(b.when ? { when: b.when } : {}),
         };
+      }
+      case "dmgBonusByMembers": {
+        // A DMG bonus that grows per teammate of `elements` (Lyney's passive 2, #230): base, +per each, capped; index =
+        // number of such teammates (0-3). `unless`: reactions that take it away.
+        const base = num(b.from, b.base) / 100, per = num(b.from, b.per) / 100, max = num(b.from, b.max) / 100;
+        return { kind: b.kind, values: [0, 1, 2, 3].map((n) => round(Math.min(max, base + per * n))), elements: b.elements, ...(b.unless ? { unless: b.unless } : {}) };
       }
       case "dmgBonusByTypes": {
         const m = text(b.from).match(b.re);
