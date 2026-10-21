@@ -181,6 +181,9 @@ const KNOWN_DROPS: Record<string, string> = {
   // A stronger Tighnari out-damages Ayaka and takes the field (the main DPS is the one dealing the most), and his
   // reading's team damage is a little lower (22.8k vs 23.3k per second): three carries, 4.96 -> 4.85 (#221).
   "Tighnari, Keqing, Xiangling, Kamisato Ayaka": "#221: a stronger Tighnari becomes the main DPS; his reading is lower",
+  // The same with Jessie's Varesa (Normal Attack level 4): a stronger Cryo Traveler (#236) out-damages her and takes the
+  // field, and that reading has her "also wants field time" (-15) and less team damage (6.9k vs 7.6k): 6.50 -> 2.69.
+  "Sayu, Varesa, Chevreuse, Traveler (Cryo)": "#236: a stronger Cryo Traveler becomes the main DPS; the reading is lower",
 };
 const drops = (() => {
   const out: string[] = [];
