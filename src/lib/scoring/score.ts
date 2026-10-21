@@ -688,7 +688,7 @@ function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
 }
 
 type NightsoulBurstEntry =
-  | { target: "own"; note: string; source: string }
+  | { target: "own"; note: string; kind?: "em" | "dmgBonus" | "defPct"; value?: number; duration?: number; source: string }
   | { target: "self"; kind?: "atkPct"; value?: number; duration: number | null; maxStacks: number; inDamage?: boolean; source: string };
 const NIGHTSOUL_BURST = kitJson.nightsoulBurst as {
   cooldownByNatlanese: Record<string, number>;
@@ -710,6 +710,19 @@ const FASTEST_NIGHTSOUL = Math.min(...COOLDOWNS.map(([, s]) => s));
 // Mualani's and Chasca's kit upgrade as ownNightsoulBurst. Either way, by how much of it a faster cooldown keeps up:
 // average stacks (each lasts `duration`, up to maxStacks) or, for a one-off like Chasca's shot, how often. Kinich's
 // (inDamage) is in his Cannon damage instead (#288, damage.ts), so no points here.
+// A member's own Nightsoul Burst effect on their own hits (#98: Kachina's Geo DMG, Xilonen's DEF, Ifa's EM), as its
+// average over a rotation: the value times the share of the time it is up (its duration per Nightsoul Burst cooldown),
+// or nothing without a Natlanese member to trigger one.
+function ownNightsoulBuff(m: ScoringCharacter, ctx: TeamContext): { kind: "em" | "dmgBonus" | "defPct"; value: number } | null {
+  const entry = NIGHTSOUL_BURST.characters[m.id];
+  if (entry?.target !== "own" || !entry.kind) return null;
+  const natlanese = ctx.members.filter(
+    (x) => familiesOf(x, ctx.options).includes("nightsoul") && !NIGHTSOUL_BURST.notNatlanese.includes(x.id),
+  ).length;
+  if (natlanese === 0) return null;
+  return { kind: entry.kind, value: entry.value! * Math.min(1, entry.duration! / nightsoulCooldown(natlanese)) };
+}
+
 function nightsoulBurstLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const entry = carry && NIGHTSOUL_BURST.characters[carry.id];
   if (!carry || entry?.target !== "self" || entry.inDamage) return;
@@ -1326,8 +1339,13 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
     if (m === carry || !entry) continue;
-    const stat = subDpsStats(m)!;
-    const dmgBonus = stat.dmgBonus;
+    // Their own Nightsoul Burst effect, averaged over its uptime (#98).
+    const ownNs = ownNightsoulBuff(m, ctx);
+    const base = subDpsStats(m)!;
+    const stat = !ownNs
+      ? base
+      : { ...base, em: base.em + (ownNs.kind === "em" ? ownNs.value : 0), def: base.def + (ownNs.kind === "defPct" ? ownNs.value * (entry.base?.def ?? 0) : 0) };
+    const dmgBonus = stat.dmgBonus + (ownNs?.kind === "dmgBonus" ? ownNs.value : 0);
     // Base ATK, for teammates' ATK% buffs: the build's, else the character's plus the benchmark weapon's.
     const baseAtk = m.stats?.baseAtk ?? (entry.base ? entry.base.atk + BENCHMARK.buffer.weaponBaseAtk : BENCHMARK.carryBaseAtk);
     let dps = 0;

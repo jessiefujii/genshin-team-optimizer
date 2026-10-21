@@ -542,15 +542,16 @@ const NIGHTSOUL_BURST = {
   Chasca: { from: "passive2", target: "self" },
   Citlali: { from: "passive2", target: "own", note: "regains Nightsoul points" },
   Iansan: { from: "passive2", target: "own", note: "Warming Up (her own resource)" },
-  Ifa: { from: "passive2", target: "own", note: "his own EM" },
-  Kachina: { from: "passive1", target: "own", note: "her own Geo DMG" },
+  // #98: own effects in that member's own (sub-DPS) hits, by kind: em (flat), dmgBonus and defPct (fractions).
+  Ifa: { from: "passive2", target: "own", note: "his own EM", kind: "em", re: /Elemental Mastery increases by (\d+)/, flat: true, duration: /for (\d+)s/ },
+  Kachina: { from: "passive1", target: "own", note: "her own Geo DMG", kind: "dmgBonus", re: /Geo DMG Bonus increases by (\d+)%/, duration: /for (\d+)s/ },
   Kinich: { from: "passive2", target: "self", duration: /lasts (\d+)s/, max: /Max (\d+) stacks/, inDamage: true },
   Mavuika: { from: "passive1", target: "self", kind: "atkPct", re: /ATK increases by (\d+)% for/, duration: /for (\d+)s/ },
   Mualani: { from: "passive2", target: "self", duration: /lasts for (\d+)s/, max: /Max (\d+) stacks/ },
   Ororon: { from: "passive1", target: "own", note: "gains Nightsoul points" },
   "Traveler (Pyro)": { from: "passive2", target: "own", note: "regains Energy" },
   Varesa: { from: "passive2", target: "self", kind: "atkPct", re: /ATK increases by (\d+)% for/, duration: /for (\d+)s/, max: /Max (\d+) stacks/ },
-  Xilonen: { from: "passive2", target: "own", note: "her own DEF" },
+  Xilonen: { from: "passive2", target: "own", note: "her own DEF", kind: "defPct", re: /DEF is increased by (\d+)%/, duration: /for (\d+)s/ },
 };
 
 // The sentence that says what a Nightsoul Burst does for this character.
@@ -565,12 +566,16 @@ function nightsoulBurstSentence(id, from) {
 function readNightsoulBurst(id, spec) {
   const text = nightsoulBurstSentence(id, spec.from);
   const source = `${spec.from}: "${text.split(/(?<=\.) /)[0]}"`;
-  if (spec.target === "own") return { target: "own", note: spec.note, source };
   const num = (re) => {
     const m = text.match(re);
     if (!m) throw new Error(`${id}: pattern ${re} not found in ${spec.from}: ${text}`);
     return Number(m[1]);
   };
+  if (spec.target === "own") {
+    // #98: a kind and value make it count in their own hits (score.ts subDpsLines), for `duration` per Nightsoul Burst.
+    const own = spec.kind ? { kind: spec.kind, value: spec.flat ? num(spec.re) : num(spec.re) / 100, duration: num(spec.duration) } : {};
+    return { target: "own", note: spec.note, ...own, source };
+  }
   return {
     target: "self",
     ...(spec.kind ? { kind: spec.kind, value: num(spec.re) / 100 } : {}),
