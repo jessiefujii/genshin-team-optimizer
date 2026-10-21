@@ -6247,6 +6247,16 @@
               },
               "count": 6,
               "tag": "isshin"
+            },
+            {
+              "label": "Plunge DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.174572
+              },
+              "count": 6,
+              "collision": true,
+              "tag": "isshin"
             }
           ]
         }
@@ -6271,6 +6281,15 @@
             "atk": 3.75499
           },
           "count": 10
+        },
+        {
+          "label": "Plunge DMG",
+          "type": "plunge",
+          "scaling": {
+            "atk": 1.503452
+          },
+          "count": 10,
+          "collision": true
         }
       ],
       "buffs": [
@@ -6333,6 +6352,15 @@
                 "atk": 3.006267
               },
               "count": 2
+            },
+            {
+              "label": "Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 1.503452
+              },
+              "count": 13,
+              "collision": true
             }
           ]
         }

@@ -1486,6 +1486,7 @@ function readSubDps(id, specs) {
 //     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; damage.ts uses
 //     its flat estimate for hits without it), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
 //     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
+//     collision (a plunge's collision hit: no flat team bonus, as Xianyun's is for the shockwave only),
 //     ofRow ({ table, label }: the hit deals that row's share of its own row, as Razor's Soul Companion; with `as`, its
 //     own label)
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
@@ -1616,8 +1617,9 @@ const CARRIES = {
         // #119. KQM's Raiden quick guide (keqingmains.com/q/raiden-quickguide/, fetched 2026-10-21), Xianyun: "Xianyun
         // enables Raiden to use Plunging Attacks"; "Raiden's most notable Plunging Attack combos consist of "6[JP]" and
         // "3[N1CJP] N1C"" (Jessie, 2026-10-21: the first). Her plunges "are considered Elemental Burst damage", so
-        // Xianyun's plunge bonus "does not buff" them. 6 plunge impacts (the shockwave, as Xiao's: no collision hit),
-        // read as high plunges with Xianyun's raised jump (estimate). Skill, Eye and initial slash as the default.
+        // Xianyun's plunge bonus "does not buff" them. 6 plunge impacts (the shockwave),
+        // read as high plunges with Xianyun's raised jump (estimate), and each plunge's collision hit ("Plunge DMG";
+        // Jessie, 2026-10-21: all of them connect, estimate). Skill, Eye and initial slash as the default.
         combo: "E Q 6[JP], with Xianyun",
         when: [{ members: [["Xianyun"]] }],
         hits: [
@@ -1625,16 +1627,19 @@ const CARRIES = {
           { table: "skill", label: "Coordinated ATK DMG", count: 7, type: SK },
           { table: "burst", label: "Musou no Hitotachi Base DMG", count: 1, type: BU, resolve: "initial" },
           { table: "burst", label: "Low/High Plunge DMG", pick: 1, count: 6, type: BU, resolve: "isshin" },
+          { table: "burst", label: "Plunge DMG", count: 6, type: BU, resolve: "isshin", collision: true },
         ],
       },
     ],
   },
   Xiao: {
-    // E, E, Q, plunge x10 (high plunges). Bane of All Evil's bonus; his passive 1 ramps 5% -> 25% over 15s (avg 15%).
+    // E, E, Q, plunge x10 (high plunges), each with its collision hit ("Plunge DMG"; Jessie, 2026-10-21: all of them
+    // connect, estimate). Bane of All Evil's bonus; his passive 1 ramps 5% -> 25% over 15s (avg 15%).
     combo: "E E Q 10[JhP]",
     hits: [
       { table: "skill", label: "Skill DMG", count: 2, type: SK },
       { table: "normal", label: "Low/High Plunge DMG", pick: 1, count: 10, type: PL },
+      { table: "normal", label: "Plunge DMG", count: 10, type: PL, collision: true }, // each plunge's collision hit
     ],
     buffs: [
       { kind: "dmgBonus", table: "burst", label: "Normal/Charged/Plunging Attack DMG Bonus", types: [N, CH, PL] },
@@ -1651,6 +1656,7 @@ const CARRIES = {
           { table: "skill", label: "Skill DMG", count: 2, type: SK },
           { table: "normal", label: "Low/High Plunge DMG", pick: 1, count: 11, type: PL },
           { table: "normal", label: "Low/High Plunge DMG", pick: 0, count: 2, type: PL },
+          { table: "normal", label: "Plunge DMG", count: 13, type: PL, collision: true }, // one per plunge
         ],
       },
     ],
@@ -2760,6 +2766,7 @@ function readCarry(id, spec) {
         ...(h.lunar ? { lunar: h.lunar } : {}),
         ...(h.additive ? { additive: true } : {}),
         ...(h.addOn ? { addOn: true } : {}),
+        ...(h.collision ? { collision: true } : {}),
         ...(h.nightsoulBursts ? { nightsoulBursts: h.nightsoulBursts } : {}),
         ...(h.element ? { element: h.element } : {}),
         ...(h.byTeammates ? { byTeammates: { elements: h.byTeammates.elements, ...(h.byTeammates.members ? { members: h.byTeammates.members.map(round) } : {}), ...(h.byTeammates.types ? { types: h.byTeammates.types.map(round) } : {}) } } : {}),

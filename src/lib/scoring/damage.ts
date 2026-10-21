@@ -26,6 +26,7 @@ interface CarryHit {
   // team has, each a list indexed by that number (its last value past the end).
   byTeammates?: { elements: Element[]; members?: number[]; types?: number[] };
   addOn?: boolean; // more DMG on hits counted elsewhere (Cyno's passive 2): no Catalyze or teammates' flat DMG of its own
+  collision?: boolean; // a plunge's collision hit: no teammates' flat DMG (Xianyun's is for the shockwave)
   nightsoulBursts?: string; // count: the party's Nightsoul Bursts per rotation, at most the hits with this label (#288)
   when?: When; // the hit only lands with these
 }
@@ -522,7 +523,9 @@ function computeCarryDamage(
     if (!h.addOn) perHit += t.catalyze * (h.instances ?? 1) * reactingShare(h);
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
-    if (!h.addOn) perHit += t.flat * (h.instances ?? 1);
+    // A plunge's collision hit takes no flat team bonus: Xianyun's is "Plunging Attack shockwave DMG" (wiki; others,
+    // like Shenhe's quills, would apply: left out, estimate).
+    if (!h.addOn && !h.collision) perHit += t.flat * (h.instances ?? 1);
     let bonus = t.bonus + weaponDmgBonus(weapon, h.type);
     let factor = 1;
     for (const b of buffs) {
