@@ -949,6 +949,24 @@ function readStellar(id, spec) {
 //   boost: a passive that raises the DMG of a limited number of this source's hits per use by a share of a stat, capped
 //       (Durin's Primordial Fusion, #195): { from, stacks, re, per, stat, max }, regexes into its text; written as
 //       `boost: { stacks, perPoint, stat, max }`
+const YAE_ENHANCED = { from: "passive4", re: /This effect can trigger once every ([\d.]+)s/ };
+const QIQI_CD = { from: "passive4", re: /Herald of Frost is reduced to (\d+)s/ };
+// Odette's Radiance (#98): after Coda at Dawn's Tolling her Dance Double's moves also deal Stellar-Conduct or Stellar
+// Swirl DMG (the row's first or second value), one group each, by the team's Stellar reaction.
+const odetteStellar = (move) =>
+  ["stellar-conduct", "stellar-swirl"].map((r, pick) => ({
+    talent: "skill",
+    label: `"${move}" Dance Move Stellar-Conduct/Stellar Swirl DMG`,
+    name: `"${move}" Dance Move ${pick ? "Stellar Swirl" : "Stellar-Conduct"} DMG (Radiance)`,
+    pick,
+    every: "rate",
+    duration: "rate",
+    cd: "CD",
+    lunar: r,
+    whenReaction: r,
+    pickOne: `odette-${move.toLowerCase()}`,
+    when: { radiance: true },
+  }));
 const SUBDPS = {
   // Supports' own hits (#203): every character gets a damage profile, whatever their role. Their Skill and Burst hits,
   // from the talent tables; recurring hits at rates from the wiki's Gameplay Notes (kit-overrides.json hitRates).
@@ -1039,6 +1057,18 @@ const SUBDPS = {
   ],
   Diona: [
     { talent: "skill", label: "Icy Paw DMG", hits: /Rapidly fires off (\d+) Icy Paws/, cd: "Press CD" },
+    // Her Witch's Revelation (passive 4, #98): three more Icy Paws when the party triggers these reactions, once per
+    // 3.5s, within 20s of her Skill (cast on cooldown, so always). Estimate: the team triggers one every 3.5s.
+    {
+      talent: "skill",
+      label: "Icy Paw DMG",
+      name: "Choice Treasures Icy Paws (passive 4)",
+      hits: { from: "passive4", re: /fire off (\w+) Icy Paws when/ },
+      every: { from: "passive4", re: /This effect can occur once every ([\d.]+)s/ },
+      duration: { from: "passive4", re: /Within (\d+)s after using/ },
+      cd: "Press CD",
+      when: { reactions: ["superconduct", "stellar-conduct", "swirl", "stellar-swirl"], radiance: true },
+    },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Continuous Field DMG", hits: "rate", cd: "CD" },
   ],
@@ -1116,10 +1146,13 @@ const SUBDPS = {
     { talent: "burst", label: "Tengu Juurai: Stormcluster DMG", hits: /into (\d+) consecutive bouts of Tengu Juurai: Stormcluster/, cd: "CD" },
   ],
   Mika: [{ talent: "skill", label: "Flowfrost Arrow DMG", hits: 1, cd: "CD" }],
+  // Her Witch's Revelation (passive 4, #98) cuts the Skill's CD to 15s; in Radiance: Stellar-Conduct (inside a Polestar
+  // Field) her Burst "deals an additional instance of Cryo DMG that is also considered Stellar-Conduct DMG".
   Qiqi: [
-    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
-    { talent: "skill", label: "Herald of Frost DMG", hits: "rate", cd: "CD" },
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD", alternatives: [{ when: { radiance: true }, cd: QIQI_CD }] },
+    { talent: "skill", label: "Herald of Frost DMG", hits: "rate", cd: "CD", alternatives: [{ when: { radiance: true }, cd: QIQI_CD }] },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Stellar-Conduct DMG", hits: 1, cd: "CD", lunar: "stellar-conduct", when: { reaction: "stellar-conduct", radiance: true } },
   ],
   Sayu: [
     { talent: "skill", label: "Fuufuu Whirlwind Kick Press DMG", hits: 1, cd: "CD" },
@@ -1358,6 +1391,8 @@ const SUBDPS = {
     { talent: "skill", label: '"Plume" Dance Move DMG', every: "rate", duration: "Solo Dance Double Duration", cd: "CD" },
     { talent: "skill", label: '"Wing" Dance Move DMG', every: "rate", duration: "Solo Dance Double Duration", cd: "CD" },
     { talent: "skill", label: "Coda at Dawn's Tolling Stellar-Conduct/Stellar Swirl DMG", hits: 1, cd: "Coda at Dawn's Tolling CD" },
+    ...odetteStellar("Plume"),
+    ...odetteStellar("Wing"),
     { talent: "burst", label: "Slash DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Final Slash DMG", hits: 1, cd: "CD" },
   ],
@@ -1416,7 +1451,15 @@ const SUBDPS = {
   ],
   Venti: [
     { talent: "skill", label: "Press DMG", hits: 1, cd: "Press CD" },
-    { talent: "burst", label: "DoT", hits: "rate", cd: "CD" },
+    // Secret Rite (passive 4, #98): "for 4s after a nearby active character triggers a Swirl reaction ... Venti's Stormeye
+    // deals 135% of its original DMG". Estimate: a carry who Swirls does so often enough to keep it up all Burst long.
+    {
+      talent: "burst",
+      label: "DoT",
+      hits: "rate",
+      cd: "CD",
+      factor: { from: "passive4", re: /Venti's Stormeye deals (\d+)% of its original DMG/, when: { secretRite: true, carryReactions: ["swirl", "stellar-swirl"] } },
+    },
   ],
   Xiangling: [
     { talent: "skill", label: "Flame DMG", hits: "rate", cd: "CD" },
@@ -1450,6 +1493,31 @@ const SUBDPS = {
       cd: "Duration",
       perRotation: true, // before her Witch's Revelation: cast once per rotation, up for 14s of it
       dmgBonusPer: [{ from: "passive2", re: /increase Sesshou Sakura DMG by ([\d.]+)%/, stat: "em" }],
+    },
+    // Her Witch's Revelation (passive 4, #98): after a party Superconduct or Stellar-Conduct, her next strike deals 80% of
+    // her ATK more, once per 2.5s; in Radiance: Stellar-Conduct each such strike adds 200% of her ATK as Stellar-Conduct
+    // DMG. Her totems are then always up (24s), so one every 2.5s. Estimate: the team triggers one between strikes.
+    {
+      talent: "skill",
+      label: "Sesshou Sakura DMG: Level 3",
+      name: "Edict of Cleansing enhanced strike (passive 4)",
+      passive: { from: "passive4", re: /DMG dealt is increased at (\d+)% of Yae Miko's ATK/, stat: "atk" },
+      every: YAE_ENHANCED,
+      duration: "Duration",
+      cd: "Duration",
+      dmgBonusPer: [{ from: "passive2", re: /increase Sesshou Sakura DMG by ([\d.]+)%/, stat: "em" }],
+      when: { reactions: ["superconduct", "stellar-conduct"], radiance: true },
+    },
+    {
+      talent: "skill",
+      label: "Sesshou Sakura DMG: Level 3",
+      name: "Edict of Cleansing Stellar-Conduct strike (Radiance)",
+      passive: { from: "passive4", re: /additional instance of Electro DMG at (\d+)% of Yae Miko's ATK/, stat: "atk" },
+      every: YAE_ENHANCED,
+      duration: "Duration",
+      cd: "Duration",
+      lunar: "stellar-conduct",
+      when: { reaction: "stellar-conduct", radiance: true },
     },
   ],
   Yelan: [
@@ -1522,8 +1590,16 @@ function readSubDps(id, specs) {
       if (!re.test(text)) throw new Error(`${id}: pattern ${re} not found in ${s.talent}: ${text}`);
       return true;
     };
+    // A number from a passive's text (#98: { from: "passive4", re }): digits, or a number word ("three Icy Paws").
+    const WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5 };
+    const passiveNumber = (p) => {
+      const ptext = talents[p.from]?.description.replace(/\s+/g, " ") ?? "";
+      const m = ptext.match(p.re);
+      if (!m) throw new Error(`${id}: pattern ${p.re} not found in ${p.from}: ${ptext}`);
+      return WORDS[m[1].toLowerCase()] ?? Number(m[1]);
+    };
     const value = (v, rateKey) =>
-      v === undefined ? undefined : v === "rate" ? rate[rateKey] : typeof v === "number" ? v : typeof v === "string" ? tableValue(attrs, v, id) : fromText(v);
+      v === undefined ? undefined : v === "rate" ? rate[rateKey] : typeof v === "number" ? v : typeof v === "string" ? tableValue(attrs, v, id) : v.from ? passiveNumber(v) : fromText(v);
     const every = s.perSecond ? 1 / fromText(s.perSecond) : value(s.every, "every");
     // A passive's number (#172): "...by 90% of Citlali's Elemental Mastery" -> 0.9.
     const passiveValue = (p) => {
@@ -1533,7 +1609,7 @@ function readSubDps(id, specs) {
       return Number(m[1]) / 100;
     };
     // `passive`: the whole hit is a passive's (Ineffa's Overclocking Circuit); `addScaling` adds to a talent hit's.
-    const scaling = s.passive ? { [s.passive.stat]: passiveValue(s.passive) } : scalingOf(attrs, s.label, id);
+    const scaling = s.passive ? { [s.passive.stat]: passiveValue(s.passive) } : scalingOf(attrs, s.label, id, s.pick);
     for (const p of s.addScaling ?? []) scaling[p.stat] = round((scaling[p.stat] ?? 0) + passiveValue(p) * (p.times ?? 1));
     const dmgBonusPerStat = s.dmgBonusPer ? Object.fromEntries(s.dmgBonusPer.map((p) => [p.stat, round(passiveValue(p))])) : undefined;
     const boost = s.boost && {
@@ -1559,10 +1635,15 @@ function readSubDps(id, specs) {
       ...(s.whenReaction ? { whenReaction: s.whenReaction } : {}),
       ...(s.pickOne ? { pickOne: s.pickOne } : {}),
       ...(s.perRotation ? { perRotation: true } : {}),
+      ...(s.factor ? { factor: { value: round(passiveValue(s.factor) - 1), when: s.factor.when } } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
       ...(icds[`${s.talent}: ${s.label}`] ? { icd: icds[`${s.talent}: ${s.label}`] } : {}),
       ...(needsRate && rate.alternatives ? { alternatives: rate.alternatives.map(({ source, ...alt }) => ({ ...alt, rateSource: source })) } : {}),
+      // A spec's own alternatives (#98: Qiqi's 15s Skill CD with her Witch's Revelation), numbers from passive text.
+      ...(s.alternatives
+        ? { alternatives: s.alternatives.map(({ when, cd }) => ({ when, cd: value(cd), rateSource: `${cd.from}: ${cd.re}` })) }
+        : {}),
     });
   }
   return { sources, ...(missing.length ? { missing } : {}) };

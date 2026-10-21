@@ -557,6 +557,16 @@
       "skill: \"Wing\" Dance Move DMG": {
         "every": 4,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-10: \"Solo Dance Double will perform one dance move every 2s.\" (alternating Plume and Wing, so each every 4s)"
+      },
+      "skill: \"Plume\" Dance Move Stellar-Conduct/Stellar Swirl DMG": {
+        "every": 4,
+        "duration": 14,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-21: after Adagio: Coda at Dawn's Tolling, \"should she be in the Radiance: Stellar Glimmer state while her Dance Double is still on the field, the Dance Double's two dance move types will also deal additional AoE Cryo DMG of the corresponding Stellar Glimmer reaction type\"; one dance move every 2s, alternating (each every 4s). Duration: the Double's 20s less Coda's 6s window (estimate: Coda at the end of it)."
+      },
+      "skill: \"Wing\" Dance Move Stellar-Conduct/Stellar Swirl DMG": {
+        "every": 4,
+        "duration": 14,
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Odette, fetched 2026-10-21: after Adagio: Coda at Dawn's Tolling, \"should she be in the Radiance: Stellar Glimmer state while her Dance Double is still on the field, the Dance Double's two dance move types will also deal additional AoE Cryo DMG of the corresponding Stellar Glimmer reaction type\"; one dance move every 2s, alternating (each every 4s). Duration: the Double's 20s less Coda's 6s window (estimate: Coda at the end of it)."
       }
     },
     "Ororon": {
