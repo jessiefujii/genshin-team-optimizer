@@ -452,6 +452,8 @@ export interface TeamBuffStats {
   lunarAdditive?: Partial<Record<Reaction, number>>;
   resShred: number; // enemy RES decrease on the hits it reaches (#204)
   defShred: number; // enemy DEF decrease (#204)
+  em: number; // flat EM (#186: kit EM buffs and Sprawling Greenery), for the reactions the hits trigger
+  hpPct: number; // of the member's base HP (#186: Soothing Water)
   // Teammates' Moonsign Benediction Base DMG bonus to the carry's direct Lunar hits, by reaction (#88; score.ts
   // teammatesLunarBase). Set by the scorer beside these sums, so teamBuffStats leaves it out.
   lunarBase?: Partial<Record<Reaction, number>>;
@@ -462,12 +464,13 @@ export interface TeamBuffStats {
 export type BurstShares = ReadonlyMap<ScoringCharacter, number>;
 
 type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares" | "lunarAdditive" | "byHit">;
-export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0 };
+export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0, em: 0, hpPct: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
 const IN_CARRY_DAMAGE = new Set([
   "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate",
   "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred", "lunarAdditiveFromEm",
+  "em", "emFromAtk", "emFromDef", "emFromEm", "emFromTopEm", // #186: EM feeds the reactions inside damage now
 ]);
 
 function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
@@ -536,6 +539,22 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
     case "flatDmg":
       into.flat += cap(Math.max(0, (stats.hp - 30000) / 1000) * v) * weight;
       break;
+    // EM (#186), as `gain` reads it: of the buffer's own stats; Nahida's of the party's highest EM (her own), capped.
+    case "em":
+      into.em += v * weight;
+      break;
+    case "emFromAtk":
+      into.em += stats.atk * v * weight;
+      break;
+    case "emFromDef":
+      into.em += stats.def * v * weight;
+      break;
+    case "emFromEm":
+      into.em += stats.em * v * weight;
+      break;
+    case "emFromTopEm":
+      into.em += Math.min(stats.em * v, 250) * weight;
+      break;
   }
 }
 
@@ -599,6 +618,7 @@ export function teamBuffStats(
 ): TeamBuffStats {
   const out = { ...NO_TEAM_BUFFS };
   familyBuffStats(carry, carry, active, team, out);
+  resonanceStats(carry, active, team, out);
   partyGearStats(carry, carry, active, team, out);
   for (const s of team) {
     const entry = KIT[s.id];
@@ -635,6 +655,11 @@ const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?
   Shenhe: { kinds: ["flatDmgFromAtk"], note: "Icy Quill: all party members' Cryo hits (the quills are shared: estimate)" },
   // Checked against the talent text (#204): Alyosha's Hunter's Precision raises ATK "when they are on the field", and
   // Illuga's Burst reaches "nearby active party members", so those stay on-field only.
+  // EM (#186): Albedo's passive 2 "Elemental Mastery of nearby party members", Nilou's "all nearby characters", Sucrose's
+  // passive 2 "all party members' (excluding Sucrose)". Ineffa's, Linnea's and Nahida's are the active character's.
+  Albedo: { kinds: ["em"], note: "Homuncular Nature: \"increases the Elemental Mastery of nearby party members by 125\"" },
+  Nilou: { kinds: ["em"], note: "Court of Dancing Petals: \"increase the Elemental Mastery of all nearby characters by 100\"" },
+  Sucrose: { kinds: ["emFromEm"], note: "Mollis Favonius: \"increases all party members' (excluding Sucrose) Elemental Mastery\"" },
   Nicole: { kinds: ["atkFromAtk"], note: "Grace of Kenosis: \"bestowing the Grace of Kenosis effect on nearby party members\"" },
   Illuga: { kinds: ["critRate"], elements: ["Geo"], note: "Lightkeeper's Oath (passive 1): \"other nearby party members\", Geo DMG" },
   Prune: { kinds: ["dmgBonusFromExcessAtk"], note: "Tolling Rally (passive 2): \"other nearby party members will gain the Tolling Rally effect\"" },
@@ -665,6 +690,7 @@ export function memberBuffStats(
   const out = { ...NO_TEAM_BUFFS };
   byKey.set(key, out);
   familyBuffStats(m, carry, active, team, out);
+  resonanceStats(m, active, team, out);
   partyGearStats(m, carry, active, team, out);
   for (const s of team) {
     const wide = PARTY_WIDE[s.id];
@@ -694,6 +720,31 @@ export function memberBuffStats(
     }
   }
   return out;
+}
+
+// Elemental Resonance as stats (#186), on every member's hits: Genshin Impact Wiki, Elemental Resonance (fetched
+// 2026-10-21). Fervent Flames "Increases ATK by 25%"; Soothing Water "Increases Max HP by 25%"; Shattering Ice "Increases
+// CRIT Rate against enemies that are Frozen or affected by Cryo by 15%" (two Cryo members keep an aura: taken as always);
+// Enduring Rock, "when characters protected by a shield or when Moondrifts formed by Lunar-Crystallize reactions are
+// nearby": "DMG dealt increased by 15%", "decrease their Geo RES by 20%" (a shielder, Crystallize's shards, or
+// Lunar-Crystallize); Sprawling Greenery "Elemental Mastery increased by 50", +30 after Burning, Quicken, Bloom or
+// Lunar-Bloom and +20 after Aggravate, Spread, Hyperbloom or Burgeon (kept up while the team triggers them). High Voltage
+// (particles) and Impetuous Winds (stamina, CD) stay points.
+export const RESONANCE_IN_DAMAGE = new Set<string>(["Pyro", "Hydro", "Cryo", "Geo", "Dendro"]);
+function resonanceStats(m: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], into: TeamBuffStats) {
+  const count = (e: string) => team.filter((x) => x.element === e).length;
+  if (count("Pyro") >= 2) into.atkPct += 0.25;
+  if (count("Hydro") >= 2) into.hpPct += 0.25;
+  if (count("Cryo") >= 2) into.critRate += 0.15;
+  const shielded = team.some((x) => x.roles.includes("shielder")) || active.includes("crystallize") || active.includes("lunar-crystallize");
+  if (count("Geo") >= 2 && shielded) {
+    into.dmgBonus += 0.15;
+    if (m.element === "Geo") into.resShred += 0.2;
+  }
+  if (count("Dendro") >= 2) {
+    const any = (rs: Reaction[]) => rs.some((r) => active.includes(r));
+    into.em += 50 + (any(["burning", "quicken", "bloom", "lunar-bloom"]) ? 30 : 0) + (any(["aggravate", "spread", "hyperbloom", "burgeon"]) ? 20 : 0);
+  }
 }
 
 // Family team bonuses as stats (#204): the Secret Rite, Stellar and Ascendant Gleam party values that are DMG Bonus,

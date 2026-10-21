@@ -83,6 +83,7 @@ interface CarryKit {
   combos?: CarryCombo[];
   missing?: string[];
   goblet?: "Physical"; // a Physical DMG goblet and set on the benchmark build (#222); else the carry's element
+  baseHp?: number; // level 90 character base HP, for HP % team buffs (#186: Soothing Water)
   radianceInDamage?: boolean; // their own Radiance upgrade is in their hits (Mizuki, #235)
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
@@ -556,7 +557,12 @@ function computeCarryDamage(
   const dmgCirclet = critCirclet(c, set);
   const own = carryStats(c, kit.goblet);
   // Team buffs (#157): ATK (flat, and % of base ATK) and DMG bonus on top of the carry's own stats.
-  const s = { ...own, atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk, dmgBonus: own.dmgBonus + teamBuffs.dmgBonus };
+  const s = {
+    ...own,
+    atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk,
+    dmgBonus: own.dmgBonus + teamBuffs.dmgBonus,
+    hp: own.hp + teamBuffs.hpPct * (CARRIES[c.id]?.baseHp ?? 0), // HP % of base HP (#186: Soothing Water)
+  };
   const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;
   let atk = s.atk;
   for (const b of kit.buffs) {
@@ -583,7 +589,7 @@ function computeCarryDamage(
   // benchmark), not kit- or team-buffed ATK: KeqingMains' Flins guide says it "does not consider ATK buffs that
   // originate from a percentage of one character's stat".
   // Gilded Dreams' EM per other-element member (#206); the weapon's and the party sets' EM (#306).
-  let em = s.em + sumSet(set, "emPerOther") + weaponSum(weapon, "em") + party.em;
+  let em = s.em + sumSet(set, "emPerOther") + weaponSum(weapon, "em") + party.em + teamBuffs.em; // kit EM, Sprawling Greenery (#186)
   for (const b of buffs) {
     if (b.kind === "emFromAtk") em += Math.min(b.max, b.value * own.atk); // own ATK: no team buffs (#157)
     if (b.kind === "emBonus") em += b.value; // Nefer at 3 Veil of Falsehood stacks (#148)

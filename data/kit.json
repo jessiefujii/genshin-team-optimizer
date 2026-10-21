@@ -8259,7 +8259,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 15552
     },
     "Raiden Shogun": {
       "rotationSeconds": 18,
@@ -8422,7 +8423,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 12907
     },
     "Xiao": {
       "rotationSeconds": 18,
@@ -8526,7 +8528,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 12736
     },
     "Wriothesley": {
       "rotationSeconds": 15,
@@ -8687,7 +8690,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 13593
     },
     "Yumemizuki Mizuki": {
       "rotationSeconds": 15,
@@ -8883,7 +8887,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 12736
     },
     "Vesna": {
       "rotationSeconds": 18.48,
@@ -9077,7 +9082,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 13262
     },
     "Wanderer": {
       "rotationSeconds": 20,
@@ -9140,7 +9146,8 @@
             "charged"
           ]
         }
-      ]
+      ],
+      "baseHp": 10164
     },
     "Varesa": {
       "rotationSeconds": 18,
@@ -9222,7 +9229,8 @@
           "count": 2
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "baseHp": 12699
     },
     "Mavuika": {
       "rotationSeconds": 18,
@@ -9501,7 +9509,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 12552
     },
     "Zibai": {
       "rotationSeconds": 15,
@@ -9627,7 +9636,8 @@
           "perPoint": 0.00007,
           "max": 0.14
         }
-      ]
+      ],
+      "baseHp": 12919
     },
     "Skirk": {
       "rotationSeconds": 15,
@@ -9682,7 +9692,8 @@
           ],
           "hitsCap": 10
         }
-      ]
+      ],
+      "baseHp": 12417
     },
     "Nefer": {
       "rotationSeconds": 18,
@@ -9824,7 +9835,8 @@
             "ascendantGleam": true
           }
         }
-      ]
+      ],
+      "baseHp": 12704
     },
     "Clorinde": {
       "rotationSeconds": 16,
@@ -9887,7 +9899,8 @@
             "stellar-conduct"
           ]
         }
-      ]
+      ],
+      "baseHp": 12956
     },
     "Flins": {
       "rotationSeconds": 17.5,
@@ -10005,7 +10018,8 @@
             "ascendantGleam": true
           }
         }
-      ]
+      ],
+      "baseHp": 12491
     },
     "Arlecchino": {
       "rotationSeconds": 15,
@@ -10549,7 +10563,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 13103
     },
     "Kinich": {
       "rotationSeconds": 18,
@@ -10663,7 +10678,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 12858
     },
     "Neuvillette": {
       "rotationSeconds": 26.5,
@@ -10755,7 +10771,8 @@
           ],
           "note": "passive2 at 50% HP"
         }
-      ]
+      ],
+      "baseHp": 14695
     },
     "Kamisato Ayaka": {
       "rotationSeconds": 20,
@@ -10913,7 +10930,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 12858
     },
     "Alhaitham": {
       "rotationSeconds": 23.5,
@@ -11034,7 +11052,8 @@
             "Single-Instance DMG"
           ]
         }
-      ]
+      ],
+      "baseHp": 13348
     },
     "Klee": {
       "rotationSeconds": 15,
@@ -11130,7 +11149,8 @@
             "secretRite": true
           }
         }
-      ]
+      ],
+      "baseHp": 10287
     },
     "Tighnari": {
       "rotationSeconds": 12,
@@ -11202,7 +11222,8 @@
             "Secondary Tanglevine Shaft DMG"
           ]
         }
-      ]
+      ],
+      "baseHp": 10850
     },
     "Lyney": {
       "rotationSeconds": 15,
@@ -11282,7 +11303,8 @@
             "melt"
           ]
         }
-      ]
+      ],
+      "baseHp": 11021
     },
     "Ningguang": {
       "rotationSeconds": 15.5,
@@ -11340,7 +11362,8 @@
             "burst"
           ]
         }
-      ]
+      ],
+      "baseHp": 9787
     },
     "Sethos": {
       "rotationSeconds": 15,
@@ -11383,7 +11406,8 @@
           "count": 2
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "baseHp": 9787
     },
     "Yoimiya": {
       "rotationSeconds": 15,
@@ -11463,7 +11487,8 @@
           ],
           "note": "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]"
         }
-      ]
+      ],
+      "baseHp": 10164
     },
     "Ganyu": {
       "rotationSeconds": 15,
@@ -11585,7 +11610,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 9797
     },
     "Kamisato Ayato": {
       "rotationSeconds": 25,
@@ -11655,7 +11681,8 @@
             "normal"
           ]
         }
-      ]
+      ],
+      "baseHp": 13715
     },
     "Navia": {
       "rotationSeconds": 18,
@@ -11825,7 +11852,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 12650
     },
     "Yanfei": {
       "rotationSeconds": 20,
@@ -11901,7 +11929,8 @@
             "charged"
           ]
         }
-      ]
+      ],
+      "baseHp": 9352
     },
     "Cyno": {
       "rotationSeconds": 20,
@@ -12011,7 +12040,8 @@
             "Mortuary Rite DMG"
           ]
         }
-      ]
+      ],
+      "baseHp": 12491
     },
     "Mualani": {
       "rotationSeconds": 16,
@@ -12052,7 +12082,8 @@
           "tag": "bite",
           "stat": "hp"
         }
-      ]
+      ],
+      "baseHp": 15185
     },
     "Arataki Itto": {
       "rotationSeconds": 22,
@@ -12129,7 +12160,8 @@
           "kind": "atkFromDef",
           "value": 0.9792
         }
-      ]
+      ],
+      "baseHp": 12858
     },
     "Tartaglia": {
       "rotationSeconds": 25.5,
@@ -12200,7 +12232,8 @@
           "reacting": 4
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "baseHp": 13103
     },
     "Aloy": {
       "rotationSeconds": 13.35,
@@ -12281,7 +12314,8 @@
           "kind": "atkPct",
           "value": 0.16
         }
-      ]
+      ],
+      "baseHp": 10899
     },
     "Noelle": {
       "rotationSeconds": 23.5,
@@ -12341,7 +12375,8 @@
           "kind": "atkFromDef",
           "value": 0.68
         }
-      ]
+      ],
+      "baseHp": 12071
     },
     "Shikanoin Heizou": {
       "rotationSeconds": 12,
@@ -12405,7 +12440,8 @@
           "stacks": 1,
           "tag": "heartstopper"
         }
-      ]
+      ],
+      "baseHp": 10657
     },
     "Gaming": {
       "rotationSeconds": 15,
@@ -12493,7 +12529,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 11419
     },
     "Diluc": {
       "rotationSeconds": 12,
@@ -12581,7 +12618,8 @@
             "skill"
           ]
         }
-      ]
+      ],
+      "baseHp": 12981
     },
     "Keqing": {
       "rotationSeconds": 12,
@@ -12667,7 +12705,8 @@
             "Charged Attack DMG"
           ]
         }
-      ]
+      ],
+      "baseHp": 13103
     },
     "Kaveh": {
       "rotationSeconds": 20,
@@ -12719,7 +12758,8 @@
           "reacting": 1.333333
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "baseHp": 11962
     },
     "Traveler (Cryo)": {
       "rotationSeconds": 15,
@@ -12888,7 +12928,8 @@
             }
           ]
         }
-      ]
+      ],
+      "baseHp": 10875
     },
     "Traveler (Hydro)": {
       "rotationSeconds": 16,
@@ -12921,7 +12962,8 @@
           "reacting": 1
         }
       ],
-      "buffs": []
+      "buffs": [],
+      "baseHp": 10875
     },
     "Razor": {
       "rotationSeconds": 20,
@@ -13013,7 +13055,8 @@
         }
       ],
       "buffs": [],
-      "goblet": "Physical"
+      "goblet": "Physical",
+      "baseHp": 11962
     },
     "Eula": {
       "rotationSeconds": 20,
@@ -13276,7 +13319,8 @@
           ]
         }
       ],
-      "goblet": "Physical"
+      "goblet": "Physical",
+      "baseHp": 13226
     },
     "Chasca": {
       "rotationSeconds": 15,
@@ -13366,7 +13410,8 @@
             "Shining Shadowhunt Shell DMG"
           ]
         }
-      ]
+      ],
+      "baseHp": 9797
     },
     "Freminet": {
       "rotationSeconds": 15,
@@ -13486,7 +13531,8 @@
           ],
           "goblet": "Physical"
         }
-      ]
+      ],
+      "baseHp": 12071
     }
   },
   "carriesTodo": [

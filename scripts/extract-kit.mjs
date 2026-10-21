@@ -3279,7 +3279,8 @@ const fightingSpirit = readFightingSpirit(tags.filter((c) => (c.families ?? []).
 
 // Carries (#101): the 16 compare carries first; other main DPS are listed until they get an entry.
 const carries = {};
-for (const [id, spec] of Object.entries(CARRIES)) carries[id] = readCarry(id, spec);
+// `baseHp`: level 90 character base HP (genshin-db), for HP % buffs on the carry (#186: Soothing Water).
+for (const [id, spec] of Object.entries(CARRIES)) carries[id] = { ...readCarry(id, spec), ...(baseStatsOf(id) ? { baseHp: baseStatsOf(id).hp } : {}) };
 for (const [id, table] of Object.entries(OVERRIDES.carryIcd ?? {}))
   for (const key of Object.keys(id === "_howTo" ? {} : table))
     if (!icdUsed.has(`${id}|${key}`)) throw new Error(`${id}: carryIcd "${key}" matches no carry hit`);
