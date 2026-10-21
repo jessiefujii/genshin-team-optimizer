@@ -1,5 +1,5 @@
 {
-  "median": 136320.5,
+  "median": 149420.5,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -8,7 +8,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 189383.8
+      "value": 201631.5
     },
     "Aloy": {
       "team": [
@@ -35,7 +35,7 @@
         "Ineffa",
         "Xilonen"
       ],
-      "value": 130191.1
+      "value": 149410.3
     },
     "Chasca": {
       "team": [
@@ -44,7 +44,7 @@
         "Furina",
         "Shenhe"
       ],
-      "value": 143762.7
+      "value": 162955.7
     },
     "Clorinde": {
       "team": [
@@ -53,7 +53,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 131247.1
+      "value": 149430.7
     },
     "Cyno": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 169913.9
+      "value": 172191.9
     },
     "Diluc": {
       "team": [
@@ -71,7 +71,7 @@
         "Albedo",
         "Zhongli"
       ],
-      "value": 97564.5
+      "value": 103260.7
     },
     "Eula": {
       "team": [
@@ -89,7 +89,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 135176.4
+      "value": 145371.4
     },
     "Freminet": {
       "team": [
@@ -107,7 +107,7 @@
         "Xilonen",
         "Bennett"
       ],
-      "value": 192541.7
+      "value": 226847.6
     },
     "Ganyu": {
       "team": [
@@ -125,7 +125,7 @@
         "Zhongli",
         "Albedo"
       ],
-      "value": 196992.7
+      "value": 215038.2
     },
     "Kamisato Ayaka": {
       "team": [
@@ -134,7 +134,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 227173.7
+      "value": 269611.6
     },
     "Kamisato Ayato": {
       "team": [
@@ -143,7 +143,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 187587.9
+      "value": 193279.8
     },
     "Kaveh": {
       "team": [
@@ -170,7 +170,7 @@
         "Furina",
         "Bennett"
       ],
-      "value": 139620
+      "value": 167797.7
     },
     "Klee": {
       "team": [
@@ -197,7 +197,7 @@
         "Kaedehara Kazuha",
         "Zhongli"
       ],
-      "value": 114688.7
+      "value": 138690.7
     },
     "Mavuika": {
       "team": [
@@ -206,7 +206,7 @@
         "Furina",
         "Bennett"
       ],
-      "value": 154787.5
+      "value": 186108.7
     },
     "Mualani": {
       "team": [
@@ -215,7 +215,7 @@
         "Yelan",
         "Zhongli"
       ],
-      "value": 137464.6
+      "value": 171669
     },
     "Navia": {
       "team": [
@@ -233,7 +233,7 @@
         "Lauma",
         "Kuki Shinobu"
       ],
-      "value": 113319.2
+      "value": 123532.6
     },
     "Neuvillette": {
       "team": [
@@ -242,7 +242,7 @@
         "Nahida",
         "Furina"
       ],
-      "value": 180101.3
+      "value": 183688.1
     },
     "Ningguang": {
       "team": [
@@ -269,7 +269,7 @@
         "Yelan",
         "Xilonen"
       ],
-      "value": 143836.2
+      "value": 152420.6
     },
     "Razor": {
       "team": [
@@ -314,7 +314,7 @@
         "Escoffier",
         "Yelan"
       ],
-      "value": 218394.2
+      "value": 239010.5
     },
     "Tartaglia": {
       "team": [
@@ -332,7 +332,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 131114.2
+      "value": 138206.8
     },
     "Traveler (Cryo)": {
       "team": [
@@ -350,7 +350,7 @@
         "Furina",
         "Xianyun"
       ],
-      "value": 145186.7
+      "value": 169915.2
     },
     "Varka": {
       "team": [
@@ -386,7 +386,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 235256.5
+      "value": 260406.8
     },
     "Xiao": {
       "team": [
@@ -395,7 +395,7 @@
         "Xianyun",
         "Furina"
       ],
-      "value": 118987.6
+      "value": 186294.2
     },
     "Yanfei": {
       "team": [
@@ -413,16 +413,16 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 132194.1
+      "value": 142972
     },
     "Yumemizuki Mizuki": {
       "team": [
         "Yumemizuki Mizuki",
-        "Ineffa",
-        "Columbina",
-        "Xilonen"
+        "Odette",
+        "Traveler (Cryo)",
+        "Faruzan"
       ],
-      "value": 102884.1
+      "value": 111209.3
     },
     "Zibai": {
       "team": [
@@ -431,7 +431,7 @@
         "Columbina",
         "Ineffa"
       ],
-      "value": 154298.7
+      "value": 166921.3
     }
   }
 }
