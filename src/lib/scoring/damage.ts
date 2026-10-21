@@ -586,17 +586,17 @@ function computeCarryDamage(
   // (Genshin Impact Wiki, Superconduct, fetched 2026-10-16: "reduces the Physical RES of all enemies in the AoE by 40%
   // for 12 seconds"; while the team has it, taken as up throughout).
   const superconduct = active.includes("superconduct") ? 0.4 : 0;
-  type Typed = { bonus: number; flat: number; amp: number; catalyze: number; res: number; def: number; lunarAdditive?: TeamBuffStats["lunarAdditive"] };
+  type Typed = { bonus: number; flat: number; byHit?: TeamBuffStats["byHit"]; amp: number; catalyze: number; res: number; def: number; lunarAdditive?: TeamBuffStats["lunarAdditive"] };
   const byType = new Map<string, Typed>();
   const typed = (el: Element | "Physical"): Typed => {
-    if (el === c.element) return { bonus: s.dmgBonus, flat: teamBuffs.flat, amp, catalyze, res: teamBuffs.resShred, def: teamBuffs.defShred, lunarAdditive: teamBuffs.lunarAdditive };
+    if (el === c.element) return { bonus: s.dmgBonus, flat: teamBuffs.flat, byHit: teamBuffs.byHit, amp, catalyze, res: teamBuffs.resShred, def: teamBuffs.defShred, lunarAdditive: teamBuffs.lunarAdditive };
     let v = byType.get(el);
     if (!v) {
       const view = { ...c, element: el as Element };
       const tb = teamBuffs === NO_TEAM_BUFFS ? NO_TEAM_BUFFS : teamBuffStats(view, c.reactions.filter((r) => active.includes(r)), team, teamBuffs.burstShares);
       const r = reaction ?? mainReactionOf(c);
       const own = el === "Physical" ? s.physicalDmgBonus : 0;
-      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, amp: amplifyGain(view, em, active, r, setReactionBonus(set, r)), catalyze: catalyzeDamage(view, em, active, r, setReactionBonus(set, r)), res: tb.resShred + (el === "Physical" ? superconduct : 0), def: tb.defShred, lunarAdditive: tb.lunarAdditive }));
+      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, byHit: tb.byHit, amp: amplifyGain(view, em, active, r, setReactionBonus(set, r)), catalyze: catalyzeDamage(view, em, active, r, setReactionBonus(set, r)), res: tb.resShred + (el === "Physical" ? superconduct : 0), def: tb.defShred, lunarAdditive: tb.lunarAdditive }));
     }
     return v;
   };
@@ -652,9 +652,11 @@ function computeCarryDamage(
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
     // A plunge's collision hit takes no flat team bonus: Xianyun's is "Plunging Attack shockwave DMG" (wiki; others,
-    // like Shenhe's quills, would apply: left out, estimate).
-    if (!h.addOn && !h.collision) perHit += t.flat * (h.instances ?? 1);
-    let bonus = t.bonus + weaponDmgBonus(weapon, h.type) + setDmgBonus(set, h.type, el, s.er); // weapon (#40), set (#206)
+    // like Shenhe's quills, would apply: left out, estimate). Flat DMG and DMG Bonus for some attack types reach only
+    // hits of that type (#299: Yun Jin's on Normal Attacks, Xianyun's on plunges).
+    const typeBuffs = t.byHit?.[h.type];
+    if (!h.addOn && !h.collision) perHit += (t.flat + (typeBuffs?.flat ?? 0)) * (h.instances ?? 1);
+    let bonus = t.bonus + (typeBuffs?.dmgBonus ?? 0) + weaponDmgBonus(weapon, h.type) + setDmgBonus(set, h.type, el, s.er); // weapon (#40), set (#206)
     let factor = 1;
     for (const b of buffs) {
       if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * (b.stat === "hp" ? s.hp : atk);
