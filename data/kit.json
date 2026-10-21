@@ -8263,6 +8263,86 @@
         }
       ]
     },
+    "Lyney": {
+      "rotationSeconds": 15,
+      "combo": "4[CS] Q E",
+      "hits": [
+        {
+          "label": "Prop Arrow DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.9376
+          },
+          "count": 4
+        },
+        {
+          "label": "Pyrotechnic Strike DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 3.604
+          },
+          "count": 5
+        },
+        {
+          "label": "passive1 bonus",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.8
+          },
+          "count": 4,
+          "addOn": true
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 2.618
+          },
+          "count": 1
+        },
+        {
+          "label": "Explosive Firework DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 7.038
+          },
+          "count": 1
+        },
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.8424
+          },
+          "count": 1,
+          "tag": "propSurplus"
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.9044,
+          "stacks": 5,
+          "tag": "propSurplus"
+        },
+        {
+          "kind": "dmgBonusByMembers",
+          "values": [
+            0.6,
+            0.8,
+            1,
+            1
+          ],
+          "elements": [
+            "Pyro"
+          ],
+          "unless": [
+            "vaporize",
+            "melt"
+          ]
+        }
+      ]
+    },
     "Yoimiya": {
       "rotationSeconds": 15,
       "combo": "E 3[N5]",
@@ -9982,7 +10062,6 @@
   },
   "carriesTodo": [
     "Lohen",
-    "Lyney",
     "Manekin",
     "Manekina",
     "Ningguang",
