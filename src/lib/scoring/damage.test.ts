@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
 import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite, setBuffs, setsOf, weaponBuffs, weaponDmgBonus } from "./damage";
-import { NO_TEAM_BUFFS, teamBuffStats } from "./kit";
+import { NO_TEAM_BUFFS, partySetBuffs, teamBuffStats } from "./kit";
 import { resShredGain } from "./benchmark";
 import { KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
@@ -449,6 +449,20 @@ describe("weapon passives on the holder's hits (#40)", () => {
     expect(carryDamage(sands)!.perSecond).toBeGreaterThan(carryDamage(get("Raiden Shogun"))!.perSecond);
   });
 
+  test("Zibai Premium's weapons (#306): Harbinger with a healer or shielder, Snare Hook by reaction and Moonsign", () => {
+    const sum = (c: ScoringCharacter, team: ScoringCharacter[], active: Reaction[], kind: string) =>
+      weaponBuffs(c, [c, ...team], active).reduce((a, b) => a + (b.kind === kind ? b.value : 0), 0);
+    const zibai = holding("Zibai", "Harbinger of Dawn", 5);
+    expect(sum(zibai, [get("Linnea")], [], "critRate")).toBeCloseTo(0.28);
+    expect(sum(zibai, [get("Illuga")], [], "critRate")).toBe(0);
+    expect(sum(zibai, [get("Linnea"), get("Furina")], [], "critRate")).toBe(0); // Furina drains HP
+    const linnea = holding("Linnea", "Snare Hook");
+    expect(sum(linnea, [get("Zibai")], ["lunar-crystallize"], "em")).toBe(120); // Ascendant Gleam
+    expect(sum(linnea, [get("Bennett")], ["lunar-crystallize"], "em")).toBe(60);
+    expect(sum(linnea, [get("Zibai")], [], "em")).toBe(0);
+    expect(sum(holding("Columbina", "The Widsith", 4), [], [], "em")).toBeCloseTo(420 / 9); // 1 of 3 songs, 10s of 30s
+  });
+
   test("a benchmark character holds no weapon; a build's weapon raises its hits", () => {
     expect(weaponBuffs(get("Raiden Shogun"), [get("Raiden Shogun")])).toEqual([]);
     const team = ["Bennett", "Xingqiu", "Xiangling"].map(get);
@@ -505,6 +519,28 @@ describe("set bonuses on the wearer's own damage (#206)", () => {
     expect(value(get("Gaming"), ["Xingqiu"], ["vaporize"], "dmgBonus")).toBeCloseTo(0.225);
     const vape = (c: ScoringCharacter) => carryDamage(c, ["vaporize"], [c, get("Xingqiu")])!.perSecond / carryDamage(c, [], [c, get("Xingqiu")])!.perSecond;
     expect(vape(get("Hu Tao"))).toBeGreaterThan(vape({ ...get("Hu Tao"), stats: STATS, sets: [] }));
+  });
+
+  test("Gleaming Moon sets (#306): 10% per different effect, party-wide; Silken's EM by Moonsign level", () => {
+    const silken = wearing("Illuga", "Silken Moon's Serenade");
+    const night = wearing("Zibai", "Night of the Sky's Unveiling");
+    const lc: Reaction[] = ["lunar-crystallize"];
+    // Night's Intent needs its wearer on field and a Lunar reaction; Silken's Devotion doesn't.
+    expect(partySetBuffs([night, silken, get("Columbina")], lc, night)).toEqual({ em: 120, lunar: 0.2 });
+    expect(partySetBuffs([night, silken, get("Columbina")], lc, silken).lunar).toBeCloseTo(0.1);
+    expect(partySetBuffs([night, silken, get("Columbina")], [], night).lunar).toBeCloseTo(0.1);
+    // A second Silken adds nothing ("Effects from Gleaming Moon cannot stack"); one Moonsign member: Nascent Gleam, 60.
+    expect(partySetBuffs([silken, wearing("Columbina", "Silken Moon's Serenade")], lc, null)).toEqual({ em: 120, lunar: 0.1 });
+    expect(partySetBuffs([silken, get("Bennett")], lc, null)).toEqual({ em: 60, lunar: 0.1 });
+  });
+
+  test("Aubade (#306): the wearer's own Lunar Reaction Bonus, off-field only, 60% at Ascendant Gleam", () => {
+    const aubade = wearing("Columbina", "Aubade of Morningstar and Moon");
+    const bonus = (onField: boolean, gleam: boolean) =>
+      setBuffs(aubade, ["lunar-crystallize"], [aubade, get("Zibai")], gleam, onField).reduce((a, b) => a + b.value, 0);
+    expect(bonus(false, true)).toBeCloseTo(0.6);
+    expect(bonus(false, false)).toBeCloseTo(0.2);
+    expect(bonus(true, true)).toBe(0);
   });
 
   test("a set's buff raises the carry's damage", () => {

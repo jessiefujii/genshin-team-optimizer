@@ -4,8 +4,8 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, weaponAtk, weaponBuffs, weaponDmgBonus, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
+import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setReactionBonus, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -310,11 +310,22 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
 }
 
 // Weapon, set and constellation buffs that fit the carry. The same effect on two members counts once.
+// A set whose party-wide effects are in team damage (#306, kit.ts partySetBuffs: Silken Moon's Serenade, Night of the
+// Sky's Unveiling) scores there, not as points, for a modeled carry; a carry without a damage model keeps the points as
+// the stand-in for their own share (their sub-DPS's and reactions' share is in damage either way).
 function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: boolean, out: Sink) {
   const seen: string[] = [];
+  const inTeamDamage: string[] = [];
+  const inDamage = modeledCarryDps(carry, ctx) !== null;
   for (const m of ctx.members) {
     for (const e of m.effects ?? []) {
       if (seen.length === POINTS.maxEffectBuffs) return;
+      if (inDamage && e.source === "set" && partySetModeled(e.id)) {
+        // Shown once, with 0 points; it takes no place under the effect cap.
+        if (!inTeamDamage.includes(effectKey(e))) out.add("Effects", 0, () => `${effectName(m, e)}: party-wide, in team damage`);
+        inTeamDamage.push(effectKey(e));
+        continue;
+      }
       // On the carry's own items, an 'active' buff only buffs the carry, which its final stats may already show.
       const fit = e.buffs?.find(
         (b) =>
@@ -1238,7 +1249,7 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
       const own = mine.filter((t) => t.m === m);
       const rate = own.reduce((s, t) => s + t.perSecond, 0);
       const capped = Math.min(1, TRANSFORMATIVE[r]!.perSecond / rate);
-      const em = m === carry ? (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry))?.em ?? 0) : (subDpsStats(m)?.em ?? 0);
+      const em = m === carry ? (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry))?.em ?? 0) : (subDpsStats(m)?.em ?? 0) + memberExtras(m, carry, ctx).em;
       let d = 0;
       for (const t of own) {
         const element = DAMAGE_ELEMENT[r] ?? t.aura; // Swirl: the swirled aura's
@@ -1265,9 +1276,11 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     const individual = contributors
       .map((m) => {
         const s = subDpsStats(m);
-        const em = m === carry ? (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry))?.em ?? 0) : (s?.em ?? carryStats(m).em);
-        const crit = m !== carry && s ? 1 + Math.min(s.critRate, 1) * s.critDmg : expectedCrit(m);
-        return coefficient * LEVEL_MULTIPLIER_90 * base * (1 + lunarEmBonus(em) + bonus) * res * crit;
+        // Each contributor's own EM and Reaction Bonus (#306: party set and weapon EM, Gleaming Moon, their Aubade).
+        const x = memberExtras(m, carry, ctx);
+        const em = m === carry ? (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry))?.em ?? 0) : (s?.em ?? carryStats(m).em) + x.em;
+        const crit = m !== carry && s ? 1 + Math.min(s.critRate + x.critRate, 1) * s.critDmg : expectedCrit(m);
+        return coefficient * LEVEL_MULTIPLIER_90 * base * (1 + lunarEmBonus(em) + bonus + x.lunar(r)) * res * crit;
       })
       .sort((a, b) => b - a);
     const dps = perSecond * individual.reduce((sum, d, i) => sum + d * INDIRECT_WEIGHTS[i], 0);
@@ -1341,6 +1354,23 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
   return covered;
 }
 
+// What a member gets that their character screen doesn't show (#306): party-wide set EM (Silken Moon's Serenade) and
+// their weapon's EM and CRIT Rate (Snare Hook, The Widsith, Harbinger of Dawn), and the Reaction Bonus on their Lunar
+// damage: the Gleaming Moon sets' (party-wide) and their own set's (Aubade off-field; Thundering Fury). For a sub-DPS's
+// hits and the reactions they contribute to; the carry's own are in carryDamage.
+function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext) {
+  const gleam = ctx.members.filter((x) => x.families?.includes("moonsign")).length >= 2;
+  const party = partySetBuffs(ctx.members, ctx.active, carry, gleam);
+  const weapon = weaponBuffs(m, ctx.members, ctx.active, gleam);
+  const set = setBuffs(m, ctx.active, ctx.members, gleam, m === carry);
+  return {
+    weapon,
+    em: party.em + weaponSum(weapon, "em"),
+    critRate: weaponSum(weapon, "critRate"),
+    lunar: (r: Reaction | LunarReaction) => party.lunar + setReactionBonus(set, r),
+  };
+}
+
 // Off-field sub-DPS (#96): the damage per second of their own hits, from data/kit.json `subDps` (talent level 9),
 // added to the carry's in team damage (#202): the carry keeps attacking while they fire. No longer a share of the
 // carry's damage, which made the same hits worth 2-3x more next to a reaction carry (#199).
@@ -1359,7 +1389,8 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
   for (const m of ctx.members) {
     const entry = SUB_DPS[m.id];
     if (m === carry || !entry) continue;
-    const stat = subDpsStats(m)!;
+    const extras = memberExtras(m, carry, ctx);
+    const stat = { ...subDpsStats(m)!, em: subDpsStats(m)!.em + extras.em }; // party set and weapon EM (#306)
     const dmgBonus = stat.dmgBonus;
     // Base ATK, for teammates' ATK% buffs: the build's, else the character's plus the benchmark weapon's.
     const baseAtk = m.stats?.baseAtk ?? (entry.base ? entry.base.atk + BENCHMARK.buffer.weaponBaseAtk : BENCHMARK.carryBaseAtk);
@@ -1374,7 +1405,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     const reactions = subDpsReactions(m, ctx);
     const reacted = new Set<Reaction>();
     // Their build's weapon passive on their own hits (#40): DMG bonus by talent, and Max HP as a % of base HP.
-    const weapon = weaponBuffs(m, ctx.members, ctx.active);
+    const weapon = extras.weapon;
     const hp = stat.hp + weapon.reduce((a, b) => a + (b.kind === "hpPct" ? b.value : 0), 0) * (entry.base?.hp ?? 0);
     for (const s of entry.sources) {
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
@@ -1386,14 +1417,14 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       const talent = s.talent === "normal" || s.talent === "skill" || s.talent === "burst" ? s.talent : undefined;
       const weaponBonus = talent ? weaponDmgBonus(weapon, talent) : 0;
       // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
-      const crit = 1 + Math.min(stat.critRate + team.critRate, 1) * stat.critDmg;
+      const crit = 1 + Math.min(stat.critRate + team.critRate + extras.critRate, 1) * stat.critDmg; // weapon CRIT (#306)
       // Teammates' RES and DEF shred on this hit (#204), as on the carry's: Lunar hits take RES only.
       const res = 1 + resShredGain(team.resShred);
       const def = 1 + defShredGain(Math.min(0.9, team.defShred));
       // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151), with
       // their own Moonsign Benediction Base DMG bonus (PR #155).
       const rate = hitsPerSecond(s, carry, ctx, m) * (s.talent === "burst" ? burstPart : 1);
-      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar)) * rate * crit * res;
+      if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar), extras.lunar(s.lunar)) * rate * crit * res;
       else {
         // Additive Base DMG Bonus from teammates (Shenhe's quills): per hit, before DMG Bonus and crit, as on the carry.
         const base = perHit + team.flat;

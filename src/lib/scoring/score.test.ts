@@ -243,9 +243,10 @@ describe("scoreTeam", () => {
     const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Moonsign");
     // Two Moonsign members (Aino, Ineffa) reach Ascendant Gleam: Flins's own kit upgrade (his thundercloud hit and
     // passive 1's +20%) is in his damage model (#150), so the line says what it adds with 0 points, not twice (#245);
-    // so is his guide's Night of the Sky's Unveiling going from 15% to 30% CRIT Rate (#206).
+    // so is his guide's Night of the Sky's Unveiling going from 15% to 30% CRIT Rate (#206). 71% -> 73% with Night's
+    // Gleaming Moon +10% Lunar Reaction DMG in his hits (#306), the unlocked ones included.
     expect(lines("Flins", "Aino", "Ineffa", "Xilonen")).toEqual([
-      { rule: "Moonsign", points: 0, reason: "Ascendant Gleam adds ~+71% to Flins's damage" },
+      { rule: "Moonsign", points: 0, reason: "Ascendant Gleam adds ~+73% to Flins's damage" },
     ]);
     // One Moonsign member is only Nascent Gleam.
     expect(lines("Flins", "Bennett", "Xingqiu", "Xilonen")).toEqual([]);

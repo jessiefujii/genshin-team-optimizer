@@ -1,14 +1,14 @@
 {
-  "median": 148881.7,
+  "median": 149116.8,
   "carries": {
     "Alhaitham": {
       "team": [
         "Alhaitham",
-        "Kuki Shinobu",
-        "Furina",
-        "Nahida"
+        "Yae Miko",
+        "Nahida",
+        "Zhongli"
       ],
-      "value": 196321.8
+      "value": 185820.2
     },
     "Aloy": {
       "team": [
@@ -89,7 +89,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 145371.4
+      "value": 148823.4
     },
     "Freminet": {
       "team": [
@@ -233,7 +233,7 @@
         "Lauma",
         "Ineffa"
       ],
-      "value": 122564.4
+      "value": 124345.8
     },
     "Neuvillette": {
       "team": [
@@ -431,7 +431,7 @@
         "Xilonen",
         "Columbina"
       ],
-      "value": 171378.9
+      "value": 176445.8
     }
   }
 }
