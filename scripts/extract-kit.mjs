@@ -1596,6 +1596,7 @@ const CARRIES = {
     // E, Q, 3[N3C] N1C in Musou Isshin (its Normal/Charged Attacks count as Elemental Burst DMG): one of KeqingMains'
     // quick guide combos (fetched 2026-10-12). The Eye's coordinated attacks: one every 0.9s while she attacks during
     // Musou Isshin's 7s. Resolve: 60, the max (KQM: "quite common to reach maximum Resolve stacks").
+    combo: "E Q 3[N3C] N1C",
     hits: [
       { table: "skill", label: "Skill DMG", count: 1, type: SK },
       { table: "skill", label: "Coordinated ATK DMG", count: 7, type: SK },
@@ -1610,6 +1611,23 @@ const CARRIES = {
       { kind: "addPerStack", table: "burst", label: "Resolve Bonus", pick: 1, stacks: /maximum number of Resolve stacks is (\d+)/, hits: "isshin" },
       { kind: "dmgBonusPerEnergy", table: "skill", label: "Elemental Burst DMG Bonus", types: [BU] }, // x her own Energy Cost
       { kind: "dmgBonusFromEr", from: "passive2", re: /([\d.]+)% Electro DMG Bonus/ }, // per 1% ER over 100%
+    ],
+    combos: [
+      {
+        // #119. KQM's Raiden quick guide (keqingmains.com/q/raiden-quickguide/, fetched 2026-10-21), Xianyun: "Xianyun
+        // enables Raiden to use Plunging Attacks"; "Raiden's most notable Plunging Attack combos consist of "6[JP]" and
+        // "3[N1CJP] N1C"" (Jessie, 2026-10-21: the first). Her plunges "are considered Elemental Burst damage", so
+        // Xianyun's plunge bonus "does not buff" them. 6 plunge impacts (the shockwave, as Xiao's: no collision hit),
+        // read as high plunges with Xianyun's raised jump (estimate). Skill, Eye and initial slash as the default.
+        combo: "E Q 6[JP], with Xianyun",
+        when: [{ members: [["Xianyun"]] }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "skill", label: "Coordinated ATK DMG", count: 7, type: SK },
+          { table: "burst", label: "Musou no Hitotachi Base DMG", count: 1, type: BU, resolve: "initial" },
+          { table: "burst", label: "Low/High Plunge DMG", pick: 1, count: 6, type: BU, resolve: "isshin" },
+        ],
+      },
     ],
   },
   Xiao: {
@@ -2087,15 +2105,19 @@ const CARRIES = {
     ],
   },
   Neuvillette: {
-    // KeqingMains quick guide (fetched 2026-10-12): "Neuvillette can perform 2–4 Charged Attacks per rotation"; its
-    // 3-CA rotation, "Q > Team > C E C > Team > C E", is "Easier for managing buff and ability uptimes" (the 4-CA one,
-    // for teams where he deals most of the damage: combos below, #119). So Q, E x2, CA x3 (Equitable Judgment, 3s each).
-    combo: "Q C E C C E",
+    // #119. KQM's full Neuvillette guide (https://keqingmains.com/neuvillette/, fetched 2026-10-20), Combos: "4
+    // Charged Attacks: Neuvillette's default combo. Recommended for nearly all scenarios, especially in teams where
+    // Neuvillette deals the vast majority of the damage, such as Furina teams. Usually a variation of E > Team > C E
+    // C Q > Team > 2[C]". Jessie (2026-10-21): 4 Charged Attacks for every team without its own combo (the quick
+    // guide's 3-CA "Q > Team > C E C > Team > C E" is no longer used). Q, E x2, 4 Equitable Judgments at the wiki's 8
+    // hits each (As Water Seeks Equilibrium: "a maximum of 8 times per use", once per 0.4s over its 3s): 32. Rotation
+    // lengths: kit-overrides.json rotations (KQM's ER calculator, 4-CA rotations).
+    combo: "E C E C Q 2[C]",
     hits: [
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
       { table: "burst", label: "Waterfall DMG", count: 2, type: BU }, // "2 waterfalls will descend"
       { table: "skill", label: "Skill DMG", count: 2, type: SK },
-      { table: "normal", label: "Charged Attack: Equitable Judgment", count: "rate", type: CH },
+      { table: "normal", label: "Charged Attack: Equitable Judgment", count: 32, type: CH },
     ],
     buffs: [
       // Passive 1: a stack per kind of reaction the party triggers from the list (they "exist independently"), max 3:
@@ -2112,35 +2134,21 @@ const CARRIES = {
       // the attack"), so read at 50% HP: 12%.
       { kind: "dmgBonusFromHp", from: "passive2", per: /gain ([\d.]+)% Hydro DMG Bonus/, above: /greater than (\d+)% of Max HP/, max: /maximum bonus of (\d+)%/, hp: 0.5, types: [N, CH, PL, SK, BU] },
     ],
-    combos: [
-      {
-        // #119. KQM's full Neuvillette guide (https://keqingmains.com/neuvillette/, fetched 2026-10-20), Combos: "4
-        // Charged Attacks: Neuvillette's default combo. Recommended for nearly all scenarios, especially in teams where
-        // Neuvillette deals the vast majority of the damage, such as Furina teams. Usually a variation of E > Team > C E
-        // C Q > Team > 2[C]". Furina teams here (the guide's example); every Furina sample rotation in the quick guide
-        // is this one. Q, E x2, 4 Equitable Judgments at the wiki's 8 hits each (hitRates' source): 32. Its rotation
-        // length: kit-overrides.json rotations (Furina teams, 28s).
-        combo: "E C E C Q 2[C]",
-        when: [{ members: [["Furina"]] }],
-        hits: [
-          { table: "burst", label: "Skill DMG", count: 1, type: BU },
-          { table: "burst", label: "Waterfall DMG", count: 2, type: BU },
-          { table: "skill", label: "Skill DMG", count: 2, type: SK },
-          { table: "normal", label: "Charged Attack: Equitable Judgment", count: 32, type: CH },
-        ],
-      },
-    ],
   },
   "Kamisato Ayaka": {
-    // E, Q, dash, N2C x3. Passive 1: +30% Normal/Charged DMG after the Skill; passive 2: +18% Cryo DMG after the dash.
-    combo: "E Q D 3[N2C]",
+    // #119. Traveler.gg's Ayaka guide (traveler.gg/kamisato-ayaka-full-character-guide-builds-teams/, 2026-02-22,
+    // found by web search for non-KQM sources, Jessie 2026-10-21), team rotations: "Ayaka EDQ 2(N2C N2CD)E" (Furina,
+    // Escoffier, Shenhe), "Ayaka EDQ N2C > ... > Ayaka N2C N2CD N2CED" (Shenhe, Kokomi), "Ayaka EDQ 2(N2C) > ... > Ayaka
+    // D 2(N2C) E" (Escoffier, Shenhe, Ganyu): 2 Skills, her Burst, 4 N2C; KQM's guide: she uses her Skill twice per
+    // rotation. Passive 1: +30% Normal/Charged DMG after the Skill; passive 2: +18% Cryo DMG after the dash.
+    combo: "EDQ 2(N2C N2CD) E",
     hits: [
-      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "skill", label: "Skill DMG", count: 2, type: SK },
       { table: "burst", label: "Cutting DMG", count: "rate", type: BU },
       { table: "burst", label: "Bloom DMG", count: 1, type: BU },
-      { table: "normal", label: "1-Hit DMG", count: 3, type: N },
-      { table: "normal", label: "2-Hit DMG", count: 3, type: N },
-      { table: "normal", label: "Charged Attack DMG", count: 3, type: CH },
+      { table: "normal", label: "1-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+      { table: "normal", label: "Charged Attack DMG", count: 4, type: CH },
     ],
     buffs: [
       { kind: "dmgBonus", from: "passive1", re: /deal (\d+)% increased DMG for/, types: [N, CH] },

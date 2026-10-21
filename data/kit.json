@@ -6111,6 +6111,7 @@
     },
     "Raiden Shogun": {
       "rotationSeconds": 18,
+      "combo": "E Q 3[N3C] N1C",
       "hits": [
         {
           "label": "Skill DMG",
@@ -6198,6 +6199,56 @@
         {
           "kind": "dmgBonusFromEr",
           "perPercent": 0.004
+        }
+      ],
+      "combos": [
+        {
+          "combo": "E Q 6[JP], with Xianyun",
+          "when": [
+            {
+              "members": [
+                [
+                  "Xianyun"
+                ]
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.9924
+              },
+              "count": 1
+            },
+            {
+              "label": "Coordinated ATK DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.714
+              },
+              "count": 7
+            },
+            {
+              "label": "Musou no Hitotachi Base DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 6.8136
+              },
+              "count": 1,
+              "tag": "initial"
+            },
+            {
+              "label": "Low/High Plunge DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 2.933586
+              },
+              "count": 6,
+              "tag": "isshin"
+            }
+          ]
         }
       ]
     },
@@ -8395,7 +8446,7 @@
       ]
     },
     "Neuvillette": {
-      "rotationSeconds": 24.5,
+      "rotationSeconds": 26.5,
       "rotationTeams": [
         {
           "when": [
@@ -8410,7 +8461,7 @@
           "seconds": 28
         }
       ],
-      "combo": "Q C E C C E",
+      "combo": "E C E C Q 2[C]",
       "hits": [
         {
           "label": "Skill DMG",
@@ -8442,7 +8493,7 @@
           "scaling": {
             "hp": 0.134458
           },
-          "count": 24
+          "count": 32
         }
       ],
       "buffs": [
@@ -8480,59 +8531,11 @@
           ],
           "note": "passive2 at 50% HP"
         }
-      ],
-      "combos": [
-        {
-          "combo": "E C E C Q 2[C]",
-          "when": [
-            {
-              "members": [
-                [
-                  "Furina"
-                ]
-              ]
-            }
-          ],
-          "hits": [
-            {
-              "label": "Skill DMG",
-              "type": "burst",
-              "scaling": {
-                "hp": 0.378383
-              },
-              "count": 1
-            },
-            {
-              "label": "Waterfall DMG",
-              "type": "burst",
-              "scaling": {
-                "hp": 0.154793
-              },
-              "count": 2
-            },
-            {
-              "label": "Skill DMG",
-              "type": "skill",
-              "scaling": {
-                "hp": 0.218688
-              },
-              "count": 2
-            },
-            {
-              "label": "Charged Attack: Equitable Judgment",
-              "type": "charged",
-              "scaling": {
-                "hp": 0.134458
-              },
-              "count": 32
-            }
-          ]
-        }
       ]
     },
     "Kamisato Ayaka": {
       "rotationSeconds": 20,
-      "combo": "E Q D 3[N2C]",
+      "combo": "EDQ 2(N2C N2CD) E",
       "hits": [
         {
           "label": "Skill DMG",
@@ -8540,7 +8543,7 @@
           "scaling": {
             "atk": 4.0664
           },
-          "count": 1
+          "count": 2
         },
         {
           "label": "Cutting DMG",
@@ -8564,7 +8567,7 @@
           "scaling": {
             "atk": 0.84007
           },
-          "count": 3
+          "count": 4
         },
         {
           "label": "2-Hit DMG",
@@ -8572,7 +8575,7 @@
           "scaling": {
             "atk": 0.894438
           },
-          "count": 3
+          "count": 4
         },
         {
           "label": "Charged Attack DMG",
@@ -8580,7 +8583,7 @@
           "scaling": {
             "atk": 3.03834
           },
-          "count": 3
+          "count": 4
         }
       ],
       "buffs": [

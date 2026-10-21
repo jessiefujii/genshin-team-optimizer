@@ -963,8 +963,8 @@
       ]
     },
     "Neuvillette": {
-      "seconds": 24.5,
-      "source": "KeqingMains Neuvillette guide, https://keqingmains.com/neuvillette/, fetched 2026-10-20 (Rotations): \"This is mainly an issue in 3CA rots whose 24–25s rotations necessitate precise Skill timings\" (midpoint), for the 3-CA default combo (#119).",
+      "seconds": 26.5,
+      "source": "KeqingMains Neuvillette ER calculator (\"Neuvillette ERc (6.3)\", linked from https://keqingmains.com/neuvillette/; sheet 1OhaSLT5Pgeq7gIeDWtxN_dW8WFvjGhS8RpZDy_7mVdw), fetched 2026-10-21: \"Rotation length\" of its 29 non-Furina team tabs (Columbina, Nilou, Yelan, Tartaglia, Xiangling, Fischl, Ororon, Ayaka teams): 20 to 30, median 26.5, for the 4-CA default combo (Jessie, 2026-10-21, #119).",
       "teams": [
         {
           "when": [
