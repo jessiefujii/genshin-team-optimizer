@@ -392,6 +392,28 @@ describe("scoreTeam", () => {
     expect(score("Sandrone", "Alyosha", "Fischl", "Bennett").breakdown.some((l) => l.rule === "Family")).toBe(false);
   });
 
+  test("Radiance and Secret Rite effects on a support's own hits (#98)", () => {
+    const own = (ids: string[], who: string, options = {}) =>
+      dps(scoreTeam(team(...ids), options).breakdown.find((l) => l.reason.startsWith(`${who}'s own hits`))?.reason);
+    // Yae's Witch's Revelation: Superconduct enhances a strike every 2.5s; in Radiance: Stellar-Conduct each one adds a
+    // Stellar-Conduct hit at 200% of her ATK.
+    const stellar = ["Wriothesley", "Yae Miko", "Odette", "Qiqi"];
+    const superconduct = ["Wriothesley", "Yae Miko", "Fischl", "Furina"];
+    const yae = { revelationUnlocked: ["Wriothesley", "Odette", "Qiqi"] }; // all but Yae's quest
+    expect(own(superconduct, "Yae Miko")).toBeGreaterThan(own(superconduct, "Yae Miko", yae) * 1.15);
+    expect(own(stellar, "Yae Miko") / own(stellar, "Yae Miko", yae)).toBeGreaterThan(own(superconduct, "Yae Miko") / own(superconduct, "Yae Miko", yae));
+    // Qiqi's Herald of Frost every 15s and her Burst's Stellar-Conduct hit; Odette's dance moves' Stellar hits.
+    expect(own(stellar, "Qiqi")).toBeGreaterThan(own(stellar, "Qiqi", { revelationUnlocked: ["Wriothesley", "Odette", "Yae Miko"] }) * 2);
+    // Odette's are her Radiance's: without Electro (Diona for Yae) there's no Stellar-Conduct.
+    expect(own(stellar, "Odette")).toBeGreaterThan(own(["Wriothesley", "Diona", "Odette", "Qiqi"], "Odette") * 1.15);
+    // Diona's three Icy Paws per 3.5s on the party's Superconduct and Stellar reactions.
+    const diona = ["Sandrone", "Diona", "Fischl", "Bennett"];
+    expect(own(diona, "Diona")).toBeGreaterThan(own(diona, "Diona", { revelationUnlocked: ["Sandrone"] }) * 1.5);
+    // Venti's Stormeye at 135% under Secret Rite, while the carry Swirls: not without a second Hexerei member.
+    const venti = ["Wanderer", "Venti", "Mona", "Bennett"];
+    expect(own(venti, "Venti")).toBeGreaterThan(own(venti, "Venti", { hexereiUnlocked: ["Venti"] }) * 1.1);
+  });
+
   test("a family pair only counts when it helps the team (#43)", () => {
     // Mona and Nicole are Hexerei, but neither has a Secret Rite buff Hu Tao can use.
     const huTao = score("Hu Tao", "Mona", "Nicole", "Zhongli").breakdown;

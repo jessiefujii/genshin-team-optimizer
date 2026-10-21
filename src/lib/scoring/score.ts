@@ -767,7 +767,9 @@ interface SubDpsSource {
   timesNeedsHealer?: boolean;
   lunar?: LunarReaction; // direct Lunar reaction DMG (#151)
   whenReaction?: Reaction; // only while the team triggers it
-  when?: { ascendantGleam?: boolean; reaction?: Reaction }; // like a carry hit's `when` (Jahoda's robots, #100)
+  when?: SourceWhen; // like a carry hit's `when` (Jahoda's robots, #100)
+  // More DMG on this source's hits while `when` holds (Venti's Stormeye at 135% under Secret Rite, #98): 1 + value.
+  factor?: { value: number; when: SourceWhen };
   // Other rates for teams that fit: the first whose `when` matches replaces hits/every/duration (Jahoda, #175).
   alternatives?: { when: { topElement?: Element; radiance?: boolean }; hits?: number; every?: number; duration?: number; cd?: number; perRotation?: boolean }[];
   perRotation?: boolean; // cast once per rotation: the cd is at least the carry's rotation (Yae's totems before her quest, #304)
@@ -779,6 +781,18 @@ interface SubDpsSource {
   talent?: string; // the talent the hit is from: "burst" hits need the Burst's Energy (#37)
   cd: number;
 }
+// When a sub-DPS source hits (sourceFits). reaction / reactions: the team triggers it / one of them; ascendantGleam: two
+// Moonsign members; radiance: the member's own Stellar family is active (Witch's Revelation done; their Radiance then
+// needs the Stellar reaction too, as `reaction`); secretRite: two Hexerei members; carryReactions: the carry deals one
+// of them (Venti's Secret Rite needs the active character's own Swirl).
+type SourceWhen = {
+  ascendantGleam?: boolean;
+  reaction?: Reaction;
+  reactions?: Reaction[];
+  radiance?: boolean;
+  secretRite?: boolean;
+  carryReactions?: Reaction[];
+};
 // lunarBaseBonus: their own Moonsign Benediction's Base DMG bonus to their direct Lunar hits (PR #155); teammates' add
 // to it (teammatesLunarBase, #88).
 type SubDpsLunarBase = { stat: "atk" | "hp" | "def" | "em"; perPoint: number; max: number; reactions: Reaction[] };
@@ -886,6 +900,19 @@ export function topElement(members: readonly ScoringCharacter[]): Element | unde
   return top;
 }
 
+// A source's `when` (#98), on the quest-adjusted team (questView, #124) as for carry hits (damage.ts).
+function sourceFits(w: SourceWhen, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): boolean {
+  const count = (family: "moonsign" | "hexerei") => ctx.members.filter((m) => m.families?.includes(family)).length;
+  return (
+    (!w.reaction || ctx.active.includes(w.reaction)) &&
+    (!w.reactions || w.reactions.some((r) => ctx.active.includes(r))) &&
+    (!w.ascendantGleam || count("moonsign") >= 2) && // Ascendant Gleam is two Moonsign members (Jahoda's robots)
+    (!w.radiance || !!sub.families?.includes("stellar")) &&
+    (!w.secretRite || (!!sub.families?.includes("hexerei") && count("hexerei") >= 2)) &&
+    (!w.carryReactions || w.carryReactions.some((r) => carry.reactions.includes(r) && ctx.active.includes(r)))
+  );
+}
+
 // Hits per second of one source, averaged over its cooldown; 0 when it can't fire in this team.
 function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
   // radiance: their own Stellar family is active, i.e. their Witch's Revelation done (the team is quest-adjusted:
@@ -900,8 +927,7 @@ function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamC
   if (s.needsReaction && ctx.active.length === 0) return 0; // Nahida's Tri-Karma needs a reaction
   if (s.whenReaction && !ctx.active.includes(s.whenReaction)) return 0; // Ineffa's Overclocking Circuit: thunderclouds
   // A source's `when`, as for carry hits (damage.ts): Ascendant Gleam is two Moonsign members (Jahoda's robots, #100).
-  if (s.when?.reaction && !ctx.active.includes(s.when.reaction)) return 0;
-  if (s.when?.ascendantGleam && ctx.members.filter((m) => m.families?.includes("moonsign")).length < 2) return 0;
+  if (s.when && !sourceFits(s.when, carry, ctx, sub)) return 0;
   const perUse = s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1;
   const cd = s.perRotation ? Math.max(s.cd, carryRotationSeconds(carry, ctx.active, ctx.members) ?? s.cd) : s.cd;
   // Furina's Salon bonus needs members above 50% HP, which takes another healer (#130).
@@ -1443,7 +1469,9 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       const def = 1 + defShredGain(Math.min(0.9, team.defShred));
       // Direct Lunar hits use the Lunar formula: no DMG Bonus term, EM bonus instead (damage.ts, #135/#151), with
       // their own Moonsign Benediction Base DMG bonus (PR #155).
-      const rate = hitsPerSecond(s, carry, ctx, m) * (s.talent === "burst" ? burstPart : 1);
+      // A conditional factor on the source's own DMG (#98: Venti's Stormeye under Secret Rite).
+      const factor = s.factor && sourceFits(s.factor.when, carry, ctx, m) ? 1 + s.factor.value : 1;
+      const rate = hitsPerSecond(s, carry, ctx, m) * (s.talent === "burst" ? burstPart : 1) * factor;
       if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar), extras.lunar(s.lunar)) * rate * crit * res;
       else {
         // Additive Base DMG Bonus from teammates (Shenhe's quills): per hit, before DMG Bonus and crit, as on the carry.
