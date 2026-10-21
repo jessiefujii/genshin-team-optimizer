@@ -926,12 +926,15 @@ function readStellar(id, spec) {
 //   passive: { from, re, stat } the multiplier comes from a passive's text instead of the `label` row (`name` then
 //       names the source; `label` still keys its hit rate and table values)
 //   when: the source only hits under that condition ({ ascendantGleam: true }, like a carry hit's `when`)
+//   perRotation: cast once per rotation, so its cd is at least the carry's rotation length (Yae's totems last 14s of
+//     it before her Witch's Revelation, #304); an alternative can set it false
 //   icd: its elemental application ICD from kit-overrides.json `icd` (#190): "none" or { reset, every }; left out:
 //     the standard 2.5s / every 3rd hit
-//   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, source }]) are passed through as the source's
-//   `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that element
-//   has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
-//   (Jahoda's passive 1, #175).
+//   A hitRates entry's `alternatives` ([{ when, hits?, every?, duration?, cd?, source }]) are passed through as the
+//   source's `alternatives`: the first whose `when` matches the team replaces the default rate. when.topElement: that
+//   element has the most party members among Pyro, Hydro, Electro and Cryo, ties going Pyro > Hydro > Electro > Cryo
+//   (Jahoda's passive 1, #175); when.radiance: the member's own Stellar family is active (their Witch's Revelation
+//   done: Yae's longer totems, #304).
 //   addScaling: a passive that adds a share of a stat to this hit's damage, read from its text, e.g.
 //       { from: "passive2", re: /increased by (\d+)% of Citlali's Elemental Mastery/, stat: "em" } (#172); `times`: it adds
 //       to each of a "×N" row's instances (Lan Yan's Burst, #252)
@@ -1421,11 +1424,28 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Sword Rain DMG", onCarryNormal: true, every: "rate", hits: "rate", duration: "Duration", cd: "CD" },
   ],
+  // Off-field Yae is her three Sesshou Sakura (#304). KQM's quick guide (https://keqingmains.com/q/yae-quickguide/,
+  // fetched 2026-10-21): "Most of the time, Yae only uses her Elemental Skill and ignores her Burst", "Despite looking
+  // powerful, Yae's Burst is often a DPS loss", and in Alhaitham's team "Yae should skip her Burst entirely": her Burst
+  // (Skill DMG + 3 Tenko Thunderbolts, every 22s, about a third of her damage) is left out. With her Witch's Revelation
+  // (Edict of Cleansing, passive 4) "the duration of each Skill turret is permanently increased from 14 to 24s, allowing
+  // full uptime in most of Yae's teams without having to refresh her Skill", and "Yae's Burst no longer consumes her
+  // Skill totems": three totems always up, 8 strikes each per 24s (hitRates `alternatives`, when her Witch's Revelation
+  // is done). Without it, 5 per 14s (the wiki) and no Burst (Jessie, 2026-10-21: "she almost never uses her burst").
+  // Passive 2 Enlightened Blessing: "Every
+  // point of Elemental Mastery Yae Miko possesses will increase Sesshou Sakura DMG by 0.15%". Left out: passive 1's
+  // extra 40% ATK strike on recasting her Skill with 3 totems out (~3 per rotation, ~+3%, estimate) and passive 4's
+  // Superconduct/Stellar-Conduct-enhanced strikes (kit.json stellar).
   "Yae Miko": [
-    // Three Sesshou Sakura at level 3 ("A maximum of 3"), each striking as often as the wiki says.
-    { talent: "skill", label: "Sesshou Sakura DMG: Level 3", hits: "rate", times: /A maximum of (\d+) Sesshou Sakura/, cd: "Duration" },
-    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Tenko Thunderbolt DMG", hits: 3, cd: "CD" }, // one per Sesshou Sakura
+    {
+      talent: "skill",
+      label: "Sesshou Sakura DMG: Level 3",
+      hits: "rate",
+      times: /A maximum of (\d+) Sesshou Sakura/,
+      cd: "Duration",
+      perRotation: true, // before her Witch's Revelation: cast once per rotation, up for 14s of it
+      dmgBonusPer: [{ from: "passive2", re: /increase Sesshou Sakura DMG by ([\d.]+)%/, stat: "em" }],
+    },
   ],
   Yelan: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
@@ -1533,6 +1553,7 @@ function readSubDps(id, specs) {
       ...(s.lunar ? { lunar: s.lunar } : {}),
       ...(s.whenReaction ? { whenReaction: s.whenReaction } : {}),
       ...(s.pickOne ? { pickOne: s.pickOne } : {}),
+      ...(s.perRotation ? { perRotation: true } : {}),
       cd: tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
       ...(icds[`${s.talent}: ${s.label}`] ? { icd: icds[`${s.talent}: ${s.label}`] } : {}),
