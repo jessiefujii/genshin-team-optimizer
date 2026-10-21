@@ -442,7 +442,10 @@ export interface TeamBuffStats {
   atkPct: number; // of the carry's base ATK
   dmgBonus: number;
   critRate: number;
-  flat: number; // flat DMG per hit instance (Additive Base DMG Bonus: Shenhe, Yun Jin)
+  flat: number; // flat DMG per hit instance (Additive Base DMG Bonus: Shenhe)
+  // Flat DMG and DMG Bonus for some attack types only (appliesTo: Yun Jin's and Candace's Normal Attacks, Xianyun's
+  // plunges, Sigewinne's Skill, #299), by hit type: damage.ts adds them to those hits alone, not to `flat`/`dmgBonus`.
+  byHit?: Partial<Record<string, { flat: number; dmgBonus: number }>>;
   // Reaction Additive Base DMG Bonus on the carry's direct Lunar hits, by reaction (Illuga's Lunar-Crystallize, #186):
   // per hit, added after the Lunar multipliers (damage.ts). Summed by teamBuffStats beside the numbers.
   lunarAdditive?: Partial<Record<Reaction, number>>;
@@ -457,7 +460,7 @@ export interface TeamBuffStats {
 // The share of rotations each member's Burst is funded in this team (#207, energy.ts energyNeeds); 1 when missing.
 export type BurstShares = ReadonlyMap<ScoringCharacter, number>;
 
-type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares" | "lunarAdditive">;
+type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares" | "lunarAdditive" | "byHit">;
 export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
@@ -467,6 +470,17 @@ const IN_CARRY_DAMAGE = new Set([
 ]);
 
 function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
+  if (buff.appliesTo) {
+    const part = { ...NO_TEAM_BUFFS };
+    addBuffStats({ ...buff, appliesTo: undefined }, stats, team, weight, part);
+    into.atk += part.atk; // the other kinds aren't limited by attack type
+    into.atkPct += part.atkPct;
+    into.critRate += part.critRate;
+    into.resShred += part.resShred;
+    into.defShred += part.defShred;
+    for (const t of buff.appliesTo) addByHit(into, t, part.flat, part.dmgBonus);
+    return;
+  }
   const cap = (n: number) => (buff.max === undefined ? n : Math.min(n, buff.max));
   const v = buff.value;
   switch (buff.kind) {
@@ -524,6 +538,11 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
   }
 }
 
+function addByHit(into: TeamBuffStats, type: string, flat: number, dmgBonus: number) {
+  const h = into.byHit?.[type];
+  into.byHit = { ...into.byHit, [type]: { flat: (h?.flat ?? 0) + flat, dmgBonus: (h?.dmgBonus ?? 0) + dmgBonus } };
+}
+
 // One buffer's part, cached like kitBuffValue (per buffer and carry object, then team shape), not per team: the search
 // reads thousands of teams per carry.
 const statsCache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string, TeamBuffStats>>>();
@@ -575,6 +594,7 @@ export function teamBuffStats(carry: ScoringCharacter, carryReactions: readonly 
     if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
     const part = bufferPart(s, carry, carryReactions, team, shares?.get(s) ?? 1);
     for (const k of Object.keys(NO_TEAM_BUFFS) as NumericBuff[]) out[k] += part[k];
+    for (const [t, v] of Object.entries(part.byHit ?? {})) addByHit(out, t, v!.flat, v!.dmgBonus);
     for (const [r, v] of Object.entries(part.lunarAdditive ?? {}) as [Reaction, number][])
       out.lunarAdditive = { ...out.lunarAdditive, [r]: (out.lunarAdditive?.[r] ?? 0) + v };
   }
@@ -643,7 +663,8 @@ export function memberBuffStats(
       if (b.teamOnly && !shape.elements.every((e) => b.teamOnly!.includes(e))) continue;
       if (b.appliesTo && !(talent && b.appliesTo.includes(talent))) continue;
       seen.add(b.kind);
-      addBuffStats(b.steps ? { ...b, value: stepValue(b, shape) } : b, stats, shape, (b.uptime ?? 1) * (b.burst ? (shares?.get(s) ?? 1) : 1), out);
+      // Gated by this hit's talent above, so it counts in full on it.
+      addBuffStats({ ...b, appliesTo: undefined, ...(b.steps ? { value: stepValue(b, shape) } : {}) }, stats, shape, (b.uptime ?? 1) * (b.burst ? (shares?.get(s) ?? 1) : 1), out);
     }
   }
   return out;

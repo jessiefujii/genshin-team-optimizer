@@ -106,8 +106,8 @@ describe("scoreTeam", () => {
     // hits (#226: carryIcd, Thrusting Attack ICD and the Default one), with her guide's Crimson Witch: +15% Vaporize (#206).
     expect(reasons("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toContain("Vaporize adds ~+78% to Hu Tao's damage");
     // Gaming's main reaction is Melt; his Vaporize teams amplify by Vaporize (his Vaporize combo). Plunging Attacks
-    // have no ICD (#226): all 7 react.
-    expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+86% to Gaming's damage");
+    // have no ICD (#226): all 7 react. Xianyun's flat Plunge DMG is on those 7, not his Burst hits (#299).
+    expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+87% to Gaming's damage");
   });
 
   test("Spread and Aggravate need the Quicken aura, which Hydro eats (#303)", () => {
