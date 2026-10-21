@@ -1,5 +1,5 @@
 {
-  "median": 149116.8,
+  "median": 149650.9,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -26,7 +26,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 172879.3
+      "value": 173479.1
     },
     "Arlecchino": {
       "team": [
@@ -35,7 +35,7 @@
         "Ineffa",
         "Xilonen"
       ],
-      "value": 149410.3
+      "value": 149858.5
     },
     "Chasca": {
       "team": [
@@ -53,7 +53,7 @@
         "Xilonen",
         "Kujou Sara"
       ],
-      "value": 133979.7
+      "value": 134539.4
     },
     "Cyno": {
       "team": [
@@ -89,7 +89,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 148823.4
+      "value": 149443.2
     },
     "Freminet": {
       "team": [
@@ -107,7 +107,7 @@
         "Xilonen",
         "Bennett"
       ],
-      "value": 226847.6
+      "value": 227445.6
     },
     "Ganyu": {
       "team": [
@@ -161,7 +161,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 130108.6
+      "value": 130702.8
     },
     "Kinich": {
       "team": [
@@ -179,7 +179,7 @@
         "Albedo",
         "Xilonen"
       ],
-      "value": 226218.3
+      "value": 226931.5
     },
     "Lohen": {
       "team": [
@@ -206,7 +206,7 @@
         "Furina",
         "Bennett"
       ],
-      "value": 186108.7
+      "value": 186998.7
     },
     "Mualani": {
       "team": [
@@ -224,7 +224,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 157854.3
+      "value": 158454.2
     },
     "Nefer": {
       "team": [
@@ -251,7 +251,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 109417.2
+      "value": 110083.7
     },
     "Noelle": {
       "team": [
@@ -260,7 +260,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 142587.7
+      "value": 143254.2
     },
     "Raiden Shogun": {
       "team": [
@@ -269,7 +269,7 @@
         "Yelan",
         "Xilonen"
       ],
-      "value": 152420.6
+      "value": 152953.8
     },
     "Razor": {
       "team": [
@@ -413,7 +413,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 142972
+      "value": 143505.2
     },
     "Yumemizuki Mizuki": {
       "team": [
@@ -431,7 +431,7 @@
         "Xilonen",
         "Columbina"
       ],
-      "value": 176445.8
+      "value": 177068.6
     }
   }
 }

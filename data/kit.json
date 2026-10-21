@@ -1420,11 +1420,17 @@
       "Ifa": {
         "target": "own",
         "note": "his own EM",
+        "kind": "em",
+        "value": 80,
+        "duration": 10,
         "source": "passive2: \"When nearby party members trigger Nightsoul Bursts, Ifa's Elemental Mastery increases by 80 for 10s.\""
       },
       "Kachina": {
         "target": "own",
         "note": "her own Geo DMG",
+        "kind": "dmgBonus",
+        "value": 0.2,
+        "duration": 12,
         "source": "passive1: \"After nearby party members trigger a Nightsoul Burst, Kachina's Geo DMG Bonus increases by 20% for 12s.\""
       },
       "Kinich": {
@@ -1469,6 +1475,9 @@
       "Xilonen": {
         "target": "own",
         "note": "her own DEF",
+        "kind": "defPct",
+        "value": 0.2,
+        "duration": 15,
         "source": "passive2: \"Additionally, when nearby party members trigger a Nightsoul Burst, Xilonen's DEF is increased by 20% for 15s.\""
       }
     }
