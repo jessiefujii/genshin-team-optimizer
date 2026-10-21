@@ -961,6 +961,25 @@
           "source": "same guide (Kuki Shinobu, Furina, Nahida): \"This team runs a 30s split field time rotation\""
         }
       ]
+    },
+    "Neuvillette": {
+      "seconds": 26.5,
+      "source": "KeqingMains Neuvillette ER calculator (\"Neuvillette ERc (6.3)\", linked from https://keqingmains.com/neuvillette/; sheet 1OhaSLT5Pgeq7gIeDWtxN_dW8WFvjGhS8RpZDy_7mVdw), fetched 2026-10-21: \"Rotation length\" of its 29 non-Furina team tabs (Columbina, Nilou, Yelan, Tartaglia, Xiangling, Fischl, Ororon, Ayaka teams): 20 to 30, median 26.5, for the 4-CA default combo (Jessie, 2026-10-21, #119).",
+      "teams": [
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 28,
+          "source": "KeqingMains Neuvillette ER calculator (\"Neuvillette ERc (6.3)\", linked from https://keqingmains.com/neuvillette/; sheet 1OhaSLT5Pgeq7gIeDWtxN_dW8WFvjGhS8RpZDy_7mVdw), fetched 2026-10-20: \"Rotation length\" of its Furina team tabs, for the guide's 4-CA rotations: 28 (Kazuha/Xilonen, Lynette/Xilonen, Kazuha/Kachina, Xilonen/Fischl, Kazuha/Zhongli, Nahida/Xiangling, Kazuha/Ororon, Lynette/Ororon), 27 (Kazuha/Fischl), 26 (Jean/Xilonen, Lynette/Kachina, Lisa/Xilonen, Nahida/Raiden): the median, 28 (#119)."
+        }
+      ]
     }
   },
   "icd": {

@@ -184,6 +184,9 @@ const KNOWN_DROPS: Record<string, string> = {
   // The same with Jessie's Varesa (Normal Attack level 4): a stronger Cryo Traveler (#236) out-damages her and takes the
   // field, and that reading has her "also wants field time" (-15) and less team damage (6.9k vs 7.6k): 6.50 -> 2.69.
   "Sayu, Varesa, Chevreuse, Traveler (Cryo)": "#236: a stronger Cryo Traveler becomes the main DPS; the reading is lower",
+  // Likewise a stronger Xiao (25.6k vs 22.9k) out-damages Neuvillette in his sourced 24.5s rotation (#119) and takes
+  // the field; his reading's team damage is lower (19.7k vs 28.2k per second): 7.99 -> 5.59.
+  "Alyosha, Flins, Neuvillette, Xiao": "#119: a stronger Xiao becomes the main DPS; his reading is lower",
 };
 const drops = (() => {
   const out: string[] = [];
