@@ -187,12 +187,13 @@ describe("scoreTeam", () => {
   test("Vaporize and Melt on sub-DPS hits share one aura budget (#189, #191)", () => {
     const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith(`${id}'s own hits`))?.reason;
     const pct = dps;
-    // Durin's Pyro aura is shared: Escoffier melts on it, until Xingqiu's Hydro vaporizes it first. (Xingqiu, not
-    // Furina: her Fanfare now buffs Escoffier's hits too, #204, which would hide the lost Melt.)
-    expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/, with Melt$/);
-    const withXingqiu = line("Escoffier", "Skirk", "Escoffier", "Durin", "Xingqiu");
-    expect(withXingqiu).not.toMatch(/with/);
-    expect(pct(withXingqiu)).toBeLessThan(pct(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")));
+    // Durin's Pyro melts on Skirk's and Escoffier's Cryo aura, once per aura (#329), so it lays no Pyro aura for
+    // Escoffier to melt on; Xingqiu's Hydro vaporizes some of that Pyro first. (Xingqiu, not Furina: her Fanfare buffs
+    // Durin's hits too, #204, which would hide the lost Melt.)
+    const withZhongli = line("Durin", "Skirk", "Escoffier", "Durin", "Zhongli");
+    expect(withZhongli).toMatch(/, with Melt$/);
+    expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).not.toMatch(/with/);
+    expect(pct(line("Durin", "Skirk", "Escoffier", "Durin", "Xingqiu"))).toBeLessThan(pct(withZhongli));
     // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
     // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
     expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
