@@ -4,6 +4,18 @@ Suggests the strongest 4-character teams in Genshin Impact from the characters y
 
 > Fan-made project. Not affiliated with or endorsed by HoYoverse. Genshin Impact and all related assets are trademarks and copyrights of HoYoverse.
 
+## Highlights
+
+- **Validated against experts:** for 14 of 16 main characters, a team recommended by expert
+  build guides ranks in the app's top 100, up from 3 of 16 on the first run. For current
+  meta teams it's 9 of 13.
+- **Automated model checks:** rules every team must obey (scores stay in realistic ranges,
+  never drop when a character gets stronger, don't depend on member order, and outliers
+  get flagged), tested on 600 randomly sampled teams plus every guide team.
+- **Data from several sources:** 129 characters merged from genshin-db, the live
+  Enka.Network API, and hand-written tags, each hand-filled value with its source.
+- **Tested:** 276 unit tests (Vitest).
+
 ## What it does
 
 - **Planner (`/`):** tick the characters you own (and their constellations, and the Witch's Homework / Witch's Revelation quests that unlock Hexerei and Stellar Glimmer). The best teams update as you go, each with its damage per second, a line-by-line breakdown, a generated rotation and an energy check. You can require or exclude characters.
