@@ -28,6 +28,17 @@ test("the Traveler's Base ATK includes her quest bonuses", () => {
   expect(baseAtk("Traveler (Cryo)", lv(90, 6), "Exaiphanes Blade", lv(90, 6))).toBe(830);
 });
 
+// A player who hasn't done them (#265): -3 without Ever So Close's, -7 without Skirk's training.
+test("the Traveler's quest bonuses follow the player's answers", () => {
+  const atk = (everSoClose: boolean, skirkTraining: boolean) =>
+    baseAtk("Traveler (Cryo)", lv(90, 6), "Exaiphanes Blade", lv(90, 6), { everSoClose, skirkTraining });
+  expect(atk(false, true)).toBe(827);
+  expect(atk(true, false)).toBe(823);
+  expect(atk(false, false)).toBe(820);
+  // Only the Traveler gets them.
+  expect(baseAtk("Bennett", lv(90, 6), "Sapwood Blade", lv(90, 6), { everSoClose: false, skirkTraining: false })).toBe(756);
+});
+
 test("Traveler ids use Aether's stats; unknown names give undefined", () => {
   expect(baseAtk("Traveler (Pyro)", lv(90), "Sapwood Blade", lv(90))).toBe(baseAtk("Aether", lv(90), "Sapwood Blade", lv(90))! + 10);
   expect(baseAtk("Bennett", lv(90), "No Such Sword", lv(90))).toBeUndefined();

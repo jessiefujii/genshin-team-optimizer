@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ascensionOf, isAscensionLevel, levelCap } from "@/lib/build/ascension";
+import type { TravelerQuests } from "@/lib/build/base-atk";
 import { control } from "@/lib/ui/elements";
 import type { CharacterBuild } from "@/types/build";
 import { parseForm, STAT_FIELDS, toForm, type BuildForm } from "./build-form";
@@ -13,7 +14,7 @@ interface Props {
   character: PlannerCharacter;
   entry: OwnedEntry;
   catalog: BuildCatalog;
-  onSave: (build: CharacterBuild) => void;
+  onSave: (build: CharacterBuild, quests?: TravelerQuests) => void;
   onClear: () => void;
   onClose: () => void;
 }
@@ -50,7 +51,7 @@ const label = "block text-xs text-zinc-600 dark:text-zinc-400";
 
 // Base ATK from the character's and weapon's levels (genshin-db, on the server, #80). If the lookup fails the
 // build is still saved; the scorer then assumes a benchmark weapon's base ATK.
-async function fetchBaseAtk(characterId: string, build: CharacterBuild): Promise<number | undefined> {
+async function fetchBaseAtk(characterId: string, build: CharacterBuild, quests: TravelerQuests): Promise<number | undefined> {
   const q = new URLSearchParams({
     character: characterId,
     level: String(build.level),
@@ -58,6 +59,8 @@ async function fetchBaseAtk(characterId: string, build: CharacterBuild): Promise
     weapon: build.weapon.id,
     weaponLevel: String(build.weapon.level),
     weaponAscension: String(build.weapon.ascension ?? ""),
+    everSoClose: quests.everSoClose ? "1" : "0",
+    skirkTraining: quests.skirkTraining ? "1" : "0",
   });
   try {
     const res = await fetch(`/api/base-atk?${q}`);
@@ -72,6 +75,9 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState<BuildForm>(() => toForm(entry.build));
   const [errors, setErrors] = useState<string[]>([]);
+  // The Traveler's Base ATK quests (#265): both done unless the player said otherwise.
+  const traveler = character.id.startsWith("Traveler (");
+  const [quests, setQuests] = useState<TravelerQuests>(() => entry.travelerQuests ?? { everSoClose: true, skirkTraining: true });
 
   useEffect(() => {
     dialogRef.current?.showModal();
@@ -93,8 +99,8 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
       return;
     }
     const { build } = result;
-    const baseAtk = await fetchBaseAtk(character.id, build);
-    onSave(baseAtk === undefined ? build : { ...build, stats: { ...build.stats, baseAtk } });
+    const baseAtk = await fetchBaseAtk(character.id, build, quests);
+    onSave(baseAtk === undefined ? build : { ...build, stats: { ...build.stats, baseAtk } }, traveler ? quests : undefined);
     onClose();
   }
 
@@ -137,6 +143,22 @@ export default function BuildEditor({ character, entry, catalog, onSave, onClear
             onChange={(v) => set("ascended", v)}
             className={`${label} col-span-4`}
           />
+          {traveler && (
+            <div className="col-span-4 space-y-1 text-xs">
+              <p className="text-zinc-600 dark:text-zinc-400">Quests that add to the Traveler&apos;s Base ATK:</p>
+              {(
+                [
+                  ["everSoClose", "Ever So Close: Activated・Canned Knowledge (+3)"],
+                  ["skirkTraining", "Skirk's Story Quest: Special Training (+7)"],
+                ] as const
+              ).map(([key, text]) => (
+                <label key={key} className="flex items-center gap-1">
+                  <input type="checkbox" checked={quests[key]} onChange={(e) => setQuests((q) => ({ ...q, [key]: e.target.checked }))} />
+                  {text}
+                </label>
+              ))}
+            </div>
+          )}
         </fieldset>
 
         <fieldset className="grid grid-cols-[1fr_5rem_4rem] gap-2">

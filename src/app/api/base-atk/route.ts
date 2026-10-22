@@ -2,7 +2,8 @@ import { baseAtk } from "@/lib/build/base-atk";
 
 // The build editor runs in the browser and genshin-db only on the server, so the editor asks here for a
 // hand-typed build's base ATK (#80): /api/base-atk?character=Bennett&level=90&weapon=Sapwood%20Blade&weaponLevel=90
-// plus optional ascension and weaponAscension (phase 0-6, #82) for a level that can be before or after ascending.
+// plus optional ascension and weaponAscension (phase 0-6, #82) for a level that can be before or after ascending, and
+// for the Traveler everSoClose=0 / skirkTraining=0 when that Base ATK quest isn't done (#265; missing = done).
 export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
   const level = Number(q.get("level"));
@@ -17,7 +18,8 @@ export async function GET(request: Request) {
     const n = Number(q.get(key) ?? NaN);
     return Number.isInteger(n) && n >= 0 && n <= 6 ? n : undefined;
   };
-  const value = baseAtk(character, { level, ascension: phase("ascension") }, weapon, { level: weaponLevel, ascension: phase("weaponAscension") });
+  const quests = { everSoClose: q.get("everSoClose") !== "0", skirkTraining: q.get("skirkTraining") !== "0" };
+  const value = baseAtk(character, { level, ascension: phase("ascension") }, weapon, { level: weaponLevel, ascension: phase("weaponAscension") }, quests);
   if (value === undefined) return Response.json({ error: "genshin-db doesn't know that character or weapon." }, { status: 404 });
   return Response.json({ baseAtk: value });
 }

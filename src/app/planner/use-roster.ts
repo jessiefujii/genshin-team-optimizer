@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { TravelerQuests } from "@/lib/build/base-atk";
 import type { CharacterBuild, UidImport } from "@/types/build";
 
 export interface OwnedEntry {
@@ -10,6 +11,7 @@ export interface OwnedEntry {
   revelationUnlocked?: boolean; // Witch's Revelation quest done (characters who got Stellar Glimmer later); unset = not done
   build?: CharacterBuild; // from a UID import (later also the build editor)
   includeAnyway?: boolean; // in the search even though their build misses the minimum (#133); unset = left out
+  travelerQuests?: TravelerQuests; // Traveler only: the Base ATK quests done (#265), kept alike on every Traveler; unset = both
   updatedAt?: string; // ISO time of the last manual edit or import; ticking with defaults doesn't count
 }
 
