@@ -1014,6 +1014,13 @@ function appliedShare(s: SubDpsSource): number {
 // are served first, as far as the aura reaches, and the applications that fed them can't react (#239); the sub-DPS share
 // what's left. Members without a sub-DPS entry (Bennett) add no supply
 // (estimate). Spread and Aggravate don't consume the Quicken aura; they take the share of time it is up (`quicken` below, #303).
+// Reactions per aura application (#329): whole, at least 1. "Gauge Result = Gauge Aura - Reaction Coefficient x Gauge
+// Trigger", floored at 0: "a target with 2 units of Cryo Aura can only have Pyro Melt triggered on it once using a
+// trigger of 1 unit of Pyro" (Genshin Impact Wiki, Elemental Gauge Theory, fetched 2026-10-22). So a 1x or 2x trigger
+// reacts once on the 0.8U aura and clears it (was 0.8 and 0.4); a 0.5x one keeps 0.8 / 0.5 = 1.6 on average, under the
+// 2 that fit, since "the decay of elemental aura and internal cooldown ... might negatively impact the ability to
+// repeatedly trigger reactions" (same page).
+const perAuraApp = (coefficient: number) => Math.max(1, 0.8 / coefficient);
 const AMPLIFYING: Partial<Record<Reaction, Element>> = { vaporize: "Hydro", melt: "Pyro" }; // the strong-side trigger
 const CATALYZING: Partial<Record<Reaction, Element>> = { spread: "Dendro", aggravate: "Electro" }; // the trigger on Quicken
 function applicationsPerSecond(x: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext): number {
@@ -1059,7 +1066,7 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   const appsBy = (x: ScoringCharacter) => appsOf.get(x)!;
   for (const x of ctx.members) apps.set(x.element, (apps.get(x.element) ?? 0) + appsBy(x));
   const full = new Map(apps);
-  const perAuraOf = (r: Reaction, trigger: Element) => 0.8 / (trigger === AMPLIFYING[r] ? 2 : 0.5);
+  const perAuraOf = (r: Reaction, trigger: Element) => perAuraApp(trigger === AMPLIFYING[r] ? 2 : 0.5);
   const active = (Object.keys(AMPLIFYING) as Reaction[]).filter((r) => ctx.active.includes(r));
   // The carry first (#239): teammates' applications of the other element lay the aura their reacting hits need, and an
   // application spent that way can't react itself; the carry's reacting hits lay none of the carry's element. The rest
@@ -1112,15 +1119,15 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   }
   const free = (r: Reaction) => ctx.active.includes(r) && !convertedAway(ctx, r);
   if (free("overloaded")) {
-    addPair("overloaded", "Pyro", "Electro", 0.8, true);
-    addPair("overloaded", "Electro", "Pyro", 0.8, true);
+    addPair("overloaded", "Pyro", "Electro", perAuraApp(1), true);
+    addPair("overloaded", "Electro", "Pyro", perAuraApp(1), true);
   }
   if (ctx.active.includes("swirl")) {
-    for (const aura of swirlAuras(ctx)) addPair("swirl", "Anemo", aura, 0.8 / 0.5, true);
+    for (const aura of swirlAuras(ctx)) addPair("swirl", "Anemo", aura, perAuraApp(0.5), true);
   }
   if (free("superconduct")) {
-    addPair("superconduct", "Electro", "Cryo", 0.8, true);
-    addPair("superconduct", "Cryo", "Electro", 0.8, true);
+    addPair("superconduct", "Electro", "Cryo", perAuraApp(1), true);
+    addPair("superconduct", "Cryo", "Electro", perAuraApp(1), true);
   }
   // Reactions that use auras too (#253). Bloom: Dendro on Hydro (2x) or Hydro on Dendro (0.5x), each makes a Dendro Core
   // (wiki Bloom; transformativeLines pops them), none with Lunar-Bloom in the team, which takes the same auras. Quicken:
@@ -1129,17 +1136,17 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   // (0.5x), at most once a second on a target (wiki Crystallize); its shields count under survival (#208), not here.
   const anyActive = (rs: Reaction[]) => rs.some((r) => ctx.active.includes(r));
   if (anyActive(["bloom", "hyperbloom", "burgeon", "lunar-bloom"])) {
-    addPair("bloom", "Dendro", "Hydro", 0.8 / 2, true);
-    addPair("bloom", "Hydro", "Dendro", 0.8 / 0.5, true);
+    addPair("bloom", "Dendro", "Hydro", perAuraApp(2), true);
+    addPair("bloom", "Hydro", "Dendro", perAuraApp(0.5), true);
   }
   if (anyActive(["quicken", "aggravate", "spread"])) {
-    addPair("quicken", "Dendro", "Electro", 0.8, true);
-    addPair("quicken", "Electro", "Dendro", 0.8, true);
+    addPair("quicken", "Dendro", "Electro", perAuraApp(1), true);
+    addPair("quicken", "Electro", "Dendro", perAuraApp(1), true);
   }
   // Stellar Swirl (#235): Anemo on Cryo, like Swirl (0.5x), replacing the Cryo Swirl (swirlAuras).
-  if (ctx.active.includes("stellar-swirl")) addPair("stellar-swirl", "Anemo", "Cryo", 0.8 / 0.5, true);
+  if (ctx.active.includes("stellar-swirl")) addPair("stellar-swirl", "Anemo", "Cryo", perAuraApp(0.5), true);
   if (anyActive(["crystallize", "lunar-crystallize"])) {
-    for (const aura of SWIRLABLE) addPair("crystallize", "Geo", aura, 0.8 / 0.5, true);
+    for (const aura of SWIRLABLE) addPair("crystallize", "Geo", aura, perAuraApp(0.5), true);
   }
   for (let i = 0; i < 12; i++) {
     for (const p of pairs) {
@@ -1178,7 +1185,7 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   const quickens = pairs.filter((p) => p.r === "quicken").reduce((s, p) => s + p.reactions, 0);
   const amplified = (e: Element) => pairs.filter((p) => p.trigger === e && AMPLIFYING[p.r]).reduce((s, p) => s + p.reactions, 0);
   const reaching = (e: Element) => Math.max(0, (apps.get(e) ?? 0) - amplified(e));
-  const eaten = reaching("Hydro") / (0.8 / 0.5) + reaching("Pyro");
+  const eaten = reaching("Hydro") / perAuraApp(0.5) + reaching("Pyro");
   const lasts = eaten > 0 ? (1 - Math.exp(-QUICKEN_SECONDS * eaten)) / eaten : QUICKEN_SECONDS;
   const modeled = (full.get("Dendro") ?? 0) > 0 && (full.get("Electro") ?? 0) > 0;
   const quicken = modeled ? Math.min(1, quickens * lasts) : 1;
