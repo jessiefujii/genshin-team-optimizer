@@ -42,7 +42,7 @@ type CarryBuff =
   | { kind: "atkFromHp"; value: number; capOfBase: number }
   | { kind: "atkFromDef"; value: number }
   | { kind: "addPerStack"; value: number; stacks: number; tag: string; stat?: "hp"; fightingSpirit?: boolean }
-  | { kind: "dmgBonus"; value: number; types: HitType[]; hitsCap?: number; fightingSpirit?: boolean }
+  | { kind: "dmgBonus"; value: number; types: HitType[]; labels?: string[]; hitsCap?: number; fightingSpirit?: boolean }
   | { kind: "factor"; value: number; types: HitType[]; when?: When }
   | { kind: "critRate"; value: number; labels: string[] }
   | { kind: "dmgBonusByTypes"; values: number[]; elements: Element[]; labels: string[] } // by teammates' types (#233)
@@ -298,7 +298,7 @@ export function modelsSecretRite(id: string): boolean {
 }
 
 // Whether the carry's damage model has their own Stellar Radiance upgrade (Mizuki's Radiance hits, #235): then no flat
-// "enhances X's kit" points for it. Wriothesley's Radiance combo isn't: the Stellar-Conduct DMG it adds isn't in it.
+// "enhances X's kit" points for it. Wriothesley's too: his Stellar-Conduct combo has his Radiance hits (#123).
 export const modelsRadiance = (id: string) => !!CARRIES[id]?.radianceInDamage;
 
 function modelsWhen(id: string, flag: "ascendantGleam" | "secretRite"): boolean {
@@ -680,7 +680,7 @@ function computeCarryDamage(
       if (b.kind === "addPerStack" && b.tag === h.tag) perHit += b.value * b.stacks * (b.fightingSpirit ? fsShare : 1) * (h.instances ?? 1) * (b.stat === "hp" ? s.hp : atk);
       if (b.kind === "flatAtk" && b.types.includes(h.type) && b.reactions.some((r) => active.includes(r)))
         perHit += Math.min(b.value * atk, b.cap) * (h.instances ?? 1); // per hit instance (Clorinde's Impale: 3)
-      if (b.kind === "dmgBonus" && b.types.includes(h.type)) {
+      if (b.kind === "dmgBonus" && b.types.includes(h.type) && (!b.labels || b.labels.includes(h.label))) {
         const share = b.hitsCap ? Math.min(1, b.hitsCap / instancesOf(b.types)) : 1;
         bonus += b.value * share * (b.fightingSpirit ? fsShare : 1);
       }
