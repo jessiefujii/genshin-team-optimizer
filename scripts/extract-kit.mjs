@@ -2161,6 +2161,9 @@ const CARRIES = {
     // E 6[N3E]"). Each shot adds 35% Bond of Life, so all 18 start under 100%: they pierce for the second "Swift Hunt
     // DMG" value. The Impale the Night after them is at 100%+ (Pact: the third value, x3) and counts as Normal Attack
     // DMG. One Surging Blade: its 10s interval is longer than Night Vigil's 7.5s. The Burst is 5 hits.
+    // From 100%+ Bond of Life (after her Burst; #125), KQM: "EE 5[N3E] N3": the first E is a Pact, then 5 N3E and an N3,
+    // so the same 18 shots and 6 Pacts. Each Pact's heal (110% of her Bond of Life) clears it, so every N3 after starts
+    // from 0% either way: one hit list for both starts. KQM's "a final E is possible" (a 7th Pact) is left out.
     hits: [
       { table: "skill", label: "Swift Hunt DMG", pick: 1, count: 18, type: N },
       { table: "skill", label: "Impale the Night DMG", pick: 2, count: 6, type: N, instances: 3 },
@@ -2177,6 +2180,16 @@ const CARRIES = {
         cap: /achievable this way for the above attacks is ([\d,]+)/,
         types: [N, BU],
         reactions: ["overloaded", "superconduct", "electrocharged", "quicken", "aggravate", "hyperbloom", "lunar-charged", "stellar-conduct"],
+      },
+      // Passive 2: at 100%+ Bond of Life, +10% CRIT Rate for 15s whenever it rises or falls, 2 stacks. Each N3's third
+      // shot takes it to 105% and the Pact after lowers it: two triggers every N3E, so both stacks are up on every hit
+      // (the steady state: the last rotation's Pacts and Burst are within 15s of her next E).
+      {
+        kind: "critRate",
+        from: "passive2",
+        re: /CRIT Rate will increase by (\d+)%/,
+        times: /Max (\d+) stacks/,
+        labels: ["Swift Hunt DMG", "Impale the Night DMG", "Surging Blade DMG", "Skill DMG"],
       },
     ],
   },
@@ -3168,7 +3181,7 @@ function readCarry(id, spec) {
       case "resShred":
         return { kind: b.kind, value: raw(b.table, b.label), elements: b.elements, labels: b.labels };
       case "critRate":
-        return { kind: b.kind, value: round((num(b.from, b.re) / 100) * (b.share ?? 1)), labels: b.labels };
+        return { kind: b.kind, value: round((num(b.from, b.re) / 100) * (b.share ?? 1) * (b.times ? num(b.from, b.times) : 1)), labels: b.labels };
       case "factor":
         return { kind: b.kind, value: b.from ? num(b.from, b.re) / 100 : raw(b.table, b.label), types: b.types, ...(b.when ? { when: b.when } : {}) };
       case "factorByReactions": {

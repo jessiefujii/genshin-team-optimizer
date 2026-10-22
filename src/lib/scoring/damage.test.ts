@@ -115,6 +115,13 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(alhaitham, ["aggravate"])!.perSecond).toBe(carryDamage(alhaitham, [])!.perSecond);
   });
 
+  test("Clorinde's passive 2 is up on every hit: 2 stacks of +10% CRIT Rate (#125)", () => {
+    const clorinde = (kit.carries as Record<string, { buffs: { kind: string; value?: number; labels?: string[] }[] }>).Clorinde;
+    const crit = clorinde.buffs.find((b) => b.kind === "critRate")!;
+    expect(crit.value).toBeCloseTo(0.2, 6);
+    expect(crit.labels).toEqual(["Swift Hunt DMG", "Impale the Night DMG", "Surging Blade DMG", "Skill DMG"]);
+  });
+
   describe("direct Lunar reaction DMG (#135)", () => {
     const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
     // `sets`, `weapon`: the build's (default none; a carry without a build wears and holds their guide's, #206).

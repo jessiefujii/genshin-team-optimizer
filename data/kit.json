@@ -9959,6 +9959,16 @@
             "lunar-charged",
             "stellar-conduct"
           ]
+        },
+        {
+          "kind": "critRate",
+          "value": 0.2,
+          "labels": [
+            "Swift Hunt DMG",
+            "Impale the Night DMG",
+            "Surging Blade DMG",
+            "Skill DMG"
+          ]
         }
       ],
       "baseHp": 12956
