@@ -203,9 +203,10 @@ describe("scoreTeam", () => {
     const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Durin's own hits"))!.reason;
     // Vaporize, no Burning/Overloaded/Swirl/Crystallize for White Flame's shred: Dark Decay, +40% Vaporize DMG.
     expect(dps(line("Neuvillette", "Xilonen", "Furina", "Durin"))).toBeGreaterThan(30000);
-    // Zhongli's Crystallize keeps Purity: White Flame's shred has a reaction to use.
+    // Zhongli's Crystallize keeps Purity: White Flame's shred has a reaction to use. Without it (Shenhe) he plays
+    // Darkness and deals more, though Zhongli's RES shred helps his hits too.
     expect(line("Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/with Melt$/);
-    expect(dps(line("Skirk", "Escoffier", "Durin", "Zhongli"))).toBeLessThan(25000);
+    expect(dps(line("Skirk", "Escoffier", "Durin", "Zhongli"))).toBeLessThan(dps(line("Skirk", "Escoffier", "Durin", "Shenhe")));
   });
 
   test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
