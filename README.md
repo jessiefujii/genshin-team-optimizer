@@ -6,24 +6,27 @@ Suggests the strongest 4-character teams in Genshin Impact from the characters y
 
 ## What it does
 
-- **Roster:** tick the characters you own (and their constellations, and the Witch's Homework / Witch's Revelation quests that unlock Hexerei and Stellar Glimmer). The best teams update as you go, with a line-by-line score breakdown, a generated rotation and an energy check for each. You can require or exclude characters.
-- **Import by UID:** fetches your in-game showcase from [Enka.Network](https://enka.network) (level, ascension, talents, weapon, artifact sets, constellations and final stats). Or enter a build by hand in the build editor, copying final stats from the in-game Attributes screen.
-- **Worth building:** suggests which unbuilt characters would most improve your best teams.
+- **Planner (`/`):** tick the characters you own (and their constellations, and the Witch's Homework / Witch's Revelation quests that unlock Hexerei and Stellar Glimmer). The best teams update as you go, each with its damage per second, a line-by-line breakdown, a generated rotation and an energy check. You can require or exclude characters.
+- **Import by UID:** fetches your in-game showcase from [Enka.Network](https://enka.network) (level, ascension, talents, weapon, artifact sets, constellations and final stats). Or enter a build by hand in the build editor, copying final stats from the in-game Attributes screen; a Traveler's build editor also asks whether the Traveler's two Base ATK quests are done.
+- **Worth building:** suggests which unbuilt characters would most improve your best teams. A team counts for a character only when they are its one unbuilt member.
 - **Reference pages:** `/tags` lists each character's hand-written tags, and `/effects` lists the weapon, artifact set and constellation effects the scorer uses.
 
-The roster is saved in your browser (localStorage).
+Character, weapon and artifact set icons come from Enka. A top bar links the three pages. The roster is saved in your browser (localStorage).
 
 ## How scoring works
 
-Each team gets points for one on-field carry, the carry's main reaction and partners, buffers, resonance, survivability, energy, team preferences and item effects, minus conflicts. Point values live in `POINTS` in `src/lib/scoring/score.ts`.
+A team scores by the damage all four members deal over one rotation, against one shared reference:
 
-The inputs come from each character's kit, not from tier lists:
+- **Team damage:** every member's hits (the carry's on-field combo, sub-DPS and support Skills and Bursts) go through the wiki's damage formula at talent level 9, with every buff, RES/DEF shred, weapon passive and artifact set that reaches them. Reactions come from one shared aura budget: Vaporize and Melt amplify hits, Spread and Aggravate add flat damage, Lunar and transformative reactions deal their own damage. Bursts count only in the share of rotations Energy funds.
+- **Score:** team damage per second ÷ the median guide team's, × 100, so a team at the median scores 100. Each team also shows its ratio to its carry's best guide team. The reference lives in `data/team-reference.json` (`npm run reference`).
+- **Remaining point lines:** what the damage model doesn't cover yet (survival against an Abyss hit, starved Bursts, constellations, some EM and Energy gear, conflicts) still scores as points, turned into a multiplier on team damage at 2% per point. Point values live in `POINTS` in `src/lib/scoring/score.ts`.
+- **Builds:** with an imported or entered build, the scorer uses its stats, weapon, sets and talent levels. Without one, the character gets a KeqingMains benchmark build with their guide's weapon and set, and the team says so.
 
-- **Buffers** score by the damage their buff adds to the carry, read from the talent tables (value at talent level 9, uptime = duration ÷ cooldown): +20% damage = 10 points. A bonus to one reaction only counts on the share of the carry's damage that is that reaction.
-- **Family mechanics** come from the kit text: Moonsign's Ascendant Gleam, Hexerei's Secret Rite, Natlan's Nightsoul Bursts and Stellar Glimmer's Radiance, plus which characters convert which reactions.
-- **Builds:** with an imported or entered build, the scorer uses its stats (crit value, ER, EM, base ATK, talent levels). Without one, the character is scored at benchmark stats and the team says so.
+Inputs come from each character's kit (genshin-db plus sourced overrides), not from tier lists. Guide teams are only a check: `npm run compare` reports where they rank (`src/lib/scoring/known-teams.ts`), and `npm run meta` does the same for current meta teams.
 
-`npm run compare` checks the results against the teams build guides recommend (`src/lib/scoring/known-teams.ts`).
+Known gaps: single target only (AoE: #211); 5 main DPS have no damage profile yet (Lohen, Manekin, Manekina, Sandrone, Varka); constellations are flat points (#106). Open work is tracked in the GitHub issues.
+
+The search runs in Web Workers (up to 4). From 25 characters it scores each carry's likely teams rather than every combination.
 
 ## Tech stack
 
@@ -47,12 +50,15 @@ Then open [http://localhost:3000](http://localhost:3000).
 | --- | --- |
 | `npm run dev` | Development server |
 | `npm test` | Unit tests (without the timing and compare runs) |
-| `npm run compare` | Report: where guide-recommended teams rank among the scorer's top 100 per carry |
+| `npm run compare` | Report: where guide-recommended teams rank among the scorer's top 100 per carry (~1 h) |
+| `npm run meta` | Report: where current meta teams rank, plus the roster check (~1 h) |
+| `npm run roster` | Quick check on `data/test-rosters/jessie.json`: Zibai Premium's rank and score, the #20 score and the top 5 (seconds) |
+| `npm run reference` | Rewrites `data/team-reference.json` (the guide-team reference scores are measured against) and prints the diff |
 | `npm run bench` | Team search timing for a 50-character roster |
 | `npm run kit` | Regenerates `data/kit.json` from genshin-db plus `data/kit-overrides.json` |
+| `npm run roles` | Refetches in-game Character Roles from the wiki into `data/wiki-roles.json` and `data/tags.json` |
 | `npm run lint` | ESLint |
-
-Add `--silent=false` to see the compare report, e.g. `npx vitest run src/lib/scoring/known-teams.compare.test.ts --silent=false`.
+| `npm run build` / `npm start` | Production build and server |
 
 ## Data files
 
@@ -62,6 +68,12 @@ Add `--silent=false` to see the compare report, e.g. `npx vitest run src/lib/sco
 | `data/kit.json` | Buff values and uptimes, Ascendant Gleam, Secret Rite, Nightsoul Burst and Stellar effects | `npm run kit` |
 | `data/kit-overrides.json` | Kit text genshin-db doesn't have yet (Witch's Eve Rite and Witch's Revelation passives, new characters), with sources | Hand-filled |
 | `data/effects.json` | Weapon, artifact set and constellation effects | `node scripts/draft-effects.mjs`, then reviewed |
+| `data/particles.json` | Energy particles per Skill and Skill cooldowns | Wiki, hand-edited |
+| `data/subdps-builds.json` | Benchmark substat priorities for sub-DPS without a build | KeqingMains quick guides, hand-written |
+| `data/wiki-roles.json` | In-game Character Roles (main DPS, sub-DPS, field time) | `npm run roles` |
+| `data/role-overrides.json` | Roles changed from the wiki's, with the reason | Hand-written |
+| `data/team-reference.json` | Median guide team damage and each carry's best guide team | `npm run reference` |
+| `data/test-rosters/jessie.json` | Jessie's roster (86 owned, 35 built) for `npm run roster` and `npm run meta` | Hand-made, builds from her Enka showcases |
 | `data/enka-skill-order.json` | Which Enka skill ID is which talent | `node scripts/update-enka-skill-order.mjs` |
 
-After a genshin-db update, run `npm run kit` (it fails if a kit sentence it reads has changed, or a new character needs an entry), then `npm test` and `npm run compare`.
+After a genshin-db update, run `npm run kit` (it fails if a kit sentence it reads has changed, or a new character needs an entry), then `npm test` and `npm run reference`. Run `npm run compare` and `npm run meta` once at the end of a big model change.
