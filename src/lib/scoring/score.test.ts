@@ -222,6 +222,16 @@ describe("scoreTeam", () => {
     );
   });
 
+  test("Clorinde heals herself on field: her guide's Aggravate team isn't 'No healer' (#324)", () => {
+    const survival = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
+    expect(survival("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toMatchObject({
+      points: 10,
+      reason: "Clorinde heal or shield ~100% of an Abyss hit per rotation",
+    });
+    // Only as the on-field carry: as a teammate she isn't anyone's healer.
+    expect(survival("Raiden Shogun", "Clorinde", "Fischl", "Kaedehara Kazuha").reason).toBe("No healer or shielder");
+  });
+
   test("a hypercarry is not penalized for a team without reactions (#49)", () => {
     const s = score("Neuvillette", "Furina", "Kaedehara Kazuha", "Zhongli");
     // His passive 1 counts by the damage it adds (#134): Swirl and Crystallize stacks; Kazuha's Swirls by their own

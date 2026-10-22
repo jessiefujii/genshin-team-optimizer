@@ -442,6 +442,10 @@ const STAT_RESONANCE: Partial<Record<Element, "ATK" | "HP" | "EM">> = { Pyro: "A
 // utilize any form of healing apart from the heal granted by her Burst cast while in combat" and "cannot rely on healers
 // for survivability" (KeqingMains' Arlecchino quick guide, fetched 2026-10-18), so only shields count for her.
 const SHIELDS_ONLY = new Set(["Arlecchino"]);
+// Carries who heal themselves on field count as their own healer (#324): Clorinde's Impale the Night heals her "based on
+// the Bond of Life value" (104% / 110% of it), her pistolet shots and Burst grant Bond of Life, and in Night Vigil
+// "healing effects other than Impale the Night will not take effect" (wiki Clorinde, fetched 2026-10-22).
+const SELF_HEALS = new Set(["Clorinde"]);
 // Sized against incoming damage (#208; Jessie, 2026-10-18: a sourced Spiral Abyss hit, survival a factor on the team
 // score as this line): the Abyss Monster Skill "Discharge", "400%" base multiplier, "15s" cooldown; Monster Skill
 // effects "deal flat damage" scaling "similarly to transformative reactions", are "unaffected by your character level or
@@ -471,7 +475,8 @@ function sustainCoverage(m: ScoringCharacter, heals: boolean): number {
 }
 function survivabilityLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const heals = !carry || !SHIELDS_ONLY.has(carry.id);
-  const sustainers = ctx.members.filter((m) => hasRole(m, "shielder") || (heals && hasRole(m, "healer")));
+  const healer = (m: ScoringCharacter) => hasRole(m, "healer") || (m === carry && SELF_HEALS.has(m.id));
+  const sustainers = ctx.members.filter((m) => hasRole(m, "shielder") || (heals && healer(m)));
   const parts = sustainers.map((m) => ({ name: m.id, coverage: sustainCoverage(m, heals) }));
   const crystallize = carry ? auraBudget(ctx, carry).crystallize : null;
   if (crystallize && crystallize.perSecond > 0 && crystallize.geo.length > 0) {
