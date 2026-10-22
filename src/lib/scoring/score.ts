@@ -711,6 +711,9 @@ const STELLAR = kitJson.stellar as Record<string, StellarEntry>;
 // Witch's Revelation characters count once their quest is done (familiesOf).
 function stellarLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   if (!carry) return;
+  // The Polestar Field's DMG Bonus is in a modeled carry's damage (kit.ts polestarStats, #327).
+  const polestar = ctx.active.includes("stellar-conduct") && (carry.element === "Cryo" || carry.element === "Electro");
+  if (polestar && modeledCarryDps(carry, ctx) !== null) out.add("Stellar", 0, () => "Polestar Field: +40% Cryo and Electro DMG Bonus, in team damage");
   const stellar = ctx.members.filter((m) => familiesOf(m, ctx.options).includes("stellar"));
   const own = stellar.includes(carry) ? STELLAR[carry.id] : undefined;
   const on = own?.radiance.filter((r) => ctx.active.includes(r)) ?? [];

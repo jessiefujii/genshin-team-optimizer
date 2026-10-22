@@ -621,6 +621,7 @@ export function teamBuffStats(
   const out = { ...NO_TEAM_BUFFS };
   familyBuffStats(carry, carry, active, team, out);
   resonanceStats(carry, active, team, out);
+  polestarStats(carry, active, out);
   partyGearStats(carry, carry, active, team, out);
   for (const s of team) {
     const entry = KIT[s.id];
@@ -748,6 +749,15 @@ function resonanceStats(m: ScoringCharacter, active: readonly Reaction[], team: 
     const any = (rs: Reaction[]) => rs.some((r) => active.includes(r));
     into.em += 50 + (any(["burning", "quicken", "bloom", "lunar-bloom"]) ? 30 : 0) + (any(["aggravate", "spread", "hyperbloom", "burgeon"]) ? 20 : 0);
   }
+}
+
+// The Polestar Field (#327): after a Stellar-Conduct, "Characters inside the field have their Cryo and Electro DMG Bonus
+// increased by 20%. If at least 1 Cryo or Electro hit is included, Cryo and Electro DMG Bonus is instead increased by
+// 28% plus an additional 1% for each recorded hit, up to a maximum of 12 hits" (Genshin Impact Wiki, Stellar-Conduct,
+// fetched 2026-10-22): 40%, saturated as the Stellar-Conduct coefficient is (damage.ts LUNAR_COEFFICIENT). Only the
+// on-field carry is inside the field; its Physical RES -40% is left out.
+function polestarStats(carry: ScoringCharacter, active: readonly Reaction[], into: TeamBuffStats) {
+  if (active.includes("stellar-conduct") && (carry.element === "Cryo" || carry.element === "Electro")) into.dmgBonus += 0.4;
 }
 
 // Family team bonuses as stats (#204): the Secret Rite, Stellar and Ascendant Gleam party values that are DMG Bonus,

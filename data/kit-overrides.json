@@ -1576,9 +1576,6 @@
       "normal: 4-Hit DMG": {
         "tag": "Normal Attack"
       },
-      "normal: 5-Hit DMG": {
-        "tag": "Normal Attack"
-      },
       "normal: Charged Attack DMG": "none",
       "burst: Skill DMG": {
         "tag": "Elemental Burst",

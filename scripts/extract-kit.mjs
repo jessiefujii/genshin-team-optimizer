@@ -1671,7 +1671,8 @@ function readSubDps(id, specs) {
 //     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
 //     collision (a plunge's collision hit: no flat team bonus, as Xianyun's is for the shockwave only),
 //     ofRow ({ table, label }: the hit deals that row's share of its own row, as Razor's Soul Companion; with `as`, its
-//     own label)
+//     own label), ofText ({ from, re }: the same from a talent's text, "60% of their original Cryo DMG": Wriothesley's
+//     Radiance, #123)
 //   combo: the default combo in KQM notation, the one `hits` model and the rotation tags in data/tags.json follow
 //   combos (#114): other sourced combos, for the teams they fit. damage.ts takes the first whose `when` matches the
 //   team being scored, else the default. Each has combo, hits (the whole rotation, in the format above), buffs (only
@@ -1848,6 +1849,7 @@ const CARRIES = {
     // KeqingMains' strongest C0 combo outside Stellar-Conduct teams (pasted by Jessie 2026-10-12): "E 5–6[N3C(J)]"
     // in Chilling Penalty, "Replace the final N3C with Q every other rotation". Took 5 chains (the low end), so
     // 5 N3C plus half a Burst (and its Surging Blade) per rotation.
+    radianceInDamage: true, // his Radiance's Stellar-Conduct hits are in his Stellar-Conduct combo (#123)
     combo: "E 5[N3C] (Q)",
     hits: [
       ...["1-Hit DMG", "2-Hit DMG", "3-Hit DMG"].map((label) => ({ table: "normal", label, count: 5, type: N })),
@@ -1867,21 +1869,34 @@ const CARRIES = {
         // second rotation on (the first is E N5 2[N5CD]); it lines up his HP use for 3 Luster: Vaulting Fists while
         // keeping his HP above 50% (Chilling Penalty's condition). The 4-Hit row is 2 hits. No Burst: the combo has
         // none (the non-Stellar one has Q every other rotation). His Radiance (kit-overrides.json passive4) replaces
-        // passive 1: Luster: Vaulting Fist has no 50% DMG bonus, so that buff is left out. The Stellar-Conduct DMG
-        // the Radiance adds (60%/80% of the 3rd/5th hits, 100% of Luster) is the scorer's Stellar line, not here.
+        // passive 1: Luster: Vaulting Fist has no 50% DMG bonus, so that buff is left out.
+        // #123. KQM Wriothesley quick guide, Talents (https://keqingmains.com/q/wriothesley-quickguide/#Talents, pasted by
+        // Jessie 2026-10-22): in Radiance "Wriothesley's N3 and N5 during his Skill state also deal Cryo Stellar-Conduct
+        // instead of regular Cryo damage, and all of his attacks gain a 30% Stellar-Conduct DMG Bonus. These
+        // Stellar-Conduct attacks make up the majority of his damage. Note that they do not apply Cryo and cannot trigger
+        // reactions." So the 3rd and 5th hits and Luster are those hits at 60%, 80% and 100% (passive4) with +30% DMG
+        // Bonus, none reacting; they still count as Normal / Charged Attacks for buffs (estimate). In his damage, so no
+        // flat Stellar points (radianceInDamage).
         combo: "E 3[N5CD] N2",
         // His Radiance needs his Witch's Revelation (#124): `radiance`, his own Stellar family active.
         when: [{ reaction: "stellar-conduct", radiance: true }],
         hits: [
           ...["1-Hit DMG", "2-Hit DMG"].map((label) => ({ table: "normal", label, count: 4, type: N })),
-          { table: "normal", label: "3-Hit DMG", count: 3, type: N },
+          { table: "normal", label: "3-Hit DMG", as: "3-Hit Stellar-Conduct DMG", ofText: { from: "passive4", re: /deal (\d+)% and \d+% of their original Cryo DMG/ }, count: 3, reacting: 0, type: N },
           { table: "normal", label: "4-Hit DMG", count: 3, type: N, instances: 2 },
-          { table: "normal", label: "5-Hit DMG", count: 3, type: N },
-          { table: "normal", label: "Charged Attack DMG", count: 3, type: CH },
+          { table: "normal", label: "5-Hit DMG", as: "5-Hit Stellar-Conduct DMG", ofText: { from: "passive4", re: /deal \d+% and (\d+)% of their original Cryo DMG/ }, count: 3, reacting: 0, type: N },
+          { table: "normal", label: "Charged Attack DMG", as: "Luster: Vaulting Fist DMG", ofText: { from: "passive4", re: /Vaulting Fist will deal (\d+)% of its original/ }, count: 3, reacting: 0, type: CH },
         ],
         buffs: [
           { kind: "factor", table: "skill", label: "Enhanced Repelling Fist DMG", types: [N] },
           { kind: "atkPct", from: "passive2", re: /increase Wriothesley's ATK by (\d+)%/, times: /Max (\d+) stacks/ },
+          {
+            kind: "dmgBonus",
+            from: "passive4",
+            re: /deals (\d+)% increased Stellar-Conduct DMG/,
+            types: [N, CH],
+            labels: ["3-Hit Stellar-Conduct DMG", "5-Hit Stellar-Conduct DMG", "Luster: Vaulting Fist DMG"],
+          },
         ],
       },
     ],
@@ -3120,6 +3135,10 @@ function readCarry(id, spec) {
         const share = tableValue(tableAttrs(h.ofRow.table), h.ofRow.label, id);
         scaling = Object.fromEntries(Object.entries(scaling).map(([k, v]) => [k, round(v * share)]));
       }
+      if (h.ofText) {
+        const share = num(h.ofText.from, h.ofText.re) / 100;
+        scaling = Object.fromEntries(Object.entries(scaling).map(([k, v]) => [k, round(v * share)]));
+      }
       hits.push({
         label: h.from ? `${h.from} bonus` : (h.as ?? h.label),
         type: h.type,
@@ -3161,6 +3180,7 @@ function readCarry(id, spec) {
           kind: b.kind,
           value,
           types: b.types,
+          ...(b.labels ? { labels: b.labels } : {}),
           ...(cap ? { hitsCap: cap } : {}),
           ...(b.note ? { note: b.note } : {}),
           ...(b.fightingSpirit ? { fightingSpirit: true } : {}),

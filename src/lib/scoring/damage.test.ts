@@ -122,6 +122,26 @@ describe("carry damage (#101)", () => {
     expect(crit.labels).toEqual(["Swift Hunt DMG", "Impale the Night DMG", "Surging Blade DMG", "Skill DMG"]);
   });
 
+  test("Wriothesley's Radiance turns his 3rd and 5th hits and Luster into Stellar-Conduct DMG (#123)", () => {
+    type Hit = { label: string; scaling: { atk: number }; reacting?: number };
+    const wrio = (kit.carries as unknown as Record<string, { hits: Hit[]; combos: { combo: string; hits: Hit[]; buffs: { kind: string; labels?: string[] }[] }[] }>).Wriothesley;
+    const stellar = wrio.combos.find((k) => k.combo === "E 3[N5CD] N2")!;
+    const hit = (hits: Hit[], label: string) => hits.find((h) => h.label === label)!;
+    // 60% and 80% of the 3rd and 5th hits, 100% of the Charged Attack; they don't apply Cryo, so none react.
+    expect(hit(stellar.hits, "3-Hit Stellar-Conduct DMG").scaling.atk).toBeCloseTo(hit(wrio.hits, "3-Hit DMG").scaling.atk * 0.6, 5);
+    expect(hit(stellar.hits, "Luster: Vaulting Fist DMG").scaling.atk).toBeCloseTo(hit(wrio.hits, "Charged Attack DMG").scaling.atk, 5);
+    for (const l of ["3-Hit Stellar-Conduct DMG", "5-Hit Stellar-Conduct DMG", "Luster: Vaulting Fist DMG"]) expect(hit(stellar.hits, l).reacting).toBe(0);
+    // His +30% Stellar-Conduct DMG reaches only those hits.
+    expect(stellar.buffs.find((b) => b.kind === "dmgBonus")!.labels).toHaveLength(3);
+  });
+
+  test("the Polestar Field gives an on-field Cryo or Electro carry +40% DMG Bonus with Stellar-Conduct (#327)", () => {
+    const team = ["Wriothesley", "Odette", "Fischl", "Furina"].map((id) => byId.get(id)!);
+    const bonus = (c: string, active: Reaction[]) => teamBuffStats(byId.get(c)!, active, team).dmgBonus;
+    expect(bonus("Wriothesley", ["stellar-conduct"]) - bonus("Wriothesley", ["superconduct"])).toBeCloseTo(0.4, 6);
+    expect(bonus("Furina", ["stellar-conduct"])).toBeCloseTo(bonus("Furina", ["superconduct"]), 6); // Hydro: no bonus
+  });
+
   describe("direct Lunar reaction DMG (#135)", () => {
     const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
     // `sets`, `weapon`: the build's (default none; a carry without a build wears and holds their guide's, #206).

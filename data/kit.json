@@ -8595,6 +8595,7 @@
     "Wriothesley": {
       "rotationSeconds": 15,
       "combo": "E 5[N3C] (Q)",
+      "radianceInDamage": true,
       "hits": [
         {
           "label": "1-Hit DMG",
@@ -8688,7 +8689,7 @@
                 "atk": 0.980327
               },
               "count": 4,
-              "reacting": 1.4
+              "reacting": 1.428571
             },
             {
               "label": "2-Hit DMG",
@@ -8697,16 +8698,16 @@
                 "atk": 0.95165
               },
               "count": 4,
-              "reacting": 1.4
+              "reacting": 1.428571
             },
             {
-              "label": "3-Hit DMG",
+              "label": "3-Hit Stellar-Conduct DMG",
               "type": "normal",
               "scaling": {
-                "atk": 1.235023
+                "atk": 0.741014
               },
               "count": 3,
-              "reacting": 1.05
+              "reacting": 0
             },
             {
               "label": "4-Hit DMG",
@@ -8716,25 +8717,25 @@
               },
               "count": 3,
               "instances": 2,
-              "reacting": 1.05
+              "reacting": 1.071429
             },
             {
-              "label": "5-Hit DMG",
+              "label": "5-Hit Stellar-Conduct DMG",
               "type": "normal",
               "scaling": {
-                "atk": 1.667121
+                "atk": 1.333697
               },
               "count": 3,
-              "reacting": 1.05
+              "reacting": 0
             },
             {
-              "label": "Charged Attack DMG",
+              "label": "Luster: Vaulting Fist DMG",
               "type": "charged",
               "scaling": {
                 "atk": 2.60032
               },
               "count": 3,
-              "reacting": 3
+              "reacting": 0
             }
           ],
           "buffs": [
@@ -8748,6 +8749,19 @@
             {
               "kind": "atkPct",
               "value": 0.3
+            },
+            {
+              "kind": "dmgBonus",
+              "value": 0.3,
+              "types": [
+                "normal",
+                "charged"
+              ],
+              "labels": [
+                "3-Hit Stellar-Conduct DMG",
+                "5-Hit Stellar-Conduct DMG",
+                "Luster: Vaulting Fist DMG"
+              ]
             }
           ]
         }
