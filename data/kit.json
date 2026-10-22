@@ -6115,6 +6115,7 @@
             "atk": 1.7952
           },
           "hits": 1,
+          "pickOne": "durin-skill",
           "cd": 12,
           "icd": "none"
         },
@@ -6125,6 +6126,7 @@
             "atk": 5.5624
           },
           "hits": 1,
+          "pickOne": "durin-burst",
           "cd": 18,
           "icd": {
             "reset": 2.5,
@@ -6145,10 +6147,154 @@
           },
           "every": 1,
           "duration": 20,
+          "pickOne": "durin-dragon",
           "cd": 18,
           "rateSource": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide: \"When Durin is in the Confirmation of Purity state, his Burst immediately deals 3 instances of AoE Pyro damage and then deals AoE Pyro damage every 1s.\" (Dark Form: every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown)",
           "icd": {
             "reset": 1.5,
+            "every": "first"
+          }
+        },
+        {
+          "talent": "skill",
+          "label": "Transmutation: Denial of Darkness DMG",
+          "scaling": {
+            "atk": 3.23136
+          },
+          "hits": 1,
+          "when": {
+            "reactions": [
+              "vaporize",
+              "melt"
+            ],
+            "unless": [
+              "burning",
+              "overloaded",
+              "swirl",
+              "crystallize"
+            ]
+          },
+          "pickOne": "durin-skill",
+          "reactionBonus": [
+            {
+              "value": 0.4,
+              "reactions": [
+                "vaporize",
+                "melt"
+              ]
+            },
+            {
+              "value": 0.3,
+              "reactions": [
+                "vaporize",
+                "melt"
+              ],
+              "when": {
+                "secretRite": true
+              }
+            }
+          ],
+          "cd": 12,
+          "icd": {
+            "reset": 2.5,
+            "every": 3
+          }
+        },
+        {
+          "talent": "burst",
+          "label": "Principle of Darkness: As the Stars Smolder DMG",
+          "scaling": {
+            "atk": 5.76368
+          },
+          "hits": 1,
+          "when": {
+            "reactions": [
+              "vaporize",
+              "melt"
+            ],
+            "unless": [
+              "burning",
+              "overloaded",
+              "swirl",
+              "crystallize"
+            ]
+          },
+          "pickOne": "durin-burst",
+          "reactionBonus": [
+            {
+              "value": 0.4,
+              "reactions": [
+                "vaporize",
+                "melt"
+              ]
+            },
+            {
+              "value": 0.3,
+              "reactions": [
+                "vaporize",
+                "melt"
+              ],
+              "when": {
+                "secretRite": true
+              }
+            }
+          ],
+          "cd": 18,
+          "icd": {
+            "reset": 2.5,
+            "every": 3
+          }
+        },
+        {
+          "talent": "burst",
+          "label": "Dragon of Dark Decay DMG",
+          "scaling": {
+            "atk": 2.20728
+          },
+          "boost": {
+            "stacks": 10,
+            "perPoint": 0.0003,
+            "stat": "atk",
+            "max": 0.75
+          },
+          "every": 1.25,
+          "duration": 20,
+          "when": {
+            "reactions": [
+              "vaporize",
+              "melt"
+            ],
+            "unless": [
+              "burning",
+              "overloaded",
+              "swirl",
+              "crystallize"
+            ]
+          },
+          "pickOne": "durin-dragon",
+          "reactionBonus": [
+            {
+              "value": 0.4,
+              "reactions": [
+                "vaporize",
+                "melt"
+              ]
+            },
+            {
+              "value": 0.3,
+              "reactions": [
+                "vaporize",
+                "melt"
+              ],
+              "when": {
+                "secretRite": true
+              }
+            }
+          ],
+          "cd": 18,
+          "rateSource": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide (as noted for White Flame above): Dark Form every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown (#316)",
+          "icd": {
+            "reset": 2,
             "every": "first"
           }
         }

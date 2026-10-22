@@ -810,17 +810,20 @@ interface SubDpsSource {
   boost?: { stacks: number; perPoint: number; stat: ScaleStat; max: number };
   icd?: "none" | { reset: number; every: number | "first" }; // elemental application ICD (#190); default standard
   pickOne?: string; // one source of the group per use, picked by the team's reactions
+  // More Vaporize/Melt DMG on this source's own reactions while `when` holds (Durin's Dark Decay, #316): amplifyGain's bonus.
+  reactionBonus?: { value: number; reactions: Reaction[]; when?: SourceWhen }[];
   talent?: string; // the talent the hit is from: "burst" hits need the Burst's Energy (#37)
   cd: number;
 }
 // When a sub-DPS source hits (sourceFits). reaction / reactions: the team triggers it / one of them; ascendantGleam: two
 // Moonsign members; radiance: the member's own Stellar family is active (Witch's Revelation done; their Radiance then
 // needs the Stellar reaction too, as `reaction`); secretRite: two Hexerei members; carryReactions: the carry deals one
-// of them (Venti's Secret Rite needs the active character's own Swirl).
+// of them (Venti's Secret Rite needs the active character's own Swirl); unless: the team triggers none of them.
 type SourceWhen = {
   ascendantGleam?: boolean;
   reaction?: Reaction;
   reactions?: Reaction[];
+  unless?: Reaction[];
   radiance?: boolean;
   secretRite?: boolean;
   carryReactions?: Reaction[];
@@ -938,6 +941,7 @@ function sourceFits(w: SourceWhen, carry: ScoringCharacter, ctx: TeamContext, su
   return (
     (!w.reaction || ctx.active.includes(w.reaction)) &&
     (!w.reactions || w.reactions.some((r) => ctx.active.includes(r))) &&
+    !(w.unless ?? []).some((r) => ctx.active.includes(r)) &&
     (!w.ascendantGleam || count("moonsign") >= 2) && // Ascendant Gleam is two Moonsign members (Jahoda's robots)
     (!w.radiance || !!sub.families?.includes("stellar")) &&
     (!w.secretRite || (!!sub.families?.includes("hexerei") && count("hexerei") >= 2)) &&
@@ -973,12 +977,15 @@ function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamC
 // For each `pickOne` group, the source that fires (#151): Columbina's Gravity Interference takes the type of the Lunar
 // reaction that built the most Gravity. Read as the carry's main reaction when the team triggers it, else the first
 // active one in kit order.
-function pickedSources(sources: SubDpsSource[], carry: ScoringCharacter, ctx: TeamContext): Map<string, SubDpsSource> {
+// A source with a `when` that fits beats one without (Durin's Darkness form over his Purity form, #316).
+function pickedSources(sources: SubDpsSource[], carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): Map<string, SubDpsSource> {
   const out = new Map<string, SubDpsSource>();
   const main = mainReactionOf(carry);
   for (const s of sources) {
     if (!s.pickOne || (s.whenReaction && !ctx.active.includes(s.whenReaction))) continue;
-    if (!out.has(s.pickOne) || s.whenReaction === main) out.set(s.pickOne, s);
+    if (s.when && !sourceFits(s.when, carry, ctx, sub)) continue;
+    const current = out.get(s.pickOne);
+    if (!current || s.whenReaction === main || (s.when && !current.when)) out.set(s.pickOne, s);
   }
   return out;
 }
@@ -1032,7 +1039,7 @@ function applicationsPerSecond(x: ScoringCharacter, carry: ScoringCharacter, ctx
   }
   const entry = SUB_DPS[x.id];
   if (!entry) return 0;
-  const picked = pickedSources(entry.sources, carry, ctx);
+  const picked = pickedSources(entry.sources, carry, ctx, x);
   return entry.sources
     .filter((s) => !s.lunar && (!s.pickOne || picked.get(s.pickOne) === s))
     .reduce((a, s) => a + hitsPerSecond(s, carry, ctx, x) * appliedShare(s), 0);
@@ -1485,7 +1492,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     const baseAtk = m.stats?.baseAtk ?? (entry.base ? entry.base.atk + BENCHMARK.buffer.weaponBaseAtk : BENCHMARK.carryBaseAtk);
     let dps = 0;
     let lunarDps = 0;
-    const picked = pickedSources(entry.sources, carry, ctx);
+    const picked = pickedSources(entry.sources, carry, ctx, m);
     // Burst hits only in the rotations the team's Energy funds (#37).
     const burstPart = needs.get(m)?.share ?? 1;
     const own = entry.lunarBaseBonus;
@@ -1528,7 +1535,9 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
         // share for Vaporize and Melt, or the Quicken aura's uptime for Spread and Aggravate (#303).
         for (const r of reactions) {
           const share = appliedShare(s) * (AMPLIFYING[r] ? (auras.get(m)?.get(r) ?? 0) : CATALYZING[r] ? quicken : 1);
-          const add = share * (base * amplifyGain(m, stat.em, ctx.active, r) + catalyzeDamage(m, stat.em, ctx.active, r));
+          const rb = (s.reactionBonus ?? []).filter((b) => b.reactions.includes(r) && (!b.when || sourceFits(b.when, carry, ctx, m)));
+          const bonus = rb.reduce((a, b) => a + b.value, 0);
+          const add = share * (base * amplifyGain(m, stat.em, ctx.active, r, bonus) + catalyzeDamage(m, stat.em, ctx.active, r));
           if (add > extra) [extra, best] = [add, r];
         }
         if (best && extra >= 0.01 * base) reacted.add(best); // named only when it adds at least 1% to the hit
