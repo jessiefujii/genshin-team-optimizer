@@ -19,10 +19,22 @@ const ascended = (l: Levelled) => (l.ascension !== undefined && l.ascension > as
 // The Traveler's quest bonuses to Base ATK, which genshin-db's (game data's) growth curve doesn't include (#84; Genshin
 // Impact Wiki, Traveler § Gameplay Notes, fetched 2026-10-18): +3 from Activated・Canned Knowledge in Archon Quest Ever
 // So Close, +7 from Special Training in Skirk's Story Quest (which also gives +50 Base HP and +15 EM; a typed build
-// enters those as panel stats). Taken as both done, as on Jessie's account (Enka: 830.5 = genshin-db's 820.5 + 10).
-const TRAVELER_QUEST_ATK = 3 + 7;
+// enters those as panel stats). Both done by default, as on Jessie's account (Enka: 830.5 = genshin-db's 820.5 + 10);
+// the build editor asks (#265).
+export interface TravelerQuests {
+  everSoClose: boolean;
+  skirkTraining: boolean;
+}
+export const BOTH_QUESTS_DONE: TravelerQuests = { everSoClose: true, skirkTraining: true };
+const questAtk = (q: TravelerQuests) => (q.everSoClose ? 3 : 0) + (q.skirkTraining ? 7 : 0);
 
-export function baseAtk(characterId: string, character: Levelled, weaponId: string, weapon: Levelled): number | undefined {
+export function baseAtk(
+  characterId: string,
+  character: Levelled,
+  weaponId: string,
+  weapon: Levelled,
+  quests: TravelerQuests = BOTH_QUESTS_DONE,
+): number | undefined {
   // The Traveler's tags.json ids are per element; Aether and Lumine have the same stats.
   const traveler = characterId.startsWith("Traveler (");
   const name = traveler ? "Aether" : characterId;
@@ -32,5 +44,5 @@ export function baseAtk(characterId: string, character: Levelled, weaponId: stri
   const fromCharacter = c?.name === name ? c.stats(character.level, ascended(character))?.attack : undefined;
   const fromWeapon = w?.name === weaponId ? w.stats(weapon.level, ascended(weapon))?.attack : undefined;
   if (fromCharacter === undefined || fromWeapon === undefined) return undefined;
-  return Math.round(fromCharacter + (traveler ? TRAVELER_QUEST_ATK : 0) + fromWeapon);
+  return Math.round(fromCharacter + (traveler ? questAtk(quests) : 0) + fromWeapon);
 }

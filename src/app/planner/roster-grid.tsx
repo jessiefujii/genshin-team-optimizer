@@ -205,7 +205,11 @@ export default function RosterGrid({ characters, catalog, roster, onToggle, onSe
           character={characters.find((c) => c.id === editing)!}
           entry={roster[editing]}
           catalog={catalog}
-          onSave={(build) => onSetEntry(editing, { build })}
+          onSave={(build, quests) => {
+            onSetEntry(editing, { build });
+            // The quests are the account's: every Traveler keeps the same answer (#265).
+            if (quests) for (const id of Object.keys(roster).filter((id) => id.startsWith("Traveler ("))) onSetEntry(id, { travelerQuests: quests });
+          }}
           onClear={() => onSetEntry(editing, { build: undefined })}
           onClose={() => setEditing(null)}
         />
