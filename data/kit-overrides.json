@@ -448,6 +448,10 @@
       "burst: Dragon of White Flame DMG": {
         "every": 1,
         "source": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide: \"When Durin is in the Confirmation of Purity state, his Burst immediately deals 3 instances of AoE Pyro damage and then deals AoE Pyro damage every 1s.\" (Dark Form: every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown)"
+      },
+      "burst: Dragon of Dark Decay DMG": {
+        "every": 1.25,
+        "source": "pasted by Jessie 2026-10-10 from KQM (keqingmains.com) Durin guide (as noted for White Flame above): Dark Form every 1.25s, single target; \"applies 1U of Pyro every other hit\"; 20s uptime on an 18s cooldown (#316)"
       }
     },
     "Emilie": {
@@ -1211,6 +1215,18 @@
       },
       "burst: Dragon of White Flame DMG": {
         "reset": 1.5,
+        "every": "first"
+      },
+      "skill: Transmutation: Denial of Darkness DMG": {
+        "reset": 2.5,
+        "every": 3
+      },
+      "burst: Principle of Darkness: As the Stars Smolder DMG": {
+        "reset": 2.5,
+        "every": 3
+      },
+      "burst: Dragon of Dark Decay DMG": {
+        "reset": 2,
         "every": "first"
       }
     },

@@ -975,6 +975,8 @@ const odetteStellar = (move) =>
     pickOne: `odette-${move.toLowerCase()}`,
     when: { radiance: true },
   }));
+// Durin's Primordial Fusion (passive 2, #195), on both dragons.
+const DURIN_FUSION = { from: "passive2", stacks: /gains (\d+) stacks of Primordial Fusion/, re: /by ([\d.]+)% of the original DMG for every 100 ATK/, per: 100, stat: "atk", max: /maximum of (\d+)% additional DMG/ };
 const SUBDPS = {
   // Supports' own hits (#203): every character gets a damage profile, whatever their role. Their Skill and Burst hits,
   // from the talent tables; recurring hits at rates from the wiki's Gameplay Notes (kit-overrides.json hitRates).
@@ -1280,8 +1282,14 @@ const SUBDPS = {
     { talent: "burst", label: "Incineration Drive DMG", hits: 1, cd: "CD" },
   ],
   Durin: [
-    { talent: "skill", label: "Transmutation: Confirmation of Purity DMG", hits: 1, cd: "CD" },
-    { talent: "burst", label: "Principle of Purity: As the Light Shifts DMG", hits: 1, cd: "CD" },
+    // Two forms (#316): his Burst and dragon follow the state his Skill or Normal Attack puts him in. Purity (White Flame)
+    // by default; Darkness (Dark Decay) where his own Vaporize and Melt are the point: passive 1 gives Dark Decay "Durin's
+    // Vaporize DMG is increased by 40% and his Melt DMG is increased by 40%" (+75% of that at Secret Rite: passive 4),
+    // while White Flame's RES shred needs Burning, Overloaded, Pyro Swirl or Pyro Crystallize, so Darkness only in teams
+    // with Vaporize or Melt and none of those (estimate: both kinds of team keep Purity). Genshin Impact Wiki, Durin,
+    // fetched 2026-10-22.
+    { talent: "skill", label: "Transmutation: Confirmation of Purity DMG", hits: 1, cd: "CD", pickOne: "durin-skill" },
+    { talent: "burst", label: "Principle of Purity: As the Light Shifts DMG", hits: 1, cd: "CD", pickOne: "durin-burst" },
     // Passive 2 (#195): each Burst gives 10 Primordial Fusion stacks; a dragon hit uses one for "3% of the original DMG
     // for every 100 ATK", up to 75%: 10 of the ~18 hits per Burst.
     {
@@ -1290,8 +1298,22 @@ const SUBDPS = {
       every: "rate",
       duration: "Dragon of White Flame Duration",
       cd: "CD",
-      boost: { from: "passive2", stacks: /gains (\d+) stacks of Primordial Fusion/, re: /by ([\d.]+)% of the original DMG for every 100 ATK/, per: 100, stat: "atk", max: /maximum of (\d+)% additional DMG/ },
+      pickOne: "durin-dragon",
+      boost: DURIN_FUSION,
     },
+    ...[
+      { talent: "skill", label: "Transmutation: Denial of Darkness DMG", hits: 1, cd: "CD", pickOne: "durin-skill" },
+      { talent: "burst", label: "Principle of Darkness: As the Stars Smolder DMG", hits: 1, cd: "CD", pickOne: "durin-burst" },
+      // Single target, every 1.25s (kit-overrides.json hitRates); Primordial Fusion boosts it too (passive 2).
+      { talent: "burst", label: "Dragon of Dark Decay DMG", every: "rate", duration: "Dragon of Dark Decay Duration", cd: "CD", pickOne: "durin-dragon", boost: DURIN_FUSION },
+    ].map((src) => ({
+      ...src,
+      when: { reactions: ["vaporize", "melt"], unless: ["burning", "overloaded", "swirl", "crystallize"] },
+      reactionBonus: [
+        { from: "passive1", re: /Vaporize DMG is increased by (\d+)%/, reactions: ["vaporize", "melt"] },
+        { from: "passive1", re: /Vaporize DMG is increased by (\d+)%/, times: { from: "passive4", re: /\(except for Duration\) by (\d+)%/ }, reactions: ["vaporize", "melt"], when: { secretRite: true } },
+      ],
+    })),
   ],
   Emilie: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "Skill CD" },
@@ -1643,6 +1665,9 @@ function readSubDps(id, specs) {
       ...(s.lunar ? { lunar: s.lunar } : {}),
       ...(s.whenReaction ? { whenReaction: s.whenReaction } : {}),
       ...(s.pickOne ? { pickOne: s.pickOne } : {}),
+      ...(s.reactionBonus
+        ? { reactionBonus: s.reactionBonus.map((b) => ({ value: round(passiveValue(b) * (b.times ? passiveValue(b.times) : 1)), reactions: b.reactions, ...(b.when ? { when: b.when } : {}) })) }
+        : {}),
       ...(s.perRotation ? { perRotation: true } : {}),
       ...(s.factor ? { factor: { value: round(passiveValue(s.factor) - 1), when: s.factor.when } } : {}),
       cd: tableValue(attrs, s.cd, id),
