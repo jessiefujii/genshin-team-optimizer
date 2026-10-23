@@ -53,7 +53,7 @@ const teams = [...guideTeams.values(), ...sampleTeams(all, 600, 201)];
 const scored = teams.map((t) => ({ team: t, s: scoreTeam(t) }));
 const names = (t: readonly ScoringCharacter[]) => t.map((m) => m.id).join(", ");
 
-// Jessie's roster with her imported builds (as meta-teams.compare.test.ts reads it), for checks that change stats.
+// Jessie's roster with her imported builds (as roster.compare.test.ts reads it), for checks that change stats.
 const roster = jessieRoster as Record<string, { constellation: number; built: boolean; build?: CharacterBuild }>;
 const built = all
   .filter((c) => roster[c.id]?.build?.stats)
