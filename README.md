@@ -62,8 +62,8 @@ Then open [http://localhost:3000](http://localhost:3000).
 | --- | --- |
 | `npm run dev` | Development server |
 | `npm test` | Unit tests (without the timing and compare runs) |
-| `npm run compare` | Report: where guide-recommended teams rank among the scorer's top 100 per carry (~1 h) |
-| `npm run meta` | Report: where current meta teams rank, plus the roster check (~1 h) |
+| `npm run compare` | Report: where guide-recommended teams rank among the scorer's top 100 per carry (~15 min, 8 parts on 4 workers) |
+| `npm run meta` | Report: where current meta teams rank, plus the roster check (~15 min, as compare) |
 | `npm run roster` | Quick check on `data/test-rosters/jessie.json`: Zibai Premium's rank and score, the #20 score and the top 5 (seconds) |
 | `npm run reference` | Rewrites `data/team-reference.json` (the guide-team reference scores are measured against) and prints the diff |
 | `npm run bench` | Team search timing for a 50-character roster |
