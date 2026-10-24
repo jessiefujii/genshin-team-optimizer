@@ -141,12 +141,13 @@
       ],
       "remove": []
     },
-    "roles": {
-      "add": [],
-      "notInText": [
-        "buffer"
-      ]
-    }
+    "buffsNotInTags": [
+      {
+        "key": "buff:passive2:fcdwex",
+        "talent": "passive2",
+        "text": "Characters who are healed by Seamless Shields will gain the Year of Verdant Favor effect: Each 1,000 Max HP that Baizhu possesses that does not exceed 50,000 will increase the Burning, Bloom, Hyperbloom, and Burgeon reaction DMG dealt by these characters by 2%"
+      }
+    ]
   },
   "Barbara": {
     "reactions": {
@@ -186,12 +187,6 @@
         "burgeon"
       ],
       "remove": []
-    },
-    "roles": {
-      "add": [],
-      "notInText": [
-        "battery"
-      ]
     }
   },
   "Candace": {
@@ -294,6 +289,12 @@
     },
     "roles": {
       "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 5.67 particles per 16s (0.35/s, off-field)"
+          ]
+        },
         {
           "role": "buffer",
           "because": [
@@ -606,6 +607,12 @@
     "roles": {
       "add": [
         {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 8.8 particles per 14s (0.63/s, off-field)"
+          ]
+        },
+        {
           "role": "buffer",
           "because": [
             "passive3: When the Lumidouce Case created by Emilie is on the field, all party members gain 85% Pyro RES against Burning DMG."
@@ -694,6 +701,17 @@
         "stellar-conduct"
       ],
       "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 6.4 particles per 25s (0.26/s, off-field)"
+          ]
+        }
+      ],
+      "notInText": []
     }
   },
   "Flins": {
@@ -717,7 +735,8 @@
         {
           "role": "buffer",
           "because": [
-            "passive3: When a party member triggers an Electro-Charged reaction, it will be converted into the Lunar-Charged reaction, with every 100 ATK that Flins has increasing Lunar-Charged's Base DMG by 0.7%, up to a maximum of 14%."
+            "passive3: When a party member triggers an Electro-Charged reaction, it will be converted into the Lunar-Charged reaction, with every 100 ATK that Flins has increasing Lunar-Charged's Base DMG by 0.7%, up to a maximum of 14%.",
+            "benchmark set: 4pc Night of the Sky's Unveiling (party-wide)"
           ]
         }
       ],
@@ -859,6 +878,17 @@
         "lunar-charged"
       ]
     },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 4.5 particles per 7.5s (0.60/s, on cast, swap to catch)"
+          ]
+        }
+      ],
+      "notInText": []
+    },
     "buffsNotInTags": [
       {
         "key": "buff:passive1:11lqnws",
@@ -935,7 +965,14 @@
       "remove": []
     },
     "roles": {
-      "add": [],
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 2.67 particles per 6s (0.45/s, on cast, swap to catch)"
+          ]
+        }
+      ],
       "notInText": [
         "buffer"
       ]
@@ -966,6 +1003,17 @@
       ],
       "remove": []
     },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 3 particles per 6s (0.50/s, on cast, swap to catch)"
+          ]
+        }
+      ],
+      "notInText": []
+    },
     "buffsNotInTags": [
       {
         "key": "buff:passive2:1c0wi8l",
@@ -983,6 +1031,17 @@
         "stellar-swirl"
       ],
       "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 2.67 particles per 6s (0.45/s, on cast, swap to catch)"
+          ]
+        }
+      ],
+      "notInText": []
     }
   },
   "Kamisato Ayaka": {
@@ -1195,6 +1254,17 @@
       ],
       "remove": []
     },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 5.9 particles per 12s (0.49/s, off-field)"
+          ]
+        }
+      ],
+      "notInText": []
+    },
     "buffsNotInTags": [
       {
         "key": "buff:skill:71lrwk",
@@ -1218,6 +1288,17 @@
         "stellar-swirl"
       ],
       "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 5.3 particles per 12s (0.44/s, off-field)"
+          ]
+        }
+      ],
+      "notInText": []
     }
   },
   "Linnea": {
@@ -1463,7 +1544,8 @@
         {
           "role": "buffer",
           "because": [
-            "passive3: When a party member triggers a Bloom reaction, it will be converted into the Lunar-Bloom reaction, with every point of Elemental Mastery that Nefer has increasing Lunar-Bloom's Base DMG by 0.0175%, up to a maximum of 14%"
+            "passive3: When a party member triggers a Bloom reaction, it will be converted into the Lunar-Bloom reaction, with every point of Elemental Mastery that Nefer has increasing Lunar-Bloom's Base DMG by 0.0175%, up to a maximum of 14%",
+            "benchmark set: 4pc Night of the Sky's Unveiling (party-wide)"
           ]
         }
       ],
@@ -1613,6 +1695,7 @@
         {
           "role": "battery",
           "because": [
+            "particles.json: 9 Energy to active (passive 2: 3 Energy per active member's NA/CA hit, 3 times per 15s)",
             "passive2: Aspect Sigil When a nearby active party member hits an opponent with Normal, Charged, or Plunging Attacks, that character will restore 3 Energy."
           ]
         }
@@ -1659,7 +1742,8 @@
         {
           "role": "buffer",
           "because": [
-            "skill: The Raiden Shogun unveils a shard of her Euthymia, dealing Electro DMG to nearby opponents, and granting nearby party members the Eye of Stormy Judgment."
+            "skill: The Raiden Shogun unveils a shard of her Euthymia, dealing Electro DMG to nearby opponents, and granting nearby party members the Eye of Stormy Judgment.",
+            "skill: Eye of Stormy Judgment ·When characters with this buff attack and deal DMG to opponents, the Eye will unleash a coordinated attack, dealing AoE Electro DMG at the opponent's position. ·Characters who gain the Eye of Stor"
           ]
         }
       ],
@@ -1670,6 +1754,11 @@
         "key": "buff:skill:n3lr9i",
         "talent": "skill",
         "text": "The Raiden Shogun unveils a shard of her Euthymia, dealing Electro DMG to nearby opponents, and granting nearby party members the Eye of Stormy Judgment."
+      },
+      {
+        "key": "buff:skill:nmgyp1",
+        "talent": "skill",
+        "text": "Eye of Stormy Judgment ·When characters with this buff attack and deal DMG to opponents, the Eye will unleash a coordinated attack, dealing AoE Electro DMG at the opponent's position. ·Characters who gain the Eye of Stormy Judgment will have their Elemental Bu"
       }
     ]
   },
@@ -1700,6 +1789,17 @@
         "stellar-swirl"
       ],
       "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 3 particles per 6s (0.50/s, on cast, swap to catch)"
+          ]
+        }
+      ],
+      "notInText": []
     },
     "buffsNotInTags": [
       {
@@ -1995,7 +2095,15 @@
       "remove": []
     },
     "roles": {
-      "add": [],
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: 15 Energy to activeAbsorbed (passive 2: 15 to the absorbed element's members (read as the carry, if Pyro/Hydro/Electro/Cryo))",
+            "particles.json: Skill 3 particles per 6s (0.50/s, on cast, swap to catch)"
+          ]
+        }
+      ],
       "notInText": [
         "buffer"
       ]
@@ -2078,6 +2186,17 @@
         "burgeon"
       ],
       "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 4 particles per 12s (0.33/s, off-field)"
+          ]
+        }
+      ],
+      "notInText": []
     }
   },
   "Xianyun": {
@@ -2088,6 +2207,17 @@
         "stellar-swirl"
       ],
       "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 5 particles per 12s (0.42/s, on cast, swap to catch)"
+          ]
+        }
+      ],
+      "notInText": []
     },
     "buffsNotInTags": [
       {
@@ -2121,6 +2251,17 @@
         "lunar-crystallize"
       ],
       "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 4 particles per 7s (0.57/s, on cast, swap to catch)"
+          ]
+        }
+      ],
+      "notInText": []
     }
   },
   "Xingqiu": {
@@ -2198,6 +2339,12 @@
     "roles": {
       "add": [
         {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 5 particles per 15s (0.33/s, off-field)"
+          ]
+        },
+        {
           "role": "buffer",
           "because": [
             "passive2: When White Jade Radishes explode, active characters within their AoE will regain HP every 1s based on 0.8% of Yaoyao's Max HP."
@@ -2228,7 +2375,14 @@
       "remove": []
     },
     "roles": {
-      "add": [],
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "particles.json: Skill 4 particles per 10s (0.40/s, on cast, swap to catch)"
+          ]
+        }
+      ],
       "notInText": [
         "buffer"
       ]
@@ -2343,7 +2497,8 @@
         {
           "role": "buffer",
           "because": [
-            "passive3: When a party member triggers a Hydro Crystallize reaction, it will be converted into the Lunar-Crystallize reaction, with every 100 DEF that Zibai has increasing Lunar-Crystallize's Base DMG by 0.7%, up to a maximum of 1"
+            "passive3: When a party member triggers a Hydro Crystallize reaction, it will be converted into the Lunar-Crystallize reaction, with every 100 DEF that Zibai has increasing Lunar-Crystallize's Base DMG by 0.7%, up to a maximum of 1",
+            "benchmark set: 4pc Night of the Sky's Unveiling (party-wide)"
           ]
         }
       ],

@@ -58,14 +58,19 @@ function textsOf(id) {
 }
 const sentences = (text) => text.split(/(?<=[.!?])\s+(?=[A-Z"])/);
 
-const PARTY = /(party members?|all party|nearby (?:party )?characters?|active (?:party )?(?:characters?|members?)|characters within|characters protected|the team)/i;
+const PARTY = /(party members?|all party|nearby (?:party )?characters?|active (?:party )?(?:characters?|members?)|characters within|characters protected|characters who|(?:these|those) characters|the team)/i;
+// A reaction's DMG raised for others is a party buff even when the character is named (Baizhu: "increase the Burning,
+// Bloom, Hyperbloom, and Burgeon reaction DMG dealt by these characters", from his Max HP; Jessie, 2026-10-24).
+const REACTION_DMG =
+  /\b(Burning|Bloom|Hyperbloom|Burgeon|Lunar-\w+|Swirl|Stellar[- ]\w+|Electro-Charged|Overloaded|Superconduct|Aggravate|Spread|Vaporize|Melt|Crystallize|Quicken)\b[^.]{0,80}?\bDMG\b/;
 const ROLE_RULES = {
   healer: (s) => /(heal|restor\w* HP|HP regeneration|regenerat\w* HP)/i.test(s) && PARTY.test(s),
   shielder: (s) => /\bshield\b/i.test(s) && !/shield DMG Absorption is increased/i.test(s),
   battery: (s) => /(Energy|Elemental Energy)/.test(s) && /(regenerat|restor|recover|gain)/i.test(s) && /party members?|active character/i.test(s),
   buffer: (s) =>
     (PARTY.test(s) && /(increas|boost|gain|grant)/i.test(s) && /(ATK|DMG Bonus|DMG|Elemental Mastery|CRIT|DEF|Max HP)\b/.test(s)) ||
-    (/(decreas|reduc)/i.test(s) && /\b(RES|DEF)\b/.test(s) && /(opponent|enem)/i.test(s)),
+    (/(decreas|reduc)/i.test(s) && /\b(RES|DEF)\b/.test(s) && /(opponent|enem)/i.test(s)) ||
+    (PARTY.test(s) && /(increas|boost)/i.test(s) && REACTION_DMG.test(s)),
 };
 
 // A self buff names the party only as its condition ("Baizhu gains ... according to the current HP of your current
@@ -82,6 +87,8 @@ const RECEIVER = new RegExp(
     "(?:increas|boost)\\w* (?:the )?[^.]{0,40}?of (?:all |your |the )?(?:nearby |current )?(?:active|party)",
     "grant\\w* [^.]{0,40}?(?:party|active)",
     "(?:this|that) character's",
+    "characters? who [^.]{0,60}?(?:gain|will gain|receive)",
+    "(?:reaction )?DMG dealt by (?:these|those|nearby|party|all|other)",
     "characters? (?:within|protected)[^.]{0,60}?(?:gain|increas|have)",
   ].join("|"),
   "i",
@@ -106,6 +113,33 @@ const keyOf = (talent, text) => {
   return `buff:${talent}:${h.toString(36)}`;
 };
 
+// Battery from particles too (Jessie, 2026-10-24: a battery "can be one like bennett with a short skill cooldown that
+// can be switched to another characters so that they can get the energy particles produced"). data/particles.json:
+// Skill particles per use and cooldown (wiki Energy/Data); `timing` cast (on the Skill) or field (made off-field over
+// its duration), `flat` Energy given straight to others. A main DPS's particles mostly feed themselves.
+const PARTICLES = JSON.parse(readFileSync(new URL("../data/particles.json", import.meta.url), "utf8")).characters;
+const SWAP_RATE = 0.4; // particles a second on cast: Bennett's 2.25 per 5s is 0.45
+const FIELD_RATE = 0.25; // off-field: Fischl's Oz ~6.4 per 25s is 0.26
+function batteryEvidence(c) {
+  const p = PARTICLES[c.id];
+  if (!p) return [];
+  const out = [];
+  for (const f of p.flat ?? []) if (f.to !== "self") out.push(`particles.json: ${f.energy} Energy to ${f.to} (${f.note})`);
+  if (p.perUse && p.cd && !c.roles.includes("main-dps")) {
+    const rate = p.perUse / p.cd;
+    if ((p.timing === "field" && rate >= FIELD_RATE) || (p.timing !== "field" && rate >= SWAP_RATE))
+      out.push(`particles.json: Skill ${p.perUse} particles per ${p.cd}s (${rate.toFixed(2)}/s, ${p.timing === "field" ? "off-field" : "on cast, swap to catch"})`);
+  }
+  return out;
+}
+
+// Buffer from the set a character wears (Jessie, 2026-10-24: "some buffers are because of the artifact sets a character
+// uses"): their benchmark set (kit.json benchmarkSets, KQM's picks) with a party-wide effect in kit.json sets.
+const KIT = JSON.parse(readFileSync(new URL("../data/kit.json", import.meta.url), "utf8"));
+const PARTY_SET = new Set(Object.entries(KIT.sets).filter(([, effects]) => effects.some((e) => e.party)).map(([name]) => name));
+const setEvidence = (id) =>
+  [...new Set((KIT.benchmarkSets[id] ?? []).map((o) => o.set).filter((s) => PARTY_SET.has(s)))].map((s) => `benchmark set: 4pc ${s} (party-wide)`);
+
 const draft = {};
 let changed = 0;
 for (const c of tags) {
@@ -123,6 +157,10 @@ for (const c of tags) {
     for (const s of sentences(t.text))
       for (const [role, test] of Object.entries(ROLE_RULES))
         if (test(s) && !(role === "buffer" && selfBuff(s, c.id))) (roleHits[role] ??= []).push(`${t.talent}: ${s.slice(0, 220)}`);
+  const fromParticles = batteryEvidence(c);
+  if (fromParticles.length) (roleHits.battery ??= []).unshift(...fromParticles);
+  const fromSets = setEvidence(c.id);
+  if (fromSets.length) (roleHits.buffer ??= []).push(...fromSets);
   const buffs = texts.flatMap((t) =>
     sentences(t.text)
       .filter((s) => ROLE_RULES.buffer(s) && !selfBuff(s, c.id))
