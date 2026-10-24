@@ -3565,6 +3565,23 @@ const SETS = {
     { kind: "resShred", party: true, scope: "party", re: /Elemental RES to the element infused in the Swirl by (\d+)%/, when: { swirled: true } },
     { kind: "resShred", party: true, scope: "party", element: "Cryo", re: /will also decrease their Cryo RES by (\d+)%/, when: { reaction: "stellar-swirl" } },
   ],
+  // #345. Instructor: party EM once the wearer reacts (kit.ts partySetBuffs, wearerReacts; kept up: estimate).
+  Instructor: [
+    { kind: "em", party: true, flat: true, re: /increases all party members' Elemental Mastery by (\d+) for 8s/, when: { wearerReacts: true }, estimate: "while the wearer reacts" },
+  ],
+  // Celestial Gift (kit.ts partyGearStats): with the wearer's Witch's Homework done (hexerei: their Hexerei family),
+  // 20% DMG to the wearer's element; with Secret Rite (two Hexerei members) "Mortal Hymn", 40% to the wearer's and the
+  // on-field character's elements instead. The same name doesn't stack: one per party (the first that fits).
+  "Celestial Gift": [
+    { kind: "dmgBonus", party: true, scope: "party", re: /gain a (\d+)% Elemental DMG Bonus corresponding to both the equipping character and the current active/, when: { hexerei: true, secretRite: true, wearerOrActiveElement: true }, estimate: "after the wearer's Skill" },
+    { kind: "dmgBonus", party: true, scope: "party", re: /All nearby party members gain a (\d+)% Elemental DMG Bonus corresponding to the equipping character's Elemental Type/, when: { hexerei: true, wearerElement: true }, estimate: "after the wearer's Skill" },
+  ],
+  // Heart of the Furnace: the party's Stellar Glimmer reaction DMG (kit.ts partySetBuffs `stellar`), and the wearer's
+  // ATK while the team triggers a Stellar Glimmer reaction.
+  "Heart of the Furnace": [
+    { kind: "reactionBonus", party: true, reactions: ["stellar-swirl", "stellar-conduct"], re: /Also increases Stellar Glimmer reaction DMG dealt by all nearby party members by (\d+)%/ },
+    { kind: "atkPct", re: /Increases the equipping character's ATK by (\d+)% for 12s when they trigger a Stellar Glimmer reaction/, when: { stellar: true } },
+  ],
   "Deepwood Memories": [{ kind: "resShred", party: true, scope: "party", element: "Dendro", re: /the targets' Dendro RES will be decreased by (\d+)%/, estimate: "after the wearer's Skill or Burst hits" }],
   // "Only one form of Elemental DMG Bonus can be gained in this manner at any one time": the carry's element when it
   // crystallizes, else the team's first aura element (kit.ts crystallizedElement).
@@ -3692,8 +3709,8 @@ const benchmarkSets = {
   // Supports without a build (#338): their KQM quick guide's support set (accessed 2026-10-24), only when it is one of
   // the party sets in damage (kit.ts partyGearStats: Noblesse, Tenacity, VV, Deepwood, Archaic Petra, Scroll, Silken
   // Moon's Serenade, Night of the Sky's Unveiling), and since #347 the own-damage sets their hits read (Golden Troupe,
-  // Aubade, Husk, Emblem, Gilded Dreams: score.ts subDpsLines). None yet for Nicole, Mona (Celestial Gift) and Alyosha
-  // (Heart of the Furnace): not in SETS (#345); Lisa's first pick is her on-field DPS set (Thundering Fury). Jessie's
+  // Aubade, Husk, Emblem, Gilded Dreams: score.ts subDpsLines), and the support sets #345 added (Celestial Gift, Heart
+  // of the Furnace). None for Lisa: her first pick is her on-field DPS set (Thundering Fury). Jessie's
   // picks over the guide's (2026-10-24): Gorou on Husk (KQM's first pick: Scroll), Zhongli on Tenacity (KQM's first:
   // "Rainbow", 2pc HP% + 2pc HP%).
   "Kaedehara Kazuha": [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "kazuha-quickguide", "4pc Viridescent Venerer (4VV) is the artifact set that Kazuha uses in almost all of his teams") }],
@@ -3737,6 +3754,19 @@ const benchmarkSets = {
   Rosaria: [
     { set: "Gilded Dreams", when: { reaction: "melt" }, source: kqmOn("2026-10-24", "rosaria-quickguide", "one of Rosaria's best sets for Reverse Melt at lower ER requirements") },
     { set: "Emblem of Severed Fate", source: kqmOn("2026-10-24", "rosaria-quickguide", "4pc EoSF is a great generalist set") },
+  ],
+  Nicole: [{ set: "Celestial Gift", source: kqmOn("2026-10-24", "nicole-quickguide", "4pc Celestial is Nicole's default set for essentially all her teams") }],
+  Mona: [
+    {
+      set: "Celestial Gift",
+      when: { members: tags.filter((c) => c.id !== "Mona" && (c.families ?? []).includes("hexerei")).map((c) => c.id) },
+      source: kqmOn("2026-10-24", "mona-quickguide", "4pc CG is Mona's default support set in teams with another Hexerei character"),
+    },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "mona-quickguide", "4pc NO is another option for Mona in teams that appreciate its teamwide ATK% buff") },
+  ],
+  Alyosha: [
+    { set: "Heart of the Furnace", when: { reaction: "stellar-conduct" }, source: kqmOn("2026-10-24", "alyosha-quickguide", "4pc Heart of the Furnace is the default set for Alyosha in Stellar-Conduct teams") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "alyosha-quickguide", "Alyosha uses 4pc NO when another teammate holds 4pc Heart of the Furnace. This set can also be used in non-Stellar-Conduct teams") },
   ],
   Lauma: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "lauma-quickguide", "Overall a good supportive set for Lauma and her most common artifact set") }],
   Columbina: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "columbina-quickguide", "Columbina usually uses 4pc SMS for team DPS") }],

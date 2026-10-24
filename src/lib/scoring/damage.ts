@@ -115,6 +115,7 @@ type SetWhen = {
   weapons?: string[];
   moonsign?: "nascent" | "ascendant";
   offField?: boolean; // the wearer isn't the on-field carry (Aubade of Morningstar and Moon, #306)
+  stellar?: boolean; // the team triggers a Stellar Glimmer reaction (Heart of the Furnace, #345)
 };
 type SetBuff = {
   kind: "critRate" | "dmgBonus" | "atkPct" | "defPct" | "reactionBonus" | "dmgBonusFromEr" | "atkPctPerSame" | "emPerOther";
@@ -161,6 +162,7 @@ function setFits(w: SetWhen | undefined, c: ScoringCharacter, active: readonly R
     (!w.noEnergy || !c.burstCost) &&
     (!w.weapons || w.weapons.includes(c.weapon)) &&
     (!w.offField || !onField) &&
+    (!w.stellar || active.some((r) => r.startsWith("stellar-"))) &&
     (!w.moonsign || (lunar && (w.moonsign === "ascendant" ? gleam : moonsign === 1 || (moonsign >= 2 && !gleam))))
   );
 }
@@ -631,7 +633,8 @@ function computeCarryDamage(
   const lunarBonus = (r: LunarReaction) =>
     buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? (b.perEm ? (b.value * em) / b.perEm : b.value) : 0), 0) +
     setReactionBonus(set, r) + // Thundering Fury's Lunar-Charged (#206)
-    party.lunar; // Gleaming Moon (#306)
+    party.lunar + // Gleaming Moon (#306)
+    (r.startsWith("stellar-") ? party.stellar : 0); // Heart of the Furnace (#345)
   // Base DMG Multiplier by hit label (Nefer's Veil of Falsehood, #148): multiplies the hit's base, Lunar or not.
   const baseMultiplier = (h: CarryHit) =>
     buffs.reduce((a, b) => a * (b.kind === "baseDmgMultiplier" && b.labels.includes(h.label) ? 1 + b.value : 1), 1);

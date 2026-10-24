@@ -2270,6 +2270,62 @@
         "source": "4pc: \"will also decrease their Cryo RES by 40%\""
       }
     ],
+    "Instructor": [
+      {
+        "kind": "em",
+        "party": true,
+        "value": 120,
+        "when": {
+          "wearerReacts": true
+        },
+        "source": "4pc: \"increases all party members' Elemental Mastery by 120 for 8s\" (taken as up while the wearer reacts: estimate)"
+      }
+    ],
+    "Celestial Gift": [
+      {
+        "kind": "dmgBonus",
+        "party": true,
+        "value": 0.4,
+        "scope": "party",
+        "when": {
+          "hexerei": true,
+          "secretRite": true,
+          "wearerOrActiveElement": true
+        },
+        "source": "4pc: \"gain a 40% Elemental DMG Bonus corresponding to both the equipping character and the current active\" (taken as up after the wearer's Skill: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "party": true,
+        "value": 0.2,
+        "scope": "party",
+        "when": {
+          "hexerei": true,
+          "wearerElement": true
+        },
+        "source": "4pc: \"All nearby party members gain a 20% Elemental DMG Bonus corresponding to the equipping character's Elemental Type\" (taken as up after the wearer's Skill: estimate)"
+      }
+    ],
+    "Heart of the Furnace": [
+      {
+        "kind": "reactionBonus",
+        "party": true,
+        "value": 0.5,
+        "reactions": [
+          "stellar-swirl",
+          "stellar-conduct"
+        ],
+        "source": "4pc: \"Also increases Stellar Glimmer reaction DMG dealt by all nearby party members by 50%\""
+      },
+      {
+        "kind": "atkPct",
+        "value": 0.12,
+        "when": {
+          "stellar": true
+        },
+        "source": "4pc: \"Increases the equipping character's ATK by 12% for 12s when they trigger a Stellar Glimmer reaction\""
+      }
+    ],
     "Deepwood Memories": [
       {
         "kind": "resShred",
@@ -2712,6 +2768,50 @@
       {
         "set": "Emblem of Severed Fate",
         "source": "KQM rosaria quick guide (keqingmains.com/q/rosaria-quickguide, accessed 2026-10-24): \"4pc EoSF is a great generalist set\""
+      }
+    ],
+    "Nicole": [
+      {
+        "set": "Celestial Gift",
+        "source": "KQM nicole quick guide (keqingmains.com/q/nicole-quickguide, accessed 2026-10-24): \"4pc Celestial is Nicole's default set for essentially all her teams\""
+      }
+    ],
+    "Mona": [
+      {
+        "set": "Celestial Gift",
+        "when": {
+          "members": [
+            "Albedo",
+            "Durin",
+            "Fischl",
+            "Klee",
+            "Lohen",
+            "Nicole",
+            "Prune",
+            "Razor",
+            "Sucrose",
+            "Varka",
+            "Venti"
+          ]
+        },
+        "source": "KQM mona quick guide (keqingmains.com/q/mona-quickguide, accessed 2026-10-24): \"4pc CG is Mona's default support set in teams with another Hexerei character\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM mona quick guide (keqingmains.com/q/mona-quickguide, accessed 2026-10-24): \"4pc NO is another option for Mona in teams that appreciate its teamwide ATK% buff\""
+      }
+    ],
+    "Alyosha": [
+      {
+        "set": "Heart of the Furnace",
+        "when": {
+          "reaction": "stellar-conduct"
+        },
+        "source": "KQM alyosha quick guide (keqingmains.com/q/alyosha-quickguide, accessed 2026-10-24): \"4pc Heart of the Furnace is the default set for Alyosha in Stellar-Conduct teams\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM alyosha quick guide (keqingmains.com/q/alyosha-quickguide, accessed 2026-10-24): \"Alyosha uses 4pc NO when another teammate holds 4pc Heart of the Furnace. This set can also be used in non-Stellar-Conduct teams\""
       }
     ],
     "Lauma": [

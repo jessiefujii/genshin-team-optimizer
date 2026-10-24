@@ -67,16 +67,20 @@ export function setsOf(c: ScoringCharacter, active: readonly Reaction[], team: r
 // onField (the wearer is the on-field carry: Night's "if the equipping character is on the field"), lunar (the team
 // triggers a Lunar reaction: Night's "when nearby party members trigger Lunar Reactions"). The Lunar bonus is Reaction
 // Bonus (Genshin Impact Wiki, Damage § Reaction DMG Bonus, fetched 2026-10-21, lists both sets).
+// wearerReacts (Instructor: the wearer triggers one of the team's reactions, #345). `reactionBonus` with Stellar
+// reactions: Heart of the Furnace's party Stellar Glimmer reaction DMG (#345), one wearer per set.
 type PartySetEffect = {
-  kind: "em" | "gleamingMoon";
+  kind: "em" | "gleamingMoon" | "reactionBonus";
   party: true;
   value: number;
   effect?: string;
-  when?: { moonsign?: "nascent" | "ascendant"; onField?: boolean; lunar?: boolean };
+  reactions?: string[];
+  when?: { moonsign?: "nascent" | "ascendant"; onField?: boolean; lunar?: boolean; wearerReacts?: boolean };
 };
+const PARTY_SET_KINDS = new Set(["em", "gleamingMoon", "reactionBonus"]);
 const PARTY_SETS = Object.fromEntries(
   Object.entries((kitJson as unknown as { sets: Record<string, { party?: boolean }[]> }).sets)
-    .map(([name, effects]) => [name, effects.filter((e) => e.party && ((e as PartySetEffect).kind === "em" || (e as PartySetEffect).kind === "gleamingMoon")) as PartySetEffect[]])
+    .map(([name, effects]) => [name, effects.filter((e) => e.party && PARTY_SET_KINDS.has((e as PartySetEffect).kind)) as PartySetEffect[]])
     .filter(([, effects]) => effects.length > 0),
 ) as Record<string, PartySetEffect[]>;
 // Whether a set has party-wide effects in damage (#306): score.ts then drops its effects.json flat points.
@@ -86,10 +90,11 @@ export function partySetBuffs(
   active: readonly Reaction[] = [],
   onField: ScoringCharacter | null = null,
   gleam = team.filter((m) => m.families?.includes("moonsign")).length >= 2,
-): { em: number; lunar: number } {
+): { em: number; lunar: number; stellar: number } {
   const moonsign = team.some((m) => m.families?.includes("moonsign"));
   const lunar = active.some((r) => r.startsWith("lunar-"));
   let em = 0;
+  let stellar = 0;
   const effects = new Map<string, number>(); // Gleaming Moon effect -> its value
   const seen = new Set<string>(); // one wearer's EM per set: the same effect doesn't stack (estimate for EM)
   for (const m of team) {
@@ -100,7 +105,12 @@ export function partySetBuffs(
         if (w.moonsign && (!moonsign || (w.moonsign === "ascendant") !== gleam)) continue;
         if (w.onField && m !== onField) continue;
         if (w.lunar && !lunar) continue;
+        if (w.wearerReacts && !m.reactions.some((r) => active.includes(r))) continue;
         if (b.kind === "gleamingMoon") effects.set(b.effect!, b.value);
+        else if (b.kind === "reactionBonus") {
+          if (!seen.has(set)) stellar += b.value;
+          seen.add(set);
+        }
         else if (!seen.has(`${set}|${w.moonsign}`)) {
           seen.add(`${set}|${w.moonsign}`);
           em += b.value;
@@ -108,7 +118,7 @@ export function partySetBuffs(
       }
     }
   }
-  return { em, lunar: [...effects.values()].reduce((a, v) => a + v, 0) };
+  return { em, lunar: [...effects.values()].reduce((a, v) => a + v, 0), stellar };
 }
 
 
@@ -834,7 +844,13 @@ function familyBuffStats(m: ScoringCharacter, carry: ScoringCharacter, active: r
 // reaction(s) (the team triggers it, one of them), holderReacts (the holder triggers one of the team's reactions), swirled
 // (VV: an aura element, while the team Swirls), crystallized (Petra: the crystallized element), reactionElements (Scroll,
 // Hakushin: the elements in the holder's reactions with this team), nightsoul (the holder has Nightsoul's Blessing).
+// hexerei: the holder's Hexerei family (Witch's Homework done; Celestial Gift, #345); secretRite: two Hexerei members;
+// wearerElement / wearerOrActiveElement: the hit's member has the holder's element / or the on-field carry's.
 type GearWhen = {
+  hexerei?: boolean;
+  secretRite?: boolean;
+  wearerElement?: boolean;
+  wearerOrActiveElement?: boolean;
   reaction?: Reaction;
   reactions?: Reaction[];
   holderReacts?: boolean;
@@ -891,7 +907,11 @@ function gearFits(w: GearWhen, holder: ScoringCharacter, m: ScoringCharacter, ca
     (!w.swirled || (active.includes("swirl") && AURA_ELEMENTS.includes(m.element))) &&
     (!w.crystallized || ((active.includes("crystallize") || active.includes("lunar-crystallize")) && m.element === crystallizedElement(carry, team))) &&
     (!w.reactionElements || holderReactionElements(holder, active, team).includes(m.element)) &&
-    (!w.nightsoul || !!holder.families?.includes("nightsoul"))
+    (!w.nightsoul || !!holder.families?.includes("nightsoul")) &&
+    (!w.hexerei || !!holder.families?.includes("hexerei")) &&
+    (!w.secretRite || team.filter((x) => x.families?.includes("hexerei")).length >= 2) &&
+    (!w.wearerElement || m.element === holder.element) &&
+    (!w.wearerOrActiveElement || m.element === holder.element || m.element === carry.element)
   );
 }
 

@@ -184,11 +184,11 @@
     "Lohen": {
       "team": [
         "Lohen",
-        "Durin",
         "Escoffier",
-        "Furina"
+        "Furina",
+        "Mona"
       ],
-      "value": 260626.4
+      "value": 270005.1
     },
     "Lyney": {
       "team": [
@@ -338,10 +338,10 @@
       "team": [
         "Traveler (Cryo)",
         "Yae Miko",
-        "Nicole",
-        "Odette"
+        "Odette",
+        "Alyosha"
       ],
-      "value": 117058.6
+      "value": 123114.6
     },
     "Varesa": {
       "team": [
@@ -356,10 +356,10 @@
       "team": [
         "Varka",
         "Prune",
-        "Odette",
-        "Escoffier"
+        "Nicole",
+        "Durin"
       ],
-      "value": 165387.1
+      "value": 178768.6
     },
     "Vesna": {
       "team": [

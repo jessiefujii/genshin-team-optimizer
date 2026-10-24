@@ -1457,7 +1457,7 @@ function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamCon
     weapon,
     em: party.em + weaponSum(weapon, "em"),
     critRate: weaponSum(weapon, "critRate"),
-    lunar: (r: Reaction | LunarReaction) => party.lunar + setReactionBonus(set, r),
+    lunar: (r: Reaction | LunarReaction) => party.lunar + (r.startsWith("stellar-") ? party.stellar : 0) + setReactionBonus(set, r), // Heart of the Furnace (#345)
     reaction: (r: Reaction) => setReactionBonus(set, r),
     set,
   };
