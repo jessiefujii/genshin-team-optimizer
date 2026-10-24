@@ -3524,6 +3524,11 @@ const SETS = {
     // Its 15 Energy cost is left out (estimate).
     { kind: "dmgBonus", types: ["normal", "charged", "plunge"], re: /Normal\/Charged\/Plunging Attack DMG is increased by (\d+)% for 10s/, estimate: "after their Skill" },
   ],
+  "Husk of Opulent Dreams": [
+    // Off-field "1 stack every 3s", on-field per Geo hit: taken at full stacks. Its 6% DEF a stack is left out (no DEF
+    // kind here yet: the wearer's DEF-scaled hits read the benchmark's DEF).
+    { kind: "dmgBonus", element: "Geo", re: /each providing \d+% DEF and a (\d+)% Geo DMG Bonus/, stacks: /Curiosity can stack up to (\d+) times/ },
+  ],
   "Golden Troupe": [
     { kind: "dmgBonus", pieces: 2, types: ["skill"], re: /^Increases Elemental Skill DMG by (\d+)%/ },
     // The off-field 25% more isn't an on-field carry's.
@@ -3679,7 +3684,8 @@ const benchmarkSets = {
   // the party sets in damage (kit.ts partyGearStats: Noblesse, Tenacity, VV, Deepwood, Archaic Petra, Scroll, Silken
   // Moon's Serenade, Night of the Sky's Unveiling). None when the guide's pick is another set (Furina, Escoffier,
   // Nicole, Mona: Golden Troupe or Celestial Gift; Ineffa, Linnea, Albedo: Aubade or Husk; Yelan, Rosaria, Lisa:
-  // personal damage sets; Alyosha: Heart of the Furnace) or none (Zhongli: "Rainbow", 2pc HP% + 2pc HP%).
+  // personal damage sets; Alyosha: Heart of the Furnace). Jessie's picks over the guide's (2026-10-24): Gorou on Husk
+  // (KQM's first pick: Scroll), Zhongli on Tenacity (KQM's first: "Rainbow", 2pc HP% + 2pc HP%).
   "Kaedehara Kazuha": [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "kazuha-quickguide", "4pc Viridescent Venerer (4VV) is the artifact set that Kazuha uses in almost all of his teams") }],
   Sucrose: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "sucrose-quickguide", "Sucrose should generally hold 4pc VV to bolster her own damage and shred enemy Elemental RES") }],
   Lynette: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "lynette-quickguide", "It is Lynette's Best-in-Slot set in nearly all her playstyles") }],
@@ -3699,7 +3705,13 @@ const benchmarkSets = {
   Xilonen: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen's best artifact set by far") }],
   Citlali: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "citlali-quickguide", "Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction") }],
   Iansan: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "iansan-quickguide", "This makes it her recommended option for the vast majority of her teams") }],
-  Gorou: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "gorou-quickguide", "This can be considered Gorou's most general set as long as he can trigger Crystallize") }],
+  Gorou: [{ set: "Husk of Opulent Dreams", source: "Jessie, 2026-10-24 (#338 review): Gorou on 4pc Husk of Opulent Dreams" }],
+  Zhongli: [
+    {
+      set: "Tenacity of the Millelith",
+      source: `Jessie, 2026-10-24 (#338 review): Zhongli on 4pc Tenacity; ${kqmOn("2026-10-24", "zhongli-quickguide", "if your team's DPS unit can snapshot the 4pc ATK% buff, then it can be viable")}`,
+    },
+  ],
   Nahida: [{ set: "Deepwood Memories", source: kqmOn("2026-10-24", "nahida-quickguide", "Nahida is often the best for this role, since she easily maintains the 4pc effect") }],
   Baizhu: ["spread", "bloom", "hyperbloom", "burgeon", "lunar-bloom"].map((reaction) => ({
     set: "Deepwood Memories",

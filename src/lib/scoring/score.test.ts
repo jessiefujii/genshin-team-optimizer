@@ -115,7 +115,7 @@ describe("scoreTeam", () => {
     const spread = (...ids: string[]) => Number(reasons(...ids).find((r) => r.startsWith("Spread adds"))?.match(/\+(\d+)%/)?.[1] ?? 0);
     const own = (who: string, ...ids: string[]) => dps(reasons(...ids).find((r) => r.startsWith(`${who}'s own hits`)));
     // No Hydro or Pyro: the Quicken aura is up throughout, every applying hit Spreads (as before #303; ICDs #226, sets #206).
-    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(73); // his benchmark Wolf-Fang (#206); Nahida's EM in damage (#186)
+    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(69); // his benchmark Wolf-Fang (#206); Nahida's EM in damage (#186); Zhongli's Tenacity ATK (#338)
     // Furina's Hydro turns the Quicken aura into Bloom: Alhaitham Spreads about half the time, and Yae Aggravates less.
     // Xilonen's Crystallize takes some of the Electro and Hydro too (#342): 29.
     const furina = spread("Alhaitham", "Furina", "Xilonen", "Yae Miko");
@@ -1088,7 +1088,7 @@ describe("talent levels (#25)", () => {
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
       // 1 in 4 Clusterbloom Arrows applies Dendro (#221); his guide's Wanderer's Troupe raises his Charged Attacks (#206).
-      "Spread adds ~+98% to Tighnari's damage",
+      "Spread adds ~+90% to Tighnari's damage", // Zhongli's Tenacity ATK (#338)
     );
   });
 
@@ -1096,7 +1096,7 @@ describe("talent levels (#25)", () => {
     const spread = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Spread adds"))?.reason;
     // Bennett's ATK raises Alhaitham's hits but not Spread's flat damage, so Spread adds a smaller share.
     // (ICDs, #226; with his guide's Gilded Dreams, whose ATK and EM need a reaction, #206.)
-    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+73% to Alhaitham's damage"); // Nahida's EM in damage (#186)
+    expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+69% to Alhaitham's damage"); // Nahida's EM in damage (#186), Zhongli's Tenacity (#338)
     expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+60% to Alhaitham's damage"); // Noblesse (#338)
     // Lauma's flat DMG is for Bloom-type reactions, not his hits: no change.
     expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+78% to Alhaitham's damage");

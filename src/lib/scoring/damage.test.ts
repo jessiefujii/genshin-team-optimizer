@@ -653,9 +653,9 @@ describe("support gear's party effects in damage (#206)", () => {
   });
 
   test("Millennial Movement ATK doesn't stack; Thrilling Tales is the carry's only", () => {
-    const one = [get("Hu Tao"), geared("Sucrose", { weapon: "Elegy for the End" }), get("Xingqiu"), get("Zhongli")];
+    const one = [get("Hu Tao"), geared("Sucrose", { weapon: "Elegy for the End" }), get("Xingqiu"), bare("Zhongli")]; // no Tenacity (#338)
     const two = [get("Hu Tao"), geared("Sucrose", { weapon: "Elegy for the End" }), get("Xingqiu"), geared("Zhongli", { weapon: "Song of Broken Pines" })];
-    expect(carryGets(one).atkPct).toBeGreaterThan(carryGets([get("Hu Tao"), get("Sucrose"), get("Xingqiu"), get("Zhongli")]).atkPct);
+    expect(carryGets(one).atkPct).toBeGreaterThan(carryGets([get("Hu Tao"), get("Sucrose"), get("Xingqiu"), bare("Zhongli")]).atkPct);
     expect(carryGets(two).atkPct).toBeCloseTo(carryGets(one).atkPct, 5);
     // 24% ATK at R1 for 10s of every 20s, for "the new character taking the field": the carry, not Xingqiu.
     const ttds = [get("Hu Tao"), geared("Bennett", { weapon: "Thrilling Tales of Dragon Slayers" }), get("Xingqiu"), get("Zhongli")];
