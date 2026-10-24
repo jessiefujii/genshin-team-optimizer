@@ -165,7 +165,7 @@ for (const c of tags) {
   for (const t of texts)
     for (const s of sentences(t.text))
       for (const [role, test] of Object.entries(ROLE_RULES))
-        if (test(s) && !(role === "buffer" && selfBuff(s, c.id))) (roleHits[role] ??= []).push(`${t.talent}: ${s.slice(0, 220)}`);
+        if (test(s) && !(role === "buffer" && selfBuff(s, c.id))) (roleHits[role] ??= []).push(`${t.talent}: ${s}`);
   const fromParticles = batteryEvidence(c);
   if (fromParticles.length) (roleHits.battery ??= []).unshift(...fromParticles);
   const fromSets = setEvidence(c.id);
@@ -173,7 +173,7 @@ for (const c of tags) {
   const buffs = texts.flatMap((t) =>
     sentences(t.text)
       .filter((s) => ROLE_RULES.buffer(s) && !selfBuff(s, c.id))
-      .map((s) => ({ key: keyOf(t.talent, s), talent: t.talent, text: s.slice(0, 260) })),
+      .map((s) => ({ key: keyOf(t.talent, s), talent: t.talent, text: s })),
   );
 
   const entry = {};
@@ -188,6 +188,9 @@ for (const c of tags) {
   const tagged = new Set((c.buffs ?? []).map((b) => b.talent));
   const untagged = buffs.filter((b) => !tagged.has(b.talent));
   if (untagged.length) entry.buffsNotInTags = untagged;
+  // The whole text of each talent an item cites (#178 review: sentences alone can hide their context).
+  const cited = new Set([...(entry.roles?.add ?? []).flatMap((r) => r.because.map((b) => b.split(":")[0])), ...(entry.buffsNotInTags ?? []).map((b) => b.talent)]);
+  if (cited.size) entry.talents = Object.fromEntries(texts.filter((t) => cited.has(t.talent)).map((t) => [t.talent, { name: t.name, text: t.text }]));
   if (Object.keys(entry).length) {
     draft[c.id] = entry;
     changed++;
