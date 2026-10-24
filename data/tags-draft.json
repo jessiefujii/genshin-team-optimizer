@@ -205,12 +205,6 @@
         "burgeon"
       ],
       "remove": []
-    },
-    "roles": {
-      "add": [],
-      "notInText": [
-        "healer"
-      ]
     }
   },
   "Candace": {
@@ -600,7 +594,6 @@
     "roles": {
       "add": [],
       "notInText": [
-        "healer",
         "battery"
       ]
     }
@@ -622,7 +615,6 @@
     "roles": {
       "add": [],
       "notInText": [
-        "healer",
         "battery"
       ]
     }
@@ -1082,10 +1074,28 @@
       "remove": []
     },
     "roles": {
-      "add": [],
-      "notInText": [
-        "healer"
-      ]
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: When a **Purrsonal Coordinated Assistance Robot** from the Elemental Burst Hidden Aces: Seven Tools of the Hunter triggers healing on an active team member, if that character's HP is above 70%, their Elemental Mastery will be increased by 100 for 6s."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "key": "buff:passive2:buew8j",
+        "talent": "passive2",
+        "text": "When a **Purrsonal Coordinated Assistance Robot** from the Elemental Burst Hidden Aces: Seven Tools of the Hunter triggers healing on an active team member, if that character's HP is above 70%, their Elemental Mastery will be increased by 100 for 6s."
+      }
+    ],
+    "talents": {
+      "passive2": {
+        "name": "Sweet Berry Bounty",
+        "text": "When a **Purrsonal Coordinated Assistance Robot** from the Elemental Burst Hidden Aces: Seven Tools of the Hunter triggers healing on an active team member, if that character's HP is above 70%, their Elemental Mastery will be increased by 100 for 6s."
+      }
     }
   },
   "Jean": {
@@ -1903,12 +1913,6 @@
         "lunar-crystallize"
       ],
       "remove": []
-    },
-    "roles": {
-      "add": [],
-      "notInText": [
-        "healer"
-      ]
     }
   },
   "Odette": {
@@ -2316,12 +2320,21 @@
     },
     "buffsNotInTags": [
       {
+        "key": "buff:passive1:1dlr6hf",
+        "talent": "passive1",
+        "text": "When Sucrose triggers a Swirl or Stellar Swirl reaction, all characters in the party with the matching element (excluding Sucrose) have their Elemental Mastery increased by 50 for 8s."
+      },
+      {
         "key": "buff:passive2:tsskxw",
         "talent": "passive2",
         "text": "When Astable Anemohypostasis Creation - 6308 or Forbidden Creation - Isomer 75 / Type II hits an opponent, increases all party members' (excluding Sucrose) Elemental Mastery by an amount equal to 20% of Sucrose's Elemental Mastery for 8s."
       }
     ],
     "talents": {
+      "passive1": {
+        "name": "Catalyst Conversion",
+        "text": "When Sucrose triggers a Swirl or Stellar Swirl reaction, all characters in the party with the matching element (excluding Sucrose) have their Elemental Mastery increased by 50 for 8s."
+      },
       "passive2": {
         "name": "Mollis Favonius",
         "text": "When Astable Anemohypostasis Creation - 6308 or Forbidden Creation - Isomer 75 / Type II hits an opponent, increases all party members' (excluding Sucrose) Elemental Mastery by an amount equal to 20% of Sucrose's Elemental Mastery for 8s."

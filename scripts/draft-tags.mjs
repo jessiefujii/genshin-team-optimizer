@@ -66,13 +66,17 @@ const sentences = (text) =>
     return bullets.length ? [lead, ...bullets.map((b) => (lead ? `${b} [${lead}]` : b))].filter(Boolean) : [s];
   });
 
-const PARTY = /(party members?|all party|nearby (?:party )?characters?|active (?:party )?(?:characters?|members?)|characters within|characters protected|characters who|(?:these|those) characters|the team)/i;
+const PARTY = /(party members?|all party|all characters|nearby (?:party )?characters?|active (?:party |team )?(?:characters?|members?)|team members?|connected character|characters? within|characters protected|characters who|(?:these|those) characters|the team)/i;
 // A reaction's DMG raised for others is a party buff even when the character is named (Baizhu: "increase the Burning,
 // Bloom, Hyperbloom, and Burgeon reaction DMG dealt by these characters", from his Max HP; Jessie, 2026-10-24).
 const REACTION_DMG =
   /\b(Burning|Bloom|Hyperbloom|Burgeon|Lunar-\w+|Swirl|Stellar[- ]\w+|Electro-Charged|Overloaded|Superconduct|Aggravate|Spread|Vaporize|Melt|Crystallize|Quicken)\b[^.]{0,80}?\bDMG\b/;
 const ROLE_RULES = {
-  healer: (s) => /(heal|restor\w* HP|HP regeneration|regenerat\w* HP)/i.test(s) && PARTY.test(s),
+  // Healing worded many ways (#178 review: "their health will continuously regenerate", "regenerates the HP of
+  // characters", "Continuously restore HP" for the connected character, "triggers healing on an active team member").
+  healer: (s) =>
+    /(heal|restor\w*(?: \w+){0,2} (?:HP|health)|HP regeneration|regenerat\w*(?: \w+){0,2} (?:HP|health)|health will (?:continuously )?regenerate)/i.test(s) &&
+    PARTY.test(s),
   shielder: (s) => /\bshield\b/i.test(s) && !/shield DMG Absorption is increased/i.test(s),
   battery: (s) => /(Energy|Elemental Energy)/.test(s) && /(regenerat|restor|recover|gain)/i.test(s) && /party members?|active character/i.test(s),
   buffer: (s) =>
