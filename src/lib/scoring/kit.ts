@@ -49,14 +49,48 @@ const KIT = kitJson.characters as Record<string, KitCharacter>;
 // A character without a build reads as wearing their KQM guide's 4pc set (#279, #206; supports' party sets #338,
 // extract-kit benchmarkSets): the first option that fits the team (the reaction it triggers, or one of `members` in
 // it). A build's own sets always count.
-type BenchmarkSet = { set: string; when?: { reaction?: Reaction; members?: string[] } };
+// One wearer per party set (#348): two of the same party set don't stack, so a member whose pick a teammate already
+// wears takes their next option that fits. Builds keep theirs; among benchmark members, those whose option isn't
+// `defer` (the guide's "if no one else is holding it") choose first, in id order, so the team's order doesn't matter.
+// Personal sets (Golden Troupe) can be worn twice.
+type BenchmarkSet = { set: string; defer?: boolean; when?: { reaction?: Reaction; members?: string[] } };
 const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet[]> }).benchmarkSets;
+const isPartySet = (set: string) => set in PARTY_SETS || set in GEAR_SETS;
+const benchmarkCache = new WeakMap<readonly ScoringCharacter[], Map<string, Map<string, string>>>();
+function benchmarkPicks(active: readonly Reaction[], team: readonly ScoringCharacter[]): Map<string, string> {
+  let byActive = benchmarkCache.get(team);
+  if (!byActive) benchmarkCache.set(team, (byActive = new Map()));
+  const key = active.join(",");
+  const cached = byActive.get(key);
+  if (cached) return cached;
+  const fits = ({ when: w }: BenchmarkSet) =>
+    (!w?.reaction || active.includes(w.reaction)) && (!w?.members || team.some((m) => w.members!.includes(m.id)));
+  const taken = new Set(team.flatMap((m) => (m.stats || m.sets ? (m.sets ?? []).filter((s) => s.pieces >= 4).map((s) => s.set) : [])).filter(isPartySet));
+  const free = (b: BenchmarkSet) => !isPartySet(b.set) || !taken.has(b.set);
+  const picks = new Map<string, string>();
+  const wear = (m: ScoringCharacter, b: BenchmarkSet) => {
+    picks.set(m.id, b.set);
+    if (isPartySet(b.set)) taken.add(b.set);
+  };
+  const benchmark = team.filter((m) => !m.stats && !m.sets && BENCHMARK_SETS[m.id]).sort((a, b) => (a.id < b.id ? -1 : 1));
+  const later: ScoringCharacter[] = [];
+  for (const m of benchmark) {
+    const first = BENCHMARK_SETS[m.id].find(fits);
+    if (first && !first.defer && free(first)) wear(m, first);
+    else if (first) later.push(m);
+  }
+  for (const m of later) {
+    const options = BENCHMARK_SETS[m.id].filter(fits);
+    wear(m, options.find(free) ?? options[0]); // every option taken: the first, which then adds nothing
+  }
+  byActive.set(key, picks);
+  return picks;
+}
 export function setsOf(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[] = [c]): NonNullable<ScoringCharacter["sets"]> {
   if (c.stats || c.sets) return c.sets ?? [];
-  const b = BENCHMARK_SETS[c.id]?.find(
-    ({ when: w }) => (!w?.reaction || active.includes(w.reaction)) && (!w?.members || team.some((m) => w.members!.includes(m.id))),
-  );
-  return b ? [{ set: b.set, pieces: 4 }] : [];
+  if (!BENCHMARK_SETS[c.id]) return [];
+  const set = benchmarkPicks(active, team.includes(c) ? team : [c]).get(c.id);
+  return set ? [{ set, pieces: 4 }] : [];
 }
 
 // Party-wide set effects (#306, extract-kit SETS `party`): Silken Moon's Serenade's EM to all party members, and the

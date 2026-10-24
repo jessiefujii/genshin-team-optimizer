@@ -3713,25 +3713,28 @@ const benchmarkSets = {
   // of the Furnace). None for Lisa: her first pick is her on-field DPS set (Thundering Fury). Jessie's
   // picks over the guide's (2026-10-24): Gorou on Husk (KQM's first pick: Scroll), Zhongli on Tenacity (KQM's first:
   // "Rainbow", 2pc HP% + 2pc HP%).
+  // Later options are the guide's picks when a teammate already wears that party set (#348, kit.ts setsOf); `defer`: the
+  // guide gives the first up to a teammate who wants it too ("if no one else is holding it").
   "Kaedehara Kazuha": [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "kazuha-quickguide", "4pc Viridescent Venerer (4VV) is the artifact set that Kazuha uses in almost all of his teams") }],
-  Sucrose: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "sucrose-quickguide", "Sucrose should generally hold 4pc VV to bolster her own damage and shred enemy Elemental RES") }],
-  Lynette: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "lynette-quickguide", "It is Lynette's Best-in-Slot set in nearly all her playstyles") }],
-  Prune: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "prune-quickguide", "As an Anemo character, Prune can hold 4pc VV to shred enemy RES for the Element Swirled by her Skill or Burst") }],
+  Sucrose: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "sucrose-quickguide", "Sucrose should generally hold 4pc VV to bolster her own damage and shred enemy Elemental RES") }, { set: "Deepwood Memories", source: kqmOn("2026-10-24", "sucrose-quickguide", "Sucrose can hold any of these sets in Dendro teams, depending on what sets other teammates already hold") }, { set: "Instructor", source: kqmOn("2026-10-24", "sucrose-quickguide", "Sucrose can hold any of these sets in Dendro teams, depending on what sets other teammates already hold") }, { set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "sucrose-quickguide", "Sucrose can hold any of these sets in Dendro teams, depending on what sets other teammates already hold") }],
+  Lynette: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "lynette-quickguide", "It is Lynette's Best-in-Slot set in nearly all her playstyles") }, { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "lynette-quickguide", "Lynette can hold 4pc Noblesse Oblige to buff both herself and her teammates") }],
+  Prune: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "prune-quickguide", "As an Anemo character, Prune can hold 4pc VV to shred enemy RES for the Element Swirled by her Skill or Burst") }, { set: "Celestial Gift", source: kqmOn("2026-10-24", "prune-quickguide", "4pc Celestial can be used to buff units such as Venti who deal primarily Anemo damage") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "prune-quickguide", "In Anemo teams, if another character already holds 4pc Celestial, Prune can consider these sets instead") }, { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "prune-quickguide", "In Anemo teams, if another character already holds 4pc Celestial, Prune can consider these sets instead") }],
   Xianyun: [
     { set: "Noblesse Oblige", when: { members: ["Xiao"] }, source: kqmOn("2026-10-24", "xianyun-quickguide", "In Xiao teams, you should prioritize 4pc Noblesse Oblige over 4pc Viridescent Venerer") },
     { set: "Viridescent Venerer", source: kqmOn("2026-10-24", "xianyun-quickguide", "4pc Viridescent Venerer is one of Xianyun's best artifact sets") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "xianyun-quickguide", "4pc Noblesse Oblige is a great option if no one else on the team can hold it") },
   ],
-  Faruzan: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "faruzan-quickguide", "This set is not recommended for pre-C6 Faruzan ... Bestows the whole team with a 20% ATK buff for 12s every Burst cast") }],
-  Bennett: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "bennett-quickguide", "This is typically Bennett's best set, unless his team does not benefit from the ATK% buff") }],
-  Chevreuse: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "chevreuse-quickguide", "She should equip this set if no one else is holding it") }],
-  Shenhe: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "shenhe-quickguide", "4pc Noblesse Oblige is often Shenhe's Best-in-Slot artifact set for team damage") }],
+  Faruzan: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "faruzan-quickguide", "This set is not recommended for pre-C6 Faruzan ... Bestows the whole team with a 20% ATK buff for 12s every Burst cast") }, { set: "Viridescent Venerer", source: kqmOn("2026-10-24", "faruzan-quickguide", "A staple choice for an Anemo character") }],
+  Bennett: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "bennett-quickguide", "This is typically Bennett's best set, unless his team does not benefit from the ATK% buff") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "bennett-quickguide", "4pc Scroll has comparable buffing to 4pc NO on ATK-scaling damage dealers") }, { set: "Instructor", source: kqmOn("2026-10-24", "bennett-quickguide", "If another character on the team can hold 4pc NO, this option is better for overall team DPS") }],
+  Chevreuse: [{ defer: true, set: "Noblesse Oblige", source: kqmOn("2026-10-24", "chevreuse-quickguide", "She should equip this set if no one else is holding it") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "chevreuse-quickguide", "This is a decent option if her teammates can snapshot the ATK% buff") }],
+  Shenhe: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "shenhe-quickguide", "4pc Noblesse Oblige is often Shenhe's Best-in-Slot artifact set for team damage") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "shenhe-quickguide", "4pc Scroll of the Hero of Cinder City can be used if no Natlan holders of this set are present") }],
   Mika: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "mika-quickguide", "4pc Noblesse is Mika's best option due to its strong supporting capabilities") }],
-  "Kujou Sara": [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "sara-quickguide", "Allows Sara to maximize her buffing capabilities if no one else already has this") }],
-  Dahlia: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "dahlia-quickguide", "Dahlia Burst is used every rotation, so 4pc NO is a natural choice to buff ATK-scaling teammates") }],
-  Vodyanitsa: [{ set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "vodyanitsa-quickguide", "4pc TotM is Vodyanitsa's best support set in ATK-scaling teams") }],
-  Xilonen: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen's best artifact set by far") }],
-  Citlali: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "citlali-quickguide", "Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction") }],
-  Iansan: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "iansan-quickguide", "This makes it her recommended option for the vast majority of her teams") }],
+  "Kujou Sara": [{ defer: true, set: "Noblesse Oblige", source: kqmOn("2026-10-24", "sara-quickguide", "Allows Sara to maximize her buffing capabilities if no one else already has this") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "sara-quickguide", "Allows players to maximize her buffing capabilities if another character already has 4 NO") }],
+  Dahlia: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "dahlia-quickguide", "Dahlia Burst is used every rotation, so 4pc NO is a natural choice to buff ATK-scaling teammates") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "dahlia-quickguide", "or if another party member is already holding 4pc NO") }],
+  Vodyanitsa: [{ set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "vodyanitsa-quickguide", "4pc TotM is Vodyanitsa's best support set in ATK-scaling teams") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "vodyanitsa-quickguide", "4pc Scroll is a good alternative for 4pc TotM if another teammate already holds it") }],
+  Xilonen: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen's best artifact set by far") }, { set: "Archaic Petra", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen can run one of them if there is another 4pc Scroll holder on your team") }, { set: "Instructor", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen can run one of them if there is another 4pc Scroll holder on your team") }, { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen can run one of them if there is another 4pc Scroll holder on your team") }],
+  Citlali: [{ defer: true, set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "citlali-quickguide", "Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "citlali-quickguide", "it can be used when another character uses Scroll") }],
+  Iansan: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "iansan-quickguide", "This makes it her recommended option for the vast majority of her teams") }, { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "iansan-quickguide", "A viable alternative to 4pc Scroll") }],
   Gorou: [{ set: "Husk of Opulent Dreams", source: "Jessie, 2026-10-24 (#338 review): Gorou on 4pc Husk of Opulent Dreams" }],
   Zhongli: [
     {
@@ -3739,14 +3742,20 @@ const benchmarkSets = {
       source: `Jessie, 2026-10-24 (#338 review): Zhongli on 4pc Tenacity; ${kqmOn("2026-10-24", "zhongli-quickguide", "if your team's DPS unit can snapshot the 4pc ATK% buff, then it can be viable")}`,
     },
   ],
-  Nahida: [{ set: "Deepwood Memories", source: kqmOn("2026-10-24", "nahida-quickguide", "Nahida is often the best for this role, since she easily maintains the 4pc effect") }],
+  Nahida: [{ set: "Deepwood Memories", source: kqmOn("2026-10-24", "nahida-quickguide", "Nahida is often the best for this role, since she easily maintains the 4pc effect") }, { set: "Golden Troupe", source: kqmOn("2026-10-24", "nahida-quickguide", "It is best used if another teammate is already holding 4pc Deepwood") }],
   Baizhu: ["spread", "bloom", "hyperbloom", "burgeon", "lunar-bloom"].map((reaction) => ({
+    defer: true,
     set: "Deepwood Memories",
     when: { reaction },
     source: kqmOn("2026-10-24", "baizhu-quickguide", "4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it"),
-  })),
+  })).concat([
+    {
+      set: "Instructor",
+      source: kqmOn("2026-10-24", "baizhu-quickguide", "If another 4pc Deepwood holder is already on the team or 4pc DM isn't necessary, then 4pc Instructor or 4pc NO may result in higher team damage"),
+    },
+  ]),
   Furina: [{ set: "Golden Troupe", source: kqmOn("2026-10-24", "furina-quickguide", "4pc Golden Troupe is by far Furina's best set for her personal damage") }],
-  Escoffier: [{ set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "escoffier-quickguide", "Escoffier can maintain excellent uptime on 4pc TotM") }],
+  Escoffier: [{ set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "escoffier-quickguide", "Escoffier can maintain excellent uptime on 4pc TotM") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "escoffier-quickguide", "Escoffier usually holds 4pc NO when other teammates already use the aforementioned 4pc sets") }, { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "escoffier-quickguide", "Escoffier usually holds 4pc NO when other teammates already use the aforementioned 4pc sets") }],
   Yelan: [{ set: "Emblem of Severed Fate", source: kqmOn("2026-10-24", "yelan-quickguide", "Hands-down her best set") }],
   Ineffa: [{ set: "Aubade of Morningstar and Moon", source: kqmOn("2026-10-24", "ineffa-quickguide", "making it her most recommended set") }],
   Linnea: [{ set: "Husk of Opulent Dreams", source: kqmOn("2026-10-24", "linnea-quickguide", "Husk is Linnea's general best-in-slot option") }],
@@ -3763,18 +3772,24 @@ const benchmarkSets = {
       source: kqmOn("2026-10-24", "mona-quickguide", "4pc CG is Mona's default support set in teams with another Hexerei character"),
     },
     { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "mona-quickguide", "4pc NO is another option for Mona in teams that appreciate its teamwide ATK% buff") },
+    { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "mona-quickguide", "then Mona typically opts for either 4pc NO or 4pc TotM instead") },
   ],
   Alyosha: [
     { set: "Heart of the Furnace", when: { reaction: "stellar-conduct" }, source: kqmOn("2026-10-24", "alyosha-quickguide", "4pc Heart of the Furnace is the default set for Alyosha in Stellar-Conduct teams") },
     { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "alyosha-quickguide", "Alyosha uses 4pc NO when another teammate holds 4pc Heart of the Furnace. This set can also be used in non-Stellar-Conduct teams") },
   ],
-  Lauma: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "lauma-quickguide", "Overall a good supportive set for Lauma and her most common artifact set") }],
-  Columbina: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "columbina-quickguide", "Columbina usually uses 4pc SMS for team DPS") }],
+  Lauma: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "lauma-quickguide", "Overall a good supportive set for Lauma and her most common artifact set") }, { set: "Deepwood Memories", source: kqmOn("2026-10-24", "lauma-quickguide", "Lauma may use it when it isn't suitable on any other teammate") }],
+  Columbina: [{ defer: true, set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "columbina-quickguide", "Columbina usually uses 4pc SMS for team DPS") }, { set: "Aubade of Morningstar and Moon", source: kqmOn("2026-10-24", "columbina-quickguide", "4pc Aubade can be used instead if there is a better holder of 4pc SMS") }],
   Illuga: [
     { set: "Silken Moon's Serenade", when: { members: ["Zibai"] }, source: kqmOn("2026-10-24", "illuga-quickguide", "4pc SMS is one of Illuga's most notable sets with Zibai") },
-    { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "illuga-quickguide", "This is Illuga's default set for Geo DPS units if another teammate cannot hold it") },
+    { set: "Instructor", when: { members: ["Zibai"] }, source: kqmOn("2026-10-24", "illuga-quickguide", "4pc Instructor is an alternative to 4pc SMS") },
+    { defer: true, set: "Noblesse Oblige", source: kqmOn("2026-10-24", "illuga-quickguide", "This is Illuga's default set for Geo DPS units if another teammate cannot hold it") },
+    { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "illuga-quickguide", "4pc Scroll can be used if the team already has good 4pc SMS or 4pc Instructor holders") },
   ],
-  Nilou: [{ set: "Silken Moon's Serenade", when: { reaction: "lunar-bloom" }, source: kqmOn("2026-10-24", "nilou-quickguide", "4pc SMS is Nilou's default set in Lunar-Bloom teams if her teammates prefer other sets") }],
+  Nilou: [
+    { defer: true, set: "Silken Moon's Serenade", when: { reaction: "lunar-bloom" }, source: kqmOn("2026-10-24", "nilou-quickguide", "4pc SMS is Nilou's default set in Lunar-Bloom teams if her teammates prefer other sets") },
+    { set: "Instructor", when: { reaction: "lunar-bloom" }, source: kqmOn("2026-10-24", "nilou-quickguide", "Nilou can hold 4pc Instructor if another character is holding 4pc SMS") },
+  ],
 };
 // Benchmark carries' weapons (#206, Jessie 2026-10-21: "Best 4★"; "if a best weapon is a 3 star make sure to use it"):
 // the first non-5-star weapon in the carry's KQM quick guide weapon list, at the refinement it names (else R1); game8

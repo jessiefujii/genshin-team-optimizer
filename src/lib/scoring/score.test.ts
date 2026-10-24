@@ -143,8 +143,8 @@ describe("scoreTeam", () => {
     // Clorinde's Dark-Shattering Flame needs any Electro-related reaction (#141): its own line, at full value with
     // Overloaded alone; Aggravate then adds only what it adds on top. Overloaded's own damage is a 0-point line too (#205).
     expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
-      // Bennett's Noblesse raises her ATK, not the passive's share of it (#338).
-      { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+73% damage" },
+      // Bennett's Noblesse (#338) and Chevreuse's Tenacity, Noblesse taken (#348), raise her ATK, not the passive's share.
+      { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+69% damage" },
       { rule: "Reactions", points: 0, reason: "Overloaded: ~1178 damage per second (Bennett ~0.1/s, Chevreuse ~0.1/s)" },
       { rule: "Reactions", points: 0, reason: "Electrocharged: ~4335 damage per second (Clorinde ~0.4/s, Furina ~0.6/s)" },
     ]);

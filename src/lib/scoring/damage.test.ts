@@ -673,6 +673,21 @@ describe("support gear's party effects in damage (#206)", () => {
     expect(memberGets(vv[3], vv, swirl).resShred).toBeCloseTo(memberGets(plain[3], plain, swirl).resShred, 5); // Zhongli: Geo
   });
 
+  test("one wearer per party set: a teammate already wearing it moves a benchmark support to their next pick (#348)", () => {
+    const sets = (...ids: string[]) => {
+      const t = ids.map((id) => get(id));
+      return Object.fromEntries(t.map((m) => [m.id, setsOf(m, ["overloaded", "melt"], t)[0]?.set]));
+    };
+    // Chevreuse gives Noblesse up to Bennett ("if no one else is holding it"), in any team order.
+    expect(sets("Clorinde", "Bennett", "Chevreuse", "Furina")).toMatchObject({ Bennett: "Noblesse Oblige", Chevreuse: "Tenacity of the Millelith" });
+    expect(sets("Chevreuse", "Furina", "Clorinde", "Bennett")).toMatchObject({ Bennett: "Noblesse Oblige", Chevreuse: "Tenacity of the Millelith" });
+    // Xilonen keeps Scroll ("her best artifact set by far"); Citlali takes Tenacity.
+    expect(sets("Arlecchino", "Citlali", "Xilonen", "Bennett")).toMatchObject({ Xilonen: "Scroll of the Hero of Cinder City", Citlali: "Tenacity of the Millelith" });
+    // A build's set stays: a built Bennett on Noblesse moves Chevreuse too.
+    const t = [get("Clorinde"), geared("Bennett", { set: "Noblesse Oblige" }), get("Chevreuse"), get("Furina")];
+    expect(setsOf(t[2], ["overloaded"], t)[0]?.set).toBe("Tenacity of the Millelith");
+  });
+
   test("Instructor, Celestial Gift, Heart of the Furnace (#345)", () => {
     // Instructor: 120 EM to the party while its wearer triggers one of the team's reactions.
     const instructor = geared("Bennett", { set: "Instructor" });
