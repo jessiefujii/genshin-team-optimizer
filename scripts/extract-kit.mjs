@@ -3356,8 +3356,12 @@ const fightingSpirit = readFightingSpirit(tags.filter((c) => (c.families ?? []).
 
 // Carries (#101): the 16 compare carries first; other main DPS are listed until they get an entry.
 const carries = {};
-// `baseHp`: level 90 character base HP (genshin-db), for HP % buffs on the carry (#186: Soothing Water).
-for (const [id, spec] of Object.entries(CARRIES)) carries[id] = { ...readCarry(id, spec), ...(baseStatsOf(id) ? { baseHp: baseStatsOf(id).hp } : {}) };
+// `baseHp`, `baseDef`: level 90 character base HP and DEF (genshin-db), for HP % buffs on the carry (#186: Soothing
+// Water) and set DEF % (#346: Husk).
+for (const [id, spec] of Object.entries(CARRIES)) {
+  const b = baseStatsOf(id);
+  carries[id] = { ...readCarry(id, spec), ...(b ? { baseHp: b.hp, baseDef: b.def } : {}) };
+}
 for (const [id, table] of Object.entries(OVERRIDES.carryIcd ?? {}))
   for (const key of Object.keys(id === "_howTo" ? {} : table))
     if (!icdUsed.has(`${id}|${key}`)) throw new Error(`${id}: carryIcd "${key}" matches no carry hit`);
@@ -3420,7 +3424,7 @@ for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
 // is 2). Freeze scores only through these (Jessie, 2026-10-18, #205). Kinds: critRate, dmgBonus (`types`: hit types,
 // default every hit; `element`: hits of that element only), atkPct (of base ATK), reactionBonus (`reactions`: the
 // Reaction Bonus term of Vaporize/Melt, Aggravate and direct Lunar hits), dmgBonusFromEr (per 100% ER, capped at `max`),
-// atkPctPerSame / emPerOther (per other member of the wearer's / another element, up to `max` members). `stacks`: a
+// defPct (of base DEF, #346), atkPctPerSame / emPerOther (per other member of the wearer's / another element, up to `max` members). `stacks`: a
 // "Max N stacks" read at full stacks, or a number. `when` (damage.ts setFits): aura (an element the team applies),
 // reaction (one the team triggers), wearerReacts (the wearer triggers one of the team's reactions), hpChanges (the
 // wearer's HP goes up or down: a healer, or HP drain: holderStates), hpDrops (HP drain only), bondOfLife (their own kit
@@ -3525,8 +3529,9 @@ const SETS = {
     { kind: "dmgBonus", types: ["normal", "charged", "plunge"], re: /Normal\/Charged\/Plunging Attack DMG is increased by (\d+)% for 10s/, estimate: "after their Skill" },
   ],
   "Husk of Opulent Dreams": [
-    // Off-field "1 stack every 3s", on-field per Geo hit: taken at full stacks. Its 6% DEF a stack is left out (no DEF
-    // kind here yet: the wearer's DEF-scaled hits read the benchmark's DEF).
+    // Off-field "1 stack every 3s", on-field per Geo hit: taken at full stacks. DEF% of base DEF (#346): the wearer's
+    // DEF-scaled hits and DEF-based buffs.
+    { kind: "defPct", re: /each providing (\d+)% DEF and a \d+% Geo DMG Bonus/, stacks: /Curiosity can stack up to (\d+) times/ },
     { kind: "dmgBonus", element: "Geo", re: /each providing \d+% DEF and a (\d+)% Geo DMG Bonus/, stacks: /Curiosity can stack up to (\d+) times/ },
   ],
   "Golden Troupe": [

@@ -196,13 +196,22 @@ export function atkPctGain(carry: ScoringCharacter, pct: number): number {
 
 // The buffer's own stats: from their build when the player has one, else the benchmark. `partyEm`: party-wide set EM
 // (Silken Moon's Serenade, #306), on no one's character screen: Illuga's EM-based buffs grow with it.
+// A buffer's own set DEF% (Husk's stacks, #346), of base DEF: on DEF-based buffs (Linnea's EM, Zhongli's shield). Sets
+// with a team condition don't give DEF, so the wearer alone picks them.
+const SET_DEF_PCT = Object.fromEntries(
+  Object.entries((kitJson as unknown as { sets: Record<string, { kind: string; value: number; pieces?: number }[]> }).sets).map(([id, effects]) => [
+    id,
+    effects.filter((e) => e.kind === "defPct" && !e.pieces).reduce((a, e) => a + e.value, 0),
+  ]),
+);
+const setDefPct = (s: ScoringCharacter) => setsOf(s, []).reduce((a, { set, pieces }) => a + (pieces >= 4 ? (SET_DEF_PCT[set] ?? 0) : 0), 0);
 function bufferStats(s: ScoringCharacter, base: KitCharacter["base"], buildFor: KitCharacter["buildFor"], partyEm = 0) {
   const b = BENCHMARK.buffer;
   return {
     baseAtk: s.stats?.baseAtk ?? (base?.atk ?? 0) + b.weaponBaseAtk,
     atk: s.stats?.atk ?? buildFor?.atk ?? b.atk,
     hp: s.stats?.hp ?? b.hp,
-    def: s.stats?.def ?? b.def,
+    def: (s.stats?.def ?? b.def) + setDefPct(s) * (base?.def ?? 0),
     em: (s.stats?.elementalMastery ?? (buildFor?.em === "built" ? BENCHMARK.carry.emBuilt : buildFor?.em) ?? b.em) + partyEm,
   };
 }

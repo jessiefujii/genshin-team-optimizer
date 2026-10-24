@@ -2118,6 +2118,11 @@
     ],
     "Husk of Opulent Dreams": [
       {
+        "kind": "defPct",
+        "value": 0.24,
+        "source": "4pc: \"each providing 6% DEF and a 6% Geo DMG Bonus\" x4 stacks"
+      },
+      {
         "kind": "dmgBonus",
         "value": 0.24,
         "element": "Geo",
@@ -8694,7 +8699,8 @@
           ]
         }
       ],
-      "baseHp": 15552
+      "baseHp": 15552,
+      "baseDef": 876
     },
     "Raiden Shogun": {
       "rotationSeconds": 18,
@@ -8858,7 +8864,8 @@
           ]
         }
       ],
-      "baseHp": 12907
+      "baseHp": 12907,
+      "baseDef": 789
     },
     "Xiao": {
       "rotationSeconds": 18,
@@ -8963,7 +8970,8 @@
           ]
         }
       ],
-      "baseHp": 12736
+      "baseHp": 12736,
+      "baseDef": 799
     },
     "Wriothesley": {
       "rotationSeconds": 15,
@@ -9139,7 +9147,8 @@
           ]
         }
       ],
-      "baseHp": 13593
+      "baseHp": 13593,
+      "baseDef": 763
     },
     "Yumemizuki Mizuki": {
       "rotationSeconds": 15,
@@ -9336,7 +9345,8 @@
           ]
         }
       ],
-      "baseHp": 12736
+      "baseHp": 12736,
+      "baseDef": 757
     },
     "Vesna": {
       "rotationSeconds": 18.48,
@@ -9531,7 +9541,8 @@
           ]
         }
       ],
-      "baseHp": 13262
+      "baseHp": 13262,
+      "baseDef": 730
     },
     "Wanderer": {
       "rotationSeconds": 20,
@@ -9595,7 +9606,8 @@
           ]
         }
       ],
-      "baseHp": 10164
+      "baseHp": 10164,
+      "baseDef": 607
     },
     "Varesa": {
       "rotationSeconds": 18,
@@ -9678,7 +9690,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 12699
+      "baseHp": 12699,
+      "baseDef": 782
     },
     "Mavuika": {
       "rotationSeconds": 18,
@@ -9958,7 +9971,8 @@
           ]
         }
       ],
-      "baseHp": 12552
+      "baseHp": 12552,
+      "baseDef": 792
     },
     "Zibai": {
       "rotationSeconds": 15,
@@ -10085,7 +10099,8 @@
           "max": 0.14
         }
       ],
-      "baseHp": 12919
+      "baseHp": 12919,
+      "baseDef": 957
     },
     "Skirk": {
       "rotationSeconds": 15,
@@ -10141,7 +10156,8 @@
           "hitsCap": 10
         }
       ],
-      "baseHp": 12417
+      "baseHp": 12417,
+      "baseDef": 806
     },
     "Nefer": {
       "rotationSeconds": 18,
@@ -10284,7 +10300,8 @@
           }
         }
       ],
-      "baseHp": 12704
+      "baseHp": 12704,
+      "baseDef": 799
     },
     "Clorinde": {
       "rotationSeconds": 16,
@@ -10358,7 +10375,8 @@
           ]
         }
       ],
-      "baseHp": 12956
+      "baseHp": 12956,
+      "baseDef": 784
     },
     "Flins": {
       "rotationSeconds": 17.5,
@@ -10477,7 +10495,8 @@
           }
         }
       ],
-      "baseHp": 12491
+      "baseHp": 12491,
+      "baseDef": 809
     },
     "Arlecchino": {
       "rotationSeconds": 15,
@@ -11022,7 +11041,8 @@
           ]
         }
       ],
-      "baseHp": 13103
+      "baseHp": 13103,
+      "baseDef": 765
     },
     "Kinich": {
       "rotationSeconds": 18,
@@ -11137,7 +11157,8 @@
           ]
         }
       ],
-      "baseHp": 12858
+      "baseHp": 12858,
+      "baseDef": 802
     },
     "Neuvillette": {
       "rotationSeconds": 26.5,
@@ -11230,7 +11251,8 @@
           "note": "passive2 at 50% HP"
         }
       ],
-      "baseHp": 14695
+      "baseHp": 14695,
+      "baseDef": 576
     },
     "Kamisato Ayaka": {
       "rotationSeconds": 20,
@@ -11389,7 +11411,8 @@
           ]
         }
       ],
-      "baseHp": 12858
+      "baseHp": 12858,
+      "baseDef": 784
     },
     "Alhaitham": {
       "rotationSeconds": 23.5,
@@ -11511,7 +11534,8 @@
           ]
         }
       ],
-      "baseHp": 13348
+      "baseHp": 13348,
+      "baseDef": 782
     },
     "Klee": {
       "rotationSeconds": 15,
@@ -11620,7 +11644,8 @@
           }
         }
       ],
-      "baseHp": 10287
+      "baseHp": 10287,
+      "baseDef": 615
     },
     "Tighnari": {
       "rotationSeconds": 12,
@@ -11693,7 +11718,8 @@
           ]
         }
       ],
-      "baseHp": 10850
+      "baseHp": 10850,
+      "baseDef": 630
     },
     "Lyney": {
       "rotationSeconds": 15,
@@ -11774,7 +11800,8 @@
           ]
         }
       ],
-      "baseHp": 11021
+      "baseHp": 11021,
+      "baseDef": 538
     },
     "Ningguang": {
       "rotationSeconds": 15.5,
@@ -11833,7 +11860,8 @@
           ]
         }
       ],
-      "baseHp": 9787
+      "baseHp": 9787,
+      "baseDef": 573
     },
     "Sethos": {
       "rotationSeconds": 15,
@@ -11877,7 +11905,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 9787
+      "baseHp": 9787,
+      "baseDef": 560
     },
     "Yoimiya": {
       "rotationSeconds": 15,
@@ -11958,7 +11987,8 @@
           "note": "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]"
         }
       ],
-      "baseHp": 10164
+      "baseHp": 10164,
+      "baseDef": 615
     },
     "Ganyu": {
       "rotationSeconds": 15,
@@ -12081,7 +12111,8 @@
           ]
         }
       ],
-      "baseHp": 9797
+      "baseHp": 9797,
+      "baseDef": 630
     },
     "Kamisato Ayato": {
       "rotationSeconds": 25,
@@ -12152,7 +12183,8 @@
           ]
         }
       ],
-      "baseHp": 13715
+      "baseHp": 13715,
+      "baseDef": 769
     },
     "Navia": {
       "rotationSeconds": 18,
@@ -12323,7 +12355,8 @@
           ]
         }
       ],
-      "baseHp": 12650
+      "baseHp": 12650,
+      "baseDef": 793
     },
     "Yanfei": {
       "rotationSeconds": 20,
@@ -12400,7 +12433,8 @@
           ]
         }
       ],
-      "baseHp": 9352
+      "baseHp": 9352,
+      "baseDef": 587
     },
     "Cyno": {
       "rotationSeconds": 20,
@@ -12511,7 +12545,8 @@
           ]
         }
       ],
-      "baseHp": 12491
+      "baseHp": 12491,
+      "baseDef": 859
     },
     "Mualani": {
       "rotationSeconds": 16,
@@ -12553,7 +12588,8 @@
           "stat": "hp"
         }
       ],
-      "baseHp": 15185
+      "baseHp": 15185,
+      "baseDef": 570
     },
     "Arataki Itto": {
       "rotationSeconds": 22,
@@ -12631,7 +12667,8 @@
           "value": 0.9792
         }
       ],
-      "baseHp": 12858
+      "baseHp": 12858,
+      "baseDef": 959
     },
     "Tartaglia": {
       "rotationSeconds": 25.5,
@@ -12703,7 +12740,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 13103
+      "baseHp": 13103,
+      "baseDef": 815
     },
     "Aloy": {
       "rotationSeconds": 13.35,
@@ -12785,7 +12823,8 @@
           "value": 0.16
         }
       ],
-      "baseHp": 10899
+      "baseHp": 10899,
+      "baseDef": 676
     },
     "Noelle": {
       "rotationSeconds": 23.5,
@@ -12846,7 +12885,8 @@
           "value": 0.68
         }
       ],
-      "baseHp": 12071
+      "baseHp": 12071,
+      "baseDef": 799
     },
     "Shikanoin Heizou": {
       "rotationSeconds": 12,
@@ -12911,7 +12951,8 @@
           "tag": "heartstopper"
         }
       ],
-      "baseHp": 10657
+      "baseHp": 10657,
+      "baseDef": 684
     },
     "Gaming": {
       "rotationSeconds": 15,
@@ -13000,7 +13041,8 @@
           ]
         }
       ],
-      "baseHp": 11419
+      "baseHp": 11419,
+      "baseDef": 703
     },
     "Diluc": {
       "rotationSeconds": 12,
@@ -13089,7 +13131,8 @@
           ]
         }
       ],
-      "baseHp": 12981
+      "baseHp": 12981,
+      "baseDef": 784
     },
     "Keqing": {
       "rotationSeconds": 12,
@@ -13176,7 +13219,8 @@
           ]
         }
       ],
-      "baseHp": 13103
+      "baseHp": 13103,
+      "baseDef": 799
     },
     "Kaveh": {
       "rotationSeconds": 20,
@@ -13229,7 +13273,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 11962
+      "baseHp": 11962,
+      "baseDef": 751
     },
     "Traveler (Cryo)": {
       "rotationSeconds": 15,
@@ -13399,7 +13444,8 @@
           ]
         }
       ],
-      "baseHp": 10875
+      "baseHp": 10875,
+      "baseDef": 683
     },
     "Traveler (Hydro)": {
       "rotationSeconds": 16,
@@ -13433,7 +13479,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 10875
+      "baseHp": 10875,
+      "baseDef": 683
     },
     "Razor": {
       "rotationSeconds": 20,
@@ -13526,7 +13573,8 @@
       ],
       "buffs": [],
       "goblet": "Physical",
-      "baseHp": 11962
+      "baseHp": 11962,
+      "baseDef": 751
     },
     "Eula": {
       "rotationSeconds": 20,
@@ -13790,7 +13838,8 @@
         }
       ],
       "goblet": "Physical",
-      "baseHp": 13226
+      "baseHp": 13226,
+      "baseDef": 751
     },
     "Chasca": {
       "rotationSeconds": 15,
@@ -13881,7 +13930,8 @@
           ]
         }
       ],
-      "baseHp": 9797
+      "baseHp": 9797,
+      "baseDef": 615
     },
     "Freminet": {
       "rotationSeconds": 15,
@@ -14002,7 +14052,8 @@
           "goblet": "Physical"
         }
       ],
-      "baseHp": 12071
+      "baseHp": 12071,
+      "baseDef": 708
     }
   },
   "carriesTodo": [

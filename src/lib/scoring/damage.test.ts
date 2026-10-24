@@ -673,6 +673,15 @@ describe("support gear's party effects in damage (#206)", () => {
     expect(memberGets(vv[3], vv, swirl).resShred).toBeCloseTo(memberGets(plain[3], plain, swirl).resShred, 5); // Zhongli: Geo
   });
 
+  test("Husk of Opulent Dreams: 24% DEF and 24% Geo DMG at full stacks on a DEF-scaled carry (#346)", () => {
+    const itto = (set?: string) => {
+      const c = geared("Arataki Itto", { set });
+      return carryDamage(c, [], [c, get("Gorou"), get("Albedo"), get("Zhongli")])!.perSecond;
+    };
+    // His hits scale on DEF and his Burst converts DEF to ATK: more than the 24% Geo DMG alone.
+    expect(itto("Husk of Opulent Dreams") / itto()).toBeGreaterThan(1.24);
+  });
+
   test("Xilonen shreds Geo and party Pyro/Hydro/Cryo/Electro only, not Dendro (#337)", () => {
     const xilonen = [get("Alhaitham"), get("Ineffa"), get("Xilonen"), get("Yelan")];
     const plain = [get("Alhaitham"), get("Ineffa"), get("Bennett"), get("Yelan")];

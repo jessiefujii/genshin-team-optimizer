@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setReactionBonus, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setDmgBonus, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -1459,6 +1459,7 @@ function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamCon
     critRate: weaponSum(weapon, "critRate"),
     lunar: (r: Reaction | LunarReaction) => party.lunar + setReactionBonus(set, r),
     reaction: (r: Reaction) => setReactionBonus(set, r),
+    set,
   };
 }
 
@@ -1486,14 +1487,19 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     // Teammates' EM and HP % on all of this member's hits (#186: kit EM buffs, Sprawling Greenery, Soothing Water).
     const whole = memberBuffStats(m, carry, ctx.active, ctx.members, undefined, burstSharesFor(ctx, carry));
     const base = subDpsStats(m)!;
+    // Their own set on their own hits (#346, #347), as the carry's (damage.ts): DEF%, ATK%, EM, CRIT Rate and DMG Bonus
+    // by hit type and element (Golden Troupe's Skill DMG, Husk's Geo DMG; Emblem at their build's ER, else ER target).
+    const set = extras.set;
     const stat = {
       ...base,
-      em: base.em + extras.em + whole.em + (ownNs?.kind === "em" ? ownNs.value : 0), // party set and weapon EM (#306)
-      def: base.def + (ownNs?.kind === "defPct" ? ownNs.value * (entry.base?.def ?? 0) : 0),
+      em: base.em + extras.em + whole.em + sumSet(set, "emPerOther") + (ownNs?.kind === "em" ? ownNs.value : 0), // party set and weapon EM (#306)
+      def: base.def + ((ownNs?.kind === "defPct" ? ownNs.value : 0) + sumSet(set, "defPct")) * (entry.base?.def ?? 0),
     };
+    const er = base.er ?? (erTargetOf(m) ?? 100) / 100;
     const dmgBonus = stat.dmgBonus + (ownNs?.kind === "dmgBonus" ? ownNs.value : 0);
     // Base ATK, for teammates' ATK% buffs: the build's, else the character's plus the benchmark weapon's.
     const baseAtk = m.stats?.baseAtk ?? (entry.base ? entry.base.atk + BENCHMARK.buffer.weaponBaseAtk : BENCHMARK.carryBaseAtk);
+    const setAtk = (sumSet(set, "atkPct") + sumSet(set, "atkPctPerSame")) * baseAtk;
     let dps = 0;
     let lunarDps = 0;
     const picked = pickedSources(entry.sources, carry, ctx, m);
@@ -1511,13 +1517,14 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
       // Teammates' party-wide kit buffs on this hit (#204, kit.ts memberBuffStats): ATK, DMG Bonus, CRIT Rate, flat DMG.
       const team = memberBuffStats(m, carry, ctx.active, ctx.members, s.talent, burstSharesFor(ctx, carry));
-      const atk = stat.atk + team.atk + team.atkPct * baseAtk + weaponAtk(weapon, baseAtk, stat.em); // weapon ATK (#206)
+      const atk = stat.atk + team.atk + team.atkPct * baseAtk + weaponAtk(weapon, baseAtk, stat.em) + setAtk; // weapon ATK (#206), set ATK%
       const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
       // By talent (#40); a Normal Attack talent's hits read as Normal Attack DMG (#206: every-hit bonuses reach them).
       const talent = s.talent === "normal" || s.talent === "skill" || s.talent === "burst" ? s.talent : undefined;
       const weaponBonus = talent ? weaponDmgBonus(weapon, talent) : 0;
+      const setBonus = setDmgBonus(set, talent ?? "normal", m.element, er);
       // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
-      const crit = 1 + Math.min(stat.critRate + team.critRate + extras.critRate, 1) * stat.critDmg; // weapon CRIT (#306)
+      const crit = 1 + Math.min(stat.critRate + team.critRate + extras.critRate + sumSet(set, "critRate"), 1) * stat.critDmg; // weapon, set CRIT (#306)
       // Teammates' RES and DEF shred on this hit (#204), as on the carry's: Lunar hits take RES only.
       const res = 1 + resShredGain(team.resShred);
       const def = 1 + defShredGain(Math.min(0.9, team.defShred));
@@ -1550,7 +1557,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
         const b = s.boost;
         const hitsPerUse = (s.hits ?? 1) * (s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1);
         const boost = b ? 1 + Math.min(1, b.stacks / hitsPerUse) * Math.min(b.max, b.perPoint * stat[b.stat]) : 1;
-        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat + weaponBonus) * crit * res * def * boost;
+        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat + weaponBonus + setBonus) * crit * res * def * boost;
       }
     }
     dps += lunarDps;
