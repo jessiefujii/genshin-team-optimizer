@@ -1029,8 +1029,15 @@
         {
           "kind": "resShred",
           "value": 0.33,
-          "unit": "RES of the party's elements",
-          "source": "skill talent \"Elemental RES Decrease\", level 9",
+          "elements": [
+            "Geo",
+            "Pyro",
+            "Hydro",
+            "Cryo",
+            "Electro"
+          ],
+          "unit": "Geo RES and the RES of party Pyro/Hydro/Cryo/Electro members (#337)",
+          "source": "skill talent \"Elemental RES Decrease\", level 9; skill: \"The initial recorded Source Sample within each Sampler will be Geo, and for each party member who is Pyro/Hydro/Cryo/Electro, 1 Geo Sample will change to that corresponding Element.\"",
           "duration": 15,
           "cd": 7,
           "uptime": 1
