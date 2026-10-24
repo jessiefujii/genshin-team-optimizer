@@ -3856,7 +3856,7 @@ const benchmarkWeapons = {
   // 2026-10-24), else Favonius of their weapon type (Jessie, 2026-10-24: "most supports are fine to use fav or sac, as
   // they need the energy for their skills and bursts"). Only their passive counts, as for the carries.
   "Kaedehara Kazuha": { weapon: "Favonius Sword", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
-  Sucrose: { weapon: "Blackmarrow Lantern", refinement: 1, source: kqmOn("2026-10-24", "sucrose-quickguide", "Blackmarrow Lantern") },
+  Sucrose: { weapon: "Sacrificial Fragments", refinement: 1, source: "Jessie, 2026-10-24 (#349 review): Sucrose on Sacrificial Fragments" },
   Lynette: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-24", "lynette-quickguide", "Favonius Sword") },
   Prune: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
   Xianyun: { weapon: "Favonius Codex", refinement: 1, source: kqmOn("2026-10-24", "xianyun-quickguide", "Favonius Codex") },
@@ -3879,7 +3879,7 @@ const benchmarkWeapons = {
   Escoffier: { weapon: "Prospector's Drill", refinement: 1, source: kqmOn("2026-10-24", "escoffier-quickguide", "Prospector's Drill") },
   Yelan: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-24", "yelan-quickguide", "Favonius Warbow") },
   Ineffa: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-24", "ineffa-quickguide", "Deathmatch") },
-  Linnea: { weapon: "Slingshot", refinement: 1, source: kqmOn("2026-10-24", "linnea-quickguide", "Slingshot") },
+  Linnea: { weapon: "Snare Hook", refinement: 1, source: "Jessie, 2026-10-24 (#349 review): Linnea on Snare Hook" },
   Albedo: { weapon: "Cinnabar Spindle", refinement: 1, source: kqmOn("2026-10-24", "albedo-quickguide", "Cinnabar Spindle") },
   Rosaria: { weapon: "Favonius Lance", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
   Nicole: { weapon: "Royal Grimoire", refinement: 1, source: kqmOn("2026-10-24", "nicole-quickguide", "Royal Grimoire") },
