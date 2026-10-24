@@ -41,6 +41,15 @@
         }
       ]
     },
+    "Aloy": {
+      "base": {
+        "hp": 10899,
+        "atk": 234,
+        "def": 676
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Alyosha": {
       "base": {
         "hp": 11962,
@@ -181,6 +190,15 @@
         }
       ]
     },
+    "Chongyun": {
+      "base": {
+        "hp": 10984,
+        "atk": 223,
+        "def": 648
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Citlali": {
       "base": {
         "hp": 11634,
@@ -249,6 +267,15 @@
         }
       ]
     },
+    "Durin": {
+      "base": {
+        "hp": 12430,
+        "atk": 347,
+        "def": 822
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Escoffier": {
       "base": {
         "hp": 13348,
@@ -283,6 +310,15 @@
           "uptime": null
         }
       ]
+    },
+    "Eula": {
+      "base": {
+        "hp": 13226,
+        "atk": 342,
+        "def": 751
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
     },
     "Faruzan": {
       "base": {
@@ -319,6 +355,15 @@
         }
       ]
     },
+    "Flins": {
+      "base": {
+        "hp": 12491,
+        "atk": 352,
+        "def": 809
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Furina": {
       "base": {
         "hp": 15307,
@@ -340,6 +385,15 @@
           "burst": true
         }
       ]
+    },
+    "Ganyu": {
+      "base": {
+        "hp": 9797,
+        "atk": 335,
+        "def": 630
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
     },
     "Gorou": {
       "base": {
@@ -547,6 +601,15 @@
         }
       ]
     },
+    "Jahoda": {
+      "base": {
+        "hp": 9646,
+        "atk": 223,
+        "def": 580
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Kaedehara Kazuha": {
       "base": {
         "hp": 13348,
@@ -564,6 +627,15 @@
           "uptime": null
         }
       ]
+    },
+    "Kamisato Ayato": {
+      "base": {
+        "hp": 13715,
+        "atk": 299,
+        "def": 769
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
     },
     "Kaveh": {
       "base": {
@@ -692,6 +764,15 @@
         }
       ]
     },
+    "Lohen": {
+      "base": {
+        "hp": 12858,
+        "atk": 344,
+        "def": 784
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Lynette": {
       "base": {
         "hp": 12397,
@@ -799,6 +880,15 @@
         }
       ]
     },
+    "Nefer": {
+      "base": {
+        "hp": 12704,
+        "atk": 344,
+        "def": 799
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Nicole": {
       "base": {
         "hp": 10409,
@@ -859,6 +949,15 @@
         }
       ]
     },
+    "Odette": {
+      "base": {
+        "hp": 12981,
+        "atk": 335,
+        "def": 787
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Prune": {
       "base": {
         "hp": 9679,
@@ -882,6 +981,15 @@
         }
       ]
     },
+    "Raiden Shogun": {
+      "base": {
+        "hp": 12907,
+        "atk": 337,
+        "def": 789
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Rosaria": {
       "base": {
         "hp": 12289,
@@ -900,6 +1008,15 @@
           "burst": true
         }
       ]
+    },
+    "Sandrone": {
+      "base": {
+        "hp": 13226,
+        "atk": 342,
+        "def": 752
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
     },
     "Shenhe": {
       "base": {
@@ -934,6 +1051,15 @@
           "burst": true
         }
       ]
+    },
+    "Shikanoin Heizou": {
+      "base": {
+        "hp": 10657,
+        "atk": 225,
+        "def": 684
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
     },
     "Sigewinne": {
       "base": {
@@ -973,6 +1099,15 @@
           "uptime": null
         }
       ]
+    },
+    "Vesna": {
+      "base": {
+        "hp": 13262,
+        "atk": 354,
+        "def": 730
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
     },
     "Vodyanitsa": {
       "base": {
@@ -1082,6 +1217,15 @@
         }
       ]
     },
+    "Yoimiya": {
+      "base": {
+        "hp": 10164,
+        "atk": 323,
+        "def": 615
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
+    },
     "Yumemizuki Mizuki": {
       "base": {
         "hp": 12736,
@@ -1161,6 +1305,15 @@
           "uptime": 1
         }
       ]
+    },
+    "Zibai": {
+      "base": {
+        "hp": 12919,
+        "atk": 225,
+        "def": 957
+      },
+      "buffs": [],
+      "missing": "buffer since #178's review; its SPEC is #358"
     }
   },
   "ascendantGleam": {
@@ -8523,6 +8676,11 @@
       ],
       "coverage": 0.8
     },
+    "Candace": {
+      "effects": [],
+      "coverage": null,
+      "missing": "shielder since #178's review; her shield's numbers are #358"
+    },
     "Charlotte": {
       "effects": [
         {
@@ -9043,6 +9201,11 @@
         }
       ],
       "coverage": 0.8
+    },
+    "Yun Jin": {
+      "effects": [],
+      "coverage": null,
+      "missing": "shielder since #178's review; her shield's numbers are #358"
     },
     "Zhongli": {
       "effects": [

@@ -271,7 +271,26 @@ const SPEC = {
 
 // Buffs we know about but can't read a number for: the value isn't in the text genshin-db gives.
 // (Ifa and Prune used to be here; their numbers come from data/kit-overrides.json since #75.)
-const NO_VALUE = {};
+// Buffers whose values aren't read yet: they score standard buffer points (score.ts) until a SPEC entry reads them.
+const NO_VALUE = {
+  Aloy: "buffer since #178's review; its SPEC is #358",
+  Chongyun: "buffer since #178's review; its SPEC is #358",
+  Durin: "buffer since #178's review; its SPEC is #358",
+  Eula: "buffer since #178's review; its SPEC is #358",
+  Flins: "buffer since #178's review; its SPEC is #358",
+  Ganyu: "buffer since #178's review; its SPEC is #358",
+  Jahoda: "buffer since #178's review; its SPEC is #358",
+  "Kamisato Ayato": "buffer since #178's review; its SPEC is #358",
+  Lohen: "buffer since #178's review; its SPEC is #358",
+  Nefer: "buffer since #178's review; its SPEC is #358",
+  Odette: "buffer since #178's review; its SPEC is #358",
+  "Raiden Shogun": "buffer since #178's review; its SPEC is #358",
+  Sandrone: "buffer since #178's review; its SPEC is #358",
+  "Shikanoin Heizou": "buffer since #178's review; its SPEC is #358",
+  Vesna: "buffer since #178's review; its SPEC is #358",
+  Yoimiya: "buffer since #178's review; its SPEC is #358",
+  Zibai: "buffer since #178's review; its SPEC is #358",
+};
 
 const level = (params, key) => params[key]?.[TALENT_LEVEL - 1];
 
@@ -4234,6 +4253,8 @@ const SUSTAIN = {
   Baizhu: [{ kind: "shield", talent: "burst", value: "Seamless Shield DMG Absorption", duration: "Pulsing Clarity Duration", cd: "CD" }],
   Barbara: [{ kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD" }],
   Beidou: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables" },
+  Candace: { missing: "shielder since #178's review; her shield's numbers are #358" },
+  "Yun Jin": { missing: "shielder since #178's review; her shield's numbers are #358" },
   Bennett: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration Per Sec", duration: "Duration", cd: "CD" }],
   // Newsflash Field Duration is the field's own; the wiki gives no longer duration for Kamera's regeneration.
   Charlotte: [{ kind: "heal", talent: "burst", value: "Kamera Continuous Regeneration", duration: "Newsflash Field Duration", cd: "CD" }],

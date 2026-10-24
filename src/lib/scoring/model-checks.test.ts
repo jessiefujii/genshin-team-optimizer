@@ -67,7 +67,7 @@ describe("coverage gate", () => {
   const NO_DAMAGE_PROFILE = 4;
   const MAIN_DPS_WITHOUT_CARRY_KIT = 4;
   const NO_PARTICLE_COUNT = 5;
-  const NO_SUSTAIN_COVERAGE = 5;
+  const NO_SUSTAIN_COVERAGE = 7; // Candace and Yun Jin since #178 (shielders now): #358
 
   test("every character has a damage profile (#203)", () => {
     const missing = all.filter((c) => !hasCarryKit(c.id) && !(c.id in SUB_DPS)).map((c) => c.id);
@@ -97,7 +97,7 @@ describe("coverage gate", () => {
   });
 
   // Healers and shielders need a sustain entry with a coverage (#192); without a duration they count as full.
-  // Today: Alyosha, Beidou, Ifa, Jean, Sigewinne.
+  // Today: Alyosha, Beidou, Ifa, Jean, Sigewinne; Candace and Yun Jin (#358).
   test("every healer and shielder has a sustain coverage (#192, #208)", () => {
     const SUSTAIN = kitJson.sustain as Record<string, { coverage: number | null }>;
     const sustainers = all.filter((c) => c.roles.includes("healer") || c.roles.includes("shielder"));

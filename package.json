@@ -14,7 +14,8 @@
     "roster": "vitest run src/lib/scoring/roster.compare.test.ts --silent=false",
     "reference": "vitest run src/lib/scoring/team-reference.write.test.ts --silent=false",
     "kit": "node scripts/extract-kit.mjs",
-    "roles": "node scripts/fetch-roles.mjs"
+    "roles": "node scripts/fetch-roles.mjs",
+    "draft-tags": "node scripts/draft-tags.mjs"
   },
   "dependencies": {
     "genshin-db": "^5.2.14",
