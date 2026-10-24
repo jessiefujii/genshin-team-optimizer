@@ -374,8 +374,9 @@ describe("scoreTeam", () => {
     const reasons = (...ids: string[]) => lines(...ids).map((l) => l.reason);
     // Varka's own kit upgrade, plus Venti's +50% DMG after the carry's own Swirl (Bennett's Pyro to swirl; with Klee
     // instead, Klee carries since Swirl scores as damage, #205).
-    expect(reasons("Varka", "Venti", "Bennett", "Durin")).toContain("Secret Rite enhances Varka's kit");
-    expect(reasons("Varka", "Venti", "Bennett", "Durin").some((r) => r.startsWith("Secret Rite: Venti gives Varka"))).toBe(true);
+    // Both are in team damage since Varka's damage model (#233): his second Four Winds' Ascension, Venti's buff.
+    expect(reasons("Varka", "Venti", "Bennett", "Durin")).toContain("Secret Rite enhances Varka's kit (in their damage)");
+    expect(reasons("Varka", "Venti", "Bennett", "Durin")).toContain("Secret Rite: Venti: in team damage");
     // One Hexerei member: no Secret Rite.
     expect(lines("Varka", "Kaedehara Kazuha", "Bennett", "Xiangling")).toEqual([]);
     // Albedo's Silver Isotoma and Sucrose's Large Wind Spirit only reach Hexerei members, so a Hexerei carry gets more

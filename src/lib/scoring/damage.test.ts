@@ -303,7 +303,18 @@ describe("carry damage (#101)", () => {
       expect(rite / none).toBeGreaterThan(1.5);
       expect(rite / none).toBeLessThan(1.8);
       expect(modelsSecretRite("Klee")).toBe(true);
-      expect(modelsSecretRite("Varka")).toBe(false);
+      expect(modelsSecretRite("Varka")).toBe(true); // his second Four Winds' Ascension (#233)
+    });
+
+    test("Varka: two claymores, his right one by PHEC priority; passive 1's 140%/220% by the party (#233)", () => {
+      const v = (...ids: string[]) => carryDamage(byId.get("Varka")!, [], ids.map((id) => byId.get(id)!))!;
+      // 2 Anemo members (Kazuha) against none besides him: his Sturm und Drang attacks deal 140%.
+      const twoAnemo = v("Varka", "Kaedehara Kazuha", "Bennett", "Xingqiu").perSecond;
+      const one = v("Varka", "Zhongli", "Bennett", "Xingqiu").perSecond;
+      expect(twoAnemo / one).toBeGreaterThan(1.3);
+      expect(twoAnemo / one).toBeLessThan(1.4);
+      // 2 Anemo and 2 Pyro: 220%.
+      expect(v("Varka", "Kaedehara Kazuha", "Bennett", "Xiangling").perSecond / one).toBeGreaterThan(1.9);
     });
   });
 
