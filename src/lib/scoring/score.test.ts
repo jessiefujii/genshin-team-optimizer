@@ -153,7 +153,7 @@ describe("scoreTeam", () => {
       // 1 in 3 of her Swift Hunt and Impale hits applies Electro (one Normal Attack ICD, #226), 2 of 5 Burst hits.
       { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive" },
       // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
-      { rule: "Reactions", points: 0, reason: "Swirl: ~2922 damage per second (Kaedehara Kazuha ~0.4/s)" }, // his guide's VV (#338)
+      { rule: "Reactions", points: 0, reason: "Swirl: ~3213 damage per second (Kaedehara Kazuha ~0.4/s)" }, // his guide's VV: shred (#338), Swirl DMG (#344)
     ]);
     // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze. Fischl's and Furina's
     // Electro-Charged deals its own damage (#205); no Superconduct, which Sandrone turns into Stellar-Conduct.
@@ -252,7 +252,7 @@ describe("scoreTeam", () => {
     // damage (#205). No flat points either way.
     expect(s.breakdown.filter((l) => l.rule === "Reactions")).toEqual([
       { rule: "Reactions", points: 0, reason: "Swirl, Crystallize add ~+20% to Neuvillette's damage" },
-      { rule: "Reactions", points: 0, reason: "Swirl: ~2334 damage per second (Kaedehara Kazuha ~0.3/s)" }, // his guide's VV (#338)
+      { rule: "Reactions", points: 0, reason: "Swirl: ~2566 damage per second (Kaedehara Kazuha ~0.3/s)" }, // his guide's VV: shred (#338), Swirl DMG (#344)
     ]);
   });
 

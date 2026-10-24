@@ -1336,11 +1336,13 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
       const own = mine.filter((t) => t.m === m);
       const rate = own.reduce((s, t) => s + t.perSecond, 0);
       const capped = Math.min(1, TRANSFORMATIVE[r]!.perSecond / rate);
-      const em = teamEm(m, carry, ctx, (subDpsStats(m)?.em ?? 0) + memberExtras(m, carry, ctx).em);
+      const extras = memberExtras(m, carry, ctx);
+      const em = teamEm(m, carry, ctx, (subDpsStats(m)?.em ?? 0) + extras.em);
+      const mineBonus = bonus + extras.reaction(r); // their own set's (VV's Swirl, #344)
       let d = 0;
       for (const t of own) {
         const element = DAMAGE_ELEMENT[r] ?? t.aura; // Swirl: the swirled aura's
-        d += t.perSecond * capped * transformativeHit(r, em, bonus, additive) * (1 + shredOn(element));
+        d += t.perSecond * capped * transformativeHit(r, em, mineBonus, additive) * (1 + shredOn(element));
       }
       dps += d;
       by.push(`${m.id} ~${(rate * capped).toFixed(1)}/s`);
@@ -1443,7 +1445,8 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
 
 // What a member gets that their character screen doesn't show (#306): party-wide set EM (Silken Moon's Serenade) and
 // their weapon's EM and CRIT Rate (Snare Hook, The Widsith, Harbinger of Dawn), and the Reaction Bonus on their Lunar
-// damage: the Gleaming Moon sets' (party-wide) and their own set's (Aubade off-field; Thundering Fury). For a sub-DPS's
+// damage: the Gleaming Moon sets' (party-wide) and their own set's (Aubade off-field; Thundering Fury). `reaction`: their
+// own set's alone, for the transformative reactions they trigger (Viridescent Venerer's Swirl, #344). For a sub-DPS's
 // hits and the reactions they contribute to; the carry's own are in carryDamage.
 function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext) {
   const gleam = ctx.members.filter((x) => x.families?.includes("moonsign")).length >= 2;
@@ -1455,6 +1458,7 @@ function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamCon
     em: party.em + weaponSum(weapon, "em"),
     critRate: weaponSum(weapon, "critRate"),
     lunar: (r: Reaction | LunarReaction) => party.lunar + setReactionBonus(set, r),
+    reaction: (r: Reaction) => setReactionBonus(set, r),
   };
 }
 

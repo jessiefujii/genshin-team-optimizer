@@ -2217,6 +2217,22 @@
     ],
     "Viridescent Venerer": [
       {
+        "kind": "reactionBonus",
+        "value": 0.6,
+        "reactions": [
+          "swirl"
+        ],
+        "source": "4pc: \"Increases Swirl reaction DMG dealt by 60%\""
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.2,
+        "reactions": [
+          "stellar-swirl"
+        ],
+        "source": "4pc: \"and Stellar Swirl reaction DMG dealt by 20%\""
+      },
+      {
         "kind": "resShred",
         "party": true,
         "value": 0.4,

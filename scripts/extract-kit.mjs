@@ -3553,6 +3553,9 @@ const SETS = {
   "Tenacity of the Millelith": [{ kind: "atkPct", party: true, scope: "party", re: /the ATK of all nearby party members is increased by (\d+)%/, estimate: "while the wearer's Skill hits" }],
   // "Decreases opponent's Elemental RES to the element infused in the Swirl": hits of the elements the wearer swirls.
   "Viridescent Venerer": [
+    // The wearer's own Swirls (#344): score.ts transformativeLines; Stellar Swirl with the Lunar reactions.
+    { kind: "reactionBonus", reactions: ["swirl"], re: /Increases Swirl reaction DMG dealt by (\d+)%/ },
+    { kind: "reactionBonus", reactions: ["stellar-swirl"], re: /and Stellar Swirl reaction DMG dealt by (\d+)%/ },
     { kind: "resShred", party: true, scope: "party", re: /Elemental RES to the element infused in the Swirl by (\d+)%/, when: { swirled: true } },
     { kind: "resShred", party: true, scope: "party", element: "Cryo", re: /will also decrease their Cryo RES by (\d+)%/, when: { reaction: "stellar-swirl" } },
   ],
