@@ -1,5 +1,5 @@
 {
-  "median": 194814.5,
+  "median": 195661.4,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -89,7 +89,7 @@
         "Columbina",
         "Sucrose"
       ],
-      "value": 190292.3
+      "value": 195490.3
     },
     "Freminet": {
       "team": [
@@ -161,7 +161,7 @@
         "Yelan",
         "Kaedehara Kazuha"
       ],
-      "value": 159876.4
+      "value": 163500
     },
     "Kinich": {
       "team": [
@@ -233,16 +233,16 @@
         "Lauma",
         "Ineffa"
       ],
-      "value": 168261.3
+      "value": 172573.1
     },
     "Neuvillette": {
       "team": [
         "Neuvillette",
-        "Escoffier",
         "Furina",
-        "Citlali"
+        "Xilonen",
+        "Ineffa"
       ],
-      "value": 219254
+      "value": 220015.9
     },
     "Ningguang": {
       "team": [
@@ -287,7 +287,7 @@
         "Ineffa",
         "Yae Miko"
       ],
-      "value": 183611.9
+      "value": 187802.5
     },
     "Sethos": {
       "team": [
@@ -418,11 +418,11 @@
     "Yumemizuki Mizuki": {
       "team": [
         "Yumemizuki Mizuki",
-        "Odette",
-        "Traveler (Cryo)",
-        "Faruzan"
+        "Ineffa",
+        "Columbina",
+        "Xilonen"
       ],
-      "value": 126370
+      "value": 128829.2
     },
     "Zibai": {
       "team": [

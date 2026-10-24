@@ -913,6 +913,8 @@ const partyGear = (all: Record<string, GearEffect[]>) =>
       .map(([id, effects]) => [id, effects.filter((e) => e.party && GEAR_KINDS.has(e.kind))])
       .filter(([, effects]) => effects.length > 0),
   ) as Record<string, GearEffect[]>;
+const BENCHMARK_WEAPONS = (kitJson as unknown as { benchmarkWeapons: Record<string, { weapon: string; refinement: number }> }).benchmarkWeapons;
+const benchmarkWeaponOf = (id: string) => BENCHMARK_WEAPONS[id] && { id: BENCHMARK_WEAPONS[id].weapon, level: 90, refinement: BENCHMARK_WEAPONS[id].refinement };
 const GEAR_SETS = partyGear((kitJson as unknown as { sets: Record<string, GearEffect[]> }).sets);
 const GEAR_WEAPONS = partyGear((kitJson as unknown as { weapons: Record<string, GearEffect[]> }).weapons);
 // Whether this gear's party stats are in damage (#206): score.ts then scores only the rest of its effects.json buffs.
@@ -955,7 +957,7 @@ function partyGearStats(m: ScoringCharacter, carry: ScoringCharacter, active: re
   for (const s of team) {
     const gear: { id: string; e: GearEffect; value: number; max?: number }[] = [];
     for (const { set, pieces } of setsOf(s, active, team)) if (pieces >= 4) for (const e of GEAR_SETS[set] ?? []) gear.push({ id: set, e, value: e.value! });
-    const w = s.weaponBuild;
+    const w = s.weaponBuild ?? (s.stats ? undefined : benchmarkWeaponOf(s.id)); // a benchmark member's guide weapon (#349)
     const r = w ? Math.min(5, Math.max(1, w.refinement)) - 1 : 0;
     for (const e of (w && GEAR_WEAPONS[w.id]) || []) gear.push({ id: w!.id, e, value: e.values![r], max: e.max?.[r] });
     if (gear.length === 0) continue;

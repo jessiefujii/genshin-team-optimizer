@@ -3843,12 +3843,49 @@ const benchmarkWeapons = {
   Yoimiya: { weapon: "Slingshot", refinement: 1, source: kqmOn("2026-10-21", "yoimiya-quickguide", "Slingshot is a 3-star Bow that performs better than every 4-star Bow") },
   "Yumemizuki Mizuki": { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-21", "mizuki-quickguide", "Mizuki's best accessible option in general.") },
   Zibai: { weapon: "Harbinger of Dawn", refinement: 1, source: kqmOn("2026-10-21", "zibai-quickguide", "Her best non-5-star weapon, provided its passive CRIT Rate buff remains active.") },
+  // Supports without a build (#349): the first non-5-star weapon in their KQM quick guide weapon list (accessed
+  // 2026-10-24), else Favonius of their weapon type (Jessie, 2026-10-24: "most supports are fine to use fav or sac, as
+  // they need the energy for their skills and bursts"). Only their passive counts, as for the carries.
+  "Kaedehara Kazuha": { weapon: "Favonius Sword", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Sucrose: { weapon: "Blackmarrow Lantern", refinement: 1, source: kqmOn("2026-10-24", "sucrose-quickguide", "Blackmarrow Lantern") },
+  Lynette: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-24", "lynette-quickguide", "Favonius Sword") },
+  Prune: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Xianyun: { weapon: "Favonius Codex", refinement: 1, source: kqmOn("2026-10-24", "xianyun-quickguide", "Favonius Codex") },
+  Faruzan: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-24", "faruzan-quickguide", "Favonius Warbow") },
+  Bennett: { weapon: "Favonius Sword", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Chevreuse: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-24", "chevreuse-quickguide", "Favonius Lance") },
+  Shenhe: { weapon: "Favonius Lance", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Mika: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-24", "mika-quickguide", "Favonius Lance") },
+  "Kujou Sara": { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-24", "sara-quickguide", "Favonius Warbow") },
+  Dahlia: { weapon: "Fleuve Cendre Ferryman", refinement: 1, source: kqmOn("2026-10-24", "dahlia-quickguide", "Fleuve Cendre Ferryman") },
+  Vodyanitsa: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Xilonen: { weapon: "Favonius Sword", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Citlali: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Iansan: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-24", "iansan-quickguide", "Favonius Lance") },
+  Gorou: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-24", "gorou-quickguide", "Favonius Warbow") },
+  Zhongli: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-24", "zhongli-quickguide", "Favonius Lance") },
+  Nahida: { weapon: "Sacrificial Fragments", refinement: 1, source: kqmOn("2026-10-24", "nahida-quickguide", "Sacrificial Fragments") },
+  Baizhu: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Furina: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-24", "furina-quickguide", "Favonius Sword") },
+  Escoffier: { weapon: "Prospector's Drill", refinement: 1, source: kqmOn("2026-10-24", "escoffier-quickguide", "Prospector's Drill") },
+  Yelan: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-24", "yelan-quickguide", "Favonius Warbow") },
+  Ineffa: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-24", "ineffa-quickguide", "Deathmatch") },
+  Linnea: { weapon: "Slingshot", refinement: 1, source: kqmOn("2026-10-24", "linnea-quickguide", "Slingshot") },
+  Albedo: { weapon: "Cinnabar Spindle", refinement: 1, source: kqmOn("2026-10-24", "albedo-quickguide", "Cinnabar Spindle") },
+  Rosaria: { weapon: "Favonius Lance", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Nicole: { weapon: "Royal Grimoire", refinement: 1, source: kqmOn("2026-10-24", "nicole-quickguide", "Royal Grimoire") },
+  Mona: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Alyosha: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-24", "alyosha-quickguide", "Favonius Lance") },
+  Lauma: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
+  Columbina: { weapon: "Sacrificial Jade", refinement: 1, source: kqmOn("2026-10-24", "columbina-quickguide", "Sacrificial Jade") },
+  Illuga: { weapon: "Dragon's Bane", refinement: 1, source: kqmOn("2026-10-24", "illuga-quickguide", "Dragon's Bane") },
+  Nilou: { weapon: "The Dockhand's Assistant", refinement: 1, source: kqmOn("2026-10-24", "nilou-quickguide", "The Dockhand's Assistant") },
 };
 for (const [id, b] of Object.entries(benchmarkWeapons)) {
   const w = genshindb.weapons(b.weapon);
   if (!w || w.name !== b.weapon) throw new Error(`${id}: benchmark weapon ${b.weapon} isn't in genshin-db`);
   if (Number(w.rarity) >= 5) throw new Error(`${id}: benchmark weapon ${b.weapon} is ${w.rarity}-star`);
-  if (!carries[id]) throw new Error(`${id}: a benchmark weapon for a character with no carry kit`);
+  if (!tags.some((c) => c.id === id)) throw new Error(`${id}: a benchmark weapon for a character not in tags.json`);
 }
 for (const [id, options] of Object.entries(benchmarkSets)) {
   for (const b of options) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
