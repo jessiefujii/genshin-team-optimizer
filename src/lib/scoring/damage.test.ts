@@ -204,11 +204,16 @@ describe("carry damage (#101)", () => {
     });
 
     test("Nefer's Veil of Falsehood needs Lunar-Bloom and Ascendant Gleam (#148)", () => {
-      // Lauma (Moonsign) gives Ascendant Gleam, Nahida doesn't: 3 stacks = +24% Phantasm Performance and +100 EM.
-      const gleam = dps(["Nefer", "Lauma", "Xingqiu", "Zhongli"], ["lunar-bloom"]);
-      const none = dps(["Nefer", "Nahida", "Xingqiu", "Zhongli"], ["lunar-bloom"]);
-      expect(gleam).toBeGreaterThan(none * 1.2);
-      expect(dps(["Nefer", "Lauma", "Xingqiu", "Zhongli"], [])).toBe(dps(["Nefer", "Nahida", "Xingqiu", "Zhongli"], []));
+      // Lauma (Moonsign) gives Ascendant Gleam, Nahida doesn't: 3 stacks = +24% Phantasm Performance and +100 EM. Both
+      // without their guide sets (SMS, Deepwood: #338), so only Veil differs. A Nefer of her own: carryDamage caches by
+      // member ids, and other tests read her with the benchmark Lauma and Nahida.
+      const nefer = { ...byId.get("Nefer")! };
+      const veil = (mate: string, active: Reaction[]) => {
+        const t = [nefer, { ...byId.get(mate)!, sets: [] }, byId.get("Xingqiu")!, byId.get("Zhongli")!];
+        return carryDamage(t[0], active, t)!.perSecond;
+      };
+      expect(veil("Lauma", ["lunar-bloom"])).toBeGreaterThan(veil("Nahida", ["lunar-bloom"]) * 1.2);
+      expect(veil("Lauma", [])).toBe(veil("Nahida", []));
     });
 
     test("Zibai's passive 1 is a Reaction Additive Base DMG Bonus, added after the Lunar coefficient (#146)", () => {
@@ -220,8 +225,9 @@ describe("carry damage (#101)", () => {
       const team = ["Zibai", "Illuga", "Linnea", "Columbina"].map((id) => byId.get(id)!);
       const active: Reaction[] = ["crystallize", "lunar-crystallize"];
       const tb = teamBuffStats(team[0], active, team);
-      // Benchmark EM 800 x (384.06% Burst + 160% passive 2 at 3+ Hydro/Geo members) x 21 stacks / 26 Geo hits.
-      expect(tb.lunarAdditive?.["lunar-crystallize"]).toBeCloseTo((800 * 5.44064 * 21) / 26, 3);
+      // EM (benchmark 800 + 120 from his own 4pc Silken Moon's Serenade at Ascendant Gleam, #338) x (384.06% Burst +
+      // 160% passive 2 at 3+ Hydro/Geo members) x 21 stacks / 26 Geo hits.
+      expect(tb.lunarAdditive?.["lunar-crystallize"]).toBeCloseTo((920 * 5.44064 * 21) / 26, 3);
       const zibai = (buffs: typeof tb) => carryDamage(team[0], active, team, buffs)!.perSecond;
       expect(zibai(tb)).toBeGreaterThan(zibai({ ...tb, lunarAdditive: undefined }) * 1.1);
       // Only Zibai's direct Lunar hits: a team without Illuga has none.
@@ -628,31 +634,35 @@ describe("support gear's party effects in damage (#206)", () => {
     const build = { weapon: { id: gear.weapon ?? "none", level: 90, refinement: gear.refinement ?? 1 }, artifactSets: gear.set ? [{ set: gear.set, pieces: 4 as const }] : [] };
     return { ...get(id), stats: STATS, sets: build.artifactSets, weaponBuild: gear.weapon ? build.weapon : undefined, effects: characterEffects(id, 0, build as never) };
   };
+  // Without a build or their guide's set (#338): the teams to compare gear against.
+  const bare = (id: string): ScoringCharacter => ({ ...get(id), sets: [] });
   const carryGets = (team: ScoringCharacter[], active: Reaction[] = []) => teamBuffStats(team[0], [], team, undefined, active);
   const memberGets = (m: ScoringCharacter, team: ScoringCharacter[], active: Reaction[] = []) => memberBuffStats(m, team[0], active, team);
 
-  test("Noblesse's ATK reaches the carry and the other members; a benchmark Bennett wears nothing", () => {
+  test("Noblesse's ATK reaches the carry and the other members; a benchmark Bennett wears it too (#338)", () => {
     const noblesse = [get("Hu Tao"), geared("Bennett", { set: "Noblesse Oblige" }), get("Xingqiu"), get("Zhongli")];
-    const plain = [get("Hu Tao"), get("Bennett"), get("Xingqiu"), get("Zhongli")];
+    const plain = [get("Hu Tao"), bare("Bennett"), get("Xingqiu"), get("Zhongli")];
     expect(carryGets(noblesse).atkPct - carryGets(plain).atkPct).toBeCloseTo(0.2, 5);
     expect(memberGets(noblesse[2], noblesse).atkPct - memberGets(plain[2], plain).atkPct).toBeCloseTo(0.2, 5);
+    const benchmark = [get("Hu Tao"), get("Bennett"), get("Xingqiu"), get("Zhongli")];
+    expect(carryGets(benchmark).atkPct).toBeCloseTo(carryGets(noblesse).atkPct, 5);
   });
 
   test("Millennial Movement ATK doesn't stack; Thrilling Tales is the carry's only", () => {
-    const one = [get("Hu Tao"), geared("Sucrose", { weapon: "Elegy for the End" }), get("Xingqiu"), get("Zhongli")];
+    const one = [get("Hu Tao"), geared("Sucrose", { weapon: "Elegy for the End" }), get("Xingqiu"), bare("Zhongli")]; // no Tenacity (#338)
     const two = [get("Hu Tao"), geared("Sucrose", { weapon: "Elegy for the End" }), get("Xingqiu"), geared("Zhongli", { weapon: "Song of Broken Pines" })];
-    expect(carryGets(one).atkPct).toBeGreaterThan(carryGets([get("Hu Tao"), get("Sucrose"), get("Xingqiu"), get("Zhongli")]).atkPct);
+    expect(carryGets(one).atkPct).toBeGreaterThan(carryGets([get("Hu Tao"), get("Sucrose"), get("Xingqiu"), bare("Zhongli")]).atkPct);
     expect(carryGets(two).atkPct).toBeCloseTo(carryGets(one).atkPct, 5);
     // 24% ATK at R1 for 10s of every 20s, for "the new character taking the field": the carry, not Xingqiu.
     const ttds = [get("Hu Tao"), geared("Bennett", { weapon: "Thrilling Tales of Dragon Slayers" }), get("Xingqiu"), get("Zhongli")];
-    const base = [get("Hu Tao"), get("Bennett"), get("Xingqiu"), get("Zhongli")];
+    const base = [get("Hu Tao"), bare("Bennett"), get("Xingqiu"), get("Zhongli")];
     expect(carryGets(ttds).atkPct - carryGets(base).atkPct).toBeCloseTo(0.12, 5);
     expect(memberGets(ttds[2], ttds).atkPct).toBeCloseTo(memberGets(base[2], base).atkPct, 5);
   });
 
   test("VV shreds the swirled elements only, while the team Swirls", () => {
     const vv = [get("Hu Tao"), geared("Kaedehara Kazuha", { set: "Viridescent Venerer" }), get("Xingqiu"), get("Zhongli")];
-    const plain = [get("Hu Tao"), get("Kaedehara Kazuha"), get("Xingqiu"), get("Zhongli")];
+    const plain = [get("Hu Tao"), bare("Kaedehara Kazuha"), get("Xingqiu"), get("Zhongli")];
     const swirl: Reaction[] = ["swirl", "vaporize"];
     expect(carryGets(vv, swirl).resShred - carryGets(plain, swirl).resShred).toBeCloseTo(0.4, 5);
     expect(carryGets(vv, ["vaporize"]).resShred).toBeCloseTo(carryGets(plain, ["vaporize"]).resShred, 5);

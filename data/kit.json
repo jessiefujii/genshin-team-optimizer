@@ -2116,6 +2116,14 @@
         "source": "4pc: \"Normal/Charged/Plunging Attack DMG is increased by 50% for 10s\" (taken as up after their Skill: estimate)"
       }
     ],
+    "Husk of Opulent Dreams": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.24,
+        "element": "Geo",
+        "source": "4pc: \"each providing 6% DEF and a 6% Geo DMG Bonus\" x4 stacks"
+      }
+    ],
     "Golden Troupe": [
       {
         "kind": "dmgBonus",
@@ -2463,6 +2471,202 @@
       {
         "set": "Wanderer's Troupe",
         "source": "KQM tighnari quick guide (keqingmains.com/q/tighnari-quickguide, accessed 2026-10-20): \"4-piece Wanderer's Troupe (4WT) Provides an unconditional buff to his Charged Shots\""
+      }
+    ],
+    "Kaedehara Kazuha": [
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM kazuha quick guide (keqingmains.com/q/kazuha-quickguide, accessed 2026-10-24): \"4pc Viridescent Venerer (4VV) is the artifact set that Kazuha uses in almost all of his teams\""
+      }
+    ],
+    "Sucrose": [
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM sucrose quick guide (keqingmains.com/q/sucrose-quickguide, accessed 2026-10-24): \"Sucrose should generally hold 4pc VV to bolster her own damage and shred enemy Elemental RES\""
+      }
+    ],
+    "Lynette": [
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM lynette quick guide (keqingmains.com/q/lynette-quickguide, accessed 2026-10-24): \"It is Lynette's Best-in-Slot set in nearly all her playstyles\""
+      }
+    ],
+    "Prune": [
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM prune quick guide (keqingmains.com/q/prune-quickguide, accessed 2026-10-24): \"As an Anemo character, Prune can hold 4pc VV to shred enemy RES for the Element Swirled by her Skill or Burst\""
+      }
+    ],
+    "Xianyun": [
+      {
+        "set": "Noblesse Oblige",
+        "when": {
+          "members": [
+            "Xiao"
+          ]
+        },
+        "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"In Xiao teams, you should prioritize 4pc Noblesse Oblige over 4pc Viridescent Venerer\""
+      },
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"4pc Viridescent Venerer is one of Xianyun's best artifact sets\""
+      }
+    ],
+    "Faruzan": [
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM faruzan quick guide (keqingmains.com/q/faruzan-quickguide, accessed 2026-10-24): \"This set is not recommended for pre-C6 Faruzan ... Bestows the whole team with a 20% ATK buff for 12s every Burst cast\""
+      }
+    ],
+    "Bennett": [
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM bennett quick guide (keqingmains.com/q/bennett-quickguide, accessed 2026-10-24): \"This is typically Bennett's best set, unless his team does not benefit from the ATK% buff\""
+      }
+    ],
+    "Chevreuse": [
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM chevreuse quick guide (keqingmains.com/q/chevreuse-quickguide, accessed 2026-10-24): \"She should equip this set if no one else is holding it\""
+      }
+    ],
+    "Shenhe": [
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM shenhe quick guide (keqingmains.com/q/shenhe-quickguide, accessed 2026-10-24): \"4pc Noblesse Oblige is often Shenhe's Best-in-Slot artifact set for team damage\""
+      }
+    ],
+    "Mika": [
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM mika quick guide (keqingmains.com/q/mika-quickguide, accessed 2026-10-24): \"4pc Noblesse is Mika's best option due to its strong supporting capabilities\""
+      }
+    ],
+    "Kujou Sara": [
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM sara quick guide (keqingmains.com/q/sara-quickguide, accessed 2026-10-24): \"Allows Sara to maximize her buffing capabilities if no one else already has this\""
+      }
+    ],
+    "Dahlia": [
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM dahlia quick guide (keqingmains.com/q/dahlia-quickguide, accessed 2026-10-24): \"Dahlia Burst is used every rotation, so 4pc NO is a natural choice to buff ATK-scaling teammates\""
+      }
+    ],
+    "Vodyanitsa": [
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "KQM vodyanitsa quick guide (keqingmains.com/q/vodyanitsa-quickguide, accessed 2026-10-24): \"4pc TotM is Vodyanitsa's best support set in ATK-scaling teams\""
+      }
+    ],
+    "Xilonen": [
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM xilonen quick guide (keqingmains.com/q/xilonen-quickguide, accessed 2026-10-24): \"Xilonen's best artifact set by far\""
+      }
+    ],
+    "Citlali": [
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM citlali quick guide (keqingmains.com/q/citlali-quickguide, accessed 2026-10-24): \"Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction\""
+      }
+    ],
+    "Iansan": [
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM iansan quick guide (keqingmains.com/q/iansan-quickguide, accessed 2026-10-24): \"This makes it her recommended option for the vast majority of her teams\""
+      }
+    ],
+    "Gorou": [
+      {
+        "set": "Husk of Opulent Dreams",
+        "source": "Jessie, 2026-10-24 (#338 review): Gorou on 4pc Husk of Opulent Dreams"
+      }
+    ],
+    "Zhongli": [
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "Jessie, 2026-10-24 (#338 review): Zhongli on 4pc Tenacity; KQM zhongli quick guide (keqingmains.com/q/zhongli-quickguide, accessed 2026-10-24): \"if your team's DPS unit can snapshot the 4pc ATK% buff, then it can be viable\""
+      }
+    ],
+    "Nahida": [
+      {
+        "set": "Deepwood Memories",
+        "source": "KQM nahida quick guide (keqingmains.com/q/nahida-quickguide, accessed 2026-10-24): \"Nahida is often the best for this role, since she easily maintains the 4pc effect\""
+      }
+    ],
+    "Baizhu": [
+      {
+        "set": "Deepwood Memories",
+        "when": {
+          "reaction": "spread"
+        },
+        "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
+      },
+      {
+        "set": "Deepwood Memories",
+        "when": {
+          "reaction": "bloom"
+        },
+        "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
+      },
+      {
+        "set": "Deepwood Memories",
+        "when": {
+          "reaction": "hyperbloom"
+        },
+        "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
+      },
+      {
+        "set": "Deepwood Memories",
+        "when": {
+          "reaction": "burgeon"
+        },
+        "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
+      },
+      {
+        "set": "Deepwood Memories",
+        "when": {
+          "reaction": "lunar-bloom"
+        },
+        "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
+      }
+    ],
+    "Lauma": [
+      {
+        "set": "Silken Moon's Serenade",
+        "source": "KQM lauma quick guide (keqingmains.com/q/lauma-quickguide, accessed 2026-10-24): \"Overall a good supportive set for Lauma and her most common artifact set\""
+      }
+    ],
+    "Columbina": [
+      {
+        "set": "Silken Moon's Serenade",
+        "source": "KQM columbina quick guide (keqingmains.com/q/columbina-quickguide, accessed 2026-10-24): \"Columbina usually uses 4pc SMS for team DPS\""
+      }
+    ],
+    "Illuga": [
+      {
+        "set": "Silken Moon's Serenade",
+        "when": {
+          "members": [
+            "Zibai"
+          ]
+        },
+        "source": "KQM illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-24): \"4pc SMS is one of Illuga's most notable sets with Zibai\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-24): \"This is Illuga's default set for Geo DPS units if another teammate cannot hold it\""
+      }
+    ],
+    "Nilou": [
+      {
+        "set": "Silken Moon's Serenade",
+        "when": {
+          "reaction": "lunar-bloom"
+        },
+        "source": "KQM nilou quick guide (keqingmains.com/q/nilou-quickguide, accessed 2026-10-24): \"4pc SMS is Nilou's default set in Lunar-Bloom teams if her teammates prefer other sets\""
       }
     ]
   },
