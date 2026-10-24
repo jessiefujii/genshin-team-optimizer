@@ -164,7 +164,10 @@ for (const c of tags) {
   }
   const all = texts.map((t) => t.text).join(" ");
   const appliesElement = new RegExp(`${element} DMG`).test(all);
-  const reactions = appliesElement ? Object.keys(REACTIONS).filter((r) => takesPart(r, element)) : [];
+  // A main DPS's list is what their own hits deal (Jessie, 2026-10-24): Electro hits Aggravate, Dendro hits Spread;
+  // a support's also holds what they enable for teammates (Fischl's Spread).
+  const ownHits = (r) => !c.roles.includes("main-dps") || !((element === "Electro" && r === "spread") || (element === "Dendro" && r === "aggravate"));
+  const reactions = appliesElement ? Object.keys(REACTIONS).filter((r) => takesPart(r, element) && ownHits(r)) : [];
   const roleHits = {};
   for (const t of texts)
     for (const s of sentences(t.text))

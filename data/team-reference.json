@@ -1,5 +1,5 @@
 {
-  "median": 194814.5,
+  "median": 207528.7,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -26,7 +26,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 241503.4
+      "value": 256597.4
     },
     "Arlecchino": {
       "team": [
@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 109413.2
+      "value": 116426.8
     },
     "Flins": {
       "team": [
@@ -166,11 +166,11 @@
     "Kinich": {
       "team": [
         "Kinich",
-        "Dehya",
-        "Furina",
-        "Bennett"
+        "Mavuika",
+        "Emilie",
+        "Iansan"
       ],
-      "value": 195832.5
+      "value": 254408.6
     },
     "Klee": {
       "team": [
@@ -184,11 +184,11 @@
     "Lohen": {
       "team": [
         "Lohen",
+        "Durin",
         "Escoffier",
-        "Furina",
-        "Mona"
+        "Furina"
       ],
-      "value": 270005.1
+      "value": 271307.9
     },
     "Lyney": {
       "team": [
@@ -215,7 +215,7 @@
         "Xilonen",
         "Sucrose"
       ],
-      "value": 254583.5
+      "value": 284534.5
     },
     "Navia": {
       "team": [
@@ -233,7 +233,7 @@
         "Lauma",
         "Ineffa"
       ],
-      "value": 159548.7
+      "value": 200736.2
     },
     "Neuvillette": {
       "team": [
@@ -287,7 +287,7 @@
         "Ineffa",
         "Yae Miko"
       ],
-      "value": 187802.5
+      "value": 221041.9
     },
     "Sethos": {
       "team": [
@@ -296,7 +296,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 97837.7
+      "value": 103661.3
     },
     "Shikanoin Heizou": {
       "team": [
@@ -341,7 +341,7 @@
         "Odette",
         "Alyosha"
       ],
-      "value": 121699.5
+      "value": 135850.6
     },
     "Varesa": {
       "team": [
@@ -350,16 +350,16 @@
         "Furina",
         "Xianyun"
       ],
-      "value": 207854.7
+      "value": 238656.6
     },
     "Varka": {
       "team": [
         "Varka",
         "Prune",
-        "Nicole",
-        "Durin"
+        "Odette",
+        "Escoffier"
       ],
-      "value": 178768.6
+      "value": 178943.5
     },
     "Vesna": {
       "team": [
@@ -368,7 +368,7 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 70245.1
+      "value": 79025.8
     },
     "Wanderer": {
       "team": [
@@ -418,11 +418,11 @@
     "Yumemizuki Mizuki": {
       "team": [
         "Yumemizuki Mizuki",
-        "Ineffa",
-        "Columbina",
-        "Xilonen"
+        "Odette",
+        "Traveler (Cryo)",
+        "Faruzan"
       ],
-      "value": 128829.2
+      "value": 140256.8
     },
     "Zibai": {
       "team": [
@@ -431,7 +431,7 @@
         "Xilonen",
         "Columbina"
       ],
-      "value": 239732.6
+      "value": 253670.5
     }
   }
 }

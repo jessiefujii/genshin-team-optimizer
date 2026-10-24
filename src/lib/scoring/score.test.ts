@@ -544,13 +544,13 @@ describe("scoreTeam", () => {
     });
 
     test("reaction buffs need a reaction the carry deals (#58)", () => {
-      const neuv = score("Neuvillette", "Citlali", "Columbina", "Lauma");
+      // No Electro, Dendro or Geo teammate: no Lunar reaction (with Lauma, Neuvillette's Hydro would Lunar-Bloom, #178).
+      const neuv = score("Neuvillette", "Furina", "Columbina", "Kaedehara Kazuha");
       expect(buffLine(neuv, "Columbina")).toEqual({
         rule: "Buffs",
         points: 0,
-        reason: "Columbina: buffs Lunar-charged/Lunar-bloom/Lunar-crystallize, which Neuvillette does not deal",
+        reason: "Columbina: buffs Lunar-charged/Lunar-bloom/Lunar-crystallize, which this team does not trigger",
       });
-      expect(buffLine(neuv, "Lauma")?.points).toBe(0);
       // Lunar-Bloom is Nefer's main reaction: ~0.8 of her damage (#87).
       // On the ~0.57 of Nefer's damage that her Lunar-Bloom hits are (measured, #94; the 0.8 estimate gave 9).
       expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(7);

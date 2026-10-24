@@ -9,7 +9,12 @@
     "reactions": [
       "lunar-charged",
       "lunar-bloom",
-      "vaporize"
+      "vaporize",
+      "freeze",
+      "electrocharged",
+      "bloom",
+      "hyperbloom",
+      "burgeon"
     ],
     "energyNeed": "medium",
     "erTarget": 160,
@@ -37,7 +42,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "low",
     "erTarget": 100,
@@ -74,7 +80,11 @@
     "reactions": [
       "spread",
       "quicken",
-      "lunar-bloom"
+      "lunar-bloom",
+      "burning",
+      "bloom",
+      "hyperbloom",
+      "burgeon"
     ],
     "mainReaction": "spread",
     "energyNeed": "medium",
@@ -96,12 +106,15 @@
   {
     "id": "Aloy",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
       "melt",
-      "freeze"
+      "freeze",
+      "superconduct",
+      "stellar-conduct"
     ],
     "mainReaction": "melt",
     "energyNeed": "low",
@@ -118,7 +131,15 @@
         "Q"
       ]
     },
-    "notes": "Cannot gain Energy from particles; burst cost is fixed at 40."
+    "notes": "Cannot gain Energy from particles; burst cost is fixed at 40.",
+    "buffs": [
+      {
+        "stat": "Party ATK +8% when she gets Coil (#178)",
+        "scope": "team",
+        "affects": "ATK",
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Alyosha",
@@ -129,7 +150,14 @@
     "fieldTime": "off",
     "reactions": [
       "stellar-conduct",
-      "superconduct"
+      "superconduct",
+      "electrocharged",
+      "overloaded",
+      "hyperbloom",
+      "quicken",
+      "aggravate",
+      "spread",
+      "lunar-charged"
     ],
     "energyNeed": "high",
     "erTarget": 180,
@@ -166,7 +194,9 @@
     "reactions": [
       "melt",
       "vaporize",
-      "overloaded"
+      "overloaded",
+      "burning",
+      "burgeon"
     ],
     "energyNeed": "medium",
     "erTarget": 200,
@@ -187,7 +217,10 @@
       "main-dps"
     ],
     "fieldTime": "on",
-    "reactions": [],
+    "reactions": [
+      "crystallize",
+      "lunar-crystallize"
+    ],
     "mainReaction": "none",
     "energyNeed": "high",
     "erTarget": 130,
@@ -213,7 +246,10 @@
     "fieldTime": "on",
     "reactions": [
       "vaporize",
-      "overloaded"
+      "overloaded",
+      "melt",
+      "burning",
+      "burgeon"
     ],
     "mainReaction": "none",
     "energyNeed": "low",
@@ -247,7 +283,9 @@
       "spread",
       "bloom",
       "hyperbloom",
-      "burgeon"
+      "burgeon",
+      "burning",
+      "lunar-bloom"
     ],
     "energyNeed": "high",
     "erTarget": 200,
@@ -289,7 +327,13 @@
     "reactions": [
       "bloom",
       "electrocharged",
-      "freeze"
+      "freeze",
+      "vaporize",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "low",
     "erTarget": 100,
@@ -314,7 +358,12 @@
       "electrocharged",
       "overloaded",
       "aggravate",
-      "superconduct"
+      "superconduct",
+      "hyperbloom",
+      "quicken",
+      "spread",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "energyNeed": "high",
     "erTarget": 170,
@@ -344,7 +393,9 @@
     "reactions": [
       "overloaded",
       "vaporize",
-      "melt"
+      "melt",
+      "burning",
+      "burgeon"
     ],
     "energyNeed": "high",
     "erTarget": 180,
@@ -373,13 +424,20 @@
     "id": "Candace",
     "roles": [
       "buffer",
-      "enabler"
+      "enabler",
+      "shielder"
     ],
     "fieldTime": "off",
     "reactions": [
       "electrocharged",
       "bloom",
-      "vaporize"
+      "vaporize",
+      "freeze",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 200,
@@ -411,7 +469,9 @@
     "fieldTime": "off",
     "reactions": [
       "freeze",
-      "melt"
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "high",
     "erTarget": 200,
@@ -433,7 +493,8 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "low",
     "erTarget": 150,
@@ -452,7 +513,8 @@
         "Q"
       ]
     },
-    "notes": "Shells convert to Pyro/Hydro/Electro/Cryo based on teammates; wants 2-3 of those elements."
+    "notes": "Shells convert to Pyro/Hydro/Electro/Cryo based on teammates; wants 2-3 of those elements.",
+    "mainReaction": "swirl"
   },
   {
     "id": "Chevreuse",
@@ -462,7 +524,11 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "overloaded"
+      "overloaded",
+      "vaporize",
+      "melt",
+      "burning",
+      "burgeon"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -493,11 +559,13 @@
   {
     "id": "Chiori",
     "roles": [
-      "sub-dps"
+      "sub-dps",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 140,
@@ -517,13 +585,15 @@
     "id": "Chongyun",
     "roles": [
       "enabler",
-      "sub-dps"
+      "sub-dps",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
       "freeze",
       "melt",
-      "superconduct"
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 130,
@@ -537,7 +607,22 @@
         "Q"
       ]
     },
-    "notes": "Skill field gives Cryo infusion to melee weapons."
+    "notes": "Skill field gives Cryo infusion to melee weapons.",
+    "buffs": [
+      {
+        "stat": "Normal ATK SPD for Sword, Claymore and Polearm users in his field (#178)",
+        "scope": "active",
+        "talent": "passive"
+      },
+      {
+        "stat": "Cryo RES shred (#178)",
+        "scope": "team",
+        "elements": [
+          "Cryo"
+        ],
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Citlali",
@@ -548,7 +633,9 @@
     "fieldTime": "off",
     "reactions": [
       "melt",
-      "freeze"
+      "freeze",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -588,7 +675,12 @@
     "reactions": [
       "aggravate",
       "overloaded",
-      "electrocharged"
+      "electrocharged",
+      "superconduct",
+      "hyperbloom",
+      "quicken",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "mainReaction": "aggravate",
     "energyNeed": "low",
@@ -610,7 +702,8 @@
     "id": "Collei",
     "roles": [
       "sub-dps",
-      "enabler"
+      "enabler",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -618,7 +711,10 @@
       "hyperbloom",
       "spread",
       "aggravate",
-      "burning"
+      "burning",
+      "bloom",
+      "burgeon",
+      "lunar-bloom"
     ],
     "energyNeed": "medium",
     "erTarget": 170,
@@ -644,7 +740,9 @@
     "reactions": [
       "lunar-charged",
       "lunar-bloom",
-      "lunar-crystallize"
+      "lunar-crystallize",
+      "vaporize",
+      "freeze"
     ],
     "converts": [
       "lunar-charged",
@@ -690,7 +788,12 @@
     "reactions": [
       "aggravate",
       "quicken",
-      "hyperbloom"
+      "hyperbloom",
+      "superconduct",
+      "electrocharged",
+      "overloaded",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "mainReaction": "aggravate",
     "energyNeed": "high",
@@ -723,7 +826,14 @@
     "fieldTime": "off",
     "reactions": [
       "freeze",
-      "electrocharged"
+      "electrocharged",
+      "vaporize",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "high",
     "erTarget": 180,
@@ -749,12 +859,16 @@
   {
     "id": "Dehya",
     "roles": [
-      "sub-dps"
+      "sub-dps",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
       "burning",
-      "vaporize"
+      "vaporize",
+      "melt",
+      "overloaded",
+      "burgeon"
     ],
     "energyNeed": "medium",
     "erTarget": 160,
@@ -777,7 +891,10 @@
     "fieldTime": "on",
     "reactions": [
       "vaporize",
-      "melt"
+      "melt",
+      "overloaded",
+      "burning",
+      "burgeon"
     ],
     "mainReaction": "vaporize",
     "energyNeed": "medium",
@@ -808,7 +925,9 @@
     "fieldTime": "off",
     "reactions": [
       "freeze",
-      "melt"
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "high",
     "erTarget": 200,
@@ -837,7 +956,13 @@
     "reactions": [
       "electrocharged",
       "aggravate",
-      "hyperbloom"
+      "hyperbloom",
+      "superconduct",
+      "overloaded",
+      "quicken",
+      "spread",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 170,
@@ -855,7 +980,8 @@
   {
     "id": "Durin",
     "roles": [
-      "sub-dps"
+      "sub-dps",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -863,7 +989,7 @@
       "overloaded",
       "vaporize",
       "melt",
-      "swirl"
+      "burgeon"
     ],
     "energyNeed": "high",
     "erTarget": 150,
@@ -897,11 +1023,19 @@
   {
     "id": "Emilie",
     "roles": [
-      "sub-dps"
+      "sub-dps",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
-      "burning"
+      "burning",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "quicken",
+      "aggravate",
+      "spread",
+      "lunar-bloom"
     ],
     "energyNeed": "medium",
     "erTarget": 170,
@@ -925,7 +1059,10 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "freeze"
+      "freeze",
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -955,11 +1092,15 @@
   {
     "id": "Eula",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
-      "superconduct"
+      "superconduct",
+      "melt",
+      "freeze",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -976,7 +1117,18 @@
         "hold E"
       ]
     },
-    "notes": "Physical DMG carry."
+    "notes": "Physical DMG carry.",
+    "mainReaction": "superconduct",
+    "buffs": [
+      {
+        "stat": "Physical and Cryo RES shred (#178)",
+        "scope": "team",
+        "elements": [
+          "Cryo"
+        ],
+        "talent": "skill"
+      }
+    ]
   },
   {
     "id": "Faruzan",
@@ -984,7 +1136,10 @@
       "buffer"
     ],
     "fieldTime": "off",
-    "reactions": [],
+    "reactions": [
+      "swirl",
+      "stellar-swirl"
+    ],
     "energyNeed": "high",
     "erTarget": 250,
     "buffs": [
@@ -1013,7 +1168,8 @@
   {
     "id": "Fischl",
     "roles": [
-      "sub-dps"
+      "sub-dps",
+      "battery"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -1022,7 +1178,10 @@
       "electrocharged",
       "overloaded",
       "superconduct",
-      "hyperbloom"
+      "hyperbloom",
+      "quicken",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "energyNeed": "low",
     "erTarget": 120,
@@ -1042,11 +1201,18 @@
   {
     "id": "Flins",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
-      "lunar-charged"
+      "lunar-charged",
+      "superconduct",
+      "overloaded",
+      "hyperbloom",
+      "quicken",
+      "aggravate",
+      "stellar-conduct"
     ],
     "converts": [
       "lunar-charged"
@@ -1068,7 +1234,18 @@
         "E sQ N4D"
       ]
     },
-    "notes": "Lunar-Charged carry; needs off-field Hydro."
+    "notes": "Lunar-Charged carry; needs off-field Hydro.",
+    "mainReaction": "lunar-charged",
+    "buffs": [
+      {
+        "stat": "Lunar-Charged Base DMG (ATK-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "lunar-charged"
+        ],
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Freminet",
@@ -1078,7 +1255,9 @@
     "fieldTime": "on",
     "reactions": [
       "superconduct",
-      "freeze"
+      "freeze",
+      "melt",
+      "stellar-conduct"
     ],
     "mainReaction": "freeze",
     "energyNeed": "medium",
@@ -1108,7 +1287,12 @@
       "vaporize",
       "freeze",
       "electrocharged",
-      "bloom"
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 180,
@@ -1140,7 +1324,10 @@
     "fieldTime": "on",
     "reactions": [
       "vaporize",
-      "melt"
+      "melt",
+      "overloaded",
+      "burning",
+      "burgeon"
     ],
     "mainReaction": "melt",
     "energyNeed": "medium",
@@ -1160,12 +1347,15 @@
   {
     "id": "Ganyu",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
       "melt",
-      "freeze"
+      "freeze",
+      "superconduct",
+      "stellar-conduct"
     ],
     "mainReaction": "freeze",
     "energyNeed": "medium",
@@ -1182,7 +1372,17 @@
         "CA x6"
       ]
     },
-    "notes": "On-field Melt carry or off-field burst in Freeze."
+    "notes": "On-field Melt carry or off-field burst in Freeze.",
+    "buffs": [
+      {
+        "stat": "Cryo DMG +20% in Celestial Shower (#178)",
+        "scope": "active",
+        "elements": [
+          "Cryo"
+        ],
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Gorou",
@@ -1191,7 +1391,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 170,
@@ -1203,6 +1404,11 @@
           "Geo"
         ],
         "talent": "skill"
+      },
+      {
+        "stat": "Party DEF +25% after his Burst (#178)",
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -1225,7 +1431,11 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "vaporize"
+      "vaporize",
+      "melt",
+      "overloaded",
+      "burning",
+      "burgeon"
     ],
     "energyNeed": "low",
     "erTarget": 100,
@@ -1242,7 +1452,8 @@
         "Q"
       ]
     },
-    "notes": "Wants off-field Hydro (Xingqiu, Yelan)."
+    "notes": "Wants off-field Hydro (Xingqiu, Yelan).",
+    "mainReaction": "vaporize"
   },
   {
     "id": "Iansan",
@@ -1251,7 +1462,17 @@
       "healer"
     ],
     "fieldTime": "off",
-    "reactions": [],
+    "reactions": [
+      "superconduct",
+      "electrocharged",
+      "overloaded",
+      "hyperbloom",
+      "quicken",
+      "aggravate",
+      "spread",
+      "lunar-charged",
+      "stellar-conduct"
+    ],
     "energyNeed": "high",
     "erTarget": 210,
     "buffs": [
@@ -1286,8 +1507,7 @@
     "fieldTime": "on",
     "reactions": [
       "swirl",
-      "electrocharged",
-      "lunar-charged"
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 160,
@@ -1338,6 +1558,12 @@
           "Geo"
         ],
         "talent": "burst"
+      },
+      {
+        "stat": "EM +50 at Ascendant Gleam with Lightkeeper's Oath (#178)",
+        "scope": "team",
+        "affects": "EM",
+        "talent": "passive"
       }
     ],
     "families": [
@@ -1366,7 +1592,14 @@
     "fieldTime": "off",
     "reactions": [
       "lunar-charged",
-      "electrocharged"
+      "electrocharged",
+      "superconduct",
+      "overloaded",
+      "hyperbloom",
+      "quicken",
+      "aggravate",
+      "spread",
+      "stellar-conduct"
     ],
     "converts": [
       "lunar-charged"
@@ -1381,6 +1614,14 @@
         "stat": "EM (ATK-based)",
         "scope": "active",
         "affects": "EM",
+        "talent": "passive"
+      },
+      {
+        "stat": "Lunar-Charged Base DMG (ATK-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "lunar-charged"
+        ],
         "talent": "passive"
       }
     ],
@@ -1400,11 +1641,13 @@
     "id": "Jahoda",
     "roles": [
       "enabler",
-      "healer"
+      "healer",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 160,
@@ -1439,7 +1682,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "high",
     "erTarget": 160,
@@ -1462,7 +1706,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 110,
@@ -1487,7 +1732,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -1521,13 +1767,15 @@
     "id": "Kaeya",
     "roles": [
       "sub-dps",
-      "enabler"
+      "enabler",
+      "battery"
     ],
     "fieldTime": "off",
     "reactions": [
       "freeze",
       "melt",
-      "superconduct"
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -1550,7 +1798,9 @@
     "fieldTime": "on",
     "reactions": [
       "freeze",
-      "melt"
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "mainReaction": "freeze",
     "energyNeed": "high",
@@ -1572,7 +1822,8 @@
   {
     "id": "Kamisato Ayato",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
@@ -1580,7 +1831,11 @@
       "electrocharged",
       "bloom",
       "freeze",
-      "hyperbloom"
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "mainReaction": "hyperbloom",
     "energyNeed": "medium",
@@ -1597,17 +1852,31 @@
         "E",
         "N x15"
       ]
-    }
+    },
+    "buffs": [
+      {
+        "stat": "Normal Attack DMG in his Burst field (#178)",
+        "scope": "active",
+        "talent": "burst"
+      }
+    ]
   },
   {
     "id": "Kaveh",
     "roles": [
       "main-dps",
-      "enabler"
+      "enabler",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
-      "bloom"
+      "bloom",
+      "burning",
+      "hyperbloom",
+      "burgeon",
+      "quicken",
+      "spread",
+      "lunar-bloom"
     ],
     "energyNeed": "medium",
     "erTarget": 180,
@@ -1622,7 +1891,19 @@
         "E",
         "N x3"
       ]
-    }
+    },
+    "mainReaction": "bloom",
+    "buffs": [
+      {
+        "stat": "Dendro Core DMG for the party's Bloom and Lunar-Bloom (#178)",
+        "scope": "team",
+        "reactions": [
+          "bloom",
+          "lunar-bloom"
+        ],
+        "talent": "burst"
+      }
+    ]
   },
   {
     "id": "Keqing",
@@ -1633,7 +1914,12 @@
     "reactions": [
       "aggravate",
       "electrocharged",
-      "superconduct"
+      "superconduct",
+      "overloaded",
+      "hyperbloom",
+      "quicken",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "mainReaction": "aggravate",
     "energyNeed": "medium",
@@ -1659,7 +1945,13 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "burning"
+      "burning",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "quicken",
+      "spread",
+      "lunar-bloom"
     ],
     "energyNeed": "low",
     "erTarget": 110,
@@ -1677,7 +1969,8 @@
         "hold E swings x6",
         "Q"
       ]
-    }
+    },
+    "mainReaction": "burning"
   },
   {
     "id": "Kirara",
@@ -1690,7 +1983,11 @@
       "bloom",
       "hyperbloom",
       "burgeon",
-      "quicken"
+      "quicken",
+      "burning",
+      "aggravate",
+      "spread",
+      "lunar-bloom"
     ],
     "energyNeed": "medium",
     "erTarget": 120,
@@ -1714,7 +2011,9 @@
     "reactions": [
       "vaporize",
       "melt",
-      "overloaded"
+      "overloaded",
+      "burning",
+      "burgeon"
     ],
     "mainReaction": "vaporize",
     "energyNeed": "medium",
@@ -1742,7 +2041,17 @@
       "buffer"
     ],
     "fieldTime": "off",
-    "reactions": [],
+    "reactions": [
+      "superconduct",
+      "electrocharged",
+      "overloaded",
+      "hyperbloom",
+      "quicken",
+      "aggravate",
+      "spread",
+      "lunar-charged",
+      "stellar-conduct"
+    ],
     "energyNeed": "high",
     "erTarget": 200,
     "buffs": [
@@ -1775,7 +2084,13 @@
     "reactions": [
       "hyperbloom",
       "aggravate",
-      "spread"
+      "spread",
+      "superconduct",
+      "electrocharged",
+      "overloaded",
+      "quicken",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "energyNeed": "low",
     "erTarget": 120,
@@ -1799,7 +2114,8 @@
     ],
     "fieldTime": "flex",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 180,
@@ -1825,7 +2141,11 @@
       "lunar-bloom",
       "bloom",
       "hyperbloom",
-      "burgeon"
+      "burgeon",
+      "burning",
+      "quicken",
+      "aggravate",
+      "spread"
     ],
     "converts": [
       "lunar-bloom"
@@ -1846,6 +2166,23 @@
           "lunar-bloom"
         ],
         "talent": "burst"
+      },
+      {
+        "stat": "Dendro and Hydro RES shred (#178)",
+        "scope": "team",
+        "elements": [
+          "Dendro",
+          "Hydro"
+        ],
+        "talent": "skill"
+      },
+      {
+        "stat": "Lunar-Bloom Base DMG (EM-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "lunar-bloom"
+        ],
+        "talent": "passive"
       }
     ],
     "families": [
@@ -1869,7 +2206,9 @@
     "fieldTime": "off",
     "reactions": [
       "freeze",
-      "superconduct"
+      "superconduct",
+      "melt",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -1918,6 +2257,14 @@
         "scope": "active",
         "affects": "EM",
         "talent": "passive"
+      },
+      {
+        "stat": "Lunar-Crystallize Base DMG (DEF-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "lunar-crystallize"
+        ],
+        "talent": "passive"
       }
     ],
     "families": [
@@ -1940,7 +2287,14 @@
     "fieldTime": "off",
     "reactions": [
       "aggravate",
-      "electrocharged"
+      "electrocharged",
+      "superconduct",
+      "overloaded",
+      "hyperbloom",
+      "quicken",
+      "spread",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "energyNeed": "high",
     "erTarget": 200,
@@ -1966,11 +2320,15 @@
   {
     "id": "Lohen",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
-      "freeze"
+      "freeze",
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 100,
@@ -1990,7 +2348,16 @@
         "Q"
       ]
     },
-    "notes": "On-field main DPS who wants Freeze. Teammates hitting enemies charge his Will to Win."
+    "notes": "On-field main DPS who wants Freeze. Teammates hitting enemies charge his Will to Win.",
+    "mainReaction": "freeze",
+    "buffs": [
+      {
+        "stat": "ATK +15% for a member who triggers a Cryo reaction, in Masterstroke (#178)",
+        "scope": "team",
+        "affects": "ATK",
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Lynette",
@@ -2000,7 +2367,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 200,
@@ -2029,7 +2397,13 @@
       "main-dps"
     ],
     "fieldTime": "on",
-    "reactions": [],
+    "reactions": [
+      "vaporize",
+      "melt",
+      "overloaded",
+      "burning",
+      "burgeon"
+    ],
     "mainReaction": "none",
     "energyNeed": "medium",
     "erTarget": 130,
@@ -2112,7 +2486,9 @@
     "reactions": [
       "melt",
       "vaporize",
-      "overloaded"
+      "overloaded",
+      "burning",
+      "burgeon"
     ],
     "energyNeed": "low",
     "scalesOn": [
@@ -2146,7 +2522,12 @@
       "healer"
     ],
     "fieldTime": "off",
-    "reactions": [],
+    "reactions": [
+      "melt",
+      "freeze",
+      "superconduct",
+      "stellar-conduct"
+    ],
     "energyNeed": "high",
     "erTarget": 200,
     "buffs": [
@@ -2154,6 +2535,11 @@
         "stat": "ATK SPD, Physical DMG",
         "scope": "active",
         "talent": "skill"
+      },
+      {
+        "stat": "Physical DMG: one more Detector stack on CRIT hits (#178)",
+        "scope": "active",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -2176,7 +2562,14 @@
     "fieldTime": "off",
     "reactions": [
       "freeze",
-      "vaporize"
+      "vaporize",
+      "electrocharged",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "high",
     "erTarget": 180,
@@ -2209,7 +2602,15 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "vaporize"
+      "vaporize",
+      "freeze",
+      "electrocharged",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "low",
     "erTarget": 120,
@@ -2227,7 +2628,8 @@
         "shark bites x3",
         "Q"
       ]
-    }
+    },
+    "mainReaction": "vaporize"
   },
   {
     "id": "Nahida",
@@ -2277,7 +2679,8 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -2293,16 +2696,23 @@
         "N x2",
         "E"
       ]
-    }
+    },
+    "mainReaction": "crystallize"
   },
   {
     "id": "Nefer",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
-      "lunar-bloom"
+      "lunar-bloom",
+      "burning",
+      "hyperbloom",
+      "burgeon",
+      "quicken",
+      "spread"
     ],
     "converts": [
       "lunar-bloom"
@@ -2326,7 +2736,18 @@
         "Q"
       ]
     },
-    "notes": "On-field Lunar-Bloom carry. Skill unlocks her special Charged Attack; burst is the combo ender. Up to 6 special Charged Attacks per rotation: 3 per Skill cast, 2 Skill charges."
+    "notes": "On-field Lunar-Bloom carry. Skill unlocks her special Charged Attack; burst is the combo ender. Up to 6 special Charged Attacks per rotation: 3 per Skill cast, 2 Skill charges.",
+    "mainReaction": "lunar-bloom",
+    "buffs": [
+      {
+        "stat": "Lunar-Bloom Base DMG (EM-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "lunar-bloom"
+        ],
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Neuvillette",
@@ -2337,7 +2758,13 @@
     "reactions": [
       "electrocharged",
       "freeze",
-      "vaporize"
+      "vaporize",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "mainReaction": "none",
     "energyNeed": "low",
@@ -2362,7 +2789,13 @@
       "shielder"
     ],
     "fieldTime": "off",
-    "reactions": [],
+    "reactions": [
+      "vaporize",
+      "melt",
+      "overloaded",
+      "burning",
+      "burgeon"
+    ],
     "energyNeed": "medium",
     "erTarget": 150,
     "buffs": [
@@ -2397,7 +2830,15 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "bloom"
+      "bloom",
+      "vaporize",
+      "freeze",
+      "electrocharged",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -2437,7 +2878,8 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 120,
@@ -2452,7 +2894,8 @@
         "Q",
         "CA x3"
       ]
-    }
+    },
+    "mainReaction": "crystallize"
   },
   {
     "id": "Noelle",
@@ -2463,7 +2906,8 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "high",
     "erTarget": 130,
@@ -2478,17 +2922,21 @@
         "Q",
         "N4 x3"
       ]
-    }
+    },
+    "mainReaction": "crystallize"
   },
   {
     "id": "Odette",
     "roles": [
-      "sub-dps"
+      "sub-dps",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
       "stellar-conduct",
-      "stellar-swirl"
+      "stellar-swirl",
+      "melt",
+      "freeze"
     ],
     "converts": [
       "stellar-conduct",
@@ -2509,18 +2957,37 @@
         "E"
       ]
     },
-    "notes": "Off-field damage source. Converts Superconduct and Cryo Swirl into Stellar reactions."
+    "notes": "Off-field damage source. Converts Superconduct and Cryo Swirl into Stellar reactions.",
+    "buffs": [
+      {
+        "stat": "Stellar-Conduct and Stellar Swirl Base DMG (ATK-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "stellar-conduct",
+          "stellar-swirl"
+        ],
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Ororon",
     "roles": [
       "sub-dps",
-      "enabler"
+      "enabler",
+      "battery"
     ],
     "fieldTime": "off",
     "reactions": [
       "electrocharged",
-      "hyperbloom"
+      "hyperbloom",
+      "superconduct",
+      "overloaded",
+      "quicken",
+      "aggravate",
+      "spread",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -2581,7 +3048,10 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "freeze"
+      "freeze",
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "high",
     "erTarget": 220,
@@ -2604,7 +3074,8 @@
     "id": "Raiden Shogun",
     "roles": [
       "main-dps",
-      "battery"
+      "battery",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
@@ -2612,7 +3083,10 @@
       "overloaded",
       "aggravate",
       "hyperbloom",
-      "superconduct"
+      "superconduct",
+      "quicken",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "mainReaction": "overloaded",
     "energyNeed": "low",
@@ -2629,7 +3103,14 @@
         "3[N3C] N1C"
       ]
     },
-    "notes": "Burst carry or off-field battery via skill."
+    "notes": "Burst carry or off-field battery via skill.",
+    "buffs": [
+      {
+        "stat": "Elemental Burst DMG by the Burst's Energy Cost (#178)",
+        "scope": "team",
+        "talent": "skill"
+      }
+    ]
   },
   {
     "id": "Razor",
@@ -2638,7 +3119,14 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "superconduct"
+      "superconduct",
+      "electrocharged",
+      "overloaded",
+      "hyperbloom",
+      "quicken",
+      "aggravate",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "energyNeed": "high",
     "erTarget": 200,
@@ -2656,18 +3144,22 @@
         "Q",
         "N4 x3"
       ]
-    }
+    },
+    "mainReaction": "superconduct"
   },
   {
     "id": "Rosaria",
     "roles": [
       "sub-dps",
-      "buffer"
+      "buffer",
+      "battery"
     ],
     "fieldTime": "off",
     "reactions": [
       "freeze",
-      "melt"
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -2693,12 +3185,15 @@
   {
     "id": "Sandrone",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
       "stellar-conduct",
-      "stellar-swirl"
+      "stellar-swirl",
+      "melt",
+      "freeze"
     ],
     "converts": [
       "stellar-conduct",
@@ -2723,7 +3218,18 @@
         "(hold CA, E) x2"
       ]
     },
-    "notes": "On-field main DPS."
+    "notes": "On-field main DPS.",
+    "buffs": [
+      {
+        "stat": "Stellar-Conduct and Stellar Swirl Base DMG (ATK-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "stellar-conduct",
+          "stellar-swirl"
+        ],
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Sangonomiya Kokomi",
@@ -2735,7 +3241,13 @@
     "reactions": [
       "bloom",
       "electrocharged",
-      "freeze"
+      "freeze",
+      "vaporize",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 170,
@@ -2757,7 +3269,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "high",
     "erTarget": 200,
@@ -2780,7 +3293,13 @@
     "fieldTime": "on",
     "reactions": [
       "aggravate",
-      "hyperbloom"
+      "hyperbloom",
+      "superconduct",
+      "electrocharged",
+      "overloaded",
+      "quicken",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "mainReaction": "aggravate",
     "energyNeed": "medium",
@@ -2807,7 +3326,9 @@
     "fieldTime": "off",
     "reactions": [
       "freeze",
-      "melt"
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 190,
@@ -2819,6 +3340,19 @@
           "Cryo"
         ],
         "talent": "skill"
+      },
+      {
+        "stat": "Cryo DMG +15% in her Burst field (#178)",
+        "scope": "active",
+        "elements": [
+          "Cryo"
+        ],
+        "talent": "passive"
+      },
+      {
+        "stat": "Skill and Burst DMG (Press) or Normal, Charged and Plunging DMG (Hold) +15% (#178)",
+        "scope": "team",
+        "talent": "passive"
       }
     ],
     "rotation": {
@@ -2836,11 +3370,13 @@
   {
     "id": "Shikanoin Heizou",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 130,
@@ -2855,7 +3391,16 @@
         "N x3",
         "Q"
       ]
-    }
+    },
+    "mainReaction": "swirl",
+    "buffs": [
+      {
+        "stat": "Party EM +80 (excluding him) (#178)",
+        "scope": "team",
+        "affects": "EM",
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Sigewinne",
@@ -2867,7 +3412,13 @@
     "reactions": [
       "freeze",
       "bloom",
-      "electrocharged"
+      "electrocharged",
+      "vaporize",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 160,
@@ -2896,7 +3447,10 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "freeze"
+      "freeze",
+      "melt",
+      "superconduct",
+      "stellar-conduct"
     ],
     "energyNeed": "low",
     "scalesOn": [
@@ -2911,7 +3465,8 @@
         "Q"
       ]
     },
-    "notes": "Wants only Hydro and Cryo teammates; burst uses Serpent's Subtlety, not Energy."
+    "notes": "Wants only Hydro and Cryo teammates; burst uses Serpent's Subtlety, not Energy.",
+    "mainReaction": "freeze"
   },
   {
     "id": "Sucrose",
@@ -2921,7 +3476,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 170,
@@ -2930,6 +3486,16 @@
         "stat": "EM share",
         "scope": "team",
         "affects": "EM",
+        "talent": "passive"
+      },
+      {
+        "stat": "EM +50 for members of the swirled element (#178)",
+        "scope": "team",
+        "affects": "EM",
+        "reactions": [
+          "swirl",
+          "stellar-swirl"
+        ],
         "talent": "passive"
       }
     ],
@@ -2956,7 +3522,14 @@
     "fieldTime": "on",
     "reactions": [
       "vaporize",
-      "electrocharged"
+      "electrocharged",
+      "freeze",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "mainReaction": "vaporize",
     "energyNeed": "medium",
@@ -2985,7 +3558,9 @@
     "reactions": [
       "burgeon",
       "vaporize",
-      "melt"
+      "melt",
+      "overloaded",
+      "burning"
     ],
     "energyNeed": "high",
     "erTarget": 180,
@@ -3008,7 +3583,12 @@
     "fieldTime": "on",
     "reactions": [
       "spread",
-      "quicken"
+      "quicken",
+      "burning",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-bloom"
     ],
     "mainReaction": "spread",
     "energyNeed": "medium",
@@ -3221,7 +3801,12 @@
     "reactions": [
       "aggravate",
       "electrocharged",
-      "overloaded"
+      "overloaded",
+      "superconduct",
+      "hyperbloom",
+      "quicken",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "mainReaction": "overloaded",
     "energyNeed": "medium",
@@ -3278,11 +3863,13 @@
     "id": "Venti",
     "roles": [
       "sub-dps",
-      "buffer"
+      "buffer",
+      "battery"
     ],
     "fieldTime": "off",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "high",
     "erTarget": 180,
@@ -3305,7 +3892,8 @@
   {
     "id": "Vesna",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
@@ -3339,7 +3927,17 @@
         "E"
       ]
     },
-    "notes": "On-field DPS. Converts Cryo Swirl into Stellar Swirl."
+    "notes": "On-field DPS. Converts Cryo Swirl into Stellar Swirl.",
+    "buffs": [
+      {
+        "stat": "Stellar Swirl Base DMG (ATK-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "stellar-swirl"
+        ],
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Vodyanitsa",
@@ -3350,7 +3948,15 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "stellar-swirl"
+      "vaporize",
+      "freeze",
+      "electrocharged",
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 100,
@@ -3387,7 +3993,8 @@
     ],
     "fieldTime": "on",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 120,
@@ -3402,7 +4009,8 @@
         "E",
         "N x10"
       ]
-    }
+    },
+    "mainReaction": "swirl"
   },
   {
     "id": "Wriothesley",
@@ -3412,7 +4020,9 @@
     "fieldTime": "on",
     "reactions": [
       "melt",
-      "freeze"
+      "freeze",
+      "superconduct",
+      "stellar-conduct"
     ],
     "mainReaction": "freeze",
     "energyNeed": "medium",
@@ -3444,7 +4054,8 @@
       "vaporize",
       "overloaded",
       "melt",
-      "burning"
+      "burning",
+      "burgeon"
     ],
     "energyNeed": "high",
     "erTarget": 200,
@@ -3467,7 +4078,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 140,
@@ -3496,7 +4108,10 @@
       "main-dps"
     ],
     "fieldTime": "on",
-    "reactions": [],
+    "reactions": [
+      "swirl",
+      "stellar-swirl"
+    ],
     "mainReaction": "none",
     "energyNeed": "high",
     "erTarget": 140,
@@ -3518,11 +4133,13 @@
     "id": "Xilonen",
     "roles": [
       "buffer",
-      "healer"
+      "healer",
+      "battery"
     ],
     "fieldTime": "off",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -3560,7 +4177,12 @@
       "vaporize",
       "electrocharged",
       "freeze",
-      "bloom"
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "high",
     "erTarget": 200,
@@ -3582,7 +4204,13 @@
       "buffer"
     ],
     "fieldTime": "off",
-    "reactions": [],
+    "reactions": [
+      "vaporize",
+      "melt",
+      "overloaded",
+      "burning",
+      "burgeon"
+    ],
     "energyNeed": "medium",
     "erTarget": 150,
     "buffs": [
@@ -3613,7 +4241,12 @@
       "aggravate",
       "spread",
       "electrocharged",
-      "overloaded"
+      "overloaded",
+      "superconduct",
+      "hyperbloom",
+      "quicken",
+      "lunar-charged",
+      "stellar-conduct"
     ],
     "energyNeed": "medium",
     "erTarget": 140,
@@ -3645,7 +4278,10 @@
     "fieldTime": "on",
     "reactions": [
       "vaporize",
-      "overloaded"
+      "overloaded",
+      "melt",
+      "burning",
+      "burgeon"
     ],
     "mainReaction": "vaporize",
     "energyNeed": "medium",
@@ -3667,14 +4303,20 @@
     "id": "Yaoyao",
     "roles": [
       "healer",
-      "enabler"
+      "enabler",
+      "battery",
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
       "bloom",
       "hyperbloom",
       "burgeon",
-      "quicken"
+      "quicken",
+      "burning",
+      "aggravate",
+      "spread",
+      "lunar-bloom"
     ],
     "energyNeed": "medium",
     "erTarget": 180,
@@ -3700,7 +4342,12 @@
       "vaporize",
       "electrocharged",
       "freeze",
-      "bloom"
+      "bloom",
+      "hyperbloom",
+      "burgeon",
+      "lunar-charged",
+      "lunar-bloom",
+      "lunar-crystallize"
     ],
     "energyNeed": "high",
     "erTarget": 190,
@@ -3726,13 +4373,16 @@
   {
     "id": "Yoimiya",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
       "vaporize",
       "melt",
-      "overloaded"
+      "overloaded",
+      "burning",
+      "burgeon"
     ],
     "mainReaction": "vaporize",
     "energyNeed": "low",
@@ -3748,17 +4398,27 @@
         "E",
         "N5 x3"
       ]
-    }
+    },
+    "buffs": [
+      {
+        "stat": "Party ATK +10% (excluding her) (#178)",
+        "scope": "team",
+        "affects": "ATK",
+        "talent": "passive"
+      }
+    ]
   },
   {
     "id": "Yumemizuki Mizuki",
     "roles": [
       "main-dps",
-      "healer"
+      "healer",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
-      "swirl"
+      "swirl",
+      "stellar-swirl"
     ],
     "energyNeed": "medium",
     "erTarget": 150,
@@ -3777,16 +4437,30 @@
         "N x5",
         "Q"
       ]
-    }
+    },
+    "mainReaction": "swirl",
+    "buffs": [
+      {
+        "stat": "Swirl and Stellar Swirl DMG (EM-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "swirl",
+          "stellar-swirl"
+        ],
+        "talent": "skill"
+      }
+    ]
   },
   {
     "id": "Yun Jin",
     "roles": [
-      "buffer"
+      "buffer",
+      "shielder"
     ],
     "fieldTime": "off",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "high",
     "erTarget": 180,
@@ -3817,7 +4491,8 @@
     ],
     "fieldTime": "off",
     "reactions": [
-      "crystallize"
+      "crystallize",
+      "lunar-crystallize"
     ],
     "energyNeed": "low",
     "erTarget": 100,
@@ -3842,11 +4517,13 @@
   {
     "id": "Zibai",
     "roles": [
-      "main-dps"
+      "main-dps",
+      "buffer"
     ],
     "fieldTime": "on",
     "reactions": [
-      "lunar-crystallize"
+      "lunar-crystallize",
+      "crystallize"
     ],
     "converts": [
       "lunar-crystallize"
@@ -3868,6 +4545,17 @@
         "N1 Q E"
       ]
     },
-    "notes": "Lunar-Crystallize carry; does not need Hydro teammates. Pairs well with Columbina, who buffs Lunar reactions."
+    "notes": "Lunar-Crystallize carry; does not need Hydro teammates. Pairs well with Columbina, who buffs Lunar reactions.",
+    "mainReaction": "lunar-crystallize",
+    "buffs": [
+      {
+        "stat": "Lunar-Crystallize Base DMG (DEF-based) (#178)",
+        "scope": "team",
+        "reactions": [
+          "lunar-crystallize"
+        ],
+        "talent": "passive"
+      }
+    ]
   }
 ]
