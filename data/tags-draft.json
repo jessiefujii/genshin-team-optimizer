@@ -1,0 +1,2435 @@
+{
+  "Aino": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "freeze",
+        "electrocharged",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Albedo": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "Using Rite of Progeniture: Tectonic Tide increases the Elemental Mastery of nearby party members by 125 for 10s."
+      }
+    ]
+  },
+  "Alhaitham": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "aggravate"
+      ],
+      "remove": []
+    }
+  },
+  "Aloy": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: When Aloy receives the Coil effect from Frozen Wilds, her ATK is increased by 16%, while nearby party members' ATK is increased by 8%."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When Aloy receives the Coil effect from Frozen Wilds, her ATK is increased by 16%, while nearby party members' ATK is increased by 8%."
+      }
+    ]
+  },
+  "Alyosha": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "electrocharged",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-charged"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "buffer"
+      ]
+    }
+  },
+  "Amber": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    }
+  },
+  "Arataki Itto": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "crystallize",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Arlecchino": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    }
+  },
+  "Baizhu": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "lunar-bloom"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "Baizhu gains different effects according to the current HP of your current active character: ·When their HP is less than 50%, Baizhu gains 20% Healing Bonus. ·When their HP is equal to or more than 50%, Baizhu gains 25% Dendro DMG Bonus."
+      }
+    ]
+  },
+  "Barbara": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Beidou": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "hyperbloom",
+        "quicken",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Bennett": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "battery"
+      ]
+    }
+  },
+  "Candace": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "freeze",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "shielder",
+          "because": [
+            "skill: Tap Rushes forward with her shield, dealing Hydro DMG to opponents in front of her.",
+            "skill: Hold Raises her shield to block incoming attacks from nearby opponents, forming a barrier that absorbs DMG based on her Max HP and absorbs Hydro DMG 250% more effectively."
+          ]
+        }
+      ],
+      "notInText": [
+        "buffer"
+      ]
+    }
+  },
+  "Charlotte": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Chasca": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: When the Elemental Skill Spirit Reins, Shadow Hunt's Multitarget Fire is being charged, if there are party members who meet the Elemental Conversion Type requirements, gain the following effects based on the number of di"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When the Elemental Skill Spirit Reins, Shadow Hunt's Multitarget Fire is being charged, if there are party members who meet the Elemental Conversion Type requirements, gain the following effects based on the number of different eligible Elemental Types present"
+      }
+    ]
+  },
+  "Chevreuse": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "melt",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When all party members are Pyro and Electro characters and there is at least one Pyro and one Electro character each in the party: Chevreuse grants \"Coordinated Tactics\" to nearby party members: After a character triggers the Overloaded reaction, the Pyro and "
+      }
+    ]
+  },
+  "Chiori": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: Tapestry · Switches to the next character in your roster. · Grants all your party members \"Seize the Moment\": When your active party member's Normal Attacks, Charged Attacks, and Plunging Attacks hit a nearby opponent, \"",
+            "passive2: When a nearby party member creates a Geo Construct, Chiori will gain 20% Geo DMG Bonus for 20s."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "Tapestry · Switches to the next character in your roster. · Grants all your party members \"Seize the Moment\": When your active party member's Normal Attacks, Charged Attacks, and Plunging Attacks hit a nearby opponent, \"Tamoto\" will execute a coordinated attac"
+      },
+      {
+        "talent": "passive2",
+        "text": "When a nearby party member creates a Geo Construct, Chiori will gain 20% Geo DMG Bonus for 20s."
+      }
+    ]
+  },
+  "Chongyun": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: Sword, Claymore, or Polearm-wielding characters within the field created by Spirit Blade: Chonghua's Layered Frost have their Normal ATK SPD increased by 8%.",
+            "passive2: Opponents hit by this blade will have their Cryo RES decreased by 10% for 8s."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "Sword, Claymore, or Polearm-wielding characters within the field created by Spirit Blade: Chonghua's Layered Frost have their Normal ATK SPD increased by 8%."
+      },
+      {
+        "talent": "passive2",
+        "text": "Opponents hit by this blade will have their Cryo RES decreased by 10% for 8s."
+      }
+    ]
+  },
+  "Citlali": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "While Itzpapa is on the field, after nearby party members trigger the Frozen or Melt reactions, the Pyro and Hydro RES of opponents affected by that reaction decreases by 20% for 12s."
+      }
+    ]
+  },
+  "Clorinde": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "hyperbloom",
+        "quicken",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: After a nearby party member triggers an Electro-related reaction against an opponent, Electro DMG dealt by Clorinde's Normal Attacks and Last Lightfall will be increased by 20% of Clorinde's ATK for 15s."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "After a nearby party member triggers an Electro-related reaction against an opponent, Electro DMG dealt by Clorinde's Normal Attacks and Last Lightfall will be increased by 20% of Clorinde's ATK for 15s."
+      }
+    ]
+  },
+  "Collei": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "bloom",
+        "burgeon",
+        "lunar-bloom"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: If one of your party members has triggered Burning, Quicken, Aggravate, Spread, Bloom, Hyperbloom, Burgeon, or Lunar-Bloom reactions before the Floral Ring returns, it will grant the character the Sprout effect upon retu"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "If one of your party members has triggered Burning, Quicken, Aggravate, Spread, Bloom, Hyperbloom, Burgeon, or Lunar-Bloom reactions before the Floral Ring returns, it will grant the character the Sprout effect upon return, which will continuously deal Dendro "
+      }
+    ]
+  },
+  "Columbina": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "freeze",
+        "electrocharged",
+        "bloom",
+        "hyperbloom",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive3",
+        "text": "Lunar Reaction DMG inflicted by party members gain a Base DMG increase based on Columbina's Max HP."
+      }
+    ]
+  },
+  "Cyno": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "electrocharged",
+        "overloaded",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Dahlia": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "burst",
+        "text": "Appeals to the divine with earnestness and song, dealing AoE Hydro DMG to nearby opponents and granting his party members Favonian Favor, summoning a Shield of Sacred Favor."
+      },
+      {
+        "talent": "passive2",
+        "text": "When your active party member is affected by the Favonian Favor effect of the Elemental Burst **\"Radiant Psalter,\"** their ATK SPD will increase based on Dahlia's Max HP: Every 1,000 Max HP will cause an increase of 0.5%, up to a maximum of 20%."
+      }
+    ]
+  },
+  "Dehya": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "overloaded",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "skill: Active characters within this field have their resistance to interruption increased, and when such characters take DMG, a portion of that damage will be mitigated and flow into Redmane's Blood."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "skill",
+        "text": "Active characters within this field have their resistance to interruption increased, and when such characters take DMG, a portion of that damage will be mitigated and flow into Redmane's Blood."
+      }
+    ]
+  },
+  "Diluc": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "overloaded",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    }
+  },
+  "Diona": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "healer",
+        "battery"
+      ]
+    }
+  },
+  "Dori": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "overloaded",
+        "quicken",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "healer",
+        "battery"
+      ]
+    }
+  },
+  "Durin": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "burgeon"
+      ],
+      "remove": [
+        "swirl"
+      ]
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: When that form is: Dragon of White Flame After nearby party members trigger Burning, Overloaded, Pyro Swirl, or Pyro Crystallize reactions on an opponent, or deal Pyro DMG or Dendro DMG to an opponent affected by Burning"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When that form is: Dragon of White Flame After nearby party members trigger Burning, Overloaded, Pyro Swirl, or Pyro Crystallize reactions on an opponent, or deal Pyro DMG or Dendro DMG to an opponent affected by Burning, that opponent's Pyro RES, and the RES "
+      }
+    ]
+  },
+  "Emilie": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-bloom"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive3: When the Lumidouce Case created by Emilie is on the field, all party members gain 85% Pyro RES against Burning DMG."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive3",
+        "text": "When the Lumidouce Case created by Emilie is on the field, all party members gain 85% Pyro RES against Burning DMG."
+      }
+    ]
+  },
+  "Escoffier": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "When there are 1/2/3/4 Hydro or Cryo characters in the party, Escoffier will decrease the Hydro RES and Cryo RES of any opponents hit by her Elemental Skill, **Low-Temperature Cooking**, or her Elemental Burst, **Scoring Cuts**, by 5%/10%/15%/55% for 12s."
+      }
+    ]
+  },
+  "Eula": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "freeze",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "skill: If Grimheart stacks are consumed, surrounding opponents will have their Physical RES and Cryo RES decreased."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "skill",
+        "text": "If Grimheart stacks are consumed, surrounding opponents will have their Physical RES and Cryo RES decreased."
+      }
+    ]
+  },
+  "Faruzan": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "swirl",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Fischl": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "quicken",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Flins": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "electrocharged",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "aggravate",
+        "spread",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive3: When a party member triggers an Electro-Charged reaction, it will be converted into the Lunar-Charged reaction, with every 100 ATK that Flins has increasing Lunar-Charged's Base DMG by 0.7%, up to a maximum of 14%."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive3",
+        "text": "When a party member triggers an Electro-Charged reaction, it will be converted into the Lunar-Charged reaction, with every 100 ATK that Flins has increasing Lunar-Charged's Base DMG by 0.7%, up to a maximum of 14%."
+      }
+    ]
+  },
+  "Freminet": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Furina": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Gaming": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "overloaded",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    }
+  },
+  "Ganyu": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: Celestial Shower grants a 20% Cryo DMG Bonus to active party members in the AoE."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "Celestial Shower grants a 20% Cryo DMG Bonus to active party members in the AoE."
+      }
+    ]
+  },
+  "Gorou": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "After using Juuga: Forward Unto Victory, all nearby party members' DEF is increased by 25% for 12s."
+      }
+    ]
+  },
+  "Hu Tao": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "overloaded",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    }
+  },
+  "Iansan": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "electrocharged",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Ifa": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": [
+        "electrocharged",
+        "lunar-charged"
+      ]
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "Rescue Essentials will increase the Swirl, Stellar Swirl, Electro-Charged, and Lunar-Charged reaction DMG dealt by nearby party members."
+      },
+      {
+        "talent": "passive2",
+        "text": "When nearby party members trigger Nightsoul Bursts, Ifa's Elemental Mastery increases by 80 for 10s."
+      }
+    ]
+  },
+  "Illuga": {
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "After unleashing Elemental Skill **Dawnbearing Songbird** or Elemental Burst **Shadowless Reflection**, other nearby party members will gain the Lightkeeper's Oath effect for 20s: For Geo DMG dealt to opponents, CRIT Rate increases by 5% and CRIT DMG increases"
+      },
+      {
+        "talent": "passive1",
+        "text": "Moonsign: Ascendant Gleam Party members affected by the Lightkeeper's Oath effect have their Elemental Mastery increased by 50."
+      }
+    ]
+  },
+  "Ineffa": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "aggravate",
+        "spread",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "When using the Elemental Burst **Supreme Instruction: Cyclonic Exterminator**, all your party members will gain the Parameter Permutation effect: Increases Ineffa and your own active party member's Elemental Mastery by 6% of Ineffa's ATK for 20s."
+      },
+      {
+        "talent": "passive3",
+        "text": "When a party member triggers an Electro-Charged reaction, it will be converted into the Lunar-Charged reaction, with every 100 ATK that Ineffa has increasing Lunar-Charged's Base DMG by 0.7%, up to a maximum of 14%."
+      }
+    ]
+  },
+  "Jahoda": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "healer"
+      ]
+    }
+  },
+  "Jean": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "buffer"
+      ]
+    }
+  },
+  "Kachina": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "After nearby party members trigger a Nightsoul Burst, Kachina's Geo DMG Bonus increases by 20% for 12s."
+      }
+    ]
+  },
+  "Kaedehara Kazuha": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "Upon triggering a Swirl or Stellar Swirl reaction, Kaedehara Kazuha will grant all party members a 0.04% Elemental DMG Bonus to the element absorbed by Swirl for every point of Elemental Mastery he has for 8s."
+      }
+    ]
+  },
+  "Kaeya": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Kamisato Ayaka": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Kamisato Ayato": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "burst: While this space exists, Bloomwater Blades will constantly rain down and attack opponents within its AoE, dealing Hydro DMG and increasing the Normal Attack DMG of characters within."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "burst",
+        "text": "While this space exists, Bloomwater Blades will constantly rain down and attack opponents within its AoE, dealing Hydro DMG and increasing the Normal Attack DMG of characters within."
+      }
+    ]
+  },
+  "Kaveh": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "hyperbloom",
+        "burgeon",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-bloom"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "burst: Completely unleashes Mehrak's energy and creates a cubic scanned space, dealing AoE Dendro DMG to all opponents within it, causing all Dendro Cores in its AoE to immediately burst, and granting Kaveh the following enhanc"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "burst",
+        "text": "Completely unleashes Mehrak's energy and creates a cubic scanned space, dealing AoE Dendro DMG to all opponents within it, causing all Dendro Cores in its AoE to immediately burst, and granting Kaveh the following enhanced combat abilities for a specific durat"
+      }
+    ]
+  },
+  "Keqing": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Kinich": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-bloom"
+      ],
+      "remove": []
+    }
+  },
+  "Kirara": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "aggravate",
+        "spread",
+        "lunar-bloom"
+      ],
+      "remove": []
+    }
+  },
+  "Klee": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "passive2: When Klee's Charged Attack results in a CRIT Hit, all party members gain 2 Elemental Energy."
+          ]
+        },
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: When Klee's Charged Attack results in a CRIT Hit, all party members gain 2 Elemental Energy."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "When Klee's Charged Attack results in a CRIT Hit, all party members gain 2 Elemental Energy."
+      }
+    ]
+  },
+  "Kujou Sara": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "electrocharged",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "passive2: When Tengu Juurai: Ambush hits opponents, Kujou Sara will restore 1.2 Energy to all party members for every 100% Energy Recharge she has."
+          ]
+        }
+      ],
+      "notInText": []
+    }
+  },
+  "Kuki Shinobu": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "electrocharged",
+        "overloaded",
+        "quicken",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Lan Yan": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "buffer"
+      ]
+    }
+  },
+  "Lauma": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "quicken",
+        "aggravate",
+        "spread"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "skill",
+        "text": "Additionally, when Lauma's Elemental Skill or attacks from Frostgrove Sanctuary hit an opponent, that opponent's Dendro RES and Hydro RES will be decreased for 10s."
+      },
+      {
+        "talent": "passive3",
+        "text": "When a Bloom reaction is triggered by a party member, it will be converted into the Lunar-Bloom reaction, with every point of Elemental Mastery that Lauma has increasing Lunar-Bloom's Base DMG by 0.0175%, up to a maximum of 14%."
+      }
+    ]
+  },
+  "Layla": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Linnea": {
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When Lumi is present on the field, the Geo RES of opponents near Lumi will decrease by 15%."
+      },
+      {
+        "talent": "passive1",
+        "text": "After summoning Lumi, the Geo RES of opponents near Lumi will be further decreased by 15%."
+      },
+      {
+        "talent": "passive2",
+        "text": "Linnea will increase the Elemental Mastery of certain characters in your party according to your current active character."
+      },
+      {
+        "talent": "passive2",
+        "text": "If your current active character: · Is a Moonsign character: Increase this character's Elemental Mastery. · Is not a Moonsign character: Increase Linnea's own Elemental Mastery."
+      },
+      {
+        "talent": "passive3",
+        "text": "When a party member triggers a Hydro Crystallize reaction, it will be converted into the Lunar-Crystallize reaction, with every 100 DEF that Linnea has increasing Lunar-Crystallize's Base DMG by 0.7%, up to a maximum of 14%."
+      }
+    ]
+  },
+  "Lisa": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "Opponents hit by Lightning Rose have their DEF decreased by 15% for 10s."
+      }
+    ]
+  },
+  "Lohen": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "skill: While in this state: · Lohen can actively accumulate **Joy**, using it to unleash the special Elemental Skill **Etched Into Bone and Soul**. · Nearby party members can accumulate **Will to Win** for Lohen, increasing the",
+            "passive2: While in **Masterstroke** mode, for 8s after another nearby party member triggers a Cryo Reaction, that character's ATK is increased by 15%, while Lohen's ATK is increased by 15%."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "skill",
+        "text": "While in this state: · Lohen can actively accumulate **Joy**, using it to unleash the special Elemental Skill **Etched Into Bone and Soul**. · Nearby party members can accumulate **Will to Win** for Lohen, increasing the DMG dealt by Etched Into Bone and Soul."
+      },
+      {
+        "talent": "passive2",
+        "text": "While in **Masterstroke** mode, for 8s after another nearby party member triggers a Cryo Reaction, that character's ATK is increased by 15%, while Lohen's ATK is increased by 15%."
+      }
+    ]
+  },
+  "Lynette": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "Within 10s after using Magic Trick: Astonishing Shift, when there are 1/2/3/4 Elemental Types in the party, all party members' ATK will be increased by 8%/12%/16%/20% respectively."
+      }
+    ]
+  },
+  "Lyney": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "melt",
+        "overloaded",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: The DMG Lyney deals to opponents affected by Pyro will receive the following buffs: ·Increases the DMG dealt by 60%. ·Each Pyro party member other than Lyney will cause the DMG dealt to increase by an additional 20%."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "The DMG Lyney deals to opponents affected by Pyro will receive the following buffs: ·Increases the DMG dealt by 60%. ·Each Pyro party member other than Lyney will cause the DMG dealt to increase by an additional 20%."
+      }
+    ]
+  },
+  "Manekin": {
+    "note": "no genshin-db kit text"
+  },
+  "Manekina": {
+    "note": "no genshin-db kit text"
+  },
+  "Mavuika": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When a nearby party member triggers a Nightsoul Burst, Mavuika's ATK increases by 30% for 10s."
+      },
+      {
+        "talent": "passive2",
+        "text": "After using her Elemental Burst, Hour of Burning Skies, every point of Fighting Spirit present when it is used increases the DMG that the current active party member deals by 0.2%."
+      }
+    ]
+  },
+  "Mika": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "freeze",
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "When an active character affected by both Skyfeather Song's Eagleplume and Starfrost Swirl's Soulwind at once scores a CRIT Hit with their attacks, Soulwind will grant them 1 stack of Detector from the Ascension Talent Suppressive Barrage."
+      }
+    ]
+  },
+  "Mona": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "electrocharged",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "buffer"
+      ]
+    }
+  },
+  "Mualani": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "freeze",
+        "electrocharged",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Nahida": {
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When unleashing Illusory Heart, the Shrine of Maya will gain the following effects: The Elemental Mastery of the active character within the field will be increased by 25% of the Elemental Mastery of the party member with the highest Elemental Mastery."
+      }
+    ]
+  },
+  "Navia": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: For each Pyro/Electro/Cryo/Hydro party member, Navia gains 20% increased ATK."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "For each Pyro/Electro/Cryo/Hydro party member, Navia gains 20% increased ATK."
+      }
+    ]
+  },
+  "Nefer": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "quicken",
+        "aggravate",
+        "spread"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive3: When a party member triggers a Bloom reaction, it will be converted into the Lunar-Bloom reaction, with every point of Elemental Mastery that Nefer has increasing Lunar-Bloom's Base DMG by 0.0175%, up to a maximum of 14%"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive3",
+        "text": "When a party member triggers a Bloom reaction, it will be converted into the Lunar-Bloom reaction, with every point of Elemental Mastery that Nefer has increasing Lunar-Bloom's Base DMG by 0.0175%, up to a maximum of 14%."
+      }
+    ]
+  },
+  "Neuvillette": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Nicole": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "melt",
+        "overloaded",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "burst",
+        "text": "In this mode, when nearby active party members hit an opponent, an Arcane Projection is summoned to perform a Coordinated Attack against the opponent, dealing AoE Elemental DMG of the character's corresponding Elemental Type."
+      }
+    ]
+  },
+  "Nilou": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "freeze",
+        "electrocharged",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "Characters under the effect of Golden Chalice's Bounty will increase the Elemental Mastery of all nearby characters by 100 for 10s whenever they are hit by Dendro attacks."
+      }
+    ]
+  },
+  "Ningguang": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Noelle": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "healer"
+      ]
+    }
+  },
+  "Odette": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "freeze",
+        "superconduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive3: When a party member triggers a Superconduct or Cryo Swirl reaction, it becomes a Stellar-Conduct or Stellar Swirl reaction instead, and the Base DMG of said reaction is also increased by 0.7% for every 100 points of Odet"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive3",
+        "text": "When a party member triggers a Superconduct or Cryo Swirl reaction, it becomes a Stellar-Conduct or Stellar Swirl reaction instead, and the Base DMG of said reaction is also increased by 0.7% for every 100 points of Odette's ATK."
+      }
+    ]
+  },
+  "Ororon": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "overloaded",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "battery",
+          "because": [
+            "passive2: Aspect Sigil When a nearby active party member hits an opponent with Normal, Charged, or Plunging Attacks, that character will restore 3 Energy."
+          ]
+        }
+      ],
+      "notInText": []
+    }
+  },
+  "Prune": {
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "After Prune hits an opponent with the **Banehunter Oathhammer** that has undergone Elemental Conversion, other nearby party members will gain the Tolling Rally effect for 5s: When Normal, Charged, or Plunging Attacks, or Elemental Skills and Bursts deal DMG to"
+      }
+    ]
+  },
+  "Qiqi": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Raiden Shogun": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "quicken",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "skill: The Raiden Shogun unveils a shard of her Euthymia, dealing Electro DMG to nearby opponents, and granting nearby party members the Eye of Stormy Judgment."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "skill",
+        "text": "The Raiden Shogun unveils a shard of her Euthymia, dealing Electro DMG to nearby opponents, and granting nearby party members the Eye of Stormy Judgment."
+      }
+    ]
+  },
+  "Razor": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "electrocharged",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Rosaria": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "Casting Rites of Termination increases CRIT Rate of all nearby party members (except Rosaria herself) by 15% of Rosaria's CRIT Rate for 10s."
+      }
+    ]
+  },
+  "Sandrone": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "freeze",
+        "superconduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive3: When a party member triggers a Superconduct or Cryo Swirl reaction, it becomes a Stellar-Conduct or Stellar Swirl reaction instead, and the Base DMG of the aforementioned reaction is also increased by 0.7% for every 100 "
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive3",
+        "text": "When a party member triggers a Superconduct or Cryo Swirl reaction, it becomes a Stellar-Conduct or Stellar Swirl reaction instead, and the Base DMG of the aforementioned reaction is also increased by 0.7% for every 100 points of Sandrone's ATK."
+      }
+    ]
+  },
+  "Sangonomiya Kokomi": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "burst: Ceremonial Garment ·Sangonomiya Kokomi's Normal Attack, Charged Attack and Bake-Kurage DMG are increased based on her Max HP. ·When her Normal and Charged Attacks hit opponents, Kokomi will restore HP for all nearby part"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "burst",
+        "text": "Ceremonial Garment ·Sangonomiya Kokomi's Normal Attack, Charged Attack and Bake-Kurage DMG are increased based on her Max HP. ·When her Normal and Charged Attacks hit opponents, Kokomi will restore HP for all nearby party members, and the amount restored is ba"
+      }
+    ]
+  },
+  "Sayu": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Sethos": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "electrocharged",
+        "overloaded",
+        "quicken",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Shenhe": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "burst",
+        "text": "The Talisman Spirit then creates a field that decreases the Cryo RES and Physical RES of opponents within it."
+      },
+      {
+        "talent": "passive1",
+        "text": "An active character within the field created by Divine Maiden's Deliverance gains 15% Cryo DMG Bonus."
+      },
+      {
+        "talent": "passive2",
+        "text": "After Shenhe uses Spring Spirit Summoning, she will grant all nearby party members the following effects: · Press: Elemental Skill and Elemental Burst DMG increased by 15% for 10s. · Hold: Normal, Charged, and Plunging Attack DMG increased by 15% for 15s."
+      }
+    ]
+  },
+  "Shikanoin Heizou": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: After Shikanoin Heizou's Heartstopper Strike hits an opponent, increases all party members' (excluding Shikanoin Heizou) Elemental Mastery by 80 for 10s."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "After Shikanoin Heizou's Heartstopper Strike hits an opponent, increases all party members' (excluding Shikanoin Heizou) Elemental Mastery by 80 for 10s."
+      }
+    ]
+  },
+  "Sigewinne": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When the Elemental Skills of your nearby off-field party members other than Sigewinne deal DMG, consume 1 stack of Convalescence, and increase the DMG dealt by this instance of Elemental Skill DMG."
+      }
+    ]
+  },
+  "Skirk": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Sucrose": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "When Astable Anemohypostasis Creation - 6308 or Forbidden Creation - Isomer 75 / Type II hits an opponent, increases all party members' (excluding Sucrose) Elemental Mastery by an amount equal to 20% of Sucrose's Elemental Mastery for 8s."
+      }
+    ]
+  },
+  "Tartaglia": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "freeze",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Thoma": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "overloaded",
+        "burning"
+      ],
+      "remove": []
+    }
+  },
+  "Tighnari": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "aggravate",
+        "lunar-bloom"
+      ],
+      "remove": []
+    }
+  },
+  "Traveler (Anemo)": {
+    "note": "no genshin-db kit text"
+  },
+  "Traveler (Dendro)": {
+    "note": "no genshin-db kit text"
+  },
+  "Traveler (Electro)": {
+    "note": "no genshin-db kit text"
+  },
+  "Traveler (Geo)": {
+    "note": "no genshin-db kit text"
+  },
+  "Traveler (Hydro)": {
+    "note": "no genshin-db kit text"
+  },
+  "Traveler (Pyro)": {
+    "note": "no genshin-db kit text"
+  },
+  "Traveler (Cryo)": {
+    "note": "no genshin-db kit text"
+  },
+  "Varesa": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "hyperbloom",
+        "quicken",
+        "spread",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: When a nearby party member triggers a Nightsoul Burst, Varesa's ATK increases by 35% for 12s."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "When a nearby party member triggers a Nightsoul Burst, Varesa's ATK increases by 35% for 12s."
+      }
+    ]
+  },
+  "Varka": {
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: When nearby party members trigger a Swirl or Stellar Swirl reaction, Varka gains 1 stack of Azure Fang's Oath, increasing the DMG dealt by his Normal Attacks, Charged Attacks, special Charged Attack Azure Devour and spec"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "When nearby party members trigger a Swirl or Stellar Swirl reaction, Varka gains 1 stack of Azure Fang's Oath, increasing the DMG dealt by his Normal Attacks, Charged Attacks, special Charged Attack Azure Devour and special Elemental Skill **Four Winds' Ascens"
+      }
+    ]
+  },
+  "Venti": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "buffer"
+      ]
+    }
+  },
+  "Vesna": {
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: Radiance: Stellar Swirl: Vesna will gain the corresponding effect based on the Elemental Type of her party members: · For every Cryo or Anemo character in her current party, Vesna's ATK increases by 6%; and · For every c",
+            "passive3: When party members trigger Cryo Swirl, it will be changed to a Stellar Swirl reaction, and party members' Base DMG for the Stellar Swirl will be increased based on Vesna's ATK."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "Radiance: Stellar Swirl: Vesna will gain the corresponding effect based on the Elemental Type of her party members: · For every Cryo or Anemo character in her current party, Vesna's ATK increases by 6%; and · For every character of all other Elemental Types in"
+      },
+      {
+        "talent": "passive3",
+        "text": "When party members trigger Cryo Swirl, it will be changed to a Stellar Swirl reaction, and party members' Base DMG for the Stellar Swirl will be increased based on Vesna's ATK."
+      }
+    ]
+  },
+  "Vodyanitsa": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "freeze",
+        "electrocharged",
+        "bloom",
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": [
+        "stellar-swirl"
+      ]
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "Generating or detonating a Wandering Vortex will also reduce nearby opponents' Anemo RES by 35% for 6s."
+      }
+    ]
+  },
+  "Wanderer": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Wriothesley": {
+    "reactions": {
+      "element": "Cryo",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "stellar-conduct",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Xiangling": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "burgeon"
+      ],
+      "remove": []
+    }
+  },
+  "Xianyun": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "burst",
+        "text": "While Adeptal Assistance is active, nearby active characters in the party will have their jump height increased. ·When the active character completes a Plunging Attack, Starwicker will consume 1 stack of Adeptal Assistance and deal AoE Anemo DMG."
+      },
+      {
+        "talent": "passive2",
+        "text": "When the Starwicker created by Stars Gather at Dusk has Adeptal Assistance stacks, nearby active characters' Plunging Attack shockwave DMG will be increased by 200% of Xianyun's ATK."
+      }
+    ]
+  },
+  "Xiao": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "swirl",
+        "stellar-swirl"
+      ],
+      "remove": []
+    }
+  },
+  "Xilonen": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "Additionally, when nearby party members trigger a Nightsoul Burst, Xilonen's DEF is increased by 20% for 15s."
+      }
+    ]
+  },
+  "Xingqiu": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Xinyan": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "vaporize",
+        "melt",
+        "overloaded",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "buffer"
+      ]
+    }
+  },
+  "Yae Miko": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "superconduct",
+        "hyperbloom",
+        "quicken",
+        "lunar-charged",
+        "stellar-conduct"
+      ],
+      "remove": []
+    }
+  },
+  "Yanfei": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "melt",
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    }
+  },
+  "Yaoyao": {
+    "reactions": {
+      "element": "Dendro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "aggravate",
+        "spread",
+        "lunar-bloom"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: When White Jade Radishes explode, active characters within their AoE will regain HP every 1s based on 0.8% of Yaoyao's Max HP."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "When White Jade Radishes explode, active characters within their AoE will regain HP every 1s based on 0.8% of Yaoyao's Max HP."
+      }
+    ]
+  },
+  "Yelan": {
+    "reactions": {
+      "element": "Hydro",
+      "appliesElement": true,
+      "add": [
+        "hyperbloom",
+        "burgeon",
+        "lunar-charged",
+        "lunar-bloom",
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "buffer"
+      ]
+    }
+  },
+  "Yoimiya": {
+    "reactions": {
+      "element": "Pyro",
+      "appliesElement": true,
+      "add": [
+        "burning",
+        "burgeon"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive2: Using Ryuukin Saxifrage causes nearby party members (not including Yoimiya) to gain a 10% ATK increase for 15s."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive2",
+        "text": "Using Ryuukin Saxifrage causes nearby party members (not including Yoimiya) to gain a 10% ATK increase for 15s."
+      }
+    ]
+  },
+  "Yumemizuki Mizuki": {
+    "reactions": {
+      "element": "Anemo",
+      "appliesElement": true,
+      "add": [
+        "stellar-swirl"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "skill: Dreamdrifter ·While in the Dreamdrifter state, Yumemizuki Mizuki will continuously drift forward, dealing AoE Anemo DMG to nearby opponents at regular intervals. ·During this time, Yumemizuki Mizuki can control her direc",
+            "passive2: While Yumemizuki Mizuki is in the Dreamdrifter state, when other nearby party members hit opponents with Pyro, Hydro, Cryo, or Electro attacks, her Elemental Mastery will increase by 100 for 4s."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "skill",
+        "text": "Dreamdrifter ·While in the Dreamdrifter state, Yumemizuki Mizuki will continuously drift forward, dealing AoE Anemo DMG to nearby opponents at regular intervals. ·During this time, Yumemizuki Mizuki can control her direction of drift, and the pick-up distance "
+      },
+      {
+        "talent": "passive2",
+        "text": "While Yumemizuki Mizuki is in the Dreamdrifter state, when other nearby party members hit opponents with Pyro, Hydro, Cryo, or Electro attacks, her Elemental Mastery will increase by 100 for 4s."
+      }
+    ]
+  },
+  "Yun Jin": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "shielder",
+          "because": [
+            "skill: Hold Takes up the Opening Flourish stance and charges up, forming a shield.",
+            "skill: The shield lasts until she finishes unleashing her Elemental Skill."
+          ]
+        }
+      ],
+      "notInText": []
+    }
+  },
+  "Zhongli": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "lunar-crystallize"
+      ],
+      "remove": []
+    }
+  },
+  "Zibai": {
+    "reactions": {
+      "element": "Geo",
+      "appliesElement": true,
+      "add": [
+        "crystallize"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: When casting the Elemental Skill **Heaven and Earth Made Manifest**, or when nearby party members trigger Moondrift Harmony, Zibai gains the Selenic Descent effect for 4s: The DMG dealt by the 2nd hit of **Spirit Steed's",
+            "passive2: Other Geo party members increase Zibai's DEF by 15% each."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "talent": "passive1",
+        "text": "When casting the Elemental Skill **Heaven and Earth Made Manifest**, or when nearby party members trigger Moondrift Harmony, Zibai gains the Selenic Descent effect for 4s: The DMG dealt by the 2nd hit of **Spirit Steed's Stride** is increased by 60% of Zibai's"
+      },
+      {
+        "talent": "passive2",
+        "text": "Other Geo party members increase Zibai's DEF by 15% each."
+      },
+      {
+        "talent": "passive2",
+        "text": "Hydro party members increase her Elemental Mastery by 60 each."
+      },
+      {
+        "talent": "passive3",
+        "text": "When a party member triggers a Hydro Crystallize reaction, it will be converted into the Lunar-Crystallize reaction, with every 100 DEF that Zibai has increasing Lunar-Crystallize's Base DMG by 0.7%, up to a maximum of 14%."
+      }
+    ]
+  }
+}
