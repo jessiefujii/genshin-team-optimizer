@@ -854,6 +854,19 @@
           ],
           "seconds": 17,
           "source": "same guide, Klee Overload (Klee, Chevreuse/Bennett, Fischl/Durin, Pyro/Electro): \"Overload teams with 16-18s rotations require R4+ Sacrificial Bow\" (midpoint). Chevreuse only: Bennett and Fischl also share a Furina team."
+        },
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 18,
+          "source": "Jessie 2026-10-24 (#250), from r/KleeMains, https://www.reddit.com/r/KleeMains/comments/184kqvm/klee_mains_know_this_but_its_worth_repeating/: Klee's Furina teams run about 18s, the length of Furina's Burst (genshin-db Let the People Rejoice, \"Duration\" 18s). After Chevreuse: a Chevreuse team is Overload whoever else is in it."
         }
       ]
     },

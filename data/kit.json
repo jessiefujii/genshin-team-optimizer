@@ -11497,6 +11497,18 @@
             }
           ],
           "seconds": 17
+        },
+        {
+          "when": [
+            {
+              "members": [
+                [
+                  "Furina"
+                ]
+              ]
+            }
+          ],
+          "seconds": 18
         }
       ],
       "combo": "N1 sEQ N3 E 5[N3]",

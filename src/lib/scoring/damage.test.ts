@@ -39,6 +39,10 @@ describe("carry damage (#101)", () => {
     expect(seconds("Arlecchino", "Kachina", "Bennett", "Chiori")).toBe(20);
     expect(seconds("Arlecchino", "Bennett", "Furina", "Xilonen")).toBe(15); // no default stated: Burst cooldown
     expect(seconds("Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toBe(15); // unsourced: Burst cooldown
+    // Klee (#250): Furina teams ~18s, Chevreuse Overload 17s even with Furina, else her Burst cooldown.
+    expect(seconds("Klee", "Furina", "Xilonen", "Albedo")).toBe(18);
+    expect(seconds("Klee", "Chevreuse", "Furina", "Fischl")).toBe(17);
+    expect(seconds("Klee", "Bennett", "Xingqiu", "Fischl")).toBe(15);
   });
 
   test("Hu Tao's passive 2 needs no teammate healing her; Furina in Ousia doesn't (#2)", () => {
