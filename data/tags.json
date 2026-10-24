@@ -3521,7 +3521,9 @@
       "healer"
     ],
     "fieldTime": "off",
-    "reactions": [],
+    "reactions": [
+      "crystallize"
+    ],
     "energyNeed": "medium",
     "erTarget": 150,
     "buffs": [

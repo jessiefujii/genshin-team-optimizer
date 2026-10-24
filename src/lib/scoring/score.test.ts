@@ -117,8 +117,9 @@ describe("scoreTeam", () => {
     // No Hydro or Pyro: the Quicken aura is up throughout, every applying hit Spreads (as before #303; ICDs #226, sets #206).
     expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(73); // his benchmark Wolf-Fang (#206); Nahida's EM in damage (#186)
     // Furina's Hydro turns the Quicken aura into Bloom: Alhaitham Spreads about half the time, and Yae Aggravates less.
+    // Xilonen's Crystallize takes some of the Electro and Hydro too (#342): 29.
     const furina = spread("Alhaitham", "Furina", "Xilonen", "Yae Miko");
-    expect(furina).toBeGreaterThan(30);
+    expect(furina).toBeGreaterThan(25);
     expect(furina).toBeLessThan(70);
     expect(own("Yae Miko", "Alhaitham", "Furina", "Xilonen", "Yae Miko")).toBeLessThan(31193); // 31193 before #303
     // Kazuha's Anemo doesn't touch Quicken: Clorinde keeps her full Aggravate there.
@@ -202,8 +203,9 @@ describe("scoreTeam", () => {
 
   test("Durin plays his Darkness form where his own Vaporize or Melt is the point (#316)", () => {
     const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Durin's own hits"))!.reason;
-    // Vaporize, no Burning/Overloaded/Swirl/Crystallize for White Flame's shred: Dark Decay, +40% Vaporize DMG.
-    expect(dps(line("Neuvillette", "Xilonen", "Furina", "Durin"))).toBeGreaterThan(30000);
+    // Vaporize, no Burning/Overloaded/Swirl/Crystallize for White Flame's shred: Dark Decay, +40% Vaporize DMG. (Yelan:
+    // Xilonen Crystallizes since #342, and with her he plays Purity; ~30k with her Pyro shred before.)
+    expect(dps(line("Neuvillette", "Yelan", "Furina", "Durin"))).toBeGreaterThan(24000);
     // Zhongli's Crystallize keeps Purity: White Flame's shred has a reaction to use. Without it (Shenhe) he plays
     // Darkness and deals more, though Zhongli's RES shred helps his hits too.
     expect(line("Skirk", "Escoffier", "Durin", "Zhongli")).toMatch(/with Melt$/);
