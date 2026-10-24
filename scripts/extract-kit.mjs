@@ -3536,8 +3536,9 @@ const SETS = {
   ],
   "Golden Troupe": [
     { kind: "dmgBonus", pieces: 2, types: ["skill"], re: /^Increases Elemental Skill DMG by (\d+)%/ },
-    // The off-field 25% more isn't an on-field carry's.
     { kind: "dmgBonus", types: ["skill"], re: /^Increases Elemental Skill DMG by (\d+)%/ },
+    // Off-field: a sub-DPS's own Skill hits (#347: Furina's Salon Members), not the on-field carry's.
+    { kind: "dmgBonus", types: ["skill"], re: /when not on the field, Elemental Skill DMG will be further increased by (\d+)%/, when: { offField: true } },
   ],
   "Gladiator's Finale": [
     { kind: "dmgBonus", types: ["normal"], re: /uses a Sword, Claymore or Polearm, increases their Normal Attack DMG by (\d+)%/, when: { weapons: ["Sword", "Claymore", "Polearm"] } },
@@ -3690,10 +3691,11 @@ const benchmarkSets = {
   Tighnari: [{ set: "Wanderer's Troupe", source: kqm("tighnari-quickguide", "4-piece Wanderer's Troupe (4WT) Provides an unconditional buff to his Charged Shots") }],
   // Supports without a build (#338): their KQM quick guide's support set (accessed 2026-10-24), only when it is one of
   // the party sets in damage (kit.ts partyGearStats: Noblesse, Tenacity, VV, Deepwood, Archaic Petra, Scroll, Silken
-  // Moon's Serenade, Night of the Sky's Unveiling). None when the guide's pick is another set (Furina, Escoffier,
-  // Nicole, Mona: Golden Troupe or Celestial Gift; Ineffa, Linnea, Albedo: Aubade or Husk; Yelan, Rosaria, Lisa:
-  // personal damage sets; Alyosha: Heart of the Furnace). Jessie's picks over the guide's (2026-10-24): Gorou on Husk
-  // (KQM's first pick: Scroll), Zhongli on Tenacity (KQM's first: "Rainbow", 2pc HP% + 2pc HP%).
+  // Moon's Serenade, Night of the Sky's Unveiling), and since #347 the own-damage sets their hits read (Golden Troupe,
+  // Aubade, Husk, Emblem, Gilded Dreams: score.ts subDpsLines). None yet for Nicole, Mona (Celestial Gift) and Alyosha
+  // (Heart of the Furnace): not in SETS (#345); Lisa's first pick is her on-field DPS set (Thundering Fury). Jessie's
+  // picks over the guide's (2026-10-24): Gorou on Husk (KQM's first pick: Scroll), Zhongli on Tenacity (KQM's first:
+  // "Rainbow", 2pc HP% + 2pc HP%).
   "Kaedehara Kazuha": [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "kazuha-quickguide", "4pc Viridescent Venerer (4VV) is the artifact set that Kazuha uses in almost all of his teams") }],
   Sucrose: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "sucrose-quickguide", "Sucrose should generally hold 4pc VV to bolster her own damage and shred enemy Elemental RES") }],
   Lynette: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "lynette-quickguide", "It is Lynette's Best-in-Slot set in nearly all her playstyles") }],
@@ -3726,6 +3728,16 @@ const benchmarkSets = {
     when: { reaction },
     source: kqmOn("2026-10-24", "baizhu-quickguide", "4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it"),
   })),
+  Furina: [{ set: "Golden Troupe", source: kqmOn("2026-10-24", "furina-quickguide", "4pc Golden Troupe is by far Furina's best set for her personal damage") }],
+  Escoffier: [{ set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "escoffier-quickguide", "Escoffier can maintain excellent uptime on 4pc TotM") }],
+  Yelan: [{ set: "Emblem of Severed Fate", source: kqmOn("2026-10-24", "yelan-quickguide", "Hands-down her best set") }],
+  Ineffa: [{ set: "Aubade of Morningstar and Moon", source: kqmOn("2026-10-24", "ineffa-quickguide", "making it her most recommended set") }],
+  Linnea: [{ set: "Husk of Opulent Dreams", source: kqmOn("2026-10-24", "linnea-quickguide", "Husk is Linnea's general best-in-slot option") }],
+  Albedo: [{ set: "Husk of Opulent Dreams", source: kqmOn("2026-10-24", "albedo-quickguide", "4pc Husk gives Albedo a lot of stats") }],
+  Rosaria: [
+    { set: "Gilded Dreams", when: { reaction: "melt" }, source: kqmOn("2026-10-24", "rosaria-quickguide", "one of Rosaria's best sets for Reverse Melt at lower ER requirements") },
+    { set: "Emblem of Severed Fate", source: kqmOn("2026-10-24", "rosaria-quickguide", "4pc EoSF is a great generalist set") },
+  ],
   Lauma: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "lauma-quickguide", "Overall a good supportive set for Lauma and her most common artifact set") }],
   Columbina: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "columbina-quickguide", "Columbina usually uses 4pc SMS for team DPS") }],
   Illuga: [

@@ -2146,6 +2146,17 @@
           "skill"
         ],
         "source": "4pc: \"Increases Elemental Skill DMG by 25%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.25,
+        "types": [
+          "skill"
+        ],
+        "when": {
+          "offField": true
+        },
+        "source": "4pc: \"when not on the field, Elemental Skill DMG will be further increased by 25%\""
       }
     ],
     "Gladiator's Finale": [
@@ -2652,6 +2663,55 @@
           "reaction": "lunar-bloom"
         },
         "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
+      }
+    ],
+    "Furina": [
+      {
+        "set": "Golden Troupe",
+        "source": "KQM furina quick guide (keqingmains.com/q/furina-quickguide, accessed 2026-10-24): \"4pc Golden Troupe is by far Furina's best set for her personal damage\""
+      }
+    ],
+    "Escoffier": [
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "KQM escoffier quick guide (keqingmains.com/q/escoffier-quickguide, accessed 2026-10-24): \"Escoffier can maintain excellent uptime on 4pc TotM\""
+      }
+    ],
+    "Yelan": [
+      {
+        "set": "Emblem of Severed Fate",
+        "source": "KQM yelan quick guide (keqingmains.com/q/yelan-quickguide, accessed 2026-10-24): \"Hands-down her best set\""
+      }
+    ],
+    "Ineffa": [
+      {
+        "set": "Aubade of Morningstar and Moon",
+        "source": "KQM ineffa quick guide (keqingmains.com/q/ineffa-quickguide, accessed 2026-10-24): \"making it her most recommended set\""
+      }
+    ],
+    "Linnea": [
+      {
+        "set": "Husk of Opulent Dreams",
+        "source": "KQM linnea quick guide (keqingmains.com/q/linnea-quickguide, accessed 2026-10-24): \"Husk is Linnea's general best-in-slot option\""
+      }
+    ],
+    "Albedo": [
+      {
+        "set": "Husk of Opulent Dreams",
+        "source": "KQM albedo quick guide (keqingmains.com/q/albedo-quickguide, accessed 2026-10-24): \"4pc Husk gives Albedo a lot of stats\""
+      }
+    ],
+    "Rosaria": [
+      {
+        "set": "Gilded Dreams",
+        "when": {
+          "reaction": "melt"
+        },
+        "source": "KQM rosaria quick guide (keqingmains.com/q/rosaria-quickguide, accessed 2026-10-24): \"one of Rosaria's best sets for Reverse Melt at lower ER requirements\""
+      },
+      {
+        "set": "Emblem of Severed Fate",
+        "source": "KQM rosaria quick guide (keqingmains.com/q/rosaria-quickguide, accessed 2026-10-24): \"4pc EoSF is a great generalist set\""
       }
     ],
     "Lauma": [
