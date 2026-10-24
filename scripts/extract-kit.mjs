@@ -142,7 +142,17 @@ const SPEC = {
     also: [{ talent: "burst", values: [{ kind: "resShred", label: "RES Decrease", unit: "Cryo RES", elements: ["Cryo"] }], duration: "Duration", cd: "CD" }],
   },
   Vodyanitsa: { talent: "skill", values: [{ kind: "resShred", label: "Hydro/Cryo RES Reduction", unit: "Hydro/Cryo RES", elements: ["Hydro", "Cryo"] }], duration: "RES Reduction Duration", cd: "Skill CD" },
-  Xilonen: { talent: "skill", values: [{ kind: "resShred", label: "Elemental RES Decrease", unit: "RES of the party's elements" }], duration: "Source Sample Activation Duration", cd: "CD" },
+  // Geo plus party Pyro/Hydro/Cryo/Electro (#337), her skill text: "The initial recorded Source Sample within each Sampler
+  // will be Geo, and for each party member who is Pyro/Hydro/Cryo/Electro, 1 Geo Sample will change to that
+  // corresponding Element." A Geo member takes a party slot, so one Geo sample is always left: exact for any member.
+  Xilonen: {
+    talent: "skill",
+    values: [
+      { kind: "resShred", label: "Elemental RES Decrease", unit: "Geo RES and party Pyro/Hydro/Cryo/Electro RES", elements: ["Geo", "Pyro", "Hydro", "Cryo", "Electro"] },
+    ],
+    duration: "Source Sample Activation Duration",
+    cd: "CD",
+  },
   "Yun Jin": { talent: "burst", values: [{ kind: "flatDmgFromDef", label: "DMG Increase", unit: "of Yun Jin's DEF as flat Normal Attack DMG", appliesTo: ["normal"] }], duration: "Duration", cd: "CD" },
 
   // His Burst triggers it (#186): only in the teams he Bursts in (ALBEDO_BURST_TEAMS).
