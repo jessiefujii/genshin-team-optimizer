@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setReactionBonus, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -272,7 +272,8 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
     // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
     const burst = burstSharesFor(ctx, carry).get(s) ?? 1;
-    const kit = kitBuffValue(s, carry, carryActive, ctx.members, false, burst);
+    const shares = measuredShares(carry, ctx);
+    const kit = kitBuffValue(s, carry, carryActive, ctx.members, false, burst, shares);
     if (kit && kit.gain <= 0) {
       // Mavuika under the 100 Fighting Spirit her Burst needs: say so, not "doesn't apply" (#126).
       const fs = s.id === "Mavuika" && fightingSpirit(s, carry, ctx.members) === 0 ? fightingSpiritBuilt(s, carry, ctx.members) : null;
@@ -284,7 +285,7 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
       continue;
     }
     // Bonuses to reactions that deal their own damage count there (transformativeLines, #256), for any carry.
-    const outside = kit ? kitBuffValue(s, carry, carryActive, ctx.members, inDamage ? true : "reactions", burst)! : kit;
+    const outside = kit ? kitBuffValue(s, carry, carryActive, ctx.members, inDamage ? true : "reactions", burst, shares)! : kit;
     const base = outside ? (POINTS.buffer * outside.gain) / GAIN_FOR_POINTS : POINTS.buffer;
     const counted = kit && outside && kit.gain - outside.gain >= 0.005 ? `, ~+${Math.round((kit.gain - outside.gain) * 100)}% of it in ${carry.id}'s damage` : "";
     const est = kit ? `~+${Math.round(kit.gain * 100)}% damage${counted}` : "";
@@ -320,7 +321,7 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
   for (const m of ctx.members) {
     for (const e of m.effects ?? []) {
       if (seen.length === POINTS.maxEffectBuffs) return;
-      if (inDamage && e.source === "set" && partySetModeled(e.id)) {
+      if (inDamage && e.source === "set" && (partySetModeled(e.id) || HEAL_SETS[e.id]?.some((x) => x.kind.startsWith("heal")))) {
         // Shown once, with 0 points; it takes no place under the effect cap.
         if (!inTeamDamage.includes(effectKey(e))) out.add("Effects", 0, () => `${effectName(m, e)}: party-wide, in team damage`);
         inTeamDamage.push(effectKey(e));
@@ -473,6 +474,37 @@ function sustainCoverage(m: ScoringCharacter, heals: boolean): number {
     });
   return 1 - parts.reduce((a, c) => a * (1 - c), 1);
 }
+// Healing turned into damage (#345): Ocean-Hued Clam's foam and Song of Days Past's added damage, from the wearer's
+// heal rate. Estimate until #351: each kit.json sustain heal read as that much healing a second on one target, times
+// its uptime. Clam: a foam every 3.5s ("Only one Sea-Dyed Foam can be produced every 3.5 seconds") of 90% of 3s of
+// healing, up to 30,000 healed; no crit, "not affected by Elemental Mastery, Character Levels, or Reaction DMG
+// Bonuses", Physical RES (10%). Song: a Yearning records 6s of healing (up to 15,000), then the on-field carry's next
+// 5 hits gain 8% of it each, once per 6s: at the carry's crit, against 10% RES.
+const HEAL_SETS = kitJson.sets as unknown as Record<string, { kind: string; value: number; max?: number }[]>;
+function healPerSecond(m: ScoringCharacter): number {
+  const stats = subDpsStats(m) ?? carryStats(m);
+  return (SUSTAIN[m.id]?.effects ?? [])
+    .filter((e) => e.kind === "heal")
+    .reduce((a, e) => a + ((e.size.flat ?? 0) + (e.size.hp ?? 0) * stats.hp + (e.size.def ?? 0) * stats.def + (e.size.atk ?? 0) * stats.atk) * (e.uptime ?? 1), 0);
+}
+function healSetLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): number {
+  let total = 0;
+  for (const m of ctx.members) {
+    for (const { set, pieces } of setsOf(m, ctx.active, ctx.members)) {
+      const e = pieces >= 4 ? HEAL_SETS[set]?.find((x) => x.kind === "healFoam" || x.kind === "healAdditive") : undefined;
+      const heal = e ? healPerSecond(m) : 0;
+      if (!e || heal <= 0) continue;
+      const dps =
+        e.kind === "healFoam"
+          ? (Math.min(e.max!, heal * 3) * e.value * 0.9) / 3.5
+          : carry ? ((Math.min(e.max!, heal * 6) * e.value) / 6) * expectedCrit(carry) * 0.9 : 0;
+      if (dps < 1) continue;
+      total += dps;
+      out.add("Sub-DPS", 0, () => `${m.id}'s ${set}: ~${Math.round(dps)} damage per second (heal rate estimated, #351)`);
+    }
+  }
+  return total;
+}
 function survivabilityLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const heals = !carry || !SHIELDS_ONLY.has(carry.id);
   const healer = (m: ScoringCharacter) => hasRole(m, "healer") || (m === carry && SELF_HEALS.has(m.id));
@@ -567,7 +599,7 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     );
     // A value for some reactions (Lauma's Lunar-Bloom crit) only reaches that share of the carry's damage (#87).
     const sum = (kind: GleamValue["kind"]) =>
-      fits.filter((v) => v.kind === kind).reduce((a, v) => a + v.value * (v.reactions ? reactionShare(carry, v.reactions, dealt) : 1), 0);
+      fits.filter((v) => v.kind === kind).reduce((a, v) => a + v.value * (v.reactions ? reactionShare(carry, v.reactions, dealt, measuredShares(carry, ctx)) : 1), 0);
     // Linnea's extra Geo shred stacks on her base shred, so it is worth less than the same shred alone.
     // For a modeled carry it is in team damage (#204, kit.ts familyBuffStats).
     const baseShred = KIT_BUFFS[m.id]?.buffs.filter((b) => b.kind === "resShred").reduce((a, b) => a + b.value, 0) ?? 0;
@@ -634,7 +666,7 @@ function partyValueGain(v: PartyValue, m: ScoringCharacter, carry: ScoringCharac
   // `reactions` is just what turns the buff on (Venti's DMG after a Swirl).
   const g =
     v.kind === "reactionBonus"
-      ? dmgBonusGain(value) * reactionShare(carry, v.reactions ?? [], dealt)
+      ? dmgBonusGain(value) * reactionShare(carry, v.reactions ?? [], dealt, measuredShares(carry, ctx))
       : v.kind === "dmgBonus"
       ? dmgBonusGain(value)
       : v.kind === "atkPct"
@@ -1336,11 +1368,13 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
       const own = mine.filter((t) => t.m === m);
       const rate = own.reduce((s, t) => s + t.perSecond, 0);
       const capped = Math.min(1, TRANSFORMATIVE[r]!.perSecond / rate);
-      const em = teamEm(m, carry, ctx, (subDpsStats(m)?.em ?? 0) + memberExtras(m, carry, ctx).em);
+      const extras = memberExtras(m, carry, ctx);
+      const em = teamEm(m, carry, ctx, (subDpsStats(m)?.em ?? 0) + extras.em);
+      const mineBonus = bonus + extras.reaction(r); // their own set's (VV's Swirl, #344)
       let d = 0;
       for (const t of own) {
         const element = DAMAGE_ELEMENT[r] ?? t.aura; // Swirl: the swirled aura's
-        d += t.perSecond * capped * transformativeHit(r, em, bonus, additive) * (1 + shredOn(element));
+        d += t.perSecond * capped * transformativeHit(r, em, mineBonus, additive) * (1 + shredOn(element));
       }
       dps += d;
       by.push(`${m.id} ~${(rate * capped).toFixed(1)}/s`);
@@ -1405,6 +1439,12 @@ function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
 // The carry's own damage per second (damage.ts, #101), or null when it isn't modeled yet: no kit data, or hits still
 // missing. An undercounted carry (Flins, 748/s) would make every sub-DPS look several times bigger.
 // `reactions: false` reads it as if the team triggered no reactions (#134); `buffs` adds the team's kit buffs (#157).
+// A modeled carry's measured reaction shares in this team (#94 part 5): which share of their damage a bonus to each
+// reaction reaches, from the same reading as their reactions' damage (aura-limited); undefined when not modeled.
+function measuredShares(carry: ScoringCharacter, ctx: TeamContext): Partial<Record<string, number>> | undefined {
+  const own = carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry));
+  return own && own.missing.length === 0 ? own.shares : undefined;
+}
 function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = true, buffs = NO_TEAM_BUFFS): number | null {
   const own = carryDamage(carry, reactions ? ctx.active : [], ctx.members, buffs, false, reactions ? carryAmpShare(ctx, carry) : 1);
   return own && own.missing.length === 0 ? own.perSecond : null;
@@ -1443,7 +1483,8 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
 
 // What a member gets that their character screen doesn't show (#306): party-wide set EM (Silken Moon's Serenade) and
 // their weapon's EM and CRIT Rate (Snare Hook, The Widsith, Harbinger of Dawn), and the Reaction Bonus on their Lunar
-// damage: the Gleaming Moon sets' (party-wide) and their own set's (Aubade off-field; Thundering Fury). For a sub-DPS's
+// damage: the Gleaming Moon sets' (party-wide) and their own set's (Aubade off-field; Thundering Fury). `reaction`: their
+// own set's alone, for the transformative reactions they trigger (Viridescent Venerer's Swirl, #344). For a sub-DPS's
 // hits and the reactions they contribute to; the carry's own are in carryDamage.
 function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext) {
   const gleam = ctx.members.filter((x) => x.families?.includes("moonsign")).length >= 2;
@@ -1454,7 +1495,9 @@ function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamCon
     weapon,
     em: party.em + weaponSum(weapon, "em"),
     critRate: weaponSum(weapon, "critRate"),
-    lunar: (r: Reaction | LunarReaction) => party.lunar + setReactionBonus(set, r),
+    lunar: (r: Reaction | LunarReaction) => party.lunar + (r.startsWith("stellar-") ? party.stellar : 0) + setReactionBonus(set, r), // Heart of the Furnace (#345)
+    reaction: (r: Reaction) => setReactionBonus(set, r),
+    set,
   };
 }
 
@@ -1482,14 +1525,19 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     // Teammates' EM and HP % on all of this member's hits (#186: kit EM buffs, Sprawling Greenery, Soothing Water).
     const whole = memberBuffStats(m, carry, ctx.active, ctx.members, undefined, burstSharesFor(ctx, carry));
     const base = subDpsStats(m)!;
+    // Their own set on their own hits (#346, #347), as the carry's (damage.ts): DEF%, ATK%, EM, CRIT Rate and DMG Bonus
+    // by hit type and element (Golden Troupe's Skill DMG, Husk's Geo DMG; Emblem at their build's ER, else ER target).
+    const set = extras.set;
     const stat = {
       ...base,
-      em: base.em + extras.em + whole.em + (ownNs?.kind === "em" ? ownNs.value : 0), // party set and weapon EM (#306)
-      def: base.def + (ownNs?.kind === "defPct" ? ownNs.value * (entry.base?.def ?? 0) : 0),
+      em: base.em + extras.em + whole.em + sumSet(set, "emPerOther") + (ownNs?.kind === "em" ? ownNs.value : 0), // party set and weapon EM (#306)
+      def: base.def + ((ownNs?.kind === "defPct" ? ownNs.value : 0) + sumSet(set, "defPct")) * (entry.base?.def ?? 0),
     };
+    const er = base.er ?? (erTargetOf(m) ?? 100) / 100;
     const dmgBonus = stat.dmgBonus + (ownNs?.kind === "dmgBonus" ? ownNs.value : 0);
     // Base ATK, for teammates' ATK% buffs: the build's, else the character's plus the benchmark weapon's.
     const baseAtk = m.stats?.baseAtk ?? (entry.base ? entry.base.atk + BENCHMARK.buffer.weaponBaseAtk : BENCHMARK.carryBaseAtk);
+    const setAtk = (sumSet(set, "atkPct") + sumSet(set, "atkPctPerSame")) * baseAtk;
     let dps = 0;
     let lunarDps = 0;
     const picked = pickedSources(entry.sources, carry, ctx, m);
@@ -1507,13 +1555,14 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       if (s.pickOne && picked.get(s.pickOne) !== s) continue;
       // Teammates' party-wide kit buffs on this hit (#204, kit.ts memberBuffStats): ATK, DMG Bonus, CRIT Rate, flat DMG.
       const team = memberBuffStats(m, carry, ctx.active, ctx.members, s.talent, burstSharesFor(ctx, carry));
-      const atk = stat.atk + team.atk + team.atkPct * baseAtk + weaponAtk(weapon, baseAtk, stat.em); // weapon ATK (#206)
+      const atk = stat.atk + team.atk + team.atkPct * baseAtk + weaponAtk(weapon, baseAtk, stat.em) + setAtk; // weapon ATK (#206), set ATK%
       const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
       // By talent (#40); a Normal Attack talent's hits read as Normal Attack DMG (#206: every-hit bonuses reach them).
       const talent = s.talent === "normal" || s.talent === "skill" || s.talent === "burst" ? s.talent : undefined;
       const weaponBonus = talent ? weaponDmgBonus(weapon, talent) : 0;
+      const setBonus = setDmgBonus(set, talent ?? "normal", m.element, er);
       // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
-      const crit = 1 + Math.min(stat.critRate + team.critRate + extras.critRate, 1) * stat.critDmg; // weapon CRIT (#306)
+      const crit = 1 + Math.min(stat.critRate + team.critRate + extras.critRate + sumSet(set, "critRate"), 1) * stat.critDmg; // weapon, set CRIT (#306)
       // Teammates' RES and DEF shred on this hit (#204), as on the carry's: Lunar hits take RES only.
       const res = 1 + resShredGain(team.resShred);
       const def = 1 + defShredGain(Math.min(0.9, team.defShred));
@@ -1546,7 +1595,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
         const b = s.boost;
         const hitsPerUse = (s.hits ?? 1) * (s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1);
         const boost = b ? 1 + Math.min(1, b.stacks / hitsPerUse) * Math.min(b.max, b.perPoint * stat[b.stat]) : 1;
-        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat + weaponBonus) * crit * res * def * boost;
+        dps += (base + extra) * rate * (1 + dmgBonus + team.dmgBonus + perStat + weaponBonus + setBonus) * crit * res * def * boost;
       }
     }
     dps += lunarDps;
@@ -1731,6 +1780,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     stellarLines(ctx, carry, out);
     const sub = subDpsLines(ctx, carry, out);
     const reacted = transformativeLines(ctx, carry, out);
+    const healed = healSetLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);
@@ -1738,7 +1788,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     energyLines(ctx, carry, out);
     // No carry: the generic benchmark hit stands in for whoever is on field; the -30 line marks the missing carry.
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
-    const dps = own + sub.dps + reacted;
+    const dps = own + sub.dps + reacted + healed;
     const value = dps * factorOf(out);
     if (!best || value > best.value) best = { carry, lead: sub.lead, out, dps, value };
   }

@@ -110,6 +110,19 @@ describe("scoreTeam", () => {
     expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+87% to Gaming's damage"); // his benchmark Fruitful Hook (#206), Fervent Flames in damage (#186)
   });
 
+  test("Ocean-Hued Clam turns its wearer's healing into team damage (#345, heal rate estimated: #351)", () => {
+    const stats: CharacterStats = {
+      atk: 1500, hp: 30000, def: 800, critRate: 20, critDmg: 50, energyRecharge: 180, elementalMastery: 0, elementalDmgBonus: 0,
+    };
+    const mika = (sets: { set: string; pieces: 4 }[]) => ({ ...team("Mika")[0], stats, sets });
+    const run = (sets: { set: string; pieces: 4 }[]) => scoreTeam([team("Eula")[0], mika(sets), ...team("Raiden Shogun", "Rosaria")]);
+    const clam = run([{ set: "Ocean-Hued Clam", pieces: 4 }]);
+    const line = clam.breakdown.find((l) => l.reason.startsWith("Mika's Ocean-Hued Clam"));
+    // ~1,715 healing a second (4.13% of 30,000 HP + 476) x 83% uptime: a foam of 90% of 3s of it every 3.5s, vs 10% RES.
+    expect(Number(line?.reason.match(/~(\d+) damage/)?.[1])).toBeCloseTo((1715 * 0.8333 * 3 * 0.9 * 0.9) / 3.5, -1);
+    expect(run([]).breakdown.some((l) => l.reason.includes("Ocean-Hued Clam"))).toBe(false);
+  });
+
   test("Spread and Aggravate need the Quicken aura, which Hydro eats (#303)", () => {
     const reasons = (...ids: string[]) => score(...ids).breakdown.map((l) => l.reason);
     const spread = (...ids: string[]) => Number(reasons(...ids).find((r) => r.startsWith("Spread adds"))?.match(/\+(\d+)%/)?.[1] ?? 0);
@@ -143,8 +156,8 @@ describe("scoreTeam", () => {
     // Clorinde's Dark-Shattering Flame needs any Electro-related reaction (#141): its own line, at full value with
     // Overloaded alone; Aggravate then adds only what it adds on top. Overloaded's own damage is a 0-point line too (#205).
     expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
-      // Bennett's Noblesse raises her ATK, not the passive's share of it (#338).
-      { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+73% damage" },
+      // Bennett's Noblesse (#338) and Chevreuse's Tenacity, Noblesse taken (#348), raise her ATK, not the passive's share.
+      { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+69% damage" },
       { rule: "Reactions", points: 0, reason: "Overloaded: ~1178 damage per second (Bennett ~0.1/s, Chevreuse ~0.1/s)" },
       { rule: "Reactions", points: 0, reason: "Electrocharged: ~4335 damage per second (Clorinde ~0.4/s, Furina ~0.6/s)" },
     ]);
@@ -153,7 +166,7 @@ describe("scoreTeam", () => {
       // 1 in 3 of her Swift Hunt and Impale hits applies Electro (one Normal Attack ICD, #226), 2 of 5 Burst hits.
       { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive" },
       // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
-      { rule: "Reactions", points: 0, reason: "Swirl: ~2922 damage per second (Kaedehara Kazuha ~0.4/s)" }, // his guide's VV (#338)
+      { rule: "Reactions", points: 0, reason: "Swirl: ~3213 damage per second (Kaedehara Kazuha ~0.4/s)" }, // his guide's VV: shred (#338), Swirl DMG (#344)
     ]);
     // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze. Fischl's and Furina's
     // Electro-Charged deals its own damage (#205); no Superconduct, which Sandrone turns into Stellar-Conduct.
@@ -252,7 +265,7 @@ describe("scoreTeam", () => {
     // damage (#205). No flat points either way.
     expect(s.breakdown.filter((l) => l.rule === "Reactions")).toEqual([
       { rule: "Reactions", points: 0, reason: "Swirl, Crystallize add ~+20% to Neuvillette's damage" },
-      { rule: "Reactions", points: 0, reason: "Swirl: ~2334 damage per second (Kaedehara Kazuha ~0.3/s)" }, // his guide's VV (#338)
+      { rule: "Reactions", points: 0, reason: "Swirl: ~2566 damage per second (Kaedehara Kazuha ~0.3/s)" }, // his guide's VV: shred (#338), Swirl DMG (#344)
     ]);
   });
 
@@ -539,7 +552,8 @@ describe("scoreTeam", () => {
       });
       expect(buffLine(neuv, "Lauma")?.points).toBe(0);
       // Lunar-Bloom is Nefer's main reaction: ~0.8 of her damage (#87).
-      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(9);
+      // On the ~0.57 of Nefer's damage that her Lunar-Bloom hits are (measured, #94; the 0.8 estimate gave 9).
+      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(7);
       // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him, on the
       // ~0.3 of his damage that a side reaction is. With her guide's Silken Moon's Serenade EM (#338).
       expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(7);
@@ -966,8 +980,8 @@ describe("talent levels (#25)", () => {
     // Ifa alone holds ~40 Rescue Essentials points (half his 80): 60% Swirl DMG, on the ~0.25 of a Swirl
     // carry's damage that Swirl hits are (#87); it counts in the Swirl damage itself (#256), not as buffer points.
     expect(buff("Ifa", "Varka", "Ifa", "Durin", "Bennett")).toBe("Ifa buffs Varka (~+9% damage, ~+9% of it in Varka's damage)");
-    // Lunar-Charged gets only 0.2% per point.
-    expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+4% damage)");
+    // Lunar-Charged gets only 0.2% per point, on the ~0.52 of Flins' damage his Lunar-Charged hits are (measured, #94).
+    expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+3% damage)");
     // Prune: 0.025% per ATK point above 2,000; without a build she is assumed at 3,000 ATK.
     expect(buff("Prune", "Klee", "Prune", "Mona", "Bennett")).toBe("Prune buffs Klee (~+16% damage, ~+16% of it in Klee's damage)");
     const stats: CharacterStats = {
