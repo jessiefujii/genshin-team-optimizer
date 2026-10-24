@@ -1597,7 +1597,8 @@ const STAT_WORDS = [
   [/^Elemental Mastery/, "em"],
   [/^ATK/, "atk"],
 ];
-function scalingOf(attrs, label, id, pick = 0) {
+// `term`: one hit of a row that sums two ("{a}+{b}": Varka's dual-wielded claymores, #233), by its place in the row.
+function scalingOf(attrs, label, id, pick = 0, term = undefined) {
   const entry = attrs.labels.find((l) => l.split("|")[0].trim() === label);
   if (!entry) throw new Error(`${id}: no talent label "${label}" (labels: ${attrs.labels.join("; ")})`);
   const format = entry.slice(entry.indexOf("|") + 1).replace(/[()]/g, "");
@@ -1610,7 +1611,11 @@ function scalingOf(attrs, label, id, pick = 0) {
   alt = alt.replace(/\s*[×x]\s*\d+\s*$/, "");
   const out = {};
   // "{a}+{b}" with no stat words between them are hits of the same stat; a stat word after a value names its stat.
-  const terms = [...alt.matchAll(/\{(param\d+):[^}]*\}\s*([^{+]*)/g)];
+  let terms = [...alt.matchAll(/\{(param\d+):[^}]*\}\s*([^{+]*)/g)];
+  if (term !== undefined) {
+    if (term >= terms.length) throw new Error(`${id}: label "${label}" has no term ${term}`);
+    terms = [terms[term]];
+  }
   let pending = [];
   for (const [, key, words] of terms) {
     const value = attrs.parameters[key]?.[TALENT_LEVEL - 1];
@@ -1780,6 +1785,13 @@ const arlecchinoHits = ({ ca, strings }) => [
   { table: "skill", label: "Cleave DMG", count: 1, type: SK },
   { table: "normal", label: "Charged Attack DMG", count: ca, type: CH },
   ...Object.entries(strings).map(([n, count]) => ({ table: "normal", label: `${n}-Hit DMG`, count, type: N, ...(n === "4" ? { instances: 2 } : {}) })),
+];
+// Varka's attacks in Sturm und Drang (#233): what his passives' 140%/220% and Azure Fang's Oath reach (not his tap Skill).
+const VARKA_STURM = [
+  "Sturm und Drang 1-Hit DMG", "Sturm und Drang 2-Hit DMG", "Sturm und Drang 2-Hit DMG (Anemo)", "Sturm und Drang 3-Hit DMG",
+  "Sturm und Drang 3-Hit DMG (Anemo)", "Sturm und Drang 4-Hit DMG", "Sturm und Drang 4-Hit DMG (Anemo)", "Sturm und Drang Charged Attack DMG",
+  "Sturm und Drang Charged Attack DMG (Anemo)", "Four Winds' Ascension DMG", "Four Winds' Ascension DMG (Anemo)",
+  "Four Winds' Ascension DMG (Secret Rite)", "Four Winds' Ascension DMG (Anemo, Secret Rite)",
 ];
 const CARRIES = {
   "Hu Tao": {
@@ -3074,6 +3086,46 @@ const CARRIES = {
       { kind: "dmgBonusByTypes", from: "passive1", re: /Shining Shadowhunt Shell by (\d+)%\/(\d+)%\/(\d+)%/, elements: ["Pyro", "Hydro", "Cryo", "Electro"], labels: ["Shining Shadowhunt Shell DMG"] },
     ],
   },
+  Varka: {
+    // #233. KQM quick guide (accessed 2026-10-24), best combo: "E N1CW N4sE 3[N1CW] N1sE N1 ... They take around 13s to
+    // perform" (Jessie, 2026-10-24: his field time as the rotation, kit-overrides rotations): the tap Skill, Sturm und
+    // Drang hit 1 seven times, hits 2-4 once, 4 Charged Attacks, Four Winds' Ascension (sE). "Varka's base Sturm und Drang
+    // duration often only allows for 1 special Skill charge per rotation ... A Hexerei teammate is also recommended to
+    // allow for two casts": the second sE with Secret Rite. His Burst is left out: KQM "it is rarely worth using over his
+    // Normal Attacks". Each Sturm und Drang row sums his two claymores ("{a}+{b}"); `term` splits them. KQM: "his left
+    // Claymore always deals Anemo damage, while his right Claymore deals Elemental damage based on the standard PHEC
+    // Absorption priority: Pyro > Hydro > Electro > Cryo" ("priority"). Wiki (Varka, fetched 2026-10-24): "Hit 1 of Sturm
+    // und Drang only deals the other Elemental DMG", "For hits 2-3 of Sturm und Drang, the Anemo DMG occurs before the
+    // other Elemental DMG. For hits 4-5 of Sturm und Drang, Azure Devour, and Four Winds' Ascension, the other Elemental
+    // DMG occurs before the Anemo DMG": the rows list them in that order (the elemental half is the larger, ~1.86x).
+    combo: "E N1CW N4sE 3[N1CW] N1sE N1",
+    hits: [
+      { table: "skill", label: "Skill DMG", count: 1, type: SK },
+      { table: "skill", label: "Sturm und Drang 1-Hit DMG", count: 7, type: N, element: "priority" },
+      { table: "skill", label: "Sturm und Drang 2-Hit DMG", term: 0, as: "Sturm und Drang 2-Hit DMG (Anemo)", count: 1, type: N },
+      { table: "skill", label: "Sturm und Drang 2-Hit DMG", term: 1, count: 1, type: N, element: "priority" },
+      { table: "skill", label: "Sturm und Drang 3-Hit DMG", term: 0, as: "Sturm und Drang 3-Hit DMG (Anemo)", count: 1, type: N },
+      { table: "skill", label: "Sturm und Drang 3-Hit DMG", term: 1, count: 1, type: N, element: "priority" },
+      { table: "skill", label: "Sturm und Drang 4-Hit DMG", term: 0, count: 1, type: N, element: "priority" },
+      { table: "skill", label: "Sturm und Drang 4-Hit DMG", term: 1, as: "Sturm und Drang 4-Hit DMG (Anemo)", count: 1, type: N },
+      { table: "skill", label: "Sturm und Drang Charged Attack DMG", term: 0, count: 4, type: CH, element: "priority" },
+      { table: "skill", label: "Sturm und Drang Charged Attack DMG", term: 1, as: "Sturm und Drang Charged Attack DMG (Anemo)", count: 4, type: CH },
+      { table: "skill", label: "Four Winds' Ascension DMG", term: 0, count: 1, type: SK, element: "priority" },
+      { table: "skill", label: "Four Winds' Ascension DMG", term: 1, as: "Four Winds' Ascension DMG (Anemo)", count: 1, type: SK },
+      { table: "skill", label: "Four Winds' Ascension DMG", term: 0, as: "Four Winds' Ascension DMG (Secret Rite)", count: 1, type: SK, element: "priority", when: { secretRite: true } },
+      { table: "skill", label: "Four Winds' Ascension DMG", term: 1, as: "Four Winds' Ascension DMG (Anemo, Secret Rite)", count: 1, type: SK, when: { secretRite: true } },
+    ],
+    buffs: [
+      // Passive 1: "every 1,000 points of Varka's ATK will grant Varka a 10% Anemo DMG Bonus and corresponding Elemental
+      // DMG Bonus ... Up to 25%", and his Sturm und Drang attacks "will deal 140% of their original DMG" with 2 Anemo
+      // members or 2 of one PHEC element, "increased to 220%" with both.
+      { kind: "dmgBonusPerAtk", from: "passive1", re: /every ([\d,]+) points of Varka's ATK will grant Varka a (\d+)% Anemo DMG Bonus/, max: /Up to (\d+)% bonus DMG/, elements: ["Anemo", "priority"] },
+      { kind: "factorByComposition", from: "passive1", one: /will deal (\d+)% of their original DMG/, both: /will be increased to (\d+)%/, labels: VARKA_STURM },
+      // Passive 2: 7.5% a stack of Azure Fang's Oath, max 4, when party members Swirl; each member grants one every second
+      // and a stack lasts 8s, so a team that keeps Swirling holds all 4 (estimate).
+      { kind: "dmgBonus", from: "passive2", re: /by ([\d.]+)% for 8s/, times: 4, types: [N, CH, SK], labels: VARKA_STURM, when: { reaction: "swirl" } },
+    ],
+  },
   Freminet: {
     // #231. KQM quick guide, Cryo Skill DPS: "EQE 4[2E N1] 2E" ("maximizes the number of Pressure Level 0 casts per
     // rotation"): 6 Upward Thrusts, 6 Level 0 Shattering Pressures (Cryo), 4 Normal Attacks (Physical) and the frost
@@ -3183,7 +3235,7 @@ function readCarry(id, spec) {
         count = r.hits;
       } else if (typeof count === "object") count = tableValue(tableAttrs(count.table), count.label, id);
       if (h.reacting !== undefined && !(h.reacting >= 0 && h.reacting <= count)) throw new Error(`${id}: "${h.label}" reacting ${h.reacting} of ${count}`);
-      let scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick);
+      let scaling = h.from ? { [h.stat ?? "atk"]: num(h.from, h.re) / 100 } : scalingOf(tableAttrs(h.table), h.label, id, h.pick, h.term);
       // ofRow: a hit dealing a share of another (Razor's Soul Companion, "% Normal Attack DMG"): that row's value.
       if (h.ofRow) {
         const share = tableValue(tableAttrs(h.ofRow.table), h.ofRow.label, id);
@@ -3240,6 +3292,18 @@ function readCarry(id, spec) {
           ...(b.fightingSpirit ? { fightingSpirit: true } : {}),
           ...(b.when ? { when: b.when } : {}),
         };
+      }
+      case "dmgBonusPerAtk": {
+        // DMG Bonus per that much ATK, capped (Varka's passive 1, #233): on hits of `elements` ("priority": the PHEC
+        // element his right claymore takes), while the party has a PHEC member.
+        const m = text(b.from).match(b.re);
+        if (!m) throw new Error(`${id}: pattern ${b.re} not found in ${b.from}`);
+        return { kind: b.kind, perAtk: Number(m[1].replace(/,/g, "")), value: Number(m[2]) / 100, max: num(b.from, b.max) / 100, elements: b.elements };
+      }
+      case "factorByComposition": {
+        // A factor on some hits by the party's elements (Varka's passive 1, #233): `values[0]` with 2 Anemo members or 2
+        // of one PHEC element, `values[1]` with both.
+        return { kind: b.kind, values: [num(b.from, b.one) / 100, num(b.from, b.both) / 100], labels: b.labels };
       }
       case "dmgBonusByMembers": {
         // A DMG bonus that grows per teammate of `elements` (Lyney's passive 2, #230): base, +per each, capped; index =

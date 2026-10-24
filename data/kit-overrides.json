@@ -815,6 +815,10 @@
   },
   "rotations": {
     "_howTo": "Rotation lengths in seconds (#103), replacing the Burst cooldown. seconds: the carry's default; teams: lengths for teams that fit `when` (same shape as a combo's when: members, elements, reaction), first match wins. A carry without seconds keeps the Burst cooldown as its default. source: quote and URL.",
+    "Varka": {
+      "seconds": 13,
+      "source": "KeqingMains Varka quick guide, https://keqingmains.com/q/varka-quickguide/, fetched 2026-10-24: best combos \"E N1CW N4sE 3[N1CW] N1sE N1\" ... \"They take around 13s to perform\". Field time as the rotation (Jessie, 2026-10-24, #233)."
+    },
     "Aloy": {
       "seconds": 13.35,
       "source": "KeqingMains Aloy freeze calc (\"Aloy Weapon Calcs\", linked from https://keqingmains.com/aloy/; sheet 1tqQ3ZXky1vrSElLZPgi_qM94q9pX2eGbZpPXOasfjbc, \"Aloy freeze\" tab), fetched 2026-10-18: \"Rotation Duration\" 13.35 (C19) for \"7 N3RR 1 E 1 Q\"."
