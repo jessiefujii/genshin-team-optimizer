@@ -659,6 +659,13 @@ describe("support gear's party effects in damage (#206)", () => {
     expect(memberGets(vv[3], vv, swirl).resShred).toBeCloseTo(memberGets(plain[3], plain, swirl).resShred, 5); // Zhongli: Geo
   });
 
+  test("Xilonen shreds Geo and party Pyro/Hydro/Cryo/Electro only, not Dendro (#337)", () => {
+    const xilonen = [get("Alhaitham"), get("Ineffa"), get("Xilonen"), get("Yelan")];
+    const plain = [get("Alhaitham"), get("Ineffa"), get("Bennett"), get("Yelan")];
+    expect(carryGets(xilonen).resShred).toBeCloseTo(carryGets(plain).resShred, 5);
+    expect(memberGets(xilonen[3], xilonen).resShred - memberGets(plain[3], plain).resShred).toBeCloseTo(0.33, 5);
+  });
+
   test("for a modeled carry the gear's effects.json line scores 0, in team damage", () => {
     const t = [get("Hu Tao"), geared("Bennett", { set: "Noblesse Oblige" }), get("Xingqiu"), get("Zhongli")];
     expect(scoreTeam(t).breakdown.find((l) => /^Bennett .*Noblesse Oblige.*in team damage/.test(l.reason))).toMatchObject({ points: 0 });

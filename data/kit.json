@@ -1029,7 +1029,14 @@
         {
           "kind": "resShred",
           "value": 0.33,
-          "unit": "RES of the party's elements",
+          "elements": [
+            "Geo",
+            "Pyro",
+            "Hydro",
+            "Cryo",
+            "Electro"
+          ],
+          "unit": "Geo RES and party Pyro/Hydro/Cryo/Electro RES",
           "source": "skill talent \"Elemental RES Decrease\", level 9",
           "duration": 15,
           "cd": 7,
