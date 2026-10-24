@@ -272,7 +272,8 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
     // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
     const burst = burstSharesFor(ctx, carry).get(s) ?? 1;
-    const kit = kitBuffValue(s, carry, carryActive, ctx.members, false, burst);
+    const shares = measuredShares(carry, ctx);
+    const kit = kitBuffValue(s, carry, carryActive, ctx.members, false, burst, shares);
     if (kit && kit.gain <= 0) {
       // Mavuika under the 100 Fighting Spirit her Burst needs: say so, not "doesn't apply" (#126).
       const fs = s.id === "Mavuika" && fightingSpirit(s, carry, ctx.members) === 0 ? fightingSpiritBuilt(s, carry, ctx.members) : null;
@@ -284,7 +285,7 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
       continue;
     }
     // Bonuses to reactions that deal their own damage count there (transformativeLines, #256), for any carry.
-    const outside = kit ? kitBuffValue(s, carry, carryActive, ctx.members, inDamage ? true : "reactions", burst)! : kit;
+    const outside = kit ? kitBuffValue(s, carry, carryActive, ctx.members, inDamage ? true : "reactions", burst, shares)! : kit;
     const base = outside ? (POINTS.buffer * outside.gain) / GAIN_FOR_POINTS : POINTS.buffer;
     const counted = kit && outside && kit.gain - outside.gain >= 0.005 ? `, ~+${Math.round((kit.gain - outside.gain) * 100)}% of it in ${carry.id}'s damage` : "";
     const est = kit ? `~+${Math.round(kit.gain * 100)}% damage${counted}` : "";
@@ -598,7 +599,7 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     );
     // A value for some reactions (Lauma's Lunar-Bloom crit) only reaches that share of the carry's damage (#87).
     const sum = (kind: GleamValue["kind"]) =>
-      fits.filter((v) => v.kind === kind).reduce((a, v) => a + v.value * (v.reactions ? reactionShare(carry, v.reactions, dealt) : 1), 0);
+      fits.filter((v) => v.kind === kind).reduce((a, v) => a + v.value * (v.reactions ? reactionShare(carry, v.reactions, dealt, measuredShares(carry, ctx)) : 1), 0);
     // Linnea's extra Geo shred stacks on her base shred, so it is worth less than the same shred alone.
     // For a modeled carry it is in team damage (#204, kit.ts familyBuffStats).
     const baseShred = KIT_BUFFS[m.id]?.buffs.filter((b) => b.kind === "resShred").reduce((a, b) => a + b.value, 0) ?? 0;
@@ -665,7 +666,7 @@ function partyValueGain(v: PartyValue, m: ScoringCharacter, carry: ScoringCharac
   // `reactions` is just what turns the buff on (Venti's DMG after a Swirl).
   const g =
     v.kind === "reactionBonus"
-      ? dmgBonusGain(value) * reactionShare(carry, v.reactions ?? [], dealt)
+      ? dmgBonusGain(value) * reactionShare(carry, v.reactions ?? [], dealt, measuredShares(carry, ctx))
       : v.kind === "dmgBonus"
       ? dmgBonusGain(value)
       : v.kind === "atkPct"
@@ -1438,6 +1439,12 @@ function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
 // The carry's own damage per second (damage.ts, #101), or null when it isn't modeled yet: no kit data, or hits still
 // missing. An undercounted carry (Flins, 748/s) would make every sub-DPS look several times bigger.
 // `reactions: false` reads it as if the team triggered no reactions (#134); `buffs` adds the team's kit buffs (#157).
+// A modeled carry's measured reaction shares in this team (#94 part 5): which share of their damage a bonus to each
+// reaction reaches, from the same reading as their reactions' damage (aura-limited); undefined when not modeled.
+function measuredShares(carry: ScoringCharacter, ctx: TeamContext): Partial<Record<string, number>> | undefined {
+  const own = carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry));
+  return own && own.missing.length === 0 ? own.shares : undefined;
+}
 function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = true, buffs = NO_TEAM_BUFFS): number | null {
   const own = carryDamage(carry, reactions ? ctx.active : [], ctx.members, buffs, false, reactions ? carryAmpShare(ctx, carry) : 1);
   return own && own.missing.length === 0 ? own.perSecond : null;

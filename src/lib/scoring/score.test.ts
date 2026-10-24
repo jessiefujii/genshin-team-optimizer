@@ -552,7 +552,8 @@ describe("scoreTeam", () => {
       });
       expect(buffLine(neuv, "Lauma")?.points).toBe(0);
       // Lunar-Bloom is Nefer's main reaction: ~0.8 of her damage (#87).
-      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(9);
+      // On the ~0.57 of Nefer's damage that her Lunar-Bloom hits are (measured, #94; the 0.8 estimate gave 9).
+      expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(7);
       // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him, on the
       // ~0.3 of his damage that a side reaction is. With her guide's Silken Moon's Serenade EM (#338).
       expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(7);
@@ -979,8 +980,8 @@ describe("talent levels (#25)", () => {
     // Ifa alone holds ~40 Rescue Essentials points (half his 80): 60% Swirl DMG, on the ~0.25 of a Swirl
     // carry's damage that Swirl hits are (#87); it counts in the Swirl damage itself (#256), not as buffer points.
     expect(buff("Ifa", "Varka", "Ifa", "Durin", "Bennett")).toBe("Ifa buffs Varka (~+9% damage, ~+9% of it in Varka's damage)");
-    // Lunar-Charged gets only 0.2% per point.
-    expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+4% damage)");
+    // Lunar-Charged gets only 0.2% per point, on the ~0.52 of Flins' damage his Lunar-Charged hits are (measured, #94).
+    expect(buff("Ifa", "Flins", "Ifa", "Aino", "Ineffa")).toBe("Ifa buffs Flins (~+3% damage)");
     // Prune: 0.025% per ATK point above 2,000; without a build she is assumed at 3,000 ATK.
     expect(buff("Prune", "Klee", "Prune", "Mona", "Bennett")).toBe("Prune buffs Klee (~+16% damage, ~+16% of it in Klee's damage)");
     const stats: CharacterStats = {

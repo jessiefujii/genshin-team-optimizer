@@ -1,5 +1,5 @@
 {
-  "median": 195661.4,
+  "median": 194814.5,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -89,7 +89,7 @@
         "Columbina",
         "Sucrose"
       ],
-      "value": 195490.3
+      "value": 189251.3
     },
     "Freminet": {
       "team": [
@@ -233,7 +233,7 @@
         "Lauma",
         "Ineffa"
       ],
-      "value": 172573.1
+      "value": 159548.7
     },
     "Neuvillette": {
       "team": [
@@ -341,7 +341,7 @@
         "Odette",
         "Alyosha"
       ],
-      "value": 123114.6
+      "value": 121699.5
     },
     "Varesa": {
       "team": [
@@ -431,7 +431,7 @@
         "Xilonen",
         "Columbina"
       ],
-      "value": 248095.4
+      "value": 239732.6
     }
   }
 }

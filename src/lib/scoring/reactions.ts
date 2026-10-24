@@ -59,7 +59,8 @@ export function mainReactionOf(carry: ScoringCharacter): Reaction | "none" | und
 }
 
 // Roughly how much of a carry's damage a bonus to that reaction's DMG applies to (#87), when it's their main
-// reaction or another one they deal. Estimates until Phase 3 works it out from talent damage:
+// reaction or another one they deal. Estimates for carries without a damage model (a modeled carry's are measured,
+// reactionShare `measured`, #94), and for reactions outside carry damage:
 // - Lunar, Stellar and Bloom-type: the carry's damage largely is reaction damage.
 // - Vaporize, Melt: the bonus multiplies the hits that react.
 // - Aggravate, Spread: the bonus is only on the flat damage the reaction adds to a hit.
@@ -94,11 +95,28 @@ const SHARE_OF: Record<Reaction, keyof typeof SHARES> = {
 };
 
 // The share of the carry's damage a bonus to `reactions` reaches: the reactions the carry deals, added up, at most 1.
-export function reactionShare(carry: ScoringCharacter, reactions: readonly string[], dealt: readonly Reaction[]): number {
+// `measured`: a modeled carry's shares from the damage model (damage.ts CarryDamage.shares, #94 part 5), which
+// replace the estimates for the reactions inside carry damage (Vaporize, Melt, Aggravate, Spread, Lunar, Stellar);
+// Bloom-type and other transformative reactions deal their own damage beside the carry's and keep the estimate.
+const MEASURED = new Set<Reaction>(["vaporize", "melt", "aggravate", "spread", "lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-conduct", "stellar-swirl"]);
+const INSIDE = new Set<Reaction>(["vaporize", "melt", "aggravate", "spread"]);
+export function reactionShare(
+  carry: ScoringCharacter,
+  reactions: readonly string[],
+  dealt: readonly Reaction[],
+  measured?: Partial<Record<string, number>>,
+): number {
   const main = mainReactionOf(carry);
   let share = 0;
   for (const r of dealt) {
     if (!reactions.includes(r)) continue;
+    // Vaporize, Melt, Aggravate and Spread are wholly inside carry damage: a measured 0 means no hit reacts. A Lunar
+    // or Stellar reaction the carry deals no hits of happens beside their damage (Alhaitham's Lunar-Bloom with Lauma,
+    // which no reaction line models yet): the estimate stands for it.
+    if (measured && MEASURED.has(r) && (INSIDE.has(r) || measured[r] !== undefined)) {
+      share += measured[r] ?? 0;
+      continue;
+    }
     const s = SHARES[SHARE_OF[r]];
     share += r === main ? s.main : s.side;
   }
