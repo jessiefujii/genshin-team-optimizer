@@ -14430,6 +14430,200 @@
       "baseHp": 9797,
       "baseDef": 615
     },
+    "Varka": {
+      "rotationSeconds": 13,
+      "combo": "E N1CW N4sE 3[N1CW] N1sE N1",
+      "hits": [
+        {
+          "label": "Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 4.7328
+          },
+          "count": 1
+        },
+        {
+          "label": "Sturm und Drang 1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.503291
+          },
+          "count": 7,
+          "element": "priority"
+        },
+        {
+          "label": "Sturm und Drang 2-Hit DMG (Anemo)",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.550899
+          },
+          "count": 1
+        },
+        {
+          "label": "Sturm und Drang 2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.023097
+          },
+          "count": 1,
+          "element": "priority"
+        },
+        {
+          "label": "Sturm und Drang 3-Hit DMG (Anemo)",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.744905
+          },
+          "count": 1
+        },
+        {
+          "label": "Sturm und Drang 3-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.383395
+          },
+          "count": 1,
+          "element": "priority"
+        },
+        {
+          "label": "Sturm und Drang 4-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.272992
+          },
+          "count": 1,
+          "element": "priority"
+        },
+        {
+          "label": "Sturm und Drang 4-Hit DMG (Anemo)",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.685457
+          },
+          "count": 1
+        },
+        {
+          "label": "Sturm und Drang Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 1.966705
+          },
+          "count": 4,
+          "element": "priority"
+        },
+        {
+          "label": "Sturm und Drang Charged Attack DMG (Anemo)",
+          "type": "charged",
+          "scaling": {
+            "atk": 1.058995
+          },
+          "count": 4
+        },
+        {
+          "label": "Four Winds' Ascension DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.98792
+          },
+          "count": 1,
+          "element": "priority"
+        },
+        {
+          "label": "Four Winds' Ascension DMG (Anemo)",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.60888
+          },
+          "count": 1
+        },
+        {
+          "label": "Four Winds' Ascension DMG (Secret Rite)",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.98792
+          },
+          "count": 1,
+          "element": "priority",
+          "when": {
+            "secretRite": true
+          }
+        },
+        {
+          "label": "Four Winds' Ascension DMG (Anemo, Secret Rite)",
+          "type": "skill",
+          "scaling": {
+            "atk": 1.60888
+          },
+          "count": 1,
+          "when": {
+            "secretRite": true
+          }
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "dmgBonusPerAtk",
+          "perAtk": 1000,
+          "value": 0.1,
+          "max": 0.25,
+          "elements": [
+            "Anemo",
+            "priority"
+          ]
+        },
+        {
+          "kind": "factorByComposition",
+          "values": [
+            1.4,
+            2.2
+          ],
+          "labels": [
+            "Sturm und Drang 1-Hit DMG",
+            "Sturm und Drang 2-Hit DMG",
+            "Sturm und Drang 2-Hit DMG (Anemo)",
+            "Sturm und Drang 3-Hit DMG",
+            "Sturm und Drang 3-Hit DMG (Anemo)",
+            "Sturm und Drang 4-Hit DMG",
+            "Sturm und Drang 4-Hit DMG (Anemo)",
+            "Sturm und Drang Charged Attack DMG",
+            "Sturm und Drang Charged Attack DMG (Anemo)",
+            "Four Winds' Ascension DMG",
+            "Four Winds' Ascension DMG (Anemo)",
+            "Four Winds' Ascension DMG (Secret Rite)",
+            "Four Winds' Ascension DMG (Anemo, Secret Rite)"
+          ]
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.3,
+          "types": [
+            "normal",
+            "charged",
+            "skill"
+          ],
+          "labels": [
+            "Sturm und Drang 1-Hit DMG",
+            "Sturm und Drang 2-Hit DMG",
+            "Sturm und Drang 2-Hit DMG (Anemo)",
+            "Sturm und Drang 3-Hit DMG",
+            "Sturm und Drang 3-Hit DMG (Anemo)",
+            "Sturm und Drang 4-Hit DMG",
+            "Sturm und Drang 4-Hit DMG (Anemo)",
+            "Sturm und Drang Charged Attack DMG",
+            "Sturm und Drang Charged Attack DMG (Anemo)",
+            "Four Winds' Ascension DMG",
+            "Four Winds' Ascension DMG (Anemo)",
+            "Four Winds' Ascension DMG (Secret Rite)",
+            "Four Winds' Ascension DMG (Anemo, Secret Rite)"
+          ],
+          "when": {
+            "reaction": "swirl"
+          }
+        }
+      ],
+      "baseHp": 12613,
+      "baseDef": 795
+    },
     "Freminet": {
       "rotationSeconds": 15,
       "combo": "EQE 4[2E N1] 2E",
@@ -14557,7 +14751,6 @@
     "Lohen",
     "Manekin",
     "Manekina",
-    "Sandrone",
-    "Varka"
+    "Sandrone"
   ]
 }

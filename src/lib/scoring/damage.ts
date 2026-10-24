@@ -20,7 +20,10 @@ interface CarryHit {
   tag?: string;
   lunar?: LunarReaction; // direct Lunar reaction DMG (#135)
   additive?: boolean; // a Reaction Additive Base DMG Bonus to a Lunar hit: added as is (Zibai's passive 1, #146)
-  element?: Element | "Physical" | "teammates"; // the hit's own damage type when it isn't the carry's element (Eula's, #222)
+  // The hit's own damage type when it isn't the carry's element (Eula's, #222); "priority": the first of Pyro > Hydro >
+  // Electro > Cryo among teammates, else the carry's (Varka's right claymore, #233: KQM "the standard PHEC Absorption
+  // priority").
+  element?: Element | "Physical" | "teammates" | "priority";
   // "teammates" (#233): the elements of the teammates of `byTeammates.elements` (Chasca's Shining Shells), split evenly
   // over the types present. byTeammates adds to `count` by how many such teammates (members) and types (types) the
   // team has, each a list indexed by that number (its last value past the end).
@@ -58,7 +61,12 @@ type CarryBuff =
   | { kind: "lunarBaseBonus"; stat: "atk" | "def" | "em"; perPoint: number; max: number }
   | { kind: "lunarReactionBonus"; value: number; reaction: LunarReaction; perEm?: number; when?: When }
   | { kind: "baseDmgMultiplier"; value: number; labels: string[]; when?: When }
-  | { kind: "emBonus"; value: number; when?: When };
+  | { kind: "emBonus"; value: number; when?: When }
+  // Varka's passive 1 (#233): DMG Bonus per `perAtk` ATK on hits of `elements` ("priority": his PHEC element), capped;
+  // and a factor on `labels` by the party's elements (2 Anemo or 2 of one PHEC element: values[0]; both: values[1]).
+  | { kind: "dmgBonusPerAtk"; perAtk: number; value: number; max: number; elements: (Element | "priority")[] }
+  | { kind: "factorByComposition"; values: [number, number]; labels: string[] };
+const PHEC: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
 // When a combo fits a team (#114): one of the team's active reactions, a teammate from each `members` list, and
 // exactly that many teammates of each element in `elements`.
 interface ComboWhen {
@@ -655,6 +663,9 @@ function computeCarryDamage(
   const cooldown = nightsoulCooldown(team);
   const burstsPerRotation = cooldown ? rotationSeconds / cooldown : 0;
   const labelCount = (label: string) => kit.hits.reduce((a, h) => a + (h.label === label ? h.count : 0), 0);
+  const priorityEl = PHEC.find((e) => team.some((m) => m.id !== c.id && m.element === e)); // Varka's right claymore (#233)
+  const countOf = (e: Element) => team.filter((m) => m.element === e).length;
+  const composition = (countOf("Anemo") >= 2 ? 1 : 0) + (PHEC.some((e) => countOf(e) >= 2) ? 1 : 0);
   const at = (list: number[] | undefined, i: number) => (list?.length ? list[Math.min(i, list.length - 1)] : 0);
   const teamCount = (h: CarryHit) =>
     h.nightsoulBursts
@@ -713,6 +724,9 @@ function computeCarryDamage(
       if (b.kind === "dmgBonusByTypes" && b.labels.includes(h.label)) bonus += at([0, ...b.values], typesOf(b.elements).length);
       if (b.kind === "dmgBonusByMembers" && !(b.unless ?? []).some((r) => active.includes(r))) bonus += at(b.values, eligible(b.elements).length);
       if (b.kind === "factor" && b.types.includes(h.type)) factor *= b.value;
+      if (b.kind === "dmgBonusPerAtk" && priorityEl && b.elements.some((e) => (e === "priority" ? priorityEl : e) === el))
+        bonus += Math.min(b.max, (b.value * atk) / b.perAtk);
+      if (b.kind === "factorByComposition" && b.labels.includes(h.label) && composition > 0) factor *= b.values[composition - 1];
       // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
       if (b.kind === "critRate" && b.labels.includes(h.label))
         factor *= expectedCrit(c, critRate + b.value, dmgCirclet) / expectedCrit(c, critRate, dmgCirclet);
@@ -732,7 +746,8 @@ function computeCarryDamage(
     if (!lands(h)) continue;
     const count = (h.count + teamCount(h)) * (h.type === "burst" ? burstPart : 1);
     if (count <= 0) continue;
-    if (h.element !== "teammates") total += hitTotal(h, h.element ?? c.element, count);
+    if (h.element === "priority") total += hitTotal(h, priorityEl ?? c.element, count);
+    else if (h.element !== "teammates") total += hitTotal(h, h.element ?? c.element, count);
     else {
       const types = typesOf(h.byTeammates?.elements ?? []);
       for (const el of types) total += hitTotal(h, el, count / types.length);
