@@ -46,8 +46,9 @@ interface KitCharacter {
 
 const KIT = kitJson.characters as Record<string, KitCharacter>;
 
-// A carry without a build reads as wearing their KQM guide's 4pc set (#279, #206, extract-kit benchmarkSets): the first
-// option that fits the team (the reaction it triggers, or one of `members` in it). A build's own sets always count.
+// A character without a build reads as wearing their KQM guide's 4pc set (#279, #206; supports' party sets #338,
+// extract-kit benchmarkSets): the first option that fits the team (the reaction it triggers, or one of `members` in
+// it). A build's own sets always count.
 type BenchmarkSet = { set: string; when?: { reaction?: Reaction; members?: string[] } };
 const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet[]> }).benchmarkSets;
 export function setsOf(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[] = [c]): NonNullable<ScoringCharacter["sets"]> {

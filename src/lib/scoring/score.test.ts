@@ -142,7 +142,8 @@ describe("scoreTeam", () => {
     // Clorinde's Dark-Shattering Flame needs any Electro-related reaction (#141): its own line, at full value with
     // Overloaded alone; Aggravate then adds only what it adds on top. Overloaded's own damage is a 0-point line too (#205).
     expect(reactions("Clorinde", "Bennett", "Chevreuse", "Furina")).toEqual([
-      { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+77% damage" },
+      // Bennett's Noblesse raises her ATK, not the passive's share of it (#338).
+      { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+73% damage" },
       { rule: "Reactions", points: 0, reason: "Overloaded: ~1178 damage per second (Bennett ~0.1/s, Chevreuse ~0.1/s)" },
       { rule: "Reactions", points: 0, reason: "Electrocharged: ~4335 damage per second (Clorinde ~0.4/s, Furina ~0.6/s)" },
     ]);
@@ -151,7 +152,7 @@ describe("scoreTeam", () => {
       // 1 in 3 of her Swift Hunt and Impale hits applies Electro (one Normal Attack ICD, #226), 2 of 5 Burst hits.
       { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive" },
       // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
-      { rule: "Reactions", points: 0, reason: "Swirl: ~2287 damage per second (Kaedehara Kazuha ~0.4/s)" },
+      { rule: "Reactions", points: 0, reason: "Swirl: ~2922 damage per second (Kaedehara Kazuha ~0.4/s)" }, // his guide's VV (#338)
     ]);
     // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze. Fischl's and Furina's
     // Electro-Charged deals its own damage (#205); no Superconduct, which Sandrone turns into Stellar-Conduct.
@@ -249,7 +250,7 @@ describe("scoreTeam", () => {
     // damage (#205). No flat points either way.
     expect(s.breakdown.filter((l) => l.rule === "Reactions")).toEqual([
       { rule: "Reactions", points: 0, reason: "Swirl, Crystallize add ~+20% to Neuvillette's damage" },
-      { rule: "Reactions", points: 0, reason: "Swirl: ~1960 damage per second (Kaedehara Kazuha ~0.3/s)" },
+      { rule: "Reactions", points: 0, reason: "Swirl: ~2334 damage per second (Kaedehara Kazuha ~0.3/s)" }, // his guide's VV (#338)
     ]);
   });
 
@@ -538,8 +539,8 @@ describe("scoreTeam", () => {
       // Lunar-Bloom is Nefer's main reaction: ~0.8 of her damage (#87).
       expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(9);
       // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him, on the
-      // ~0.3 of his damage that a side reaction is.
-      expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(6);
+      // ~0.3 of his damage that a side reaction is. With her guide's Silken Moon's Serenade EM (#338).
+      expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(7);
     });
 
     test("Kazuha's swirl buff does nothing for an Anemo carry (#58)", () => {
@@ -1081,7 +1082,7 @@ describe("talent levels (#25)", () => {
     // Alhaitham and Tighnari are modeled, so their Spread counts by damage (#134). Alhaitham's hits that apply Dendro
     // (#226): 7 of 20 Normal Attack hits, 4 of 10 Burst hits, every other Projection Attack.
     expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
-      "Spread adds ~+79% to Alhaitham's damage", // ICDs (#226); his guide's Gilded Dreams needs a reaction (#206)
+      "Spread adds ~+78% to Alhaitham's damage", // ICDs (#226); his guide's Gilded Dreams needs a reaction (#206)
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
       // 1 in 4 Clusterbloom Arrows applies Dendro (#221); his guide's Wanderer's Troupe raises his Charged Attacks (#206).
@@ -1094,9 +1095,9 @@ describe("talent levels (#25)", () => {
     // Bennett's ATK raises Alhaitham's hits but not Spread's flat damage, so Spread adds a smaller share.
     // (ICDs, #226; with his guide's Gilded Dreams, whose ATK and EM need a reaction, #206.)
     expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+73% to Alhaitham's damage"); // Nahida's EM in damage (#186)
-    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+63% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+60% to Alhaitham's damage"); // Noblesse (#338)
     // Lauma's flat DMG is for Bloom-type reactions, not his hits: no change.
-    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+79% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+78% to Alhaitham's damage");
     // Vaporize multiplies the whole hit, so ATK buffs leave its share alone.
     const vape = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Vaporize adds"))?.reason;
     expect(vape("Hu Tao", "Xingqiu", "Bennett", "Zhongli")).toBe(vape("Hu Tao", "Xingqiu", "Yelan", "Zhongli"));

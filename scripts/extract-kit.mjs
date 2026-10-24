@@ -3675,6 +3675,44 @@ const benchmarkSets = {
   "Kamisato Ayato": [{ set: "Heart of Depth", source: kqm("ayato-quickguide", "All of these sets perform similarly ... 4pc Heart of Depth is one of Ayato's best sets") }],
   Lyney: [{ set: "Marechaussee Hunter", source: kqm("lyney-quickguide", "Marechaussee Hunter By far Lyney's best artifact set. Lyney pairs well with this set's condition") }],
   Tighnari: [{ set: "Wanderer's Troupe", source: kqm("tighnari-quickguide", "4-piece Wanderer's Troupe (4WT) Provides an unconditional buff to his Charged Shots") }],
+  // Supports without a build (#338): their KQM quick guide's support set (accessed 2026-10-24), only when it is one of
+  // the party sets in damage (kit.ts partyGearStats: Noblesse, Tenacity, VV, Deepwood, Archaic Petra, Scroll, Silken
+  // Moon's Serenade, Night of the Sky's Unveiling). None when the guide's pick is another set (Furina, Escoffier,
+  // Nicole, Mona: Golden Troupe or Celestial Gift; Ineffa, Linnea, Albedo: Aubade or Husk; Yelan, Rosaria, Lisa:
+  // personal damage sets; Alyosha: Heart of the Furnace) or none (Zhongli: "Rainbow", 2pc HP% + 2pc HP%).
+  "Kaedehara Kazuha": [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "kazuha-quickguide", "4pc Viridescent Venerer (4VV) is the artifact set that Kazuha uses in almost all of his teams") }],
+  Sucrose: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "sucrose-quickguide", "Sucrose should generally hold 4pc VV to bolster her own damage and shred enemy Elemental RES") }],
+  Lynette: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "lynette-quickguide", "It is Lynette's Best-in-Slot set in nearly all her playstyles") }],
+  Prune: [{ set: "Viridescent Venerer", source: kqmOn("2026-10-24", "prune-quickguide", "As an Anemo character, Prune can hold 4pc VV to shred enemy RES for the Element Swirled by her Skill or Burst") }],
+  Xianyun: [
+    { set: "Noblesse Oblige", when: { members: ["Xiao"] }, source: kqmOn("2026-10-24", "xianyun-quickguide", "In Xiao teams, you should prioritize 4pc Noblesse Oblige over 4pc Viridescent Venerer") },
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-24", "xianyun-quickguide", "4pc Viridescent Venerer is one of Xianyun's best artifact sets") },
+  ],
+  Faruzan: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "faruzan-quickguide", "This set is not recommended for pre-C6 Faruzan ... Bestows the whole team with a 20% ATK buff for 12s every Burst cast") }],
+  Bennett: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "bennett-quickguide", "This is typically Bennett's best set, unless his team does not benefit from the ATK% buff") }],
+  Chevreuse: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "chevreuse-quickguide", "She should equip this set if no one else is holding it") }],
+  Shenhe: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "shenhe-quickguide", "4pc Noblesse Oblige is often Shenhe's Best-in-Slot artifact set for team damage") }],
+  Mika: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "mika-quickguide", "4pc Noblesse is Mika's best option due to its strong supporting capabilities") }],
+  "Kujou Sara": [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "sara-quickguide", "Allows Sara to maximize her buffing capabilities if no one else already has this") }],
+  Dahlia: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "dahlia-quickguide", "Dahlia Burst is used every rotation, so 4pc NO is a natural choice to buff ATK-scaling teammates") }],
+  Vodyanitsa: [{ set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "vodyanitsa-quickguide", "4pc TotM is Vodyanitsa's best support set in ATK-scaling teams") }],
+  Xilonen: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen's best artifact set by far") }],
+  Citlali: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "citlali-quickguide", "Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction") }],
+  Iansan: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "iansan-quickguide", "This makes it her recommended option for the vast majority of her teams") }],
+  Gorou: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "gorou-quickguide", "This can be considered Gorou's most general set as long as he can trigger Crystallize") }],
+  Nahida: [{ set: "Deepwood Memories", source: kqmOn("2026-10-24", "nahida-quickguide", "Nahida is often the best for this role, since she easily maintains the 4pc effect") }],
+  Baizhu: ["spread", "bloom", "hyperbloom", "burgeon", "lunar-bloom"].map((reaction) => ({
+    set: "Deepwood Memories",
+    when: { reaction },
+    source: kqmOn("2026-10-24", "baizhu-quickguide", "4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it"),
+  })),
+  Lauma: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "lauma-quickguide", "Overall a good supportive set for Lauma and her most common artifact set") }],
+  Columbina: [{ set: "Silken Moon's Serenade", source: kqmOn("2026-10-24", "columbina-quickguide", "Columbina usually uses 4pc SMS for team DPS") }],
+  Illuga: [
+    { set: "Silken Moon's Serenade", when: { members: ["Zibai"] }, source: kqmOn("2026-10-24", "illuga-quickguide", "4pc SMS is one of Illuga's most notable sets with Zibai") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "illuga-quickguide", "This is Illuga's default set for Geo DPS units if another teammate cannot hold it") },
+  ],
+  Nilou: [{ set: "Silken Moon's Serenade", when: { reaction: "lunar-bloom" }, source: kqmOn("2026-10-24", "nilou-quickguide", "4pc SMS is Nilou's default set in Lunar-Bloom teams if her teammates prefer other sets") }],
 };
 // Benchmark carries' weapons (#206, Jessie 2026-10-21: "Best 4★"; "if a best weapon is a 3 star make sure to use it"):
 // the first non-5-star weapon in the carry's KQM quick guide weapon list, at the refinement it names (else R1); game8
@@ -3737,7 +3775,7 @@ for (const [id, b] of Object.entries(benchmarkWeapons)) {
 }
 for (const [id, options] of Object.entries(benchmarkSets)) {
   for (const b of options) if (!sets[b.set]) throw new Error(`${id}: benchmark set ${b.set} isn't in SETS`);
-  if (!carries[id]) throw new Error(`${id}: a benchmark set for a character with no carry kit`);
+  if (!tags.some((c) => c.id === id)) throw new Error(`${id}: a benchmark set for a character not in tags.json`);
 }
 
 // Weapon passives on the holder's own hits (#40, #206), read from genshin-db's passive text at each refinement (R1-R5):
