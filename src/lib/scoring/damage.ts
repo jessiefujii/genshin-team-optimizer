@@ -84,9 +84,13 @@ interface CarryKit {
   missing?: string[];
   goblet?: "Physical"; // a Physical DMG goblet and set on the benchmark build (#222); else the carry's element
   baseHp?: number; // level 90 character base HP, for HP % team buffs (#186: Soothing Water)
+  baseDef?: number; // and base DEF, for set DEF % (#346: Husk)
   radianceInDamage?: boolean; // their own Radiance upgrade is in their hits (Mizuki, #235)
 }
 const CARRIES = (kitJson as unknown as { carries: Record<string, CarryKit> }).carries;
+// Base DEF at level 90, for set DEF% (Husk, #346): a carry's, else kit.json characters' base.
+export const baseDefOf = (id: string) =>
+  CARRIES[id]?.baseDef ?? (kitJson.characters as Record<string, { base?: { def: number } | null }>)[id]?.base?.def ?? 0;
 const NIGHTSOUL = kitJson.nightsoulBurst as { cooldownByNatlanese: Record<string, number>; notNatlanese: string[] };
 // Seconds between the party's Nightsoul Bursts (#63, kit.json: 18s with 1 Natlanese member, 12s with 2, 9s with 3 or
 // more), or null without one. Nightsoul has no quest lock, so `families` agrees with the scorer's familiesOf.
@@ -111,9 +115,10 @@ type SetWhen = {
   weapons?: string[];
   moonsign?: "nascent" | "ascendant";
   offField?: boolean; // the wearer isn't the on-field carry (Aubade of Morningstar and Moon, #306)
+  stellar?: boolean; // the team triggers a Stellar Glimmer reaction (Heart of the Furnace, #345)
 };
 type SetBuff = {
-  kind: "critRate" | "dmgBonus" | "atkPct" | "reactionBonus" | "dmgBonusFromEr" | "atkPctPerSame" | "emPerOther";
+  kind: "critRate" | "dmgBonus" | "atkPct" | "defPct" | "reactionBonus" | "dmgBonusFromEr" | "atkPctPerSame" | "emPerOther";
   pieces?: 2;
   value: number;
   perStack?: number; // a stacking effect whose count holderStates.setStacks may set per character (Crimson Witch)
@@ -157,6 +162,7 @@ function setFits(w: SetWhen | undefined, c: ScoringCharacter, active: readonly R
     (!w.noEnergy || !c.burstCost) &&
     (!w.weapons || w.weapons.includes(c.weapon)) &&
     (!w.offField || !onField) &&
+    (!w.stellar || active.some((r) => r.startsWith("stellar-"))) &&
     (!w.moonsign || (lunar && (w.moonsign === "ascendant" ? gleam : moonsign === 1 || (moonsign >= 2 && !gleam))))
   );
 }
@@ -177,7 +183,7 @@ export function setBuffs(c: ScoringCharacter, active: readonly Reaction[], team:
   }
   return out;
 }
-const sumSet = (buffs: readonly SetBuff[], kind: SetBuff["kind"]) => buffs.reduce((a, b) => a + (b.kind === kind ? b.value : 0), 0);
+export const sumSet = (buffs: readonly SetBuff[], kind: SetBuff["kind"]) => buffs.reduce((a, b) => a + (b.kind === kind ? b.value : 0), 0);
 // The carry's own set CRIT Rate in this team (Blizzard Strayer "affected by Cryo" when a member applies Cryo and
 // "Frozen" when the team Freezes, each taken as up on every hit: estimate; Marechaussee, Obsidian Codex, Night).
 export const setCritRate = (c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], gleam = false) =>
@@ -187,7 +193,7 @@ export const setCritRate = (c: ScoringCharacter, active: readonly Reaction[], te
 export const setReactionBonus = (buffs: readonly SetBuff[], r: Reaction | LunarReaction | "none" | undefined) =>
   buffs.reduce((a, b) => a + (b.kind === "reactionBonus" && r && b.reactions!.includes(r as Reaction) ? b.value : 0), 0);
 // A set's DMG bonus on a hit of this type and element, ER-based ones (Emblem) at the carry's ER.
-const setDmgBonus = (buffs: readonly SetBuff[], type: HitType, el: Element | "Physical", er: number) =>
+export const setDmgBonus = (buffs: readonly SetBuff[], type: HitType, el: Element | "Physical", er: number) =>
   buffs.reduce((a, b) => {
     if (b.types && !b.types.includes(type)) return a;
     if (b.kind === "dmgBonus" && (!b.element || b.element === el)) return a + b.value;
@@ -562,6 +568,7 @@ function computeCarryDamage(
     atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk,
     dmgBonus: own.dmgBonus + teamBuffs.dmgBonus,
     hp: own.hp + teamBuffs.hpPct * (CARRIES[c.id]?.baseHp ?? 0), // HP % of base HP (#186: Soothing Water)
+    def: own.def + sumSet(set, "defPct") * baseDefOf(c.id), // set DEF% of base DEF (Husk's stacks, #346)
   };
   const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;
   let atk = s.atk;
@@ -626,7 +633,8 @@ function computeCarryDamage(
   const lunarBonus = (r: LunarReaction) =>
     buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? (b.perEm ? (b.value * em) / b.perEm : b.value) : 0), 0) +
     setReactionBonus(set, r) + // Thundering Fury's Lunar-Charged (#206)
-    party.lunar; // Gleaming Moon (#306)
+    party.lunar + // Gleaming Moon (#306)
+    (r.startsWith("stellar-") ? party.stellar : 0); // Heart of the Furnace (#345)
   // Base DMG Multiplier by hit label (Nefer's Veil of Falsehood, #148): multiplies the hit's base, Lunar or not.
   const baseMultiplier = (h: CarryHit) =>
     buffs.reduce((a, b) => a * (b.kind === "baseDmgMultiplier" && b.labels.includes(h.label) ? 1 + b.value : 1), 1);

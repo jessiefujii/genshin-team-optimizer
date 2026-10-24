@@ -607,12 +607,12 @@ describe("set bonuses on the wearer's own damage (#206)", () => {
     const night = wearing("Zibai", "Night of the Sky's Unveiling");
     const lc: Reaction[] = ["lunar-crystallize"];
     // Night's Intent needs its wearer on field and a Lunar reaction; Silken's Devotion doesn't.
-    expect(partySetBuffs([night, silken, get("Columbina")], lc, night)).toEqual({ em: 120, lunar: 0.2 });
+    expect(partySetBuffs([night, silken, get("Columbina")], lc, night)).toEqual({ em: 120, lunar: 0.2, stellar: 0 });
     expect(partySetBuffs([night, silken, get("Columbina")], lc, silken).lunar).toBeCloseTo(0.1);
     expect(partySetBuffs([night, silken, get("Columbina")], [], night).lunar).toBeCloseTo(0.1);
     // A second Silken adds nothing ("Effects from Gleaming Moon cannot stack"); one Moonsign member: Nascent Gleam, 60.
-    expect(partySetBuffs([silken, wearing("Columbina", "Silken Moon's Serenade")], lc, null)).toEqual({ em: 120, lunar: 0.1 });
-    expect(partySetBuffs([silken, get("Bennett")], lc, null)).toEqual({ em: 60, lunar: 0.1 });
+    expect(partySetBuffs([silken, wearing("Columbina", "Silken Moon's Serenade")], lc, null)).toEqual({ em: 120, lunar: 0.1, stellar: 0 });
+    expect(partySetBuffs([silken, get("Bennett")], lc, null)).toEqual({ em: 60, lunar: 0.1, stellar: 0 });
   });
 
   test("Aubade (#306): the wearer's own Lunar Reaction Bonus, off-field only, 60% at Ascendant Gleam", () => {
@@ -671,6 +671,45 @@ describe("support gear's party effects in damage (#206)", () => {
     expect(carryGets(vv, swirl).resShred - carryGets(plain, swirl).resShred).toBeCloseTo(0.4, 5);
     expect(carryGets(vv, ["vaporize"]).resShred).toBeCloseTo(carryGets(plain, ["vaporize"]).resShred, 5);
     expect(memberGets(vv[3], vv, swirl).resShred).toBeCloseTo(memberGets(plain[3], plain, swirl).resShred, 5); // Zhongli: Geo
+  });
+
+  test("one wearer per party set: a teammate already wearing it moves a benchmark support to their next pick (#348)", () => {
+    const sets = (...ids: string[]) => {
+      const t = ids.map((id) => get(id));
+      return Object.fromEntries(t.map((m) => [m.id, setsOf(m, ["overloaded", "melt"], t)[0]?.set]));
+    };
+    // Chevreuse gives Noblesse up to Bennett ("if no one else is holding it"), in any team order.
+    expect(sets("Clorinde", "Bennett", "Chevreuse", "Furina")).toMatchObject({ Bennett: "Noblesse Oblige", Chevreuse: "Tenacity of the Millelith" });
+    expect(sets("Chevreuse", "Furina", "Clorinde", "Bennett")).toMatchObject({ Bennett: "Noblesse Oblige", Chevreuse: "Tenacity of the Millelith" });
+    // Xilonen keeps Scroll ("her best artifact set by far"); Citlali takes Tenacity.
+    expect(sets("Arlecchino", "Citlali", "Xilonen", "Bennett")).toMatchObject({ Xilonen: "Scroll of the Hero of Cinder City", Citlali: "Tenacity of the Millelith" });
+    // A build's set stays: a built Bennett on Noblesse moves Chevreuse too.
+    const t = [get("Clorinde"), geared("Bennett", { set: "Noblesse Oblige" }), get("Chevreuse"), get("Furina")];
+    expect(setsOf(t[2], ["overloaded"], t)[0]?.set).toBe("Tenacity of the Millelith");
+  });
+
+  test("Instructor, Celestial Gift, Heart of the Furnace (#345)", () => {
+    // Instructor: 120 EM to the party while its wearer triggers one of the team's reactions.
+    const instructor = geared("Bennett", { set: "Instructor" });
+    expect(partySetBuffs([get("Hu Tao"), instructor, get("Xingqiu")], ["vaporize"]).em).toBe(120);
+    expect(partySetBuffs([get("Hu Tao"), instructor, get("Zhongli")], []).em).toBe(0);
+    // Celestial Gift: 20% to the wearer's element; with Secret Rite 40% to the wearer's and the on-field carry's.
+    const gift = geared("Nicole", { set: "Celestial Gift" });
+    const dmg = (carry: string, ...mates: ScoringCharacter[]) => carryGets([get(carry), ...mates]).dmgBonus;
+    expect(dmg("Mavuika", gift, get("Xingqiu")) - dmg("Mavuika", bare("Nicole"), get("Xingqiu"))).toBeCloseTo(0.2, 5);
+    expect(dmg("Clorinde", gift, get("Xingqiu")) - dmg("Clorinde", bare("Nicole"), get("Xingqiu"))).toBeCloseTo(0, 5); // Electro
+    expect(dmg("Clorinde", gift, bare("Fischl")) - dmg("Clorinde", bare("Nicole"), bare("Fischl"))).toBeCloseTo(0.4, 5); // Mortal Hymn
+    // Heart of the Furnace: the party's Stellar Glimmer reaction DMG.
+    expect(partySetBuffs([get("Wriothesley"), geared("Alyosha", { set: "Heart of the Furnace" })], ["stellar-conduct"]).stellar).toBe(0.5);
+  });
+
+  test("Husk of Opulent Dreams: 24% DEF and 24% Geo DMG at full stacks on a DEF-scaled carry (#346)", () => {
+    const itto = (set?: string) => {
+      const c = geared("Arataki Itto", { set });
+      return carryDamage(c, [], [c, get("Gorou"), get("Albedo"), get("Zhongli")])!.perSecond;
+    };
+    // His hits scale on DEF and his Burst converts DEF to ATK: more than the 24% Geo DMG alone.
+    expect(itto("Husk of Opulent Dreams") / itto()).toBeGreaterThan(1.24);
   });
 
   test("Xilonen shreds Geo and party Pyro/Hydro/Cryo/Electro only, not Dendro (#337)", () => {

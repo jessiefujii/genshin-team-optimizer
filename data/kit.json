@@ -2118,6 +2118,11 @@
     ],
     "Husk of Opulent Dreams": [
       {
+        "kind": "defPct",
+        "value": 0.24,
+        "source": "4pc: \"each providing 6% DEF and a 6% Geo DMG Bonus\" x4 stacks"
+      },
+      {
         "kind": "dmgBonus",
         "value": 0.24,
         "element": "Geo",
@@ -2141,6 +2146,17 @@
           "skill"
         ],
         "source": "4pc: \"Increases Elemental Skill DMG by 25%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.25,
+        "types": [
+          "skill"
+        ],
+        "when": {
+          "offField": true
+        },
+        "source": "4pc: \"when not on the field, Elemental Skill DMG will be further increased by 25%\""
       }
     ],
     "Gladiator's Finale": [
@@ -2217,6 +2233,22 @@
     ],
     "Viridescent Venerer": [
       {
+        "kind": "reactionBonus",
+        "value": 0.6,
+        "reactions": [
+          "swirl"
+        ],
+        "source": "4pc: \"Increases Swirl reaction DMG dealt by 60%\""
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.2,
+        "reactions": [
+          "stellar-swirl"
+        ],
+        "source": "4pc: \"and Stellar Swirl reaction DMG dealt by 20%\""
+      },
+      {
         "kind": "resShred",
         "party": true,
         "value": 0.4,
@@ -2236,6 +2268,78 @@
           "reaction": "stellar-swirl"
         },
         "source": "4pc: \"will also decrease their Cryo RES by 40%\""
+      }
+    ],
+    "Instructor": [
+      {
+        "kind": "em",
+        "party": true,
+        "value": 120,
+        "when": {
+          "wearerReacts": true
+        },
+        "source": "4pc: \"increases all party members' Elemental Mastery by 120 for 8s\" (taken as up while the wearer reacts: estimate)"
+      }
+    ],
+    "Celestial Gift": [
+      {
+        "kind": "dmgBonus",
+        "party": true,
+        "value": 0.4,
+        "scope": "party",
+        "when": {
+          "hexerei": true,
+          "secretRite": true,
+          "wearerOrActiveElement": true
+        },
+        "source": "4pc: \"gain a 40% Elemental DMG Bonus corresponding to both the equipping character and the current active\" (taken as up after the wearer's Skill: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "party": true,
+        "value": 0.2,
+        "scope": "party",
+        "when": {
+          "hexerei": true,
+          "wearerElement": true
+        },
+        "source": "4pc: \"All nearby party members gain a 20% Elemental DMG Bonus corresponding to the equipping character's Elemental Type\" (taken as up after the wearer's Skill: estimate)"
+      }
+    ],
+    "Heart of the Furnace": [
+      {
+        "kind": "reactionBonus",
+        "party": true,
+        "value": 0.5,
+        "reactions": [
+          "stellar-swirl",
+          "stellar-conduct"
+        ],
+        "source": "4pc: \"Also increases Stellar Glimmer reaction DMG dealt by all nearby party members by 50%\""
+      },
+      {
+        "kind": "atkPct",
+        "value": 0.12,
+        "when": {
+          "stellar": true
+        },
+        "source": "4pc: \"Increases the equipping character's ATK by 12% for 12s when they trigger a Stellar Glimmer reaction\""
+      }
+    ],
+    "Ocean-Hued Clam": [
+      {
+        "kind": "healFoam",
+        "value": 0.9,
+        "max": 30000,
+        "source": "4pc: \"based on 90% of the accumulated healing\""
+      }
+    ],
+    "Song of Days Past": [
+      {
+        "kind": "healAdditive",
+        "value": 0.4,
+        "max": 15000,
+        "source": "4pc: \"increased by 8% of the total healing amount\" x5 stacks"
       }
     ],
     "Deepwood Memories": [
@@ -2483,18 +2587,46 @@
       {
         "set": "Viridescent Venerer",
         "source": "KQM sucrose quick guide (keqingmains.com/q/sucrose-quickguide, accessed 2026-10-24): \"Sucrose should generally hold 4pc VV to bolster her own damage and shred enemy Elemental RES\""
+      },
+      {
+        "set": "Deepwood Memories",
+        "source": "KQM sucrose quick guide (keqingmains.com/q/sucrose-quickguide, accessed 2026-10-24): \"Sucrose can hold any of these sets in Dendro teams, depending on what sets other teammates already hold\""
+      },
+      {
+        "set": "Instructor",
+        "source": "KQM sucrose quick guide (keqingmains.com/q/sucrose-quickguide, accessed 2026-10-24): \"Sucrose can hold any of these sets in Dendro teams, depending on what sets other teammates already hold\""
+      },
+      {
+        "set": "Silken Moon's Serenade",
+        "source": "KQM sucrose quick guide (keqingmains.com/q/sucrose-quickguide, accessed 2026-10-24): \"Sucrose can hold any of these sets in Dendro teams, depending on what sets other teammates already hold\""
       }
     ],
     "Lynette": [
       {
         "set": "Viridescent Venerer",
         "source": "KQM lynette quick guide (keqingmains.com/q/lynette-quickguide, accessed 2026-10-24): \"It is Lynette's Best-in-Slot set in nearly all her playstyles\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM lynette quick guide (keqingmains.com/q/lynette-quickguide, accessed 2026-10-24): \"Lynette can hold 4pc Noblesse Oblige to buff both herself and her teammates\""
       }
     ],
     "Prune": [
       {
         "set": "Viridescent Venerer",
         "source": "KQM prune quick guide (keqingmains.com/q/prune-quickguide, accessed 2026-10-24): \"As an Anemo character, Prune can hold 4pc VV to shred enemy RES for the Element Swirled by her Skill or Burst\""
+      },
+      {
+        "set": "Celestial Gift",
+        "source": "KQM prune quick guide (keqingmains.com/q/prune-quickguide, accessed 2026-10-24): \"4pc Celestial can be used to buff units such as Venti who deal primarily Anemo damage\""
+      },
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM prune quick guide (keqingmains.com/q/prune-quickguide, accessed 2026-10-24): \"In Anemo teams, if another character already holds 4pc Celestial, Prune can consider these sets instead\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM prune quick guide (keqingmains.com/q/prune-quickguide, accessed 2026-10-24): \"In Anemo teams, if another character already holds 4pc Celestial, Prune can consider these sets instead\""
       }
     ],
     "Xianyun": [
@@ -2510,72 +2642,139 @@
       {
         "set": "Viridescent Venerer",
         "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"4pc Viridescent Venerer is one of Xianyun's best artifact sets\""
+      },
+      {
+        "set": "Ocean-Hued Clam",
+        "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"4pc Ocean-Hued Clam is one of Xianyun's best options since she deals good damage with the bubble\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"4pc Noblesse Oblige is a great option if no one else on the team can hold it\""
       }
     ],
     "Faruzan": [
       {
         "set": "Noblesse Oblige",
         "source": "KQM faruzan quick guide (keqingmains.com/q/faruzan-quickguide, accessed 2026-10-24): \"This set is not recommended for pre-C6 Faruzan ... Bestows the whole team with a 20% ATK buff for 12s every Burst cast\""
+      },
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM faruzan quick guide (keqingmains.com/q/faruzan-quickguide, accessed 2026-10-24): \"A staple choice for an Anemo character\""
       }
     ],
     "Bennett": [
       {
         "set": "Noblesse Oblige",
         "source": "KQM bennett quick guide (keqingmains.com/q/bennett-quickguide, accessed 2026-10-24): \"This is typically Bennett's best set, unless his team does not benefit from the ATK% buff\""
+      },
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM bennett quick guide (keqingmains.com/q/bennett-quickguide, accessed 2026-10-24): \"4pc Scroll has comparable buffing to 4pc NO on ATK-scaling damage dealers\""
+      },
+      {
+        "set": "Instructor",
+        "source": "KQM bennett quick guide (keqingmains.com/q/bennett-quickguide, accessed 2026-10-24): \"If another character on the team can hold 4pc NO, this option is better for overall team DPS\""
       }
     ],
     "Chevreuse": [
       {
+        "defer": true,
         "set": "Noblesse Oblige",
         "source": "KQM chevreuse quick guide (keqingmains.com/q/chevreuse-quickguide, accessed 2026-10-24): \"She should equip this set if no one else is holding it\""
+      },
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "KQM chevreuse quick guide (keqingmains.com/q/chevreuse-quickguide, accessed 2026-10-24): \"This is a decent option if her teammates can snapshot the ATK% buff\""
       }
     ],
     "Shenhe": [
       {
         "set": "Noblesse Oblige",
         "source": "KQM shenhe quick guide (keqingmains.com/q/shenhe-quickguide, accessed 2026-10-24): \"4pc Noblesse Oblige is often Shenhe's Best-in-Slot artifact set for team damage\""
+      },
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM shenhe quick guide (keqingmains.com/q/shenhe-quickguide, accessed 2026-10-24): \"4pc Scroll of the Hero of Cinder City can be used if no Natlan holders of this set are present\""
       }
     ],
     "Mika": [
       {
         "set": "Noblesse Oblige",
         "source": "KQM mika quick guide (keqingmains.com/q/mika-quickguide, accessed 2026-10-24): \"4pc Noblesse is Mika's best option due to its strong supporting capabilities\""
+      },
+      {
+        "set": "Ocean-Hued Clam",
+        "source": "KQM mika quick guide (keqingmains.com/q/mika-quickguide, accessed 2026-10-24): \"A viable option if there is already a 4pc Noblesse holder on the team\""
       }
     ],
     "Kujou Sara": [
       {
+        "defer": true,
         "set": "Noblesse Oblige",
         "source": "KQM sara quick guide (keqingmains.com/q/sara-quickguide, accessed 2026-10-24): \"Allows Sara to maximize her buffing capabilities if no one else already has this\""
+      },
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "KQM sara quick guide (keqingmains.com/q/sara-quickguide, accessed 2026-10-24): \"Allows players to maximize her buffing capabilities if another character already has 4 NO\""
       }
     ],
     "Dahlia": [
       {
         "set": "Noblesse Oblige",
         "source": "KQM dahlia quick guide (keqingmains.com/q/dahlia-quickguide, accessed 2026-10-24): \"Dahlia Burst is used every rotation, so 4pc NO is a natural choice to buff ATK-scaling teammates\""
+      },
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM dahlia quick guide (keqingmains.com/q/dahlia-quickguide, accessed 2026-10-24): \"or if another party member is already holding 4pc NO\""
       }
     ],
     "Vodyanitsa": [
       {
         "set": "Tenacity of the Millelith",
         "source": "KQM vodyanitsa quick guide (keqingmains.com/q/vodyanitsa-quickguide, accessed 2026-10-24): \"4pc TotM is Vodyanitsa's best support set in ATK-scaling teams\""
+      },
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM vodyanitsa quick guide (keqingmains.com/q/vodyanitsa-quickguide, accessed 2026-10-24): \"4pc Scroll is a good alternative for 4pc TotM if another teammate already holds it\""
       }
     ],
     "Xilonen": [
       {
         "set": "Scroll of the Hero of Cinder City",
         "source": "KQM xilonen quick guide (keqingmains.com/q/xilonen-quickguide, accessed 2026-10-24): \"Xilonen's best artifact set by far\""
+      },
+      {
+        "set": "Archaic Petra",
+        "source": "KQM xilonen quick guide (keqingmains.com/q/xilonen-quickguide, accessed 2026-10-24): \"Xilonen can run one of them if there is another 4pc Scroll holder on your team\""
+      },
+      {
+        "set": "Instructor",
+        "source": "KQM xilonen quick guide (keqingmains.com/q/xilonen-quickguide, accessed 2026-10-24): \"Xilonen can run one of them if there is another 4pc Scroll holder on your team\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM xilonen quick guide (keqingmains.com/q/xilonen-quickguide, accessed 2026-10-24): \"Xilonen can run one of them if there is another 4pc Scroll holder on your team\""
       }
     ],
     "Citlali": [
       {
+        "defer": true,
         "set": "Scroll of the Hero of Cinder City",
         "source": "KQM citlali quick guide (keqingmains.com/q/citlali-quickguide, accessed 2026-10-24): \"Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction\""
+      },
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "KQM citlali quick guide (keqingmains.com/q/citlali-quickguide, accessed 2026-10-24): \"it can be used when another character uses Scroll\""
       }
     ],
     "Iansan": [
       {
         "set": "Scroll of the Hero of Cinder City",
         "source": "KQM iansan quick guide (keqingmains.com/q/iansan-quickguide, accessed 2026-10-24): \"This makes it her recommended option for the vast majority of her teams\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM iansan quick guide (keqingmains.com/q/iansan-quickguide, accessed 2026-10-24): \"A viable alternative to 4pc Scroll\""
       }
     ],
     "Gorou": [
@@ -2594,10 +2793,15 @@
       {
         "set": "Deepwood Memories",
         "source": "KQM nahida quick guide (keqingmains.com/q/nahida-quickguide, accessed 2026-10-24): \"Nahida is often the best for this role, since she easily maintains the 4pc effect\""
+      },
+      {
+        "set": "Golden Troupe",
+        "source": "KQM nahida quick guide (keqingmains.com/q/nahida-quickguide, accessed 2026-10-24): \"It is best used if another teammate is already holding 4pc Deepwood\""
       }
     ],
     "Baizhu": [
       {
+        "defer": true,
         "set": "Deepwood Memories",
         "when": {
           "reaction": "spread"
@@ -2605,6 +2809,7 @@
         "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
       },
       {
+        "defer": true,
         "set": "Deepwood Memories",
         "when": {
           "reaction": "bloom"
@@ -2612,6 +2817,7 @@
         "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
       },
       {
+        "defer": true,
         "set": "Deepwood Memories",
         "when": {
           "reaction": "hyperbloom"
@@ -2619,6 +2825,7 @@
         "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
       },
       {
+        "defer": true,
         "set": "Deepwood Memories",
         "when": {
           "reaction": "burgeon"
@@ -2626,23 +2833,142 @@
         "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
       },
       {
+        "defer": true,
         "set": "Deepwood Memories",
         "when": {
           "reaction": "lunar-bloom"
         },
         "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"4pc DM is Baizhu's best option in Spread, Bloom, Lunar-Bloom, Hyperbloom, and Burgeon teams if no other teammate can hold it\""
+      },
+      {
+        "set": "Instructor",
+        "source": "KQM baizhu quick guide (keqingmains.com/q/baizhu-quickguide, accessed 2026-10-24): \"If another 4pc Deepwood holder is already on the team or 4pc DM isn't necessary, then 4pc Instructor or 4pc NO may result in higher team damage\""
+      }
+    ],
+    "Furina": [
+      {
+        "set": "Golden Troupe",
+        "source": "KQM furina quick guide (keqingmains.com/q/furina-quickguide, accessed 2026-10-24): \"4pc Golden Troupe is by far Furina's best set for her personal damage\""
+      }
+    ],
+    "Escoffier": [
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "KQM escoffier quick guide (keqingmains.com/q/escoffier-quickguide, accessed 2026-10-24): \"Escoffier can maintain excellent uptime on 4pc TotM\""
+      },
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM escoffier quick guide (keqingmains.com/q/escoffier-quickguide, accessed 2026-10-24): \"Escoffier usually holds 4pc NO when other teammates already use the aforementioned 4pc sets\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM escoffier quick guide (keqingmains.com/q/escoffier-quickguide, accessed 2026-10-24): \"Escoffier usually holds 4pc NO when other teammates already use the aforementioned 4pc sets\""
+      }
+    ],
+    "Yelan": [
+      {
+        "set": "Emblem of Severed Fate",
+        "source": "KQM yelan quick guide (keqingmains.com/q/yelan-quickguide, accessed 2026-10-24): \"Hands-down her best set\""
+      }
+    ],
+    "Ineffa": [
+      {
+        "set": "Aubade of Morningstar and Moon",
+        "source": "KQM ineffa quick guide (keqingmains.com/q/ineffa-quickguide, accessed 2026-10-24): \"making it her most recommended set\""
+      }
+    ],
+    "Linnea": [
+      {
+        "set": "Husk of Opulent Dreams",
+        "source": "KQM linnea quick guide (keqingmains.com/q/linnea-quickguide, accessed 2026-10-24): \"Husk is Linnea's general best-in-slot option\""
+      }
+    ],
+    "Albedo": [
+      {
+        "set": "Husk of Opulent Dreams",
+        "source": "KQM albedo quick guide (keqingmains.com/q/albedo-quickguide, accessed 2026-10-24): \"4pc Husk gives Albedo a lot of stats\""
+      }
+    ],
+    "Rosaria": [
+      {
+        "set": "Gilded Dreams",
+        "when": {
+          "reaction": "melt"
+        },
+        "source": "KQM rosaria quick guide (keqingmains.com/q/rosaria-quickguide, accessed 2026-10-24): \"one of Rosaria's best sets for Reverse Melt at lower ER requirements\""
+      },
+      {
+        "set": "Emblem of Severed Fate",
+        "source": "KQM rosaria quick guide (keqingmains.com/q/rosaria-quickguide, accessed 2026-10-24): \"4pc EoSF is a great generalist set\""
+      }
+    ],
+    "Nicole": [
+      {
+        "set": "Celestial Gift",
+        "source": "KQM nicole quick guide (keqingmains.com/q/nicole-quickguide, accessed 2026-10-24): \"4pc Celestial is Nicole's default set for essentially all her teams\""
+      }
+    ],
+    "Mona": [
+      {
+        "set": "Celestial Gift",
+        "when": {
+          "members": [
+            "Albedo",
+            "Durin",
+            "Fischl",
+            "Klee",
+            "Lohen",
+            "Nicole",
+            "Prune",
+            "Razor",
+            "Sucrose",
+            "Varka",
+            "Venti"
+          ]
+        },
+        "source": "KQM mona quick guide (keqingmains.com/q/mona-quickguide, accessed 2026-10-24): \"4pc CG is Mona's default support set in teams with another Hexerei character\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM mona quick guide (keqingmains.com/q/mona-quickguide, accessed 2026-10-24): \"4pc NO is another option for Mona in teams that appreciate its teamwide ATK% buff\""
+      },
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "KQM mona quick guide (keqingmains.com/q/mona-quickguide, accessed 2026-10-24): \"then Mona typically opts for either 4pc NO or 4pc TotM instead\""
+      }
+    ],
+    "Alyosha": [
+      {
+        "set": "Heart of the Furnace",
+        "when": {
+          "reaction": "stellar-conduct"
+        },
+        "source": "KQM alyosha quick guide (keqingmains.com/q/alyosha-quickguide, accessed 2026-10-24): \"4pc Heart of the Furnace is the default set for Alyosha in Stellar-Conduct teams\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM alyosha quick guide (keqingmains.com/q/alyosha-quickguide, accessed 2026-10-24): \"Alyosha uses 4pc NO when another teammate holds 4pc Heart of the Furnace. This set can also be used in non-Stellar-Conduct teams\""
       }
     ],
     "Lauma": [
       {
         "set": "Silken Moon's Serenade",
         "source": "KQM lauma quick guide (keqingmains.com/q/lauma-quickguide, accessed 2026-10-24): \"Overall a good supportive set for Lauma and her most common artifact set\""
+      },
+      {
+        "set": "Deepwood Memories",
+        "source": "KQM lauma quick guide (keqingmains.com/q/lauma-quickguide, accessed 2026-10-24): \"Lauma may use it when it isn't suitable on any other teammate\""
       }
     ],
     "Columbina": [
       {
+        "defer": true,
         "set": "Silken Moon's Serenade",
         "source": "KQM columbina quick guide (keqingmains.com/q/columbina-quickguide, accessed 2026-10-24): \"Columbina usually uses 4pc SMS for team DPS\""
+      },
+      {
+        "set": "Aubade of Morningstar and Moon",
+        "source": "KQM columbina quick guide (keqingmains.com/q/columbina-quickguide, accessed 2026-10-24): \"4pc Aubade can be used instead if there is a better holder of 4pc SMS\""
       }
     ],
     "Illuga": [
@@ -2656,17 +2982,39 @@
         "source": "KQM illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-24): \"4pc SMS is one of Illuga's most notable sets with Zibai\""
       },
       {
+        "set": "Instructor",
+        "when": {
+          "members": [
+            "Zibai"
+          ]
+        },
+        "source": "KQM illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-24): \"4pc Instructor is an alternative to 4pc SMS\""
+      },
+      {
+        "defer": true,
         "set": "Noblesse Oblige",
         "source": "KQM illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-24): \"This is Illuga's default set for Geo DPS units if another teammate cannot hold it\""
+      },
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-24): \"4pc Scroll can be used if the team already has good 4pc SMS or 4pc Instructor holders\""
       }
     ],
     "Nilou": [
       {
+        "defer": true,
         "set": "Silken Moon's Serenade",
         "when": {
           "reaction": "lunar-bloom"
         },
         "source": "KQM nilou quick guide (keqingmains.com/q/nilou-quickguide, accessed 2026-10-24): \"4pc SMS is Nilou's default set in Lunar-Bloom teams if her teammates prefer other sets\""
+      },
+      {
+        "set": "Instructor",
+        "when": {
+          "reaction": "lunar-bloom"
+        },
+        "source": "KQM nilou quick guide (keqingmains.com/q/nilou-quickguide, accessed 2026-10-24): \"Nilou can hold 4pc Instructor if another character is holding 4pc SMS\""
       }
     ]
   },
@@ -2900,6 +3248,176 @@
       "weapon": "Harbinger of Dawn",
       "refinement": 1,
       "source": "KQM zibai quick guide (keqingmains.com/q/zibai-quickguide, accessed 2026-10-21): \"Her best non-5-star weapon, provided its passive CRIT Rate buff remains active.\""
+    },
+    "Kaedehara Kazuha": {
+      "weapon": "Favonius Sword",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Sucrose": {
+      "weapon": "Sacrificial Fragments",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349 review): Sucrose on Sacrificial Fragments"
+    },
+    "Lynette": {
+      "weapon": "Favonius Sword",
+      "refinement": 1,
+      "source": "KQM lynette quick guide (keqingmains.com/q/lynette-quickguide, accessed 2026-10-24): \"Favonius Sword\""
+    },
+    "Prune": {
+      "weapon": "Favonius Codex",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Xianyun": {
+      "weapon": "Favonius Codex",
+      "refinement": 1,
+      "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"Favonius Codex\""
+    },
+    "Faruzan": {
+      "weapon": "Favonius Warbow",
+      "refinement": 1,
+      "source": "KQM faruzan quick guide (keqingmains.com/q/faruzan-quickguide, accessed 2026-10-24): \"Favonius Warbow\""
+    },
+    "Bennett": {
+      "weapon": "Favonius Sword",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Chevreuse": {
+      "weapon": "Favonius Lance",
+      "refinement": 1,
+      "source": "KQM chevreuse quick guide (keqingmains.com/q/chevreuse-quickguide, accessed 2026-10-24): \"Favonius Lance\""
+    },
+    "Shenhe": {
+      "weapon": "Favonius Lance",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Mika": {
+      "weapon": "Favonius Lance",
+      "refinement": 1,
+      "source": "KQM mika quick guide (keqingmains.com/q/mika-quickguide, accessed 2026-10-24): \"Favonius Lance\""
+    },
+    "Kujou Sara": {
+      "weapon": "Favonius Warbow",
+      "refinement": 1,
+      "source": "KQM sara quick guide (keqingmains.com/q/sara-quickguide, accessed 2026-10-24): \"Favonius Warbow\""
+    },
+    "Dahlia": {
+      "weapon": "Fleuve Cendre Ferryman",
+      "refinement": 1,
+      "source": "KQM dahlia quick guide (keqingmains.com/q/dahlia-quickguide, accessed 2026-10-24): \"Fleuve Cendre Ferryman\""
+    },
+    "Vodyanitsa": {
+      "weapon": "Favonius Codex",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Xilonen": {
+      "weapon": "Favonius Sword",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Citlali": {
+      "weapon": "Favonius Codex",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Iansan": {
+      "weapon": "Favonius Lance",
+      "refinement": 1,
+      "source": "KQM iansan quick guide (keqingmains.com/q/iansan-quickguide, accessed 2026-10-24): \"Favonius Lance\""
+    },
+    "Gorou": {
+      "weapon": "Favonius Warbow",
+      "refinement": 1,
+      "source": "KQM gorou quick guide (keqingmains.com/q/gorou-quickguide, accessed 2026-10-24): \"Favonius Warbow\""
+    },
+    "Zhongli": {
+      "weapon": "Favonius Lance",
+      "refinement": 1,
+      "source": "KQM zhongli quick guide (keqingmains.com/q/zhongli-quickguide, accessed 2026-10-24): \"Favonius Lance\""
+    },
+    "Nahida": {
+      "weapon": "Sacrificial Fragments",
+      "refinement": 1,
+      "source": "KQM nahida quick guide (keqingmains.com/q/nahida-quickguide, accessed 2026-10-24): \"Sacrificial Fragments\""
+    },
+    "Baizhu": {
+      "weapon": "Favonius Codex",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Furina": {
+      "weapon": "Favonius Sword",
+      "refinement": 1,
+      "source": "KQM furina quick guide (keqingmains.com/q/furina-quickguide, accessed 2026-10-24): \"Favonius Sword\""
+    },
+    "Escoffier": {
+      "weapon": "Prospector's Drill",
+      "refinement": 1,
+      "source": "KQM escoffier quick guide (keqingmains.com/q/escoffier-quickguide, accessed 2026-10-24): \"Prospector's Drill\""
+    },
+    "Yelan": {
+      "weapon": "Favonius Warbow",
+      "refinement": 1,
+      "source": "KQM yelan quick guide (keqingmains.com/q/yelan-quickguide, accessed 2026-10-24): \"Favonius Warbow\""
+    },
+    "Ineffa": {
+      "weapon": "Deathmatch",
+      "refinement": 1,
+      "source": "KQM ineffa quick guide (keqingmains.com/q/ineffa-quickguide, accessed 2026-10-24): \"Deathmatch\""
+    },
+    "Linnea": {
+      "weapon": "Snare Hook",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349 review): Linnea on Snare Hook"
+    },
+    "Albedo": {
+      "weapon": "Cinnabar Spindle",
+      "refinement": 1,
+      "source": "KQM albedo quick guide (keqingmains.com/q/albedo-quickguide, accessed 2026-10-24): \"Cinnabar Spindle\""
+    },
+    "Rosaria": {
+      "weapon": "Favonius Lance",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Nicole": {
+      "weapon": "Royal Grimoire",
+      "refinement": 1,
+      "source": "KQM nicole quick guide (keqingmains.com/q/nicole-quickguide, accessed 2026-10-24): \"Royal Grimoire\""
+    },
+    "Mona": {
+      "weapon": "Favonius Codex",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Alyosha": {
+      "weapon": "Favonius Lance",
+      "refinement": 1,
+      "source": "KQM alyosha quick guide (keqingmains.com/q/alyosha-quickguide, accessed 2026-10-24): \"Favonius Lance\""
+    },
+    "Lauma": {
+      "weapon": "Favonius Codex",
+      "refinement": 1,
+      "source": "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick"
+    },
+    "Columbina": {
+      "weapon": "Sacrificial Jade",
+      "refinement": 1,
+      "source": "KQM columbina quick guide (keqingmains.com/q/columbina-quickguide, accessed 2026-10-24): \"Sacrificial Jade\""
+    },
+    "Illuga": {
+      "weapon": "Dragon's Bane",
+      "refinement": 1,
+      "source": "KQM illuga quick guide (keqingmains.com/q/illuga-quickguide, accessed 2026-10-24): \"Dragon's Bane\""
+    },
+    "Nilou": {
+      "weapon": "The Dockhand's Assistant",
+      "refinement": 1,
+      "source": "KQM nilou quick guide (keqingmains.com/q/nilou-quickguide, accessed 2026-10-24): \"The Dockhand's Assistant\""
     }
   },
   "holderStates": {
@@ -8678,7 +9196,8 @@
           ]
         }
       ],
-      "baseHp": 15552
+      "baseHp": 15552,
+      "baseDef": 876
     },
     "Raiden Shogun": {
       "rotationSeconds": 18,
@@ -8842,7 +9361,8 @@
           ]
         }
       ],
-      "baseHp": 12907
+      "baseHp": 12907,
+      "baseDef": 789
     },
     "Xiao": {
       "rotationSeconds": 18,
@@ -8947,7 +9467,8 @@
           ]
         }
       ],
-      "baseHp": 12736
+      "baseHp": 12736,
+      "baseDef": 799
     },
     "Wriothesley": {
       "rotationSeconds": 15,
@@ -9123,7 +9644,8 @@
           ]
         }
       ],
-      "baseHp": 13593
+      "baseHp": 13593,
+      "baseDef": 763
     },
     "Yumemizuki Mizuki": {
       "rotationSeconds": 15,
@@ -9320,7 +9842,8 @@
           ]
         }
       ],
-      "baseHp": 12736
+      "baseHp": 12736,
+      "baseDef": 757
     },
     "Vesna": {
       "rotationSeconds": 18.48,
@@ -9515,7 +10038,8 @@
           ]
         }
       ],
-      "baseHp": 13262
+      "baseHp": 13262,
+      "baseDef": 730
     },
     "Wanderer": {
       "rotationSeconds": 20,
@@ -9579,7 +10103,8 @@
           ]
         }
       ],
-      "baseHp": 10164
+      "baseHp": 10164,
+      "baseDef": 607
     },
     "Varesa": {
       "rotationSeconds": 18,
@@ -9662,7 +10187,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 12699
+      "baseHp": 12699,
+      "baseDef": 782
     },
     "Mavuika": {
       "rotationSeconds": 18,
@@ -9942,7 +10468,8 @@
           ]
         }
       ],
-      "baseHp": 12552
+      "baseHp": 12552,
+      "baseDef": 792
     },
     "Zibai": {
       "rotationSeconds": 15,
@@ -10069,7 +10596,8 @@
           "max": 0.14
         }
       ],
-      "baseHp": 12919
+      "baseHp": 12919,
+      "baseDef": 957
     },
     "Skirk": {
       "rotationSeconds": 15,
@@ -10125,7 +10653,8 @@
           "hitsCap": 10
         }
       ],
-      "baseHp": 12417
+      "baseHp": 12417,
+      "baseDef": 806
     },
     "Nefer": {
       "rotationSeconds": 18,
@@ -10268,7 +10797,8 @@
           }
         }
       ],
-      "baseHp": 12704
+      "baseHp": 12704,
+      "baseDef": 799
     },
     "Clorinde": {
       "rotationSeconds": 16,
@@ -10342,7 +10872,8 @@
           ]
         }
       ],
-      "baseHp": 12956
+      "baseHp": 12956,
+      "baseDef": 784
     },
     "Flins": {
       "rotationSeconds": 17.5,
@@ -10461,7 +10992,8 @@
           }
         }
       ],
-      "baseHp": 12491
+      "baseHp": 12491,
+      "baseDef": 809
     },
     "Arlecchino": {
       "rotationSeconds": 15,
@@ -11006,7 +11538,8 @@
           ]
         }
       ],
-      "baseHp": 13103
+      "baseHp": 13103,
+      "baseDef": 765
     },
     "Kinich": {
       "rotationSeconds": 18,
@@ -11121,7 +11654,8 @@
           ]
         }
       ],
-      "baseHp": 12858
+      "baseHp": 12858,
+      "baseDef": 802
     },
     "Neuvillette": {
       "rotationSeconds": 26.5,
@@ -11214,7 +11748,8 @@
           "note": "passive2 at 50% HP"
         }
       ],
-      "baseHp": 14695
+      "baseHp": 14695,
+      "baseDef": 576
     },
     "Kamisato Ayaka": {
       "rotationSeconds": 20,
@@ -11373,7 +11908,8 @@
           ]
         }
       ],
-      "baseHp": 12858
+      "baseHp": 12858,
+      "baseDef": 784
     },
     "Alhaitham": {
       "rotationSeconds": 23.5,
@@ -11495,7 +12031,8 @@
           ]
         }
       ],
-      "baseHp": 13348
+      "baseHp": 13348,
+      "baseDef": 782
     },
     "Klee": {
       "rotationSeconds": 15,
@@ -11604,7 +12141,8 @@
           }
         }
       ],
-      "baseHp": 10287
+      "baseHp": 10287,
+      "baseDef": 615
     },
     "Tighnari": {
       "rotationSeconds": 12,
@@ -11677,7 +12215,8 @@
           ]
         }
       ],
-      "baseHp": 10850
+      "baseHp": 10850,
+      "baseDef": 630
     },
     "Lyney": {
       "rotationSeconds": 15,
@@ -11758,7 +12297,8 @@
           ]
         }
       ],
-      "baseHp": 11021
+      "baseHp": 11021,
+      "baseDef": 538
     },
     "Ningguang": {
       "rotationSeconds": 15.5,
@@ -11817,7 +12357,8 @@
           ]
         }
       ],
-      "baseHp": 9787
+      "baseHp": 9787,
+      "baseDef": 573
     },
     "Sethos": {
       "rotationSeconds": 15,
@@ -11861,7 +12402,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 9787
+      "baseHp": 9787,
+      "baseDef": 560
     },
     "Yoimiya": {
       "rotationSeconds": 15,
@@ -11942,7 +12484,8 @@
           "note": "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]"
         }
       ],
-      "baseHp": 10164
+      "baseHp": 10164,
+      "baseDef": 615
     },
     "Ganyu": {
       "rotationSeconds": 15,
@@ -12065,7 +12608,8 @@
           ]
         }
       ],
-      "baseHp": 9797
+      "baseHp": 9797,
+      "baseDef": 630
     },
     "Kamisato Ayato": {
       "rotationSeconds": 25,
@@ -12136,7 +12680,8 @@
           ]
         }
       ],
-      "baseHp": 13715
+      "baseHp": 13715,
+      "baseDef": 769
     },
     "Navia": {
       "rotationSeconds": 18,
@@ -12307,7 +12852,8 @@
           ]
         }
       ],
-      "baseHp": 12650
+      "baseHp": 12650,
+      "baseDef": 793
     },
     "Yanfei": {
       "rotationSeconds": 20,
@@ -12384,7 +12930,8 @@
           ]
         }
       ],
-      "baseHp": 9352
+      "baseHp": 9352,
+      "baseDef": 587
     },
     "Cyno": {
       "rotationSeconds": 20,
@@ -12495,7 +13042,8 @@
           ]
         }
       ],
-      "baseHp": 12491
+      "baseHp": 12491,
+      "baseDef": 859
     },
     "Mualani": {
       "rotationSeconds": 16,
@@ -12537,7 +13085,8 @@
           "stat": "hp"
         }
       ],
-      "baseHp": 15185
+      "baseHp": 15185,
+      "baseDef": 570
     },
     "Arataki Itto": {
       "rotationSeconds": 22,
@@ -12615,7 +13164,8 @@
           "value": 0.9792
         }
       ],
-      "baseHp": 12858
+      "baseHp": 12858,
+      "baseDef": 959
     },
     "Tartaglia": {
       "rotationSeconds": 25.5,
@@ -12687,7 +13237,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 13103
+      "baseHp": 13103,
+      "baseDef": 815
     },
     "Aloy": {
       "rotationSeconds": 13.35,
@@ -12769,7 +13320,8 @@
           "value": 0.16
         }
       ],
-      "baseHp": 10899
+      "baseHp": 10899,
+      "baseDef": 676
     },
     "Noelle": {
       "rotationSeconds": 23.5,
@@ -12830,7 +13382,8 @@
           "value": 0.68
         }
       ],
-      "baseHp": 12071
+      "baseHp": 12071,
+      "baseDef": 799
     },
     "Shikanoin Heizou": {
       "rotationSeconds": 12,
@@ -12895,7 +13448,8 @@
           "tag": "heartstopper"
         }
       ],
-      "baseHp": 10657
+      "baseHp": 10657,
+      "baseDef": 684
     },
     "Gaming": {
       "rotationSeconds": 15,
@@ -12984,7 +13538,8 @@
           ]
         }
       ],
-      "baseHp": 11419
+      "baseHp": 11419,
+      "baseDef": 703
     },
     "Diluc": {
       "rotationSeconds": 12,
@@ -13073,7 +13628,8 @@
           ]
         }
       ],
-      "baseHp": 12981
+      "baseHp": 12981,
+      "baseDef": 784
     },
     "Keqing": {
       "rotationSeconds": 12,
@@ -13160,7 +13716,8 @@
           ]
         }
       ],
-      "baseHp": 13103
+      "baseHp": 13103,
+      "baseDef": 799
     },
     "Kaveh": {
       "rotationSeconds": 20,
@@ -13213,7 +13770,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 11962
+      "baseHp": 11962,
+      "baseDef": 751
     },
     "Traveler (Cryo)": {
       "rotationSeconds": 15,
@@ -13383,7 +13941,8 @@
           ]
         }
       ],
-      "baseHp": 10875
+      "baseHp": 10875,
+      "baseDef": 683
     },
     "Traveler (Hydro)": {
       "rotationSeconds": 16,
@@ -13417,7 +13976,8 @@
         }
       ],
       "buffs": [],
-      "baseHp": 10875
+      "baseHp": 10875,
+      "baseDef": 683
     },
     "Razor": {
       "rotationSeconds": 20,
@@ -13510,7 +14070,8 @@
       ],
       "buffs": [],
       "goblet": "Physical",
-      "baseHp": 11962
+      "baseHp": 11962,
+      "baseDef": 751
     },
     "Eula": {
       "rotationSeconds": 20,
@@ -13774,7 +14335,8 @@
         }
       ],
       "goblet": "Physical",
-      "baseHp": 13226
+      "baseHp": 13226,
+      "baseDef": 751
     },
     "Chasca": {
       "rotationSeconds": 15,
@@ -13865,7 +14427,8 @@
           ]
         }
       ],
-      "baseHp": 9797
+      "baseHp": 9797,
+      "baseDef": 615
     },
     "Freminet": {
       "rotationSeconds": 15,
@@ -13986,7 +14549,8 @@
           "goblet": "Physical"
         }
       ],
-      "baseHp": 12071
+      "baseHp": 12071,
+      "baseDef": 708
     }
   },
   "carriesTodo": [

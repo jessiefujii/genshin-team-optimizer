@@ -49,14 +49,48 @@ const KIT = kitJson.characters as Record<string, KitCharacter>;
 // A character without a build reads as wearing their KQM guide's 4pc set (#279, #206; supports' party sets #338,
 // extract-kit benchmarkSets): the first option that fits the team (the reaction it triggers, or one of `members` in
 // it). A build's own sets always count.
-type BenchmarkSet = { set: string; when?: { reaction?: Reaction; members?: string[] } };
+// One wearer per party set (#348): two of the same party set don't stack, so a member whose pick a teammate already
+// wears takes their next option that fits. Builds keep theirs; among benchmark members, those whose option isn't
+// `defer` (the guide's "if no one else is holding it") choose first, in id order, so the team's order doesn't matter.
+// Personal sets (Golden Troupe) can be worn twice.
+type BenchmarkSet = { set: string; defer?: boolean; when?: { reaction?: Reaction; members?: string[] } };
 const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet[]> }).benchmarkSets;
+const isPartySet = (set: string) => set in PARTY_SETS || set in GEAR_SETS;
+const benchmarkCache = new WeakMap<readonly ScoringCharacter[], Map<string, Map<string, string>>>();
+function benchmarkPicks(active: readonly Reaction[], team: readonly ScoringCharacter[]): Map<string, string> {
+  let byActive = benchmarkCache.get(team);
+  if (!byActive) benchmarkCache.set(team, (byActive = new Map()));
+  const key = active.join(",");
+  const cached = byActive.get(key);
+  if (cached) return cached;
+  const fits = ({ when: w }: BenchmarkSet) =>
+    (!w?.reaction || active.includes(w.reaction)) && (!w?.members || team.some((m) => w.members!.includes(m.id)));
+  const taken = new Set(team.flatMap((m) => (m.stats || m.sets ? (m.sets ?? []).filter((s) => s.pieces >= 4).map((s) => s.set) : [])).filter(isPartySet));
+  const free = (b: BenchmarkSet) => !isPartySet(b.set) || !taken.has(b.set);
+  const picks = new Map<string, string>();
+  const wear = (m: ScoringCharacter, b: BenchmarkSet) => {
+    picks.set(m.id, b.set);
+    if (isPartySet(b.set)) taken.add(b.set);
+  };
+  const benchmark = team.filter((m) => !m.stats && !m.sets && BENCHMARK_SETS[m.id]).sort((a, b) => (a.id < b.id ? -1 : 1));
+  const later: ScoringCharacter[] = [];
+  for (const m of benchmark) {
+    const first = BENCHMARK_SETS[m.id].find(fits);
+    if (first && !first.defer && free(first)) wear(m, first);
+    else if (first) later.push(m);
+  }
+  for (const m of later) {
+    const options = BENCHMARK_SETS[m.id].filter(fits);
+    wear(m, options.find(free) ?? options[0]); // every option taken: the first, which then adds nothing
+  }
+  byActive.set(key, picks);
+  return picks;
+}
 export function setsOf(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[] = [c]): NonNullable<ScoringCharacter["sets"]> {
   if (c.stats || c.sets) return c.sets ?? [];
-  const b = BENCHMARK_SETS[c.id]?.find(
-    ({ when: w }) => (!w?.reaction || active.includes(w.reaction)) && (!w?.members || team.some((m) => w.members!.includes(m.id))),
-  );
-  return b ? [{ set: b.set, pieces: 4 }] : [];
+  if (!BENCHMARK_SETS[c.id]) return [];
+  const set = benchmarkPicks(active, team.includes(c) ? team : [c]).get(c.id);
+  return set ? [{ set, pieces: 4 }] : [];
 }
 
 // Party-wide set effects (#306, extract-kit SETS `party`): Silken Moon's Serenade's EM to all party members, and the
@@ -67,16 +101,20 @@ export function setsOf(c: ScoringCharacter, active: readonly Reaction[], team: r
 // onField (the wearer is the on-field carry: Night's "if the equipping character is on the field"), lunar (the team
 // triggers a Lunar reaction: Night's "when nearby party members trigger Lunar Reactions"). The Lunar bonus is Reaction
 // Bonus (Genshin Impact Wiki, Damage § Reaction DMG Bonus, fetched 2026-10-21, lists both sets).
+// wearerReacts (Instructor: the wearer triggers one of the team's reactions, #345). `reactionBonus` with Stellar
+// reactions: Heart of the Furnace's party Stellar Glimmer reaction DMG (#345), one wearer per set.
 type PartySetEffect = {
-  kind: "em" | "gleamingMoon";
+  kind: "em" | "gleamingMoon" | "reactionBonus";
   party: true;
   value: number;
   effect?: string;
-  when?: { moonsign?: "nascent" | "ascendant"; onField?: boolean; lunar?: boolean };
+  reactions?: string[];
+  when?: { moonsign?: "nascent" | "ascendant"; onField?: boolean; lunar?: boolean; wearerReacts?: boolean };
 };
+const PARTY_SET_KINDS = new Set(["em", "gleamingMoon", "reactionBonus"]);
 const PARTY_SETS = Object.fromEntries(
   Object.entries((kitJson as unknown as { sets: Record<string, { party?: boolean }[]> }).sets)
-    .map(([name, effects]) => [name, effects.filter((e) => e.party && ((e as PartySetEffect).kind === "em" || (e as PartySetEffect).kind === "gleamingMoon")) as PartySetEffect[]])
+    .map(([name, effects]) => [name, effects.filter((e) => e.party && PARTY_SET_KINDS.has((e as PartySetEffect).kind)) as PartySetEffect[]])
     .filter(([, effects]) => effects.length > 0),
 ) as Record<string, PartySetEffect[]>;
 // Whether a set has party-wide effects in damage (#306): score.ts then drops its effects.json flat points.
@@ -86,10 +124,11 @@ export function partySetBuffs(
   active: readonly Reaction[] = [],
   onField: ScoringCharacter | null = null,
   gleam = team.filter((m) => m.families?.includes("moonsign")).length >= 2,
-): { em: number; lunar: number } {
+): { em: number; lunar: number; stellar: number } {
   const moonsign = team.some((m) => m.families?.includes("moonsign"));
   const lunar = active.some((r) => r.startsWith("lunar-"));
   let em = 0;
+  let stellar = 0;
   const effects = new Map<string, number>(); // Gleaming Moon effect -> its value
   const seen = new Set<string>(); // one wearer's EM per set: the same effect doesn't stack (estimate for EM)
   for (const m of team) {
@@ -100,7 +139,12 @@ export function partySetBuffs(
         if (w.moonsign && (!moonsign || (w.moonsign === "ascendant") !== gleam)) continue;
         if (w.onField && m !== onField) continue;
         if (w.lunar && !lunar) continue;
+        if (w.wearerReacts && !m.reactions.some((r) => active.includes(r))) continue;
         if (b.kind === "gleamingMoon") effects.set(b.effect!, b.value);
+        else if (b.kind === "reactionBonus") {
+          if (!seen.has(set)) stellar += b.value;
+          seen.add(set);
+        }
         else if (!seen.has(`${set}|${w.moonsign}`)) {
           seen.add(`${set}|${w.moonsign}`);
           em += b.value;
@@ -108,7 +152,7 @@ export function partySetBuffs(
       }
     }
   }
-  return { em, lunar: [...effects.values()].reduce((a, v) => a + v, 0) };
+  return { em, lunar: [...effects.values()].reduce((a, v) => a + v, 0), stellar };
 }
 
 
@@ -196,13 +240,22 @@ export function atkPctGain(carry: ScoringCharacter, pct: number): number {
 
 // The buffer's own stats: from their build when the player has one, else the benchmark. `partyEm`: party-wide set EM
 // (Silken Moon's Serenade, #306), on no one's character screen: Illuga's EM-based buffs grow with it.
+// A buffer's own set DEF% (Husk's stacks, #346), of base DEF: on DEF-based buffs (Linnea's EM, Zhongli's shield). Sets
+// with a team condition don't give DEF, so the wearer alone picks them.
+const SET_DEF_PCT = Object.fromEntries(
+  Object.entries((kitJson as unknown as { sets: Record<string, { kind: string; value: number; pieces?: number }[]> }).sets).map(([id, effects]) => [
+    id,
+    effects.filter((e) => e.kind === "defPct" && !e.pieces).reduce((a, e) => a + e.value, 0),
+  ]),
+);
+const setDefPct = (s: ScoringCharacter) => setsOf(s, []).reduce((a, { set, pieces }) => a + (pieces >= 4 ? (SET_DEF_PCT[set] ?? 0) : 0), 0);
 function bufferStats(s: ScoringCharacter, base: KitCharacter["base"], buildFor: KitCharacter["buildFor"], partyEm = 0) {
   const b = BENCHMARK.buffer;
   return {
     baseAtk: s.stats?.baseAtk ?? (base?.atk ?? 0) + b.weaponBaseAtk,
     atk: s.stats?.atk ?? buildFor?.atk ?? b.atk,
     hp: s.stats?.hp ?? b.hp,
-    def: s.stats?.def ?? b.def,
+    def: (s.stats?.def ?? b.def) + setDefPct(s) * (base?.def ?? 0),
     em: (s.stats?.elementalMastery ?? (buildFor?.em === "built" ? BENCHMARK.carry.emBuilt : buildFor?.em) ?? b.em) + partyEm,
   };
 }
@@ -825,7 +878,13 @@ function familyBuffStats(m: ScoringCharacter, carry: ScoringCharacter, active: r
 // reaction(s) (the team triggers it, one of them), holderReacts (the holder triggers one of the team's reactions), swirled
 // (VV: an aura element, while the team Swirls), crystallized (Petra: the crystallized element), reactionElements (Scroll,
 // Hakushin: the elements in the holder's reactions with this team), nightsoul (the holder has Nightsoul's Blessing).
+// hexerei: the holder's Hexerei family (Witch's Homework done; Celestial Gift, #345); secretRite: two Hexerei members;
+// wearerElement / wearerOrActiveElement: the hit's member has the holder's element / or the on-field carry's.
 type GearWhen = {
+  hexerei?: boolean;
+  secretRite?: boolean;
+  wearerElement?: boolean;
+  wearerOrActiveElement?: boolean;
   reaction?: Reaction;
   reactions?: Reaction[];
   holderReacts?: boolean;
@@ -854,6 +913,8 @@ const partyGear = (all: Record<string, GearEffect[]>) =>
       .map(([id, effects]) => [id, effects.filter((e) => e.party && GEAR_KINDS.has(e.kind))])
       .filter(([, effects]) => effects.length > 0),
   ) as Record<string, GearEffect[]>;
+const BENCHMARK_WEAPONS = (kitJson as unknown as { benchmarkWeapons: Record<string, { weapon: string; refinement: number }> }).benchmarkWeapons;
+const benchmarkWeaponOf = (id: string) => BENCHMARK_WEAPONS[id] && { id: BENCHMARK_WEAPONS[id].weapon, level: 90, refinement: BENCHMARK_WEAPONS[id].refinement };
 const GEAR_SETS = partyGear((kitJson as unknown as { sets: Record<string, GearEffect[]> }).sets);
 const GEAR_WEAPONS = partyGear((kitJson as unknown as { weapons: Record<string, GearEffect[]> }).weapons);
 // Whether this gear's party stats are in damage (#206): score.ts then scores only the rest of its effects.json buffs.
@@ -882,7 +943,11 @@ function gearFits(w: GearWhen, holder: ScoringCharacter, m: ScoringCharacter, ca
     (!w.swirled || (active.includes("swirl") && AURA_ELEMENTS.includes(m.element))) &&
     (!w.crystallized || ((active.includes("crystallize") || active.includes("lunar-crystallize")) && m.element === crystallizedElement(carry, team))) &&
     (!w.reactionElements || holderReactionElements(holder, active, team).includes(m.element)) &&
-    (!w.nightsoul || !!holder.families?.includes("nightsoul"))
+    (!w.nightsoul || !!holder.families?.includes("nightsoul")) &&
+    (!w.hexerei || !!holder.families?.includes("hexerei")) &&
+    (!w.secretRite || team.filter((x) => x.families?.includes("hexerei")).length >= 2) &&
+    (!w.wearerElement || m.element === holder.element) &&
+    (!w.wearerOrActiveElement || m.element === holder.element || m.element === carry.element)
   );
 }
 
@@ -892,7 +957,7 @@ function partyGearStats(m: ScoringCharacter, carry: ScoringCharacter, active: re
   for (const s of team) {
     const gear: { id: string; e: GearEffect; value: number; max?: number }[] = [];
     for (const { set, pieces } of setsOf(s, active, team)) if (pieces >= 4) for (const e of GEAR_SETS[set] ?? []) gear.push({ id: set, e, value: e.value! });
-    const w = s.weaponBuild;
+    const w = s.weaponBuild ?? (s.stats ? undefined : benchmarkWeaponOf(s.id)); // a benchmark member's guide weapon (#349)
     const r = w ? Math.min(5, Math.max(1, w.refinement)) - 1 : 0;
     for (const e of (w && GEAR_WEAPONS[w.id]) || []) gear.push({ id: w!.id, e, value: e.values![r], max: e.max?.[r] });
     if (gear.length === 0) continue;
