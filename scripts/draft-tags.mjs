@@ -56,7 +56,15 @@ function textsOf(id) {
   if (!t) return null;
   return TALENTS.filter((k) => t[k]?.description).map((k) => ({ talent: TALENT_NAME[k], name: t[k].name, text: t[k].description.replace(/\s+/g, " ") }));
 }
-const sentences = (text) => text.split(/(?<=[.!?])\s+(?=[A-Z"])/);
+// Sentences, with each "·" bullet its own sentence behind the clause that introduces it: the clause names who
+// receives ("she will grant all nearby party members the following effects: · Press: ... DMG increased"), the bullet
+// what (#178: Chasca's passive 1 read as one sentence mixed her teammates, the condition, with her own DMG).
+const sentences = (text) =>
+  text.split(/(?<=[.!?])\s+(?=[A-Z"])/).flatMap((s) => {
+    const [lead, ...bullets] = s.split(/\s*·\s*/);
+    // The bullet first, so the effect shows before the (long) clause it hangs from.
+    return bullets.length ? [lead, ...bullets.map((b) => (lead ? `${b} [${lead}]` : b))].filter(Boolean) : [s];
+  });
 
 const PARTY = /(party members?|all party|nearby (?:party )?characters?|active (?:party )?(?:characters?|members?)|characters within|characters protected|characters who|(?:these|those) characters|the team)/i;
 // A reaction's DMG raised for others is a party buff even when the character is named (Baizhu: "increase the Burning,
@@ -98,6 +106,7 @@ function selfBuff(s, id) {
   const alts = namesOf(id).map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
   const self = new RegExp(
     `\\b(?:${alts})(?:'s)?\\s+(?:will\\s+)?(?:gain|gains|obtain|obtains|receive|receives)\\b` +
+      `|\\bgrants?\\s+(?:${alts})\\b` +
       `|\\b(?:${alts})'s\\s+[^.]{0,60}?\\b(?:(?:is|are|will be)\\s+(?:increased|boosted)|increases|will increase)` +
       `|\\b(?:her|his)\\s+(?:own\\s+)?[^.]{0,40}?\\b(?:is|are|will be)\\s+increased` +
       `|\\bincreas\\w*\\s+(?:her|his|(?:${alts})'s)\\b` +

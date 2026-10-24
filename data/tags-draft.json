@@ -187,6 +187,12 @@
         "burgeon"
       ],
       "remove": []
+    },
+    "roles": {
+      "add": [],
+      "notInText": [
+        "healer"
+      ]
     }
   },
   "Candace": {
@@ -238,25 +244,7 @@
         "stellar-swirl"
       ],
       "remove": []
-    },
-    "roles": {
-      "add": [
-        {
-          "role": "buffer",
-          "because": [
-            "passive1: When the Elemental Skill Spirit Reins, Shadow Hunt's Multitarget Fire is being charged, if there are party members who meet the Elemental Conversion Type requirements, gain the following effects based on the number of di"
-          ]
-        }
-      ],
-      "notInText": []
-    },
-    "buffsNotInTags": [
-      {
-        "key": "buff:passive1:lt40k6",
-        "talent": "passive1",
-        "text": "When the Elemental Skill Spirit Reins, Shadow Hunt's Multitarget Fire is being charged, if there are party members who meet the Elemental Conversion Type requirements, gain the following effects based on the number of different eligible Elemental Types present"
-      }
-    ]
+    }
   },
   "Chevreuse": {
     "reactions": {
@@ -298,7 +286,7 @@
         {
           "role": "buffer",
           "because": [
-            "passive1: Tapestry · Switches to the next character in your roster. · Grants all your party members \"Seize the Moment\": When your active party member's Normal Attacks, Charged Attacks, and Plunging Attacks hit a nearby opponent, \""
+            "passive1: Grants all your party members \"Seize the Moment\": When your active party member's Normal Attacks, Charged Attacks, and Plunging Attacks hit a nearby opponent, \"Tamoto\" will execute a coordinated attack, dealing 100% of F"
           ]
         }
       ],
@@ -306,9 +294,9 @@
     },
     "buffsNotInTags": [
       {
-        "key": "buff:passive1:nzy223",
+        "key": "buff:passive1:1kd6mg0",
         "talent": "passive1",
-        "text": "Tapestry · Switches to the next character in your roster. · Grants all your party members \"Seize the Moment\": When your active party member's Normal Attacks, Charged Attacks, and Plunging Attacks hit a nearby opponent, \"Tamoto\" will execute a coordinated attac"
+        "text": "Grants all your party members \"Seize the Moment\": When your active party member's Normal Attacks, Charged Attacks, and Plunging Attacks hit a nearby opponent, \"Tamoto\" will execute a coordinated attack, dealing 100% of Fluttering Hasode's upward sweep DMG as A"
       }
     ]
   },
@@ -1101,7 +1089,25 @@
         "lunar-bloom"
       ],
       "remove": []
-    }
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "burst: All Dendro Cores created by all your own party members through Bloom and Lunar-Bloom reactions will deal additional DMG when they burst. [Completely unleashes Mehrak's energy and creates a cubic scanned space, dealing Ao"
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "key": "buff:burst:1yjemao",
+        "talent": "burst",
+        "text": "All Dendro Cores created by all your own party members through Bloom and Lunar-Bloom reactions will deal additional DMG when they burst. [Completely unleashes Mehrak's energy and creates a cubic scanned space, dealing AoE Dendro DMG to all opponents within it,"
+      }
+    ]
   },
   "Keqing": {
     "reactions": {
@@ -1319,9 +1325,9 @@
         "text": "Linnea will increase the Elemental Mastery of certain characters in your party according to your current active character."
       },
       {
-        "key": "buff:passive2:bu7l4w",
+        "key": "buff:passive2:s99iw4",
         "talent": "passive2",
-        "text": "If your current active character: · Is a Moonsign character: Increase this character's Elemental Mastery. · Is not a Moonsign character: Increase Linnea's own Elemental Mastery."
+        "text": "Is a Moonsign character: Increase this character's Elemental Mastery. [If your current active character:]"
       },
       {
         "key": "buff:passive3:1u0w1el",
@@ -1370,7 +1376,7 @@
         {
           "role": "buffer",
           "because": [
-            "skill: While in this state: · Lohen can actively accumulate **Joy**, using it to unleash the special Elemental Skill **Etched Into Bone and Soul**. · Nearby party members can accumulate **Will to Win** for Lohen, increasing the",
+            "skill: Nearby party members can accumulate **Will to Win** for Lohen, increasing the DMG dealt by Etched Into Bone and Soul. [While in this state:]",
             "passive2: While in **Masterstroke** mode, for 8s after another nearby party member triggers a Cryo Reaction, that character's ATK is increased by 15%, while Lohen's ATK is increased by 15%."
           ]
         }
@@ -1379,9 +1385,9 @@
     },
     "buffsNotInTags": [
       {
-        "key": "buff:skill:bfkgd0",
+        "key": "buff:skill:fpkogk",
         "talent": "skill",
-        "text": "While in this state: · Lohen can actively accumulate **Joy**, using it to unleash the special Elemental Skill **Etched Into Bone and Soul**. · Nearby party members can accumulate **Will to Win** for Lohen, increasing the DMG dealt by Etched Into Bone and Soul."
+        "text": "Nearby party members can accumulate **Will to Win** for Lohen, increasing the DMG dealt by Etched Into Bone and Soul. [While in this state:]"
       },
       {
         "key": "buff:passive2:1m2mfy5",
@@ -1743,7 +1749,7 @@
           "role": "buffer",
           "because": [
             "skill: The Raiden Shogun unveils a shard of her Euthymia, dealing Electro DMG to nearby opponents, and granting nearby party members the Eye of Stormy Judgment.",
-            "skill: Eye of Stormy Judgment ·When characters with this buff attack and deal DMG to opponents, the Eye will unleash a coordinated attack, dealing AoE Electro DMG at the opponent's position. ·Characters who gain the Eye of Stor"
+            "skill: Characters who gain the Eye of Stormy Judgment will have their Elemental Burst DMG increased based on the Energy Cost of the Elemental Burst during the Eye's duration. [Eye of Stormy Judgment]"
           ]
         }
       ],
@@ -1756,9 +1762,9 @@
         "text": "The Raiden Shogun unveils a shard of her Euthymia, dealing Electro DMG to nearby opponents, and granting nearby party members the Eye of Stormy Judgment."
       },
       {
-        "key": "buff:skill:nmgyp1",
+        "key": "buff:skill:wmdee6",
         "talent": "skill",
-        "text": "Eye of Stormy Judgment ·When characters with this buff attack and deal DMG to opponents, the Eye will unleash a coordinated attack, dealing AoE Electro DMG at the opponent's position. ·Characters who gain the Eye of Stormy Judgment will have their Elemental Bu"
+        "text": "Characters who gain the Eye of Stormy Judgment will have their Elemental Burst DMG increased based on the Energy Cost of the Elemental Burst during the Eye's duration. [Eye of Stormy Judgment]"
       }
     ]
   },
@@ -1852,25 +1858,7 @@
         "lunar-crystallize"
       ],
       "remove": []
-    },
-    "roles": {
-      "add": [
-        {
-          "role": "buffer",
-          "because": [
-            "burst: Ceremonial Garment ·Sangonomiya Kokomi's Normal Attack, Charged Attack and Bake-Kurage DMG are increased based on her Max HP. ·When her Normal and Charged Attacks hit opponents, Kokomi will restore HP for all nearby part"
-          ]
-        }
-      ],
-      "notInText": []
-    },
-    "buffsNotInTags": [
-      {
-        "key": "buff:burst:xn48cx",
-        "talent": "burst",
-        "text": "Ceremonial Garment ·Sangonomiya Kokomi's Normal Attack, Charged Attack and Bake-Kurage DMG are increased based on her Max HP. ·When her Normal and Charged Attacks hit opponents, Kokomi will restore HP for all nearby party members, and the amount restored is ba"
-      }
-    ]
+    }
   },
   "Sayu": {
     "reactions": {
@@ -1921,9 +1909,14 @@
         "text": "An active character within the field created by Divine Maiden's Deliverance gains 15% Cryo DMG Bonus."
       },
       {
-        "key": "buff:passive2:2z8svz",
+        "key": "buff:passive2:11z69dg",
         "talent": "passive2",
-        "text": "After Shenhe uses Spring Spirit Summoning, she will grant all nearby party members the following effects: · Press: Elemental Skill and Elemental Burst DMG increased by 15% for 10s. · Hold: Normal, Charged, and Plunging Attack DMG increased by 15% for 15s."
+        "text": "Press: Elemental Skill and Elemental Burst DMG increased by 15% for 10s. [After Shenhe uses Spring Spirit Summoning, she will grant all nearby party members the following effects:]"
+      },
+      {
+        "key": "buff:passive2:610jbj",
+        "talent": "passive2",
+        "text": "Hold: Normal, Charged, and Plunging Attack DMG increased by 15% for 15s. [After Shenhe uses Spring Spirit Summoning, she will grant all nearby party members the following effects:]"
       }
     ]
   },
@@ -2221,9 +2214,9 @@
     },
     "buffsNotInTags": [
       {
-        "key": "buff:burst:1kjlh39",
+        "key": "buff:burst:1w62wno",
         "talent": "burst",
-        "text": "While Adeptal Assistance is active, nearby active characters in the party will have their jump height increased. ·When the active character completes a Plunging Attack, Starwicker will consume 1 stack of Adeptal Assistance and deal AoE Anemo DMG."
+        "text": "When the active character completes a Plunging Attack, Starwicker will consume 1 stack of Adeptal Assistance and deal AoE Anemo DMG. [While Adeptal Assistance is active, nearby active characters in the party will have their jump height increased.]"
       },
       {
         "key": "buff:passive2:hwftql",
@@ -2431,7 +2424,7 @@
         {
           "role": "buffer",
           "because": [
-            "skill: Dreamdrifter ·While in the Dreamdrifter state, Yumemizuki Mizuki will continuously drift forward, dealing AoE Anemo DMG to nearby opponents at regular intervals. ·During this time, Yumemizuki Mizuki can control her direc",
+            "skill: Increases the Swirl DMG and Stellar Swirl reaction DMG that nearby party members deal based on Yumemizuki Mizuki's Elemental Mastery. [Dreamdrifter]",
             "passive2: While Yumemizuki Mizuki is in the Dreamdrifter state, when other nearby party members hit opponents with Pyro, Hydro, Cryo, or Electro attacks, her Elemental Mastery will increase by 100 for 4s."
           ]
         }
@@ -2440,9 +2433,9 @@
     },
     "buffsNotInTags": [
       {
-        "key": "buff:skill:1o6mb9h",
+        "key": "buff:skill:17t85fs",
         "talent": "skill",
-        "text": "Dreamdrifter ·While in the Dreamdrifter state, Yumemizuki Mizuki will continuously drift forward, dealing AoE Anemo DMG to nearby opponents at regular intervals. ·During this time, Yumemizuki Mizuki can control her direction of drift, and the pick-up distance "
+        "text": "Increases the Swirl DMG and Stellar Swirl reaction DMG that nearby party members deal based on Yumemizuki Mizuki's Elemental Mastery. [Dreamdrifter]"
       },
       {
         "key": "buff:passive2:1dng1dr",
