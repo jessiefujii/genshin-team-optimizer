@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setDmgBonus, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -320,7 +320,7 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
   for (const m of ctx.members) {
     for (const e of m.effects ?? []) {
       if (seen.length === POINTS.maxEffectBuffs) return;
-      if (inDamage && e.source === "set" && partySetModeled(e.id)) {
+      if (inDamage && e.source === "set" && (partySetModeled(e.id) || HEAL_SETS[e.id]?.some((x) => x.kind.startsWith("heal")))) {
         // Shown once, with 0 points; it takes no place under the effect cap.
         if (!inTeamDamage.includes(effectKey(e))) out.add("Effects", 0, () => `${effectName(m, e)}: party-wide, in team damage`);
         inTeamDamage.push(effectKey(e));
@@ -472,6 +472,37 @@ function sustainCoverage(m: ScoringCharacter, heals: boolean): number {
       return up * Math.min(1, (absorb * (m.element === "Geo" ? 1.5 : 1)) / INCOMING_HIT);
     });
   return 1 - parts.reduce((a, c) => a * (1 - c), 1);
+}
+// Healing turned into damage (#345): Ocean-Hued Clam's foam and Song of Days Past's added damage, from the wearer's
+// heal rate. Estimate until #351: each kit.json sustain heal read as that much healing a second on one target, times
+// its uptime. Clam: a foam every 3.5s ("Only one Sea-Dyed Foam can be produced every 3.5 seconds") of 90% of 3s of
+// healing, up to 30,000 healed; no crit, "not affected by Elemental Mastery, Character Levels, or Reaction DMG
+// Bonuses", Physical RES (10%). Song: a Yearning records 6s of healing (up to 15,000), then the on-field carry's next
+// 5 hits gain 8% of it each, once per 6s: at the carry's crit, against 10% RES.
+const HEAL_SETS = kitJson.sets as unknown as Record<string, { kind: string; value: number; max?: number }[]>;
+function healPerSecond(m: ScoringCharacter): number {
+  const stats = subDpsStats(m) ?? carryStats(m);
+  return (SUSTAIN[m.id]?.effects ?? [])
+    .filter((e) => e.kind === "heal")
+    .reduce((a, e) => a + ((e.size.flat ?? 0) + (e.size.hp ?? 0) * stats.hp + (e.size.def ?? 0) * stats.def + (e.size.atk ?? 0) * stats.atk) * (e.uptime ?? 1), 0);
+}
+function healSetLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): number {
+  let total = 0;
+  for (const m of ctx.members) {
+    for (const { set, pieces } of setsOf(m, ctx.active, ctx.members)) {
+      const e = pieces >= 4 ? HEAL_SETS[set]?.find((x) => x.kind === "healFoam" || x.kind === "healAdditive") : undefined;
+      const heal = e ? healPerSecond(m) : 0;
+      if (!e || heal <= 0) continue;
+      const dps =
+        e.kind === "healFoam"
+          ? (Math.min(e.max!, heal * 3) * e.value * 0.9) / 3.5
+          : carry ? ((Math.min(e.max!, heal * 6) * e.value) / 6) * expectedCrit(carry) * 0.9 : 0;
+      if (dps < 1) continue;
+      total += dps;
+      out.add("Sub-DPS", 0, () => `${m.id}'s ${set}: ~${Math.round(dps)} damage per second (heal rate estimated, #351)`);
+    }
+  }
+  return total;
 }
 function survivabilityLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const heals = !carry || !SHIELDS_ONLY.has(carry.id);
@@ -1742,6 +1773,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     stellarLines(ctx, carry, out);
     const sub = subDpsLines(ctx, carry, out);
     const reacted = transformativeLines(ctx, carry, out);
+    const healed = healSetLines(ctx, carry, out);
     prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);
@@ -1749,7 +1781,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     energyLines(ctx, carry, out);
     // No carry: the generic benchmark hit stands in for whoever is on field; the -30 line marks the missing carry.
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
-    const dps = own + sub.dps + reacted;
+    const dps = own + sub.dps + reacted + healed;
     const value = dps * factorOf(out);
     if (!best || value > best.value) best = { carry, lead: sub.lead, out, dps, value };
   }

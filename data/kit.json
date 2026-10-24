@@ -2326,6 +2326,22 @@
         "source": "4pc: \"Increases the equipping character's ATK by 12% for 12s when they trigger a Stellar Glimmer reaction\""
       }
     ],
+    "Ocean-Hued Clam": [
+      {
+        "kind": "healFoam",
+        "value": 0.9,
+        "max": 30000,
+        "source": "4pc: \"based on 90% of the accumulated healing\""
+      }
+    ],
+    "Song of Days Past": [
+      {
+        "kind": "healAdditive",
+        "value": 0.4,
+        "max": 15000,
+        "source": "4pc: \"increased by 8% of the total healing amount\" x5 stacks"
+      }
+    ],
     "Deepwood Memories": [
       {
         "kind": "resShred",
@@ -2628,6 +2644,10 @@
         "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"4pc Viridescent Venerer is one of Xianyun's best artifact sets\""
       },
       {
+        "set": "Ocean-Hued Clam",
+        "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"4pc Ocean-Hued Clam is one of Xianyun's best options since she deals good damage with the bubble\""
+      },
+      {
         "set": "Noblesse Oblige",
         "source": "KQM xianyun quick guide (keqingmains.com/q/xianyun-quickguide, accessed 2026-10-24): \"4pc Noblesse Oblige is a great option if no one else on the team can hold it\""
       }
@@ -2681,6 +2701,10 @@
       {
         "set": "Noblesse Oblige",
         "source": "KQM mika quick guide (keqingmains.com/q/mika-quickguide, accessed 2026-10-24): \"4pc Noblesse is Mika's best option due to its strong supporting capabilities\""
+      },
+      {
+        "set": "Ocean-Hued Clam",
+        "source": "KQM mika quick guide (keqingmains.com/q/mika-quickguide, accessed 2026-10-24): \"A viable option if there is already a 4pc Noblesse holder on the team\""
       }
     ],
     "Kujou Sara": [

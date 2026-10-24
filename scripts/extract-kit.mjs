@@ -3582,6 +3582,11 @@ const SETS = {
     { kind: "reactionBonus", party: true, reactions: ["stellar-swirl", "stellar-conduct"], re: /Also increases Stellar Glimmer reaction DMG dealt by all nearby party members by (\d+)%/ },
     { kind: "atkPct", re: /Increases the equipping character's ATK by (\d+)% for 12s when they trigger a Stellar Glimmer reaction/, when: { stellar: true } },
   ],
+  // Healing turned into damage (#345, score.ts healSetLines; heal rates estimated, #351). Ocean-Hued Clam: a foam of
+  // `value` x the healing it gathers, up to `max`; Song of Days Past: the active member's next hits gain `value` (its
+  // 8% x 5 hits) x the healing recorded, up to `max`.
+  "Ocean-Hued Clam": [{ kind: "healFoam", re: /based on (\d+)% of the accumulated healing/, cap: /accumulate up to ([\d,]+) HP/ }],
+  "Song of Days Past": [{ kind: "healAdditive", re: /increased by (\d+)% of the total healing amount/, stacks: /taken effect (\d+) times/, cap: /record up to ([\d,]+) healing/ }],
   "Deepwood Memories": [{ kind: "resShred", party: true, scope: "party", element: "Dendro", re: /the targets' Dendro RES will be decreased by (\d+)%/, estimate: "after the wearer's Skill or Burst hits" }],
   // "Only one form of Elemental DMG Bonus can be gained in this manner at any one time": the carry's element when it
   // crystallizes, else the team's first aura element (kit.ts crystallizedElement).
@@ -3617,7 +3622,7 @@ for (const [name, values] of Object.entries(SETS)) {
       value: round((Number(m[1]) / (v.flat ? 1 : 100)) * of2pc * stacks),
       // A stacking effect whose stack count a character's kit sets (holderStates.setStacks): the value of one stack.
       ...(v.maxStacks ? { perStack: round((Number(m[1]) / 100) * of2pc), maxStacks: Number(read(v.maxStacks, pieces)[1]) } : {}),
-      ...(v.cap ? { max: Number(read(v.cap, pieces)[1]) / (v.kind === "dmgBonusFromEr" ? 100 : 1) } : {}),
+      ...(v.cap ? { max: Number(read(v.cap, pieces)[1].replace(/,/g, "")) / (v.kind === "dmgBonusFromEr" ? 100 : 1) } : {}),
       ...(v.types ? { types: v.types } : {}),
       ...(v.element ? { element: v.element } : {}),
       ...(v.reactions ? { reactions: v.reactions } : {}),
@@ -3722,13 +3727,17 @@ const benchmarkSets = {
   Xianyun: [
     { set: "Noblesse Oblige", when: { members: ["Xiao"] }, source: kqmOn("2026-10-24", "xianyun-quickguide", "In Xiao teams, you should prioritize 4pc Noblesse Oblige over 4pc Viridescent Venerer") },
     { set: "Viridescent Venerer", source: kqmOn("2026-10-24", "xianyun-quickguide", "4pc Viridescent Venerer is one of Xianyun's best artifact sets") },
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-24", "xianyun-quickguide", "4pc Ocean-Hued Clam is one of Xianyun's best options since she deals good damage with the bubble") },
     { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "xianyun-quickguide", "4pc Noblesse Oblige is a great option if no one else on the team can hold it") },
   ],
   Faruzan: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "faruzan-quickguide", "This set is not recommended for pre-C6 Faruzan ... Bestows the whole team with a 20% ATK buff for 12s every Burst cast") }, { set: "Viridescent Venerer", source: kqmOn("2026-10-24", "faruzan-quickguide", "A staple choice for an Anemo character") }],
   Bennett: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "bennett-quickguide", "This is typically Bennett's best set, unless his team does not benefit from the ATK% buff") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "bennett-quickguide", "4pc Scroll has comparable buffing to 4pc NO on ATK-scaling damage dealers") }, { set: "Instructor", source: kqmOn("2026-10-24", "bennett-quickguide", "If another character on the team can hold 4pc NO, this option is better for overall team DPS") }],
   Chevreuse: [{ defer: true, set: "Noblesse Oblige", source: kqmOn("2026-10-24", "chevreuse-quickguide", "She should equip this set if no one else is holding it") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "chevreuse-quickguide", "This is a decent option if her teammates can snapshot the ATK% buff") }],
   Shenhe: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "shenhe-quickguide", "4pc Noblesse Oblige is often Shenhe's Best-in-Slot artifact set for team damage") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "shenhe-quickguide", "4pc Scroll of the Hero of Cinder City can be used if no Natlan holders of this set are present") }],
-  Mika: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "mika-quickguide", "4pc Noblesse is Mika's best option due to its strong supporting capabilities") }],
+  Mika: [
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "mika-quickguide", "4pc Noblesse is Mika's best option due to its strong supporting capabilities") },
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-24", "mika-quickguide", "A viable option if there is already a 4pc Noblesse holder on the team") },
+  ],
   "Kujou Sara": [{ defer: true, set: "Noblesse Oblige", source: kqmOn("2026-10-24", "sara-quickguide", "Allows Sara to maximize her buffing capabilities if no one else already has this") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "sara-quickguide", "Allows players to maximize her buffing capabilities if another character already has 4 NO") }],
   Dahlia: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "dahlia-quickguide", "Dahlia Burst is used every rotation, so 4pc NO is a natural choice to buff ATK-scaling teammates") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "dahlia-quickguide", "or if another party member is already holding 4pc NO") }],
   Vodyanitsa: [{ set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "vodyanitsa-quickguide", "4pc TotM is Vodyanitsa's best support set in ATK-scaling teams") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "vodyanitsa-quickguide", "4pc Scroll is a good alternative for 4pc TotM if another teammate already holds it") }],
