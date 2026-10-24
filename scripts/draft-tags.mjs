@@ -68,6 +68,44 @@ const ROLE_RULES = {
     (/(decreas|reduc)/i.test(s) && /\b(RES|DEF)\b/.test(s) && /(opponent|enem)/i.test(s)),
 };
 
+// A self buff names the party only as its condition ("Baizhu gains ... according to the current HP of your current
+// active character"): the character's own name, or her/his, gains or is increased, and no party member or active
+// character receives anything. Not a party buff, so neither the buffer role nor a buff entry.
+// A receiver is the party or the active character as what gains, never as the trigger ("when nearby party members
+// trigger a Nightsoul Burst, Mavuika's ATK increases").
+const RECEIVER = new RegExp(
+  [
+    "party members?(?:'|'s)? (?:will )?(?:gain|have|receive)",
+    "party members?(?:'|'s) [^.]{0,40}?(?:is|are|will be) (?:increased|boosted)",
+    "(?:all|nearby|other nearby) party members(?! trigger| hit| create| deal| use)",
+    "active (?:party )?(?:character|member)s?(?:'s)? [^.]{0,50}?(?:is|are|will be) (?:increased|boosted)",
+    "(?:increas|boost)\\w* (?:the )?[^.]{0,40}?of (?:all |your |the )?(?:nearby |current )?(?:active|party)",
+    "grant\\w* [^.]{0,40}?(?:party|active)",
+    "(?:this|that) character's",
+    "characters? (?:within|protected)[^.]{0,60}?(?:gain|increas|have)",
+  ].join("|"),
+  "i",
+);
+const namesOf = (id) => [...new Set([id, ...id.split(" ")].filter((n) => n.length > 2 && !n.startsWith("(")))];
+function selfBuff(s, id) {
+  const alts = namesOf(id).map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const self = new RegExp(
+    `\\b(?:${alts})(?:'s)?\\s+(?:will\\s+)?(?:gain|gains|obtain|obtains|receive|receives)\\b` +
+      `|\\b(?:${alts})'s\\s+[^.]{0,60}?\\b(?:(?:is|are|will be)\\s+(?:increased|boosted)|increases|will increase)` +
+      `|\\b(?:her|his)\\s+(?:own\\s+)?[^.]{0,40}?\\b(?:is|are|will be)\\s+increased` +
+      `|\\bincreas\\w*\\s+(?:her|his|(?:${alts})'s)\\b` +
+      `|\\b(?:dealt by|DMG)\\s+(?:${alts})(?:'s)?\\s+(?:deals|Normal|Charged|Elemental|Plunging)`,
+    "i",
+  );
+  return self.test(s) && !RECEIVER.test(s);
+}
+// A buff sentence's mark key in the review page: its talent and a hash of its text, stable when the list changes.
+const keyOf = (talent, text) => {
+  let h = 5381;
+  for (const ch of text) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0;
+  return `buff:${talent}:${h.toString(36)}`;
+};
+
 const draft = {};
 let changed = 0;
 for (const c of tags) {
@@ -84,8 +122,12 @@ for (const c of tags) {
   for (const t of texts)
     for (const s of sentences(t.text))
       for (const [role, test] of Object.entries(ROLE_RULES))
-        if (test(s)) (roleHits[role] ??= []).push(`${t.talent}: ${s.slice(0, 220)}`);
-  const buffs = texts.flatMap((t) => sentences(t.text).filter((s) => ROLE_RULES.buffer(s)).map((s) => ({ talent: t.talent, text: s.slice(0, 260) })));
+        if (test(s) && !(role === "buffer" && selfBuff(s, c.id))) (roleHits[role] ??= []).push(`${t.talent}: ${s.slice(0, 220)}`);
+  const buffs = texts.flatMap((t) =>
+    sentences(t.text)
+      .filter((s) => ROLE_RULES.buffer(s) && !selfBuff(s, c.id))
+      .map((s) => ({ key: keyOf(t.talent, s), talent: t.talent, text: s.slice(0, 260) })),
+  );
 
   const entry = {};
   const addR = reactions.filter((r) => !c.reactions.includes(r));
