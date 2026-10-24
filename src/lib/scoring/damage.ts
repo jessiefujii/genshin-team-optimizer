@@ -486,6 +486,10 @@ export interface CarryDamage {
   rotationSeconds: number;
   missing: string[]; // hits left out for lack of a source
   em: number; // the carry's EM in this combo (kit EM buffs included), for the reactions they trigger (score.ts, #205)
+  // The share of this damage a bonus to each reaction reaches (#94 part 5, replacing #87's estimates for a modeled
+  // carry): Vaporize/Melt, the reacting share of each hit; Aggravate/Spread, the flat damage Catalyze adds; Lunar and
+  // Stellar, their direct hits. Reactions not listed reach none of it.
+  shares: Partial<Record<Reaction | LunarReaction, number>>;
 }
 
 // The carry's hits per second in this team's combo and rotation, and how many of them react (each hit's reacting
@@ -656,6 +660,10 @@ function computeCarryDamage(
     h.nightsoulBursts
       ? Math.min(labelCount(h.nightsoulBursts), burstsPerRotation)
       : h.byTeammates ? at(h.byTeammates.members, eligible(h.byTeammates.elements).length) + at(h.byTeammates.types, typesOf(h.byTeammates.elements).length) : 0;
+  const parts = new Map<Reaction | LunarReaction, number>(); // each reaction's part of the damage (CarryDamage.shares)
+  const addPart = (r: Reaction | LunarReaction | "none" | undefined, v: number) => {
+    if (r && r !== "none" && v > 0) parts.set(r, (parts.get(r) ?? 0) + v);
+  };
   const hitTotal = (h: CarryHit, el: Element | "Physical", count: number) => {
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * em;
     perHit *= baseMultiplier(h);
@@ -666,15 +674,21 @@ function computeCarryDamage(
     const resFactor = 1 + resShredGain(t.res + ownShred);
     const defFactor = 1 + defShredGain(Math.min(0.9, t.def));
     if (h.lunar) {
-      if (h.additive) return perHit * count * resFactor;
+      if (h.additive) {
+        addPart(h.lunar, perHit * count * resFactor);
+        return perHit * count * resFactor;
+      }
       // Teammates' Base DMG bonuses add to the carry's own (#88: one "% Reaction Base DMG Bonus" term).
       const base = lunarBase + (teamBuffs.lunarBase?.[h.lunar] ?? 0);
       // Teammates' Reaction Additive Base DMG Bonus (Illuga's Lunar-Crystallize bonus, #186): per hit instance, after the
       // coefficient, Base DMG and EM terms (the formula above), before RES and crit. Not teammates' flat Geo DMG.
       const added = (t.lunarAdditive?.[h.lunar] ?? 0) * count * (h.instances ?? 1);
-      return (LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + base) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar)) + added) * resFactor;
+      const lunarTotal = (LUNAR_COEFFICIENT[h.lunar] * perHit * count * (1 + base) * (1 + lunarEmBonus(em) + lunarBonus(h.lunar)) + added) * resFactor;
+      addPart(h.lunar, lunarTotal);
+      return lunarTotal;
     }
-    if (!h.addOn) perHit += t.catalyze * (h.instances ?? 1) * reactingShare(h);
+    const catalyzed = h.addOn ? 0 : t.catalyze * (h.instances ?? 1) * reactingShare(h);
+    perHit += catalyzed;
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
     // A plunge's collision hit takes no flat team bonus: Xianyun's is "Plunging Attack shockwave DMG" (wiki; others,
@@ -707,7 +721,10 @@ function computeCarryDamage(
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
       }
     }
-    return perHit * count * (1 + bonus) * factor * (1 + reactingShare(h) * t.amp) * resFactor * defFactor;
+    const scale = count * (1 + bonus) * factor * resFactor * defFactor;
+    addPart(main, catalyzed * scale * (1 + reactingShare(h) * t.amp)); // Aggravate/Spread's flat part
+    if (t.amp > 0) addPart(main, perHit * scale * reactingShare(h) * (1 + t.amp)); // the hits that Vaporize/Melt
+    return perHit * scale * (1 + reactingShare(h) * t.amp);
   };
   let total = 0;
   for (const h of kit.hits) {
@@ -726,8 +743,12 @@ function computeCarryDamage(
     if (b.kind !== "masque") continue;
     const n = instancesOf(["normal"]);
     const bondSum = (b.start * (1 - Math.pow(1 - b.use, n))) / b.use;
-    total += b.ratio * bondSum * atk * (1 + s.dmgBonus + setDmgBonus(set, "normal", c.element, s.er)) * (1 + AMPLIFY_SHARE * amp) * (1 + resShredGain(teamBuffs.resShred)) * (1 + defShredGain(Math.min(0.9, teamBuffs.defShred)));
+    const masque = b.ratio * bondSum * atk * (1 + s.dmgBonus + setDmgBonus(set, "normal", c.element, s.er)) * (1 + resShredGain(teamBuffs.resShred)) * (1 + defShredGain(Math.min(0.9, teamBuffs.defShred)));
+    total += masque * (1 + AMPLIFY_SHARE * amp);
+    if (amp > 0) addPart(main, masque * AMPLIFY_SHARE * (1 + amp));
   }
+  // Crit multiplies every part alike, so the shares are read before it.
+  const shares = Object.fromEntries([...parts].map(([r, v]) => [r, total > 0 ? v / total : 0]));
   total *= expectedCrit(c, critRate, dmgCirclet);
-  return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [], em };
+  return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [], em, shares };
 }

@@ -441,6 +441,8 @@ export function kitBuffValue(
   // bonuses to reactions that deal their own damage, which transformativeLines adds there for any carry (#256).
   outsideDamage: boolean | "reactions" = false,
   burst = 1,
+  // A modeled carry's measured reaction shares (damage.ts CarryDamage.shares, #94), for buffs to some reactions only.
+  shares?: Partial<Record<string, number>>,
 ): KitBuffValue | null {
   let byCarry = cache.get(s);
   if (!byCarry) cache.set(s, (byCarry = new WeakMap()));
@@ -454,9 +456,10 @@ export function kitBuffValue(
     moonsign: team.filter((m) => m.families?.includes("moonsign")).length,
     partyEm: partySetBuffs(team).em,
   };
-  const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${shape.partyEm}|${[...shape.elements].sort().join(",")}`;
+  const shareKey = shares ? Object.entries(shares).map(([r, v]) => `${r}:${v!.toFixed(4)}`).join(",") : "";
+  const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${shape.partyEm}|${[...shape.elements].sort().join(",")}|${shareKey}`;
   if (byReactions.has(key)) return byReactions.get(key)!;
-  const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage, burst);
+  const value = computeKitBuffValue(s, carry, carryReactions, shape, outsideDamage, burst, shares);
   byReactions.set(key, value);
   return value;
 }
@@ -468,6 +471,7 @@ function computeKitBuffValue(
   team: TeamShape,
   outsideDamage: boolean | "reactions",
   burst: number,
+  shares?: Partial<Record<string, number>>,
 ): KitBuffValue | null {
   const entry = KIT[s.id];
   if (!entry || entry.missing || entry.buffs.length === 0) return null;
@@ -478,7 +482,7 @@ function computeKitBuffValue(
     if (offFieldOnly(s, b)) continue; // not the carry's (Sigewinne's Convalescence, #204)
     if (outsideDamage && b.reactions?.every((r) => TRANSFORMATIVE[r as Reaction])) continue;
     // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
-    const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions) : 1;
+    const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions, shares) : 1;
     const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share * (b.burst ? burst : 1) * stackShare(b, carry, carryReactions, team);
     best.set(b.kind, Math.max(best.get(b.kind) ?? 0, g));
   }

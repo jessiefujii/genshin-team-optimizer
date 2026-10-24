@@ -28,6 +28,20 @@ describe("carry damage (#101)", () => {
     expect(carryDamage(byId.get("Bennett")!)).toBeNull();
   });
 
+  test("measured reaction shares: the part of the carry's damage a bonus to each reaction reaches (#94)", () => {
+    const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+    const shares = (active: Reaction[], ...ids: string[]) => carryDamage(byId.get(ids[0])!, active, team(...ids))!.shares;
+    // Hu Tao's Vaporize multiplies most of her hits; Clorinde's Aggravate only adds flat damage to some.
+    const vape = shares(["vaporize"], "Hu Tao", "Xingqiu", "Yelan", "Zhongli").vaporize!;
+    const aggravate = shares(["aggravate", "quicken", "overloaded"], "Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha").aggravate!;
+    expect(vape).toBeGreaterThan(0.6);
+    expect(vape).toBeLessThanOrEqual(1);
+    expect(aggravate).toBeGreaterThan(0.05);
+    expect(aggravate).toBeLessThan(vape);
+    // No reaction in the team: nothing to reach.
+    expect(shares([], "Hu Tao", "Xingqiu", "Yelan", "Zhongli")).toEqual({});
+  });
+
   test("rotation length: a sourced team length, else the carry's sourced default, else the Burst cooldown (#103)", () => {
     const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
     const seconds = (...ids: string[]) => carryDamage(byId.get(ids[0])!, [], team(...ids))!.rotationSeconds;
