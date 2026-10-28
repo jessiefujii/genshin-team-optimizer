@@ -24,11 +24,11 @@ describe("character roles (#105)", () => {
     }
   });
 
-  // The wiki says Survivability without saying how; healer and shielder stay hand-written.
+  // The wiki says Survivability without saying how; healer, shielder and mitigation (#113) stay hand-written.
   const noSurvivalTag = tags
-    .filter((c) => WIKI[c.id]?.roles.includes("Survivability") && !c.roles.some((r) => r === "healer" || r === "shielder"))
+    .filter((c) => WIKI[c.id]?.roles.includes("Survivability") && !c.roles.some((r) => r === "healer" || r === "shielder" || r === "mitigation"))
     .map((c) => c.id);
-  test.todo(`Survivability on the wiki but no healer or shielder tag: ${noSurvivalTag.join(", ")}`);
+  test.todo(`Survivability on the wiki but no healer, shielder or mitigation tag: ${noSurvivalTag.join(", ")}`);
   const noWiki = tags.filter((c) => !WIKI[c.id]).map((c) => c.id);
   test.todo(`no Character Roles on the wiki, hand tags kept: ${noWiki.join(", ")}`);
 });
