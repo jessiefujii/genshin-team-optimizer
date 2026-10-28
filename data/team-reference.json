@@ -1,5 +1,5 @@
 {
-  "median": 212394.3,
+  "median": 216355.3,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 112512.3
+      "value": 113210.1
     },
     "Flins": {
       "team": [
@@ -233,7 +233,7 @@
         "Lauma",
         "Ineffa"
       ],
-      "value": 200736.2
+      "value": 225483.8
     },
     "Neuvillette": {
       "team": [
@@ -267,9 +267,9 @@
         "Raiden Shogun",
         "Furina",
         "Yelan",
-        "Xilonen"
+        "Jean"
       ],
-      "value": 214398.1
+      "value": 216887.3
     },
     "Razor": {
       "team": [
@@ -341,7 +341,7 @@
         "Odette",
         "Alyosha"
       ],
-      "value": 135850.6
+      "value": 121699.5
     },
     "Varesa": {
       "team": [
@@ -355,11 +355,11 @@
     "Varka": {
       "team": [
         "Varka",
-        "Prune",
+        "Venti",
         "Nicole",
         "Durin"
       ],
-      "value": 283673.2
+      "value": 305410.3
     },
     "Vesna": {
       "team": [
@@ -368,7 +368,7 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 82663.5
+      "value": 73478.7
     },
     "Wanderer": {
       "team": [
@@ -420,9 +420,9 @@
         "Yumemizuki Mizuki",
         "Odette",
         "Traveler (Cryo)",
-        "Zhongli"
+        "Lan Yan"
       ],
-      "value": 141516.2
+      "value": 131448.8
     },
     "Zibai": {
       "team": [
