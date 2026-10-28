@@ -1,7 +1,7 @@
 // Compares the scorer's best teams with the teams build guides recommend (design doc Phase 4).
 // Kept out of `npm test`: it is a report to read, not a pass/fail check. Run with `npm run compare` (in parts, #336).
 import { expect, test } from "vitest";
-import { KNOWN_TEAMS } from "../known-teams";
+import { GENSHIN_BUILDS_TEAMS, KNOWN_TEAMS } from "../known-teams";
 import { loadScoringCharacters } from "../load";
 import { scoreTeam } from "../score";
 import { findBestTeams } from "../search";
@@ -16,8 +16,13 @@ export function compareKnownTeams(part: number) {
     const all = loadScoringCharacters();
     const byId = new Map(all.map((c) => [c.id, c]));
     const rows: PartRow[] = [];
-    KNOWN_TEAMS.forEach(({ carry, teams, ranked, constellationTeams = [] }, index) => {
+    KNOWN_TEAMS.forEach(({ carry, teams: kqm, ranked, constellationTeams: kqmConstellations = [] }, index) => {
       if (!inPart(index, part)) return;
+      // genshin-builds' teams count beside the guide's (#380), each once.
+      const gb = GENSHIN_BUILDS_TEAMS[carry];
+      const fromGb = new Set([...(gb?.teams ?? []), ...(gb?.constellationTeams ?? []).map((c) => c.team)].map(key));
+      const teams = [...kqm, ...(gb?.teams ?? []).filter((t) => !kqm.some((k) => key(k) === key(t)))];
+      const constellationTeams = [...kqmConstellations, ...(gb?.constellationTeams ?? [])];
       for (const t of [...teams, ...constellationTeams.map((c) => c.team)]) for (const id of t) expect(byId.has(id), `${id} is not in tags.json`).toBe(true);
 
       // Only teams where this character is on-field and the main DPS: a flex DPS (Mavuika) can also be a support in
@@ -28,7 +33,7 @@ export function compareKnownTeams(part: number) {
       const rank = (t: readonly string[]) => top.findIndex((s) => key(s.members) === key(t)) + 1 || null;
       const guide = teams.map((t) => {
         const s = scoreTeam(t.map((id) => byId.get(id)!));
-        return { team: t, rank: rank(t), score: s.score, mainDps: s.mainDps };
+        return { team: t, rank: rank(t), score: s.score, mainDps: s.mainDps, gb: !kqm.some((k) => key(k) === key(t)) && fromGb.has(key(t)) };
       });
       // Teams with a guide's constellation (#106): the search's teams are all C0, so their rank is where their score
       // would place among the top 100.
@@ -36,11 +41,11 @@ export function compareKnownTeams(part: number) {
         const s = scoreTeam(t.map((id) => ({ ...byId.get(id)!, constellation: constellations[id] ?? 0 })));
         const above = top.filter((x) => x.score > s.score).length;
         const shown = t.map((id) => (constellations[id] ? `C${constellations[id]} ${id}` : id)) as typeof t;
-        guide.push({ team: shown, rank: above < top.length ? above + 1 : null, score: s.score, mainDps: s.mainDps });
+        guide.push({ team: shown, rank: above < top.length ? above + 1 : null, score: s.score, mainDps: s.mainDps, gb: !kqmConstellations.some((k) => k.team === t) });
       }
       const bestGuide = guide.reduce((a, b) => ((a.rank ?? 999) <= (b.rank ?? 999) ? a : b));
       const ours = top[0];
-      const overlap = ours ? ours.members.filter((id) => teams[0].includes(id)).length : 0;
+      const overlap = ours ? ours.members.filter((id) => kqm[0].includes(id)).length : 0;
       const led = bestGuide.mainDps && bestGuide.mainDps !== carry ? `, main DPS ${bestGuide.mainDps}` : "";
 
       rows.push({
@@ -49,7 +54,7 @@ export function compareKnownTeams(part: number) {
         row: [
           carry,
           `${bestGuide.rank ? `#${bestGuide.rank}` : ">100"} (${bestGuide.score}${led})`,
-          short(bestGuide.team, carry),
+          short(bestGuide.team, carry) + (bestGuide.gb ? " (genshin-builds)" : ""),
           ours ? `${ours.score}` : "-",
           ours ? short(ours.members, carry) : "(none where they are the main DPS)",
           ranked ? `${overlap}/4` : "unranked",

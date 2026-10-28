@@ -5,7 +5,7 @@ import { NO_TEAM_BUFFS, memberBuffStats, partySetBuffs, teamBuffStats } from "./
 import { characterEffects } from "./effects";
 import { scoreTeam } from "./score";
 import { resShredGain } from "./benchmark";
-import { KNOWN_TEAMS } from "./known-teams";
+import { GENSHIN_BUILDS_TEAMS, KNOWN_TEAMS } from "./known-teams";
 import { loadScoringCharacters } from "./load";
 import type { Reaction, ScoringCharacter } from "./types";
 
@@ -21,6 +21,16 @@ const benchWeapon = (id: string) => {
 describe("carry damage (#101)", () => {
   test("every carry npm run compare measures has kit data", () => {
     for (const { carry } of KNOWN_TEAMS) expect(hasCarryKit(carry), carry).toBe(true);
+  });
+
+  test("genshin-builds' teams (#380): each led by its compare carry, every member a known character", () => {
+    for (const [carry, { teams, constellationTeams }] of Object.entries(GENSHIN_BUILDS_TEAMS)) {
+      expect(KNOWN_TEAMS.some((k) => k.carry === carry), carry).toBe(true);
+      for (const t of [...teams, ...constellationTeams.map((c) => c.team)]) {
+        expect(t[0], t.join("/")).toBe(carry);
+        for (const id of t) expect(byId.has(id), id).toBe(true);
+      }
+    }
   });
 
   test("a carry's damage is positive, and null without kit data", () => {
@@ -355,7 +365,7 @@ describe("carry damage (#101)", () => {
       const lohen = kit.carries.Lohen;
       expect(lohen.combo).toBe("E 2[N1C] E/Q 4[N1C] E 5[N1C] E");
       // 100 Will to Win at 0.4% of his ATK per point, on each instance of Etched Into Bone and Soul and his Burst.
-      const wtw = lohen.buffs.filter((b) => b.kind === "addPerStack").map((b) => ("stacks" in b ? b.value * b.stacks : 0));
+      const wtw = lohen.buffs.filter((b) => b.kind === "addPerStack").map((b) => ("stacks" in b ? b.value * (b.stacks ?? 0) : 0));
       expect(wtw.map((v) => Math.round(v * 100) / 100)).toEqual([0.4, 0.4]);
       const ids = ["Lohen", "Durin", "Nicole", "Citlali"];
       const rite = carryDamage(byId.get("Lohen")!, ["melt"], team(...ids))!;
