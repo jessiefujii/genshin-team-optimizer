@@ -771,15 +771,23 @@ export function memberBuffStats(
   for (const s of team) {
     const wide = PARTY_WIDE[s.id];
     const entry = KIT[s.id];
-    if (s === m || !entry || entry.missing) continue;
-    // RES and DEF shred are on the enemy: every member's hits of the element they cover get them (#204).
+    if (!entry || entry.missing) continue;
+    // RES and DEF shred are on the enemy: every member's hits of the element they cover get them (#204), their own
+    // included (#364: Beidou's C6 shred on her own lightning, Zhongli's on his pillar).
     const shape0 = shapeOf(s, carry, team);
     for (const kind of ["resShred", "defShred"] as const) {
-      const b = buffsAt(entry, s).find((x) => x.kind === kind && !x.reactions && (!x.elements || x.elements.includes(m.element)) && (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))));
+      const b = buffsAt(entry, s).find(
+        (x) =>
+          x.kind === kind &&
+          !x.reactions &&
+          (!x.elements || x.elements.includes(m.element)) &&
+          (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))) &&
+          (!x.carryReactions || x.carryReactions.some((r) => carry.reactions.includes(r as Reaction) && active.includes(r as Reaction))),
+      );
       const funded = b?.burst ? (shares?.get(s) ?? 1) : 1;
       if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor, shape0.partyEm), shape0, (b.uptime ?? 1) * funded, out);
     }
-    if (!wide) continue;
+    if (s === m || !wide) continue;
     if (wide.elements && !wide.elements.includes(m.element)) continue;
     if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
     const shape = shapeOf(s, carry, team);
