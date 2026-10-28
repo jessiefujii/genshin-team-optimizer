@@ -3236,7 +3236,8 @@ const CARRIES = {
       {
         // #119. KQM's Eula quick guide (https://keqingmains.com/q/eula-quickguide/, fetched 2026-10-20): "tE Q N3 hE N4
         // D N2 ... should only be used if Eula is buffed by at least 27% Attack SPD (i.e., Pines, Mika, C2 Jean)", 15
-        // Lightfall stacks. Mika teams (C0: Pines and C2 Jean are past the model). Same Skill and Burst hits.
+        // Lightfall stacks. Mika teams (C0: Pines and C2 Jean are past the model). Same Skill and Burst hits. No Beidou
+        // combo: KQM gives no Lightfall stack count for her teams (#119).
         combo: "tE Q N3 hE N4 D N2",
         when: [{ members: [["Mika"]] }],
         hits: [
