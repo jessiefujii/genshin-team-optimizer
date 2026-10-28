@@ -4,7 +4,7 @@ import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { carryDamage } from "./damage";
-import { fightingSpiritBuilt, memberBuffStats, teamBuffStats } from "./kit";
+import { fightingSpiritBuilt, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
@@ -145,13 +145,13 @@ describe("scoreTeam", () => {
     expect(reasons("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toContain("Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive") // Nahida's EM in damage (#186); // ICDs (#226)
   });
 
-  test("Dendro Cores: Electro pops them into Hyperbloom, none with a Lunar-Bloom converter (#253)", () => {
+  test("Dendro Cores: Electro pops them into Hyperbloom, with a Lunar-Bloom converter too (#253, #354)", () => {
     const reasons = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions").map((l) => l.reason);
     const hyper = reasons("Alhaitham", "Xingqiu", "Kuki Shinobu", "Nahida");
     expect(hyper.some((r) => r.startsWith("Hyperbloom:") && r.includes("Kuki Shinobu"))).toBe(true);
     expect(hyper.some((r) => r.startsWith("Bloom:"))).toBe(true); // the cores no Electro reached
-    // Nefer's team turns Bloom into Lunar-Bloom: no cores.
-    expect(reasons("Nefer", "Furina", "Lauma", "Ineffa").some((r) => /^(Bloom|Hyperbloom|Burgeon):/.test(r))).toBe(false);
+    // Nefer's team triggers Lunar-Bloom, which still spawns the cores (#354): Ineffa's Electro pops them.
+    expect(reasons("Nefer", "Furina", "Lauma", "Ineffa").some((r) => /^(Bloom|Hyperbloom):/.test(r))).toBe(true);
   });
 
   test("a modeled carry's reactions are inside their damage, with a 0-point line saying what they add (#134, #202)", () => {
@@ -849,6 +849,13 @@ describe("sub-DPS (#96)", () => {
     expect(own(true) / own(false)).toBeGreaterThan(1.4);
   });
 
+  test("Lunar-Bloom keeps Bloom's Dendro Cores: they burst as Bloom and can be Hyperbloomed (#354)", () => {
+    const reasons = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions").map((l) => l.reason);
+    // Wiki Lunar-Bloom: Verdant Dew "in addition to spawning a Dendro Core"; the reaction itself "does no DMG on its own".
+    expect(reasons("Nefer", "Lauma", "Columbina", "Furina").some((r) => r.startsWith("Bloom: ~"))).toBe(true);
+    expect(reasons("Alhaitham", "Lauma", "Xingqiu", "Fischl").some((r) => r.startsWith("Hyperbloom: ~"))).toBe(true);
+  });
+
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
     const share = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.
@@ -960,6 +967,19 @@ describe("talent levels (#25)", () => {
     const swirl = ["Diluc (no model)", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
     const kazuha = lines(leveled({ "Kaedehara Kazuha": talents(1, 1, 1) }, ...swirl), "Buffs").find((l) => l.reason.startsWith("Kaedehara"));
     expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Diluc (no model) (~+20% damage)" });
+  });
+
+  test("the #178 buffers score their kit's values (#358)", () => {
+    const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
+    // Base DMG converters: their bonus is in team damage, no buffer points on top.
+    expect(buffLine(score("Sandrone", "Odette", "Alyosha", "Escoffier"), "Odette")).toEqual({ rule: "Buffs", points: 0, reason: "Odette's Base DMG bonus: in team damage" });
+    // Chongyun's ATK SPD reaches a claymore carry, not a Pyro catalyst (and his Cryo shred no Pyro hit).
+    expect(buffLine(score("Diluc", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBeGreaterThan(0);
+    expect(buffLine(score("Klee", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBe(0);
+    // Raiden's Eye: 0.3% Burst DMG per Energy of the carry's Burst, so a costlier Burst gains more.
+    const burstCarry = (burstCost: number) => ({ ...byId.get("Diluc (no model)")!, keyTalent: "burst" as const, burstCost });
+    const raiden = (cost: number) => kitBuffValue(byId.get("Raiden Shogun")!, burstCarry(cost), [], [burstCarry(cost), ...team("Raiden Shogun", "Bennett", "Zhongli")])!.gain;
+    expect(raiden(80)).toBeGreaterThan(raiden(40) * 1.5);
   });
 
   test("buffer points come from the kit's numbers: +20% damage = 10 points, no cap (#68, #90)", () => {

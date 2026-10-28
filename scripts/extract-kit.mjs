@@ -48,6 +48,9 @@ const COMBAT = { normal: "combat1", skill: "combat2", burst: "combat3" };
 // triggers a reaction that grows with EM (not Crystallize, Freeze or Quicken).
 const ALBEDO_BURST_TEAMS = ["vaporize", "melt", "aggravate", "spread", "burning", "bloom", "hyperbloom", "burgeon", "overloaded", "electrocharged", "superconduct", "swirl", "lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-conduct", "stellar-swirl"];
 const SPEC = {
+  // #358. Passive 1: "When Aloy receives the Coil effect from Frozen Wilds ... nearby party members' ATK is increased by
+  // 8%. This effect lasts 10s": Coil comes from her Skill's bomblets, once per Skill (20s).
+  Aloy: { from: "passive1", values: [{ kind: "atkPct", re: /nearby party members' ATK is increased by (\d+)%/, unit: "ATK % (Coil)", percent: true }], duration: /lasts (\d+)s/, cd: { talent: "skill", label: "CD" } },
   Alyosha: { talent: "skill", values: [{ kind: "atkPct", label: "Hunter's Precision ATK Bonus", unit: "ATK %" }], duration: "Hunter's Precision Duration", cd: "CD" },
   // C6 (#106): "During the duration of Stormbreaker, the Electro RES of surrounding opponents is decreased by 15%".
   Beidou: {
@@ -61,6 +64,24 @@ const SPEC = {
   },
   Bennett: { talent: "burst", values: [{ kind: "atkFromBase", label: "ATK Bonus Ratio", unit: "of Bennett's base ATK" }], duration: "Duration", cd: "CD" },
   Candace: { talent: "burst", values: [{ kind: "dmgBonus", label: "DMG Bonus", unit: "Normal Attack DMG %", appliesTo: ["normal"] }], duration: "Duration", cd: "CD" },
+  // #358. Passive 1: "Sword, Claymore, or Polearm-wielding characters within the field ... have their Normal ATK SPD
+  // increased by 8%" while the field lasts; passive 2: when it disappears, a blade hits and "Opponents hit by this blade
+  // will have their Cryo RES decreased by 10% for 8s".
+  Chongyun: {
+    from: "passive1",
+    values: [{ kind: "atkSpd", re: /Normal ATK SPD increased by (\d+)%/, unit: "Normal ATK SPD % (Sword, Claymore, Polearm)", percent: true, weapons: ["Sword", "Claymore", "Polearm"] }],
+    table: "skill",
+    duration: "Field Duration",
+    cd: { talent: "skill", label: "CD" },
+    also: [
+      {
+        from: "passive2",
+        values: [{ kind: "resShred", re: /Cryo RES decreased by (\d+)%/, unit: "Cryo RES (after the field)", percent: true, elements: ["Cryo"] }],
+        duration: /decreased by \d+% for (\d+)s/,
+        cd: { talent: "skill", label: "CD" },
+      },
+    ],
+  },
   Columbina: { talent: "burst", values: [{ kind: "reactionBonus", label: "Lunar Reaction DMG Bonus", unit: "Lunar reaction DMG %", reactions: ["lunar-charged", "lunar-bloom", "lunar-crystallize"] }], duration: "Lunar Domain Duration", cd: "CD" },
   Faruzan: {
     talent: "burst",
@@ -85,6 +106,22 @@ const SPEC = {
       },
     ],
   },
+  // #358. Passive 1, Dragon of White Flame: "After nearby party members trigger Burning, Overloaded, Pyro Swirl, or Pyro
+  // Crystallize reactions ... that opponent's Pyro RES, and the RES for the corresponding Element involved in the
+  // reaction, are decreased by 20% for 6s", while the dragon is out. Estimates: the carry triggers one of them, Pyro RES
+  // only (the other element's left out), and the White Flame form (Dark Decay's is for Vaporize and Melt teams, #316).
+  Durin: {
+    from: "passive1",
+    values: [{ kind: "resShred", re: /are decreased by (\d+)% for/, unit: "Pyro RES (White Flame)", percent: true, elements: ["Pyro"], carryReactions: ["burning", "overloaded", "swirl", "crystallize"] }],
+    table: "burst",
+    duration: "Dragon of White Flame Duration",
+    cd: { talent: "burst", label: "CD" },
+    burst: true,
+  },
+  // #358. Hold Skill: "If Grimheart stacks are consumed, surrounding opponents will have their Physical RES and Cryo RES
+  // decreased" (her table's Cryo RES Decrease for its RES Decrease Duration, per Hold CD; Physical waits for #206). In
+  // her own damage when she carries (CARRIES Eula); this is for her teammates.
+  Eula: { talent: "skill", values: [{ kind: "resShred", label: "Cryo RES Decrease", unit: "Cryo RES (Hold Skill)", elements: ["Cryo"] }], duration: "RES Decrease Duration", cd: "Hold CD" },
   Furina: {
     talent: "burst",
     values: [{ kind: "dmgBonus", label: "Fanfare to DMG Increase Conversion Ratio", times: "Maximum Fanfare", unit: "DMG % at max Fanfare", condition: "fanfare" }],
@@ -141,6 +178,28 @@ const SPEC = {
       },
     ],
   },
+  // #358. Passive 2: "Celestial Shower grants a 20% Cryo DMG Bonus to active party members in the AoE", while it lasts.
+  Ganyu: {
+    from: "passive2",
+    values: [{ kind: "dmgBonus", re: /grants a (\d+)% Cryo DMG Bonus/, unit: "Cryo DMG % (Celestial Shower)", percent: true, elements: ["Cryo"] }],
+    table: "burst",
+    duration: "Duration",
+    cd: { talent: "burst", label: "CD" },
+    burst: true,
+  },
+  // #358. Passive 2: when a robot "triggers healing on an active team member, if that character's HP is above 70%, their
+  // Elemental Mastery will be increased by 100 for 6s": while his robots are out (estimate: his heals keep the active
+  // character above 70%).
+  Jahoda: {
+    from: "passive2",
+    values: [{ kind: "em", re: /Elemental Mastery will be increased by (\d+)/, unit: "EM (robot heals above 70% HP)" }],
+    table: "burst",
+    duration: "Purrsonal Coordinated Assistance Robot Duration",
+    cd: { talent: "burst", label: "CD" },
+    burst: true,
+  },
+  // #358. Burst: Bloomwater Blades rain down "increasing the Normal Attack DMG of characters within".
+  "Kamisato Ayato": { talent: "burst", values: [{ kind: "dmgBonus", label: "Normal Attack DMG Bonus", unit: "Normal Attack DMG %", appliesTo: ["normal"] }], duration: "Duration", cd: "CD" },
   "Kujou Sara": { talent: "skill", values: [{ kind: "atkFromBase", label: "ATK Bonus Ratio", unit: "of Sara's base ATK" }], duration: "ATK Bonus Duration", cd: "CD" },
   Lauma: {
     talent: "burst",
@@ -288,7 +347,13 @@ const SPEC = {
     buildFor: { atk: 3000 },
     duration: /Tolling Rally effect for (\d+)s/,
   },
+  // #358. Skill: party members with the Eye "will have their Elemental Burst DMG increased based on the Energy Cost of
+  // the Elemental Burst": the table's 0.3% per Energy times the carry's Burst cost (perBurstCost), on Burst DMG.
+  "Raiden Shogun": { talent: "skill", values: [{ kind: "dmgBonus", label: "Elemental Burst DMG Bonus", unit: "Burst DMG % per Energy of the carry's Burst", appliesTo: ["burst"], perBurstCost: true }], duration: "Duration", cd: "CD" },
   Rosaria: { from: "passive2", values: [{ kind: "critRate", re: /cannot exceed (\d+)%/, unit: "CRIT Rate % (max)", percent: true }], duration: /for (\d+)s/, cd: { talent: "burst", label: "CD" } },
+  // #358. Passive 2: "After Shikanoin Heizou's Heartstopper Strike hits an opponent, increases all party members'
+  // (excluding Shikanoin Heizou) Elemental Mastery by 80 for 10s", one Heartstopper Strike per Skill.
+  "Shikanoin Heizou": { from: "passive2", values: [{ kind: "em", re: /Elemental Mastery by (\d+)/, unit: "EM (party, not him)" }], duration: /for (\d+)s/, cd: { talent: "skill", label: "CD" } },
   Sigewinne: { from: "passive1", values: [{ kind: "flatDmg", re: /increases the DMG by (\d+)/, unit: "flat Skill DMG per 1,000 Max HP above 30,000", appliesTo: ["skill"] }] },
   Sucrose: { from: "passive2", values: [{ kind: "emFromEm", re: /equal to (\d+)% of Sucrose's Elemental Mastery/, unit: "of Sucrose's EM as EM", percent: true }], duration: /for (\d+)s/ },
   Xianyun: { from: "passive2", values: [{ kind: "flatDmgFromAtk", re: /increased by (\d+)% of Xianyun's ATK/, unit: "of Xianyun's ATK as flat Plunge DMG (max 9,000)", percent: true, appliesTo: ["plunge"], max: 9000 }] },
@@ -305,6 +370,15 @@ const SPEC = {
     cd: { talent: "burst", label: "CD" },
   },
   Yelan: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase to DMG dealt is (\d+)%/, unit: "active character DMG %, averaged over the ramp from 1% to the max", percent: true, scale: 0.5 }] },
+  // #358. Passive 2: "Using Ryuukin Saxifrage causes nearby party members (not including Yoimiya) to gain a 10% ATK
+  // increase for 15s"; the further 1% per Tricks of the Trouble-Maker stack is left out (estimate: low).
+  Yoimiya: {
+    from: "passive2",
+    values: [{ kind: "atkPct", re: /gain a (\d+)% ATK increase/, unit: "ATK % (party, not her)", percent: true }],
+    duration: /ATK increase for (\d+)s/,
+    cd: { talent: "burst", label: "CD" },
+    burst: true,
+  },
   Zhongli: { from: "combat2", values: [{ kind: "resShred", re: /Elemental RES and Physical RES of opponents in a small AoE by (\d+)%/, unit: "all RES", percent: true }], duration: "Shield Duration", cd: "Hold CD", table: "skill" },
 };
 
@@ -312,24 +386,13 @@ const SPEC = {
 // (Ifa and Prune used to be here; their numbers come from data/kit-overrides.json since #75.)
 // Buffers whose values aren't read yet: they score standard buffer points (score.ts) until a SPEC entry reads them.
 const NO_VALUE = {
-  Aloy: "buffer since #178's review; its SPEC is #358",
-  Chongyun: "buffer since #178's review; its SPEC is #358",
-  Durin: "buffer since #178's review; its SPEC is #358",
-  Eula: "buffer since #178's review; its SPEC is #358",
-  Flins: "buffer since #178's review; its SPEC is #358",
-  Ganyu: "buffer since #178's review; its SPEC is #358",
-  Jahoda: "buffer since #178's review; its SPEC is #358",
-  "Kamisato Ayato": "buffer since #178's review; its SPEC is #358",
-  Lohen: "buffer since #178's review; its SPEC is #358",
-  Nefer: "buffer since #178's review; its SPEC is #358",
-  Odette: "buffer since #178's review; its SPEC is #358",
-  "Raiden Shogun": "buffer since #178's review; its SPEC is #358",
-  Sandrone: "buffer since #178's review; its SPEC is #358",
-  "Shikanoin Heizou": "buffer since #178's review; its SPEC is #358",
-  Vesna: "buffer since #178's review; its SPEC is #358",
-  Yoimiya: "buffer since #178's review; its SPEC is #358",
-  Zibai: "buffer since #178's review; its SPEC is #358",
+  // #358: passive 2 buffs "another nearby party member" who triggers a Cryo reaction "while in Masterstroke mode", his
+  // own on-field state: not a buff he gives from off-field. His damage model is #356.
+  Lohen: "his passive 2 ATK buff needs him on field in Masterstroke (#358); his damage model is #356",
 };
+// Base DMG converters (#358): their buff, a Base DMG bonus to the party's Lunar or Stellar reactions, is in team damage
+// already (kit.json lunarBase, score.ts teammatesLunarBase), so no buffer points on top. Each needs a lunarBase entry.
+const IN_LUNAR_BASE = ["Flins", "Nefer", "Odette", "Sandrone", "Vesna", "Zibai"];
 
 const level = (params, key) => params[key]?.[TALENT_LEVEL - 1];
 
@@ -345,6 +408,8 @@ const limits = (v) => ({
   ...(v.carryReactions ? { carryReactions: v.carryReactions } : {}),
   ...(v.whileOnField ? { whileOnField: true } : {}),
   ...(v.perEm ? { perEm: v.perEm } : {}),
+  ...(v.weapons ? { weapons: v.weapons } : {}),
+  ...(v.perBurstCost ? { perBurstCost: true } : {}),
 });
 
 // Reads a table label's first parameter at TALENT_LEVEL.
@@ -3641,6 +3706,10 @@ for (const c of buffers) {
     characters[c.id] = { base, buffs: [], missing: NO_VALUE[c.id] };
     continue;
   }
+  if (IN_LUNAR_BASE.includes(c.id)) {
+    characters[c.id] = { base, buffs: [], inLunarBase: true };
+    continue;
+  }
   if (!SPEC[c.id]) throw new Error(`${c.id} is a buffer in tags.json but has no SPEC entry`);
   characters[c.id] = { base, ...(SPEC[c.id].buildFor ? { buildFor: SPEC[c.id].buildFor } : {}), buffs: readBuffs(c.id, SPEC[c.id]) };
 }
@@ -3778,6 +3847,7 @@ for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
   };
   lunarBase[id] = { stat: b.stat, perPoint: round(read(b.re) / 100 / b.per), max: read(b.max) / 100, reactions: b.reactions };
 }
+for (const id of IN_LUNAR_BASE) if (!lunarBase[id]) throw new Error(`${id}: IN_LUNAR_BASE needs a lunarBase entry`);
 // Set bonuses to the wearer's own damage, as carry buffs (#206), read from genshin-db's set text (4pc unless `pieces`
 // is 2). Freeze scores only through these (Jessie, 2026-10-18, #205). Kinds: critRate, dmgBonus (`types`: hit types,
 // default every hit; `element`: hits of that element only), atkPct (of base ATK), reactionBonus (`reactions`: the
@@ -4103,6 +4173,35 @@ const benchmarkSets = {
   Citlali: [{ defer: true, set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "citlali-quickguide", "Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "citlali-quickguide", "it can be used when another character uses Scroll") }],
   Iansan: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "iansan-quickguide", "This makes it her recommended option for the vast majority of her teams") }, { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "iansan-quickguide", "A viable alternative to 4pc Scroll") }],
   Gorou: [{ set: "Husk of Opulent Dreams", source: "Jessie, 2026-10-24 (#338 review): Gorou on 4pc Husk of Opulent Dreams" }],
+  // #352: the six whose party buffs come from their set (Jessie, #178 review), from their KQM guides (accessed
+  // 2026-10-28). Scroll first with an on-field Anemo DPS (Wanderer, Xiao), as the guides say.
+  Venti: [
+    { set: "Scroll of the Hero of Cinder City", when: { members: ["Wanderer", "Xiao"] }, source: kqmOn("2026-10-28", "venti-quickguide", "In Anemo Hypercarry teams where Venti runs alongside an on-field Anemo DPS like Wanderer, he can use this set to provide 12% Anemo DMG Bonus") },
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-28", "venti-quickguide", "Uncontested BiS in the vast majority of scenarios") },
+    { set: "Gilded Dreams", source: kqmOn("2026-10-28", "venti-quickguide", "A niche option for teams with a second Anemo who is a better holder of 4pc VV than Venti") },
+  ],
+  Jean: [
+    // defer: her next picks are for when "4VV is redundant", another member holding it (Kazuha, Venti, Sucrose).
+    { defer: true, set: "Viridescent Venerer", source: kqmOn("2026-10-28", "jean-quickguide", "a universally solid option for support Jean") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-28", "jean-quickguide", "If no one else in the team has 4NO and 4VV is redundant or unnecessary, Jean is a viable holder of 4NO") },
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-28", "jean-quickguide", "If a 4NO holder is already in the team and 4VV is redundant or unnecessary, Jean can hold 4OHC") },
+  ],
+  Candace: [
+    // defer (estimate): her guide has Noblesse "similar or better" in ATK-scaling teams, while Kachina's "viability
+    // heavily relies on her holding this set", so a Kachina or other Scroll holder keeps it.
+    { defer: true, set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-28", "candace-quickguide", "4pc Scroll of the Hero of Cinder City (Scroll) is a strong set") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-28", "candace-quickguide", "4pc Noblesse Oblige is an alternative to 4pc Scroll") },
+    { set: "Silken Moon's Serenade", source: kqmOn("2026-10-28", "candace-quickguide", "4pc Silken Moon's Serenade is a good set in teams that benefit from the EM buff") },
+    { set: "Instructor", source: kqmOn("2026-10-28", "candace-quickguide", "4pc Instructor gives a good EM buff that is appreciated in reaction-based teams") },
+  ],
+  Kachina: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-28", "kachina-quickguide", "Kachina's viability heavily relies on her holding this set") }],
+  "Lan Yan": [
+    { set: "Scroll of the Hero of Cinder City", when: { members: ["Wanderer", "Xiao"] }, source: kqmOn("2026-10-28", "lan-yan-quickguide", "A strong option for Wanderer / Xiao teams for its 12% Anemo DMG Bonus buff") },
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-28", "lan-yan-quickguide", "Lan Yan's best set for almost all teams") },
+  ],
+  // KQM's Xinyan guide (keqingmains.com/xinyan/, "Updated for Version 3.3"; no quick guide) names no 4pc support set
+  // in its list, but its role text does.
+  Xinyan: [{ set: "Tenacity of the Millelith", source: 'KQM Xinyan guide (keqingmains.com/xinyan/, accessed 2026-10-28): "As a Support, Xinyan ... can also provide extra sources of utility through the Tenacity of the Millelith set"' }],
   Zhongli: [
     {
       set: "Tenacity of the Millelith",
@@ -4532,8 +4631,8 @@ const SUSTAIN = {
   // wiki: "ticks once on Barbara herself upon activation then every 5 seconds for 4 heals in total".
   Barbara: [{ kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD", ticks: 4 }],
   Beidou: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables" },
-  Candace: { missing: "shielder since #178's review; her shield's numbers are #358" },
-  "Yun Jin": { missing: "shielder since #178's review; her shield's numbers are #358" },
+  Candace: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)" },
+  "Yun Jin": { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)" },
   // wiki: "first activates 1s after casting and every second afterwards for a total of 12 activations".
   Bennett: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration Per Sec", duration: "Duration", cd: "CD", every: 1 }],
   // Newsflash Field Duration is the field's own; the wiki gives no longer duration for Kamera's regeneration.

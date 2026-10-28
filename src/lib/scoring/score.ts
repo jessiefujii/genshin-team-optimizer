@@ -270,6 +270,11 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     const fit = s.buffs?.[misfits.indexOf(null)];
     const talent = fit?.talent;
     const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
+    // A Base DMG converter's buff is in team damage already (#358: kit.json lunarBase, teammatesLunarBase).
+    if (KIT_BUFFS[s.id]?.inLunarBase) {
+      out.add("Buffs", 0, () => `${s.id}'s Base DMG bonus: in team damage`);
+      continue;
+    }
     // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
     const burst = burstSharesFor(ctx, carry).get(s) ?? 1;
     const shares = measuredShares(carry, ctx);
@@ -577,7 +582,7 @@ const GLEAM = kitJson.ascendantGleam as Record<string, GleamEntry>;
 const SUSTAIN = kitJson.sustain as unknown as Record<string, { coverage: number | null; missing?: string; effects?: Sized[] }>;
 const KIT_BUFFS = kitJson.characters as Record<
   string,
-  { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number; burst?: boolean }[] }
+  { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number; burst?: boolean }[]; inLunarBase?: boolean }
 >;
 
 // Moonsign: Ascendant Gleam (#63). Each Moonsign member's "Moonsign Benediction" raises the party's Moonsign by
@@ -1257,7 +1262,7 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
       if (AMPLIFYING[p.r]) {
         if (!out.has(m)) out.set(m, new Map());
         out.get(m)!.set(p.r, share);
-      } else if (TRANSFORMATIVE[p.r] && !(p.r === "bloom" && ctx.active.includes("lunar-bloom"))) {
+      } else if (TRANSFORMATIVE[p.r]) {
         const perSecond = share * appsBy(m); // Bloom: the Dendro Cores this member makes
         if (perSecond > 0) transformative.push({ m, r: p.r, aura: p.aura, perSecond });
       }
@@ -1323,12 +1328,12 @@ const QUICKEN_SECONDS = 0.8 * 5 + 6; // a Quicken aura from 0.8U (wiki Quicken Â
 const CRYSTALLIZE_PER_SECOND = 1;
 // A converter turns these into their Lunar or Stellar form (Moonsign Benediction, Stellar Jubilee): with the converted
 // reaction in the team, the base one doesn't happen. Stellar Swirl is the Cryo Swirl only (reactions.ts: Anemo + Cryo).
+// Not Bloom (#354): Lunar-Bloom "will grant the party a Verdant Dew in addition to spawning a Dendro Core or Bountiful
+// Core" and "does no DMG on its own" (wiki Lunar-Bloom, fetched 2026-10-28), so its cores still burst as Bloom and can
+// be Hyperbloomed or Burgeoned (Kaveh: "Dendro Cores created ... through Bloom and Lunar-Bloom reactions").
 const CONVERTED: Partial<Record<Reaction, Reaction>> = {
   electrocharged: "lunar-charged",
   superconduct: "stellar-conduct",
-  bloom: "lunar-bloom",
-  hyperbloom: "lunar-bloom", // no Dendro Cores to pop
-  burgeon: "lunar-bloom",
 };
 const convertedAway = (ctx: TeamContext, r: Reaction) => !!CONVERTED[r] && ctx.active.includes(CONVERTED[r]!);
 const swirlAuras = (ctx: TeamContext) => SWIRLABLE.filter((e) => !(e === "Cryo" && ctx.active.includes("stellar-swirl")));
