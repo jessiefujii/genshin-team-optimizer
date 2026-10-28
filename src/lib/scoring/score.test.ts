@@ -826,6 +826,12 @@ describe("sub-DPS (#96)", () => {
     expect(own("Rosaria", 2, ...mav)).toBeGreaterThan(own("Rosaria", 1, ...mav));
   });
 
+  test("an attack-type buff reaches a modeled carry's hits of that type, whatever their key talent (#382)", () => {
+    // Yun Jin's flat Normal Attack DMG on Clorinde: her key talent is her Skill, her hits in it Normal Attacks.
+    const yunJin = score("Clorinde", "Fischl", "Yun Jin", "Zhongli").breakdown.find((l) => l.reason.startsWith("Yun Jin") && l.rule === "Buffs")!;
+    expect(yunJin.reason).toMatch(/^Yun Jin buffs Clorinde \(~\+\d+% damage/);
+  });
+
   test("a buffer's constellation buffs need that constellation (#106): Faruzan C6, Beidou C6, Xingqiu C2, Mizuki C1/C2", () => {
     const teamDps = (who: string, constellation: number, ...ids: string[]) =>
       scoreTeam(team(...ids).map((c) => (c.id === who ? { ...c, constellation } : c))).damage.perSecond;
