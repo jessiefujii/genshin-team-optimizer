@@ -139,13 +139,13 @@ describe("scoreTeam", () => {
     expect(reasons("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toContain("Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive") // Nahida's EM in damage (#186); // ICDs (#226)
   });
 
-  test("Dendro Cores: Electro pops them into Hyperbloom, none with a Lunar-Bloom converter (#253)", () => {
+  test("Dendro Cores: Electro pops them into Hyperbloom, with a Lunar-Bloom converter too (#253, #354)", () => {
     const reasons = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions").map((l) => l.reason);
     const hyper = reasons("Alhaitham", "Xingqiu", "Kuki Shinobu", "Nahida");
     expect(hyper.some((r) => r.startsWith("Hyperbloom:") && r.includes("Kuki Shinobu"))).toBe(true);
     expect(hyper.some((r) => r.startsWith("Bloom:"))).toBe(true); // the cores no Electro reached
-    // Nefer's team turns Bloom into Lunar-Bloom: no cores.
-    expect(reasons("Nefer", "Furina", "Lauma", "Ineffa").some((r) => /^(Bloom|Hyperbloom|Burgeon):/.test(r))).toBe(false);
+    // Nefer's team triggers Lunar-Bloom, which still spawns the cores (#354): Ineffa's Electro pops them.
+    expect(reasons("Nefer", "Furina", "Lauma", "Ineffa").some((r) => /^(Bloom|Hyperbloom):/.test(r))).toBe(true);
   });
 
   test("a modeled carry's reactions are inside their damage, with a 0-point line saying what they add (#134, #202)", () => {
@@ -828,6 +828,13 @@ describe("sub-DPS (#96)", () => {
       );
     // Her Skill's two stages stay; the water balls go from 9 to 20.
     expect(own(true) / own(false)).toBeGreaterThan(1.4);
+  });
+
+  test("Lunar-Bloom keeps Bloom's Dendro Cores: they burst as Bloom and can be Hyperbloomed (#354)", () => {
+    const reasons = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions").map((l) => l.reason);
+    // Wiki Lunar-Bloom: Verdant Dew "in addition to spawning a Dendro Core"; the reaction itself "does no DMG on its own".
+    expect(reasons("Nefer", "Lauma", "Columbina", "Furina").some((r) => r.startsWith("Bloom: ~"))).toBe(true);
+    expect(reasons("Alhaitham", "Lauma", "Xingqiu", "Fischl").some((r) => r.startsWith("Hyperbloom: ~"))).toBe(true);
   });
 
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
