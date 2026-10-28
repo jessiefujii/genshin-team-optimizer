@@ -1253,7 +1253,7 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
       if (AMPLIFYING[p.r]) {
         if (!out.has(m)) out.set(m, new Map());
         out.get(m)!.set(p.r, share);
-      } else if (TRANSFORMATIVE[p.r] && !(p.r === "bloom" && ctx.active.includes("lunar-bloom"))) {
+      } else if (TRANSFORMATIVE[p.r]) {
         const perSecond = share * appsBy(m); // Bloom: the Dendro Cores this member makes
         if (perSecond > 0) transformative.push({ m, r: p.r, aura: p.aura, perSecond });
       }
@@ -1319,12 +1319,12 @@ const QUICKEN_SECONDS = 0.8 * 5 + 6; // a Quicken aura from 0.8U (wiki Quicken Â
 const CRYSTALLIZE_PER_SECOND = 1;
 // A converter turns these into their Lunar or Stellar form (Moonsign Benediction, Stellar Jubilee): with the converted
 // reaction in the team, the base one doesn't happen. Stellar Swirl is the Cryo Swirl only (reactions.ts: Anemo + Cryo).
+// Not Bloom (#354): Lunar-Bloom "will grant the party a Verdant Dew in addition to spawning a Dendro Core or Bountiful
+// Core" and "does no DMG on its own" (wiki Lunar-Bloom, fetched 2026-10-28), so its cores still burst as Bloom and can
+// be Hyperbloomed or Burgeoned (Kaveh: "Dendro Cores created ... through Bloom and Lunar-Bloom reactions").
 const CONVERTED: Partial<Record<Reaction, Reaction>> = {
   electrocharged: "lunar-charged",
   superconduct: "stellar-conduct",
-  bloom: "lunar-bloom",
-  hyperbloom: "lunar-bloom", // no Dendro Cores to pop
-  burgeon: "lunar-bloom",
 };
 const convertedAway = (ctx: TeamContext, r: Reaction) => !!CONVERTED[r] && ctx.active.includes(CONVERTED[r]!);
 const swirlAuras = (ctx: TeamContext) => SWIRLABLE.filter((e) => !(e === "Cryo" && ctx.active.includes("stellar-swirl")));
