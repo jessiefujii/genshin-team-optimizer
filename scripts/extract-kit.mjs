@@ -4103,6 +4103,35 @@ const benchmarkSets = {
   Citlali: [{ defer: true, set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "citlali-quickguide", "Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "citlali-quickguide", "it can be used when another character uses Scroll") }],
   Iansan: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "iansan-quickguide", "This makes it her recommended option for the vast majority of her teams") }, { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "iansan-quickguide", "A viable alternative to 4pc Scroll") }],
   Gorou: [{ set: "Husk of Opulent Dreams", source: "Jessie, 2026-10-24 (#338 review): Gorou on 4pc Husk of Opulent Dreams" }],
+  // #352: the six whose party buffs come from their set (Jessie, #178 review), from their KQM guides (accessed
+  // 2026-10-28). Scroll first with an on-field Anemo DPS (Wanderer, Xiao), as the guides say.
+  Venti: [
+    { set: "Scroll of the Hero of Cinder City", when: { members: ["Wanderer", "Xiao"] }, source: kqmOn("2026-10-28", "venti-quickguide", "In Anemo Hypercarry teams where Venti runs alongside an on-field Anemo DPS like Wanderer, he can use this set to provide 12% Anemo DMG Bonus") },
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-28", "venti-quickguide", "Uncontested BiS in the vast majority of scenarios") },
+    { set: "Gilded Dreams", source: kqmOn("2026-10-28", "venti-quickguide", "A niche option for teams with a second Anemo who is a better holder of 4pc VV than Venti") },
+  ],
+  Jean: [
+    // defer: her next picks are for when "4VV is redundant", another member holding it (Kazuha, Venti, Sucrose).
+    { defer: true, set: "Viridescent Venerer", source: kqmOn("2026-10-28", "jean-quickguide", "a universally solid option for support Jean") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-28", "jean-quickguide", "If no one else in the team has 4NO and 4VV is redundant or unnecessary, Jean is a viable holder of 4NO") },
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-28", "jean-quickguide", "If a 4NO holder is already in the team and 4VV is redundant or unnecessary, Jean can hold 4OHC") },
+  ],
+  Candace: [
+    // defer (estimate): her guide has Noblesse "similar or better" in ATK-scaling teams, while Kachina's "viability
+    // heavily relies on her holding this set", so a Kachina or other Scroll holder keeps it.
+    { defer: true, set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-28", "candace-quickguide", "4pc Scroll of the Hero of Cinder City (Scroll) is a strong set") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-28", "candace-quickguide", "4pc Noblesse Oblige is an alternative to 4pc Scroll") },
+    { set: "Silken Moon's Serenade", source: kqmOn("2026-10-28", "candace-quickguide", "4pc Silken Moon's Serenade is a good set in teams that benefit from the EM buff") },
+    { set: "Instructor", source: kqmOn("2026-10-28", "candace-quickguide", "4pc Instructor gives a good EM buff that is appreciated in reaction-based teams") },
+  ],
+  Kachina: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-28", "kachina-quickguide", "Kachina's viability heavily relies on her holding this set") }],
+  "Lan Yan": [
+    { set: "Scroll of the Hero of Cinder City", when: { members: ["Wanderer", "Xiao"] }, source: kqmOn("2026-10-28", "lan-yan-quickguide", "A strong option for Wanderer / Xiao teams for its 12% Anemo DMG Bonus buff") },
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-28", "lan-yan-quickguide", "Lan Yan's best set for almost all teams") },
+  ],
+  // KQM's Xinyan guide (keqingmains.com/xinyan/, "Updated for Version 3.3"; no quick guide) names no 4pc support set
+  // in its list, but its role text does.
+  Xinyan: [{ set: "Tenacity of the Millelith", source: 'KQM Xinyan guide (keqingmains.com/xinyan/, accessed 2026-10-28): "As a Support, Xinyan ... can also provide extra sources of utility through the Tenacity of the Millelith set"' }],
   Zhongli: [
     {
       set: "Tenacity of the Millelith",

@@ -2996,6 +2996,88 @@
         "source": "Jessie, 2026-10-24 (#338 review): Gorou on 4pc Husk of Opulent Dreams"
       }
     ],
+    "Venti": [
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "when": {
+          "members": [
+            "Wanderer",
+            "Xiao"
+          ]
+        },
+        "source": "KQM venti quick guide (keqingmains.com/q/venti-quickguide, accessed 2026-10-28): \"In Anemo Hypercarry teams where Venti runs alongside an on-field Anemo DPS like Wanderer, he can use this set to provide 12% Anemo DMG Bonus\""
+      },
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM venti quick guide (keqingmains.com/q/venti-quickguide, accessed 2026-10-28): \"Uncontested BiS in the vast majority of scenarios\""
+      },
+      {
+        "set": "Gilded Dreams",
+        "source": "KQM venti quick guide (keqingmains.com/q/venti-quickguide, accessed 2026-10-28): \"A niche option for teams with a second Anemo who is a better holder of 4pc VV than Venti\""
+      }
+    ],
+    "Jean": [
+      {
+        "defer": true,
+        "set": "Viridescent Venerer",
+        "source": "KQM jean quick guide (keqingmains.com/q/jean-quickguide, accessed 2026-10-28): \"a universally solid option for support Jean\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM jean quick guide (keqingmains.com/q/jean-quickguide, accessed 2026-10-28): \"If no one else in the team has 4NO and 4VV is redundant or unnecessary, Jean is a viable holder of 4NO\""
+      },
+      {
+        "set": "Ocean-Hued Clam",
+        "source": "KQM jean quick guide (keqingmains.com/q/jean-quickguide, accessed 2026-10-28): \"If a 4NO holder is already in the team and 4VV is redundant or unnecessary, Jean can hold 4OHC\""
+      }
+    ],
+    "Candace": [
+      {
+        "defer": true,
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM candace quick guide (keqingmains.com/q/candace-quickguide, accessed 2026-10-28): \"4pc Scroll of the Hero of Cinder City (Scroll) is a strong set\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "KQM candace quick guide (keqingmains.com/q/candace-quickguide, accessed 2026-10-28): \"4pc Noblesse Oblige is an alternative to 4pc Scroll\""
+      },
+      {
+        "set": "Silken Moon's Serenade",
+        "source": "KQM candace quick guide (keqingmains.com/q/candace-quickguide, accessed 2026-10-28): \"4pc Silken Moon's Serenade is a good set in teams that benefit from the EM buff\""
+      },
+      {
+        "set": "Instructor",
+        "source": "KQM candace quick guide (keqingmains.com/q/candace-quickguide, accessed 2026-10-28): \"4pc Instructor gives a good EM buff that is appreciated in reaction-based teams\""
+      }
+    ],
+    "Kachina": [
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "source": "KQM kachina quick guide (keqingmains.com/q/kachina-quickguide, accessed 2026-10-28): \"Kachina's viability heavily relies on her holding this set\""
+      }
+    ],
+    "Lan Yan": [
+      {
+        "set": "Scroll of the Hero of Cinder City",
+        "when": {
+          "members": [
+            "Wanderer",
+            "Xiao"
+          ]
+        },
+        "source": "KQM lan-yan quick guide (keqingmains.com/q/lan-yan-quickguide, accessed 2026-10-28): \"A strong option for Wanderer / Xiao teams for its 12% Anemo DMG Bonus buff\""
+      },
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM lan-yan quick guide (keqingmains.com/q/lan-yan-quickguide, accessed 2026-10-28): \"Lan Yan's best set for almost all teams\""
+      }
+    ],
+    "Xinyan": [
+      {
+        "set": "Tenacity of the Millelith",
+        "source": "KQM Xinyan guide (keqingmains.com/xinyan/, accessed 2026-10-28): \"As a Support, Xinyan ... can also provide extra sources of utility through the Tenacity of the Millelith set\""
+      }
+    ],
     "Zhongli": [
       {
         "set": "Tenacity of the Millelith",
