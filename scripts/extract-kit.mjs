@@ -3956,6 +3956,64 @@ const GLEAMING_MOON = /All party members' Lunar Reaction DMG is increased by (\d
 const LUNAR = ["lunar-charged", "lunar-bloom", "lunar-crystallize"];
 const OWN_HITS = "by the wearer's own Elemental DMG";
 const SETS = {
+  // #383: the 5-star sets that had no entry. Bloodstained Chivalry's 4pc needs a defeated opponent and Maiden Beloved's
+  // only raises healing received, so neither adds single-target damage: accounted for with no effects. Echoes of an
+  // Offering's Valley Rite (a chance-based flat Normal Attack DMG of 70% ATK) needs a kind of its own: left out.
+  "A Day Carved From Rising Winds": [
+    // "After a Normal Attack, Charged Attack, Elemental Skill, or Elemental Burst hits an opponent ... for 6s", "even when
+    // the character is off-field": kept up (estimate); the CRIT Rate after Witch's Homework (a Hexerei member).
+    { kind: "atkPct", re: /ATK is increased by (\d+)%/, estimate: "by the wearer's hits" },
+    { kind: "critRate", re: /increases the CRIT Rate of the equipping character by (\d+)%/, when: { hexerei: true }, estimate: "by the wearer's hits" },
+  ],
+  "Bloodstained Chivalry": [],
+  "Desert Pavilion Chronicle": [
+    // "When Charged Attacks hit opponents ... for 15s": the wearer's Charged Attacks keep it up (estimate).
+    { kind: "dmgBonus", re: /Normal, Charged, and Plunging Attack DMG will increase by (\d+)%/, types: ["normal", "charged", "plunge"], estimate: "by the wearer's Charged Attacks" },
+  ],
+  "Disenchantment in Deep Shadow": [
+    { kind: "reactionBonus", reactions: ["superconduct"], re: /Increases Superconduct Reaction DMG by (\d+)%/ },
+    { kind: "reactionBonus", reactions: ["stellar-conduct"], re: /Stellar-Conduct Reaction DMG by (\d+)%/ },
+    // "When the wielder attacks opponents affected by Superconduct or Stellar-Conduct": while the team triggers either.
+    { kind: "critRate", re: /this attack's CRIT Rate is increased by (\d+)%/, when: { reaction: ["superconduct", "stellar-conduct"] } },
+  ],
+  "Flower of Paradise Lost": [
+    // "after the equipping character triggers Bloom, Hyperbloom, Lunar-Bloom, or Burgeon, they will gain another 25%
+    // bonus ... Max 4 stacks": at 4 stacks, +100% of the base (estimate: a wearer who triggers these keeps them).
+    { kind: "reactionBonus", reactions: ["bloom", "hyperbloom", "burgeon"], re: /Bloom, Hyperbloom, and Burgeon reaction DMG are increased by (\d+)%/, scale: 2, estimate: "at 4 stacks" },
+    { kind: "reactionBonus", reactions: ["lunar-bloom"], re: /Lunar-Bloom reaction DMG is increased by (\d+)%/, scale: 2, estimate: "at 4 stacks" },
+  ],
+  Lavawalker: [{ kind: "dmgBonus", re: /Increases DMG against opponents affected by Pyro by (\d+)%/, when: { aura: "Pyro" }, estimate: "while a teammate keeps Pyro on" }],
+  "Maiden Beloved": [],
+  "Nighttime Whispers in the Echoing Woods": [
+    // "After using an Elemental Skill, gain a 20% Geo DMG Bonus for 10s" (kept up: estimate); "increased by 150%" under a
+    // Crystallize shield or near Moondrifts: the team triggers Crystallize or Lunar-Crystallize (150% of the 20%).
+    { kind: "dmgBonus", element: "Geo", re: /gain a (\d+)% Geo DMG Bonus/, estimate: "by the wearer's Skill" },
+    { kind: "dmgBonus", element: "Geo", re: /the above effect is increased by (\d+)%/, scale: 0.2, when: { reaction: ["crystallize", "lunar-crystallize"] }, estimate: "by the wearer's Skill" },
+  ],
+  "Nymph's Dream": [
+    // "1, 2, or 3 or more Mirrored Nymph stacks": 3, one per attack type that hits (estimate: Normal Attack, Skill, Burst).
+    { kind: "atkPct", re: /ATK will be increased by \d+%\/\d+%\/(\d+)%/, estimate: "at 3 stacks" },
+    { kind: "dmgBonus", element: "Hydro", re: /Hydro DMG Bonus will be increased by \d+%\/\d+%\/(\d+)%/, estimate: "at 3 stacks" },
+  ],
+  "Pale Flame": [
+    // "When an Elemental Skill hits an opponent, ATK is increased by 9% for 7s ... up to 2 times ... Once 2 stacks are
+    // reached, the 2-set effect is increased by 100%" (kept up: estimate).
+    { kind: "atkPct", re: /ATK is increased by (\d+)% for 7s/, stacks: 2, estimate: "by the wearer's Skill" },
+    { kind: "dmgBonus", element: "Physical", re: /the 2-set effect is increased by (\d+)%/, of2pc: /Physical DMG is increased by (\d+)%/, estimate: "by the wearer's Skill" },
+  ],
+  "Retracing Bolide": [{ kind: "dmgBonus", re: /gain an additional (\d+)% Normal and Charged Attack DMG/, types: ["normal", "charged"], when: { shielded: true } }],
+  "Scarlet Proof": [
+    // "for 10s after they trigger a Stellar Swirl reaction".
+    { kind: "critRate", re: /Increases the equipping character's CRIT Rate by (\d+)%/, when: { reaction: "stellar-swirl", wearerReacts: true } },
+    { kind: "reactionBonus", reactions: ["stellar-swirl"], re: /their Stellar Swirl reaction DMG dealt by (\d+)%/, when: { reaction: "stellar-swirl", wearerReacts: true } },
+  ],
+  Thundersoother: [{ kind: "dmgBonus", re: /Increases DMG against opponents affected by Electro by (\d+)%/, when: { aura: "Electro" }, estimate: "while a teammate keeps Electro on" }],
+  "Vourukasha's Glow": [
+    // "Elemental Skill and Elemental Burst DMG will be increased by 10%. After the equipping character takes DMG, the
+    // aforementioned DMG Bonus is increased by 80% for 5s ... 5 stacks": one stack (estimate: hit about once per 5s).
+    { kind: "dmgBonus", re: /Elemental Skill and Elemental Burst DMG will be increased by (\d+)%/, types: ["skill", "burst"] },
+    { kind: "dmgBonus", re: /the aforementioned DMG Bonus is increased by (\d+)%/, types: ["skill", "burst"], scale: 0.1, estimate: "at 1 stack" },
+  ],
   "Blizzard Strayer": [
     { kind: "critRate", re: /affected by Cryo, their CRIT Rate is increased by (\d+)%/, when: { aura: "Cryo" } },
     { kind: "critRate", re: /If the opponent is Frozen, CRIT Rate is increased by an additional (\d+)%/, when: { reaction: "freeze" } },
@@ -4131,7 +4189,7 @@ for (const [name, values] of Object.entries(SETS)) {
       ...(pieces === 2 ? { pieces } : {}),
       ...(v.party ? { party: true } : {}),
       ...(v.effect ? { effect: read(v.effect, pieces)[1] } : {}),
-      value: round((Number(m[1]) / (v.flat ? 1 : 100)) * of2pc * stacks),
+      value: round((Number(m[1]) / (v.flat ? 1 : 100)) * of2pc * stacks * (v.scale ?? 1)), // scale: stacks of a % of itself
       // A stacking effect whose stack count a character's kit sets (holderStates.setStacks): the value of one stack.
       ...(v.maxStacks ? { perStack: round((Number(m[1]) / 100) * of2pc), maxStacks: Number(read(v.maxStacks, pieces)[1]) } : {}),
       ...(v.cap ? { max: Number(read(v.cap, pieces)[1].replace(/,/g, "")) / (v.kind === "dmgBonusFromEr" ? 100 : 1) } : {}),
@@ -4186,15 +4244,49 @@ for (const [id, bySet] of Object.entries(holderStates.setStacks)) {
 }
 // The 4pc set a carry without a build reads as wearing (#279, #206): their KQM quick guide's pick (accessed
 // 2026-10-20), the first option whose `when` fits the team (reaction: the team triggers it; members: one of them is in
-// the team; none: always). Only sets in SETS: a carry whose guide picks another (Itto, Navia, Noelle: Husk,
-// Nighttime Whispers; Eula: Pale Flame; Klee: Rising Winds; Tartaglia: Nymph's Dream; Heizou, Wanderer: Viridescent
-// Venerer, a team set; Keqing: Marechaussee or Night by team; Kaveh: Deepwood Memories) has none yet.
+// the team; none: always). Only sets in SETS: the carries whose guide picks were missing got theirs with #383 (Itto,
+// Noelle: Husk; Navia: Nighttime Whispers; Eula: Pale Flame; Klee: Rising Winds; Tartaglia: Nymph's Dream; Heizou,
+// Wanderer: Viridescent Venerer; Keqing: Marechaussee with Furina, else Thundersoother; Kaveh: Deepwood Memories).
 const kqmOn = (date, page, quote) => `KQM ${page.replace(/-quickguide$/, "")} quick guide (keqingmains.com/q/${page}, accessed ${date}): "${quote}"`;
 const kqm = (page, quote) => kqmOn("2026-10-20", page, quote);
 // genshin-builds' character pages for the characters without a KQM quick guide (#369; Jessie, 2026-10-29: search
 // outside KQM): the recommended build's sets in order and its first non-5-star weapon.
 const gbOn = (date, page, what) => `genshin-builds (genshin-builds.com/en/character/${page}, accessed ${date}): ${what}`;
 const benchmarkSets = {
+  // #383: carries whose guide's set wasn't modeled before.
+  "Arataki Itto": [
+    { set: "Husk of Opulent Dreams", source: kqmOn("2026-10-29", "itto-quickguide", "4pc Husk of Opulent Dreams is Itto's Best-in-Slot artifact set.") },
+  ],
+  Navia: [
+    { set: "Nighttime Whispers in the Echoing Woods", source: kqmOn("2026-10-29", "navia-quickguide", "Navia's best-in-slot artifact set provides ATK% and good Geo DMG Bonus.") },
+  ],
+  Noelle: [
+    { set: "Husk of Opulent Dreams", source: kqmOn("2026-10-29", "noelle-quickguide", "4pc Husk of Opulent Dreams is the recommended set to farm for dedicated Noelle players.") },
+  ],
+  Eula: [
+    { set: "Pale Flame", source: kqmOn("2026-10-29", "eula-quickguide", "Eula's Best-in-Slot artifact set, developed with her kit in mind.") },
+  ],
+  Klee: [
+    { set: "A Day Carved From Rising Winds", source: kqmOn("2026-10-29", "klee-quickguide", "Klee's best set in almost any team.") },
+  ],
+  Tartaglia: [
+    { set: "Nymph's Dream", source: kqmOn("2026-10-29", "tartaglia-quickguide", "Childe's new BiS artifact set.") },
+  ],
+  "Shikanoin Heizou": [
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-29", "heizou-quickguide", "4pc Viridescent Venerer is by far Heizou's most recommended set since it boosts his teammates' damage.") },
+  ],
+  Wanderer: [
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-29", "wanderer-quickguide", "4pc Viridescent Venerer (VV) is the go-to set for Wanderer in his driver playstyle since it maximizes his Swirl damage and buffs his off-field teammates' damage.") },
+  ],
+  Keqing: [
+    { set: "Marechaussee Hunter", when: { members: ["Furina"] }, source: kqmOn("2026-10-29", "keqing-quickguide", "4pc MH is Keqing's top option in Lunar-Charged by an exceedingly large margin when there is only one Nod-Krai unit on the team.") },
+    { set: "Thundersoother", source: kqmOn("2026-10-29", "keqing-quickguide", "Electro aura uptime is essentially perfect in Lunar-Charged, making 4pc Thundersoother Keqing's best traditional option.") },
+  ],
+  Kaveh: [
+    { set: "Deepwood Memories", source: kqmOn("2026-10-29", "kaveh-quickguide", "A generalist support set for Dendro teams; Kaveh can have full uptime on the 4-piece effect by using his Skill every 6-8s.") },
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-29", "kaveh-quickguide", "If there is another consistent 4pc DM holder in the team, Kaveh can hold this set to contribute more damage.") },
+    { set: "Instructor", source: kqmOn("2026-10-29", "kaveh-quickguide", "Provides a useful teamwide EM buff.") },
+  ],
   Ganyu: [{ set: "Blizzard Strayer", when: { reaction: "freeze" }, source: kqm("ganyu-quickguide", "This set is Ganyu's best-in-slot against freezable enemies") }],
   Freminet: [{ set: "Blizzard Strayer", when: { reaction: "freeze" }, source: kqm("freminet-quickguide", "4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle") }],
   "Kamisato Ayaka": [{ set: "Marechaussee Hunter", when: { members: ["Furina"] }, source: kqm("ayaka-quickguide", "4pc Marechaussee Hunter is Ayaka's recommended artifact set for most content when Furina is on the team") }],
@@ -4345,7 +4437,7 @@ const benchmarkSets = {
   ],
   // #369: the remaining supports, from their KQM quick guides' Artifact Sets (accessed 2026-10-29), in the guide's
   // order (the later ones are the next picks when a teammate holds the first, #348). A set not in SETS is skipped for
-  // the next: Barbara's Maiden Beloved, Kokomi's Flower of Paradise Lost, Durin's A Day Carved From Rising Winds (#383).
+  // the next (Barbara's Maiden Beloved, which adds no damage; Kokomi's Flower of Paradise Lost came in with #383).
   // No quick guide: Yae Miko, the Anemo, Electro and Geo Travelers, Manekin and Manekina.
   Aino: [
     { set: "Silken Moon's Serenade", source: kqmOn("2026-10-29", "aino-quickguide", "As a Nod-Krai character, Aino can use 4pc SMS for its teamwide EM buff with full uptime.") },
@@ -4445,6 +4537,7 @@ const benchmarkSets = {
     { set: "Instructor", source: kqmOn("2026-10-29", "qiqi-quickguide", "4pc Instructor grants the team 120 EM for 8s if Qiqi triggers an Elemental Reaction while on-field.") },
   ],
   "Sangonomiya Kokomi": [
+    { set: "Flower of Paradise Lost", when: { reaction: "bloom" }, source: kqmOn("2026-10-29", "kokomi-quickguide", "Maximizes Kokomi's Bloom damage, but comes from a highly resin-inefficient domain.") },
     { set: "Gilded Dreams", when: { reaction: "bloom" }, source: kqmOn("2026-10-29", "kokomi-quickguide", "The most recommended artifact set in double Dendro comps where Kokomi has high Bloom ownership, providing 180 EM with an easily triggered 4pc effect.") },
     { set: "Ocean-Hued Clam", source: kqmOn("2026-10-29", "kokomi-quickguide", "A good option for triple Hydro teams where Kokomi owns fewer Blooms and will benefit more from the 2pc Healing Bonus and AoE damage from the 4pc passive.") },
   ],
@@ -4484,7 +4577,7 @@ const benchmarkSets = {
     { set: "Husk of Opulent Dreams", source: kqmOn("2026-10-29", "yunjin-quickguide", "4pc Husk of Opulent Dreams (Husk) provides a solid DEF% buff.") },
     { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "yunjin-quickguide", "4pc Noblesse Oblige (NO) is an alternative option to 4pc Husk that generally has similar or better performance in ATK-scaling teams.") },
   ],
-  // #369, no KQM quick guide: genshin-builds. Geo Traveler's first pick, Nighttime Whispers, isn't in SETS (#383).
+  // #369, no KQM quick guide: genshin-builds.
   "Yae Miko": [
     { set: "Golden Troupe", source: gbOn("2026-10-29", "yae_miko", "OFF-FIELD DPS Build, first set: Golden Troupe (4pc)") },
     { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "yae_miko", "OFF-FIELD DPS Build, second set: Emblem of Severed Fate (4pc)") },
@@ -4496,7 +4589,8 @@ const benchmarkSets = {
     { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build, third set") },
   ],
   "Traveler (Geo)": [
-    { set: "Golden Troupe", source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build, second set (the first, Nighttime Whispers, isn't modeled)") },
+    { set: "Nighttime Whispers in the Echoing Woods", source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build, first set: Nighttime Whispers in the Echoing Woods (4-piece)") },
+    { set: "Golden Troupe", source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build, second set") },
     { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build, third set") },
   ],
 };

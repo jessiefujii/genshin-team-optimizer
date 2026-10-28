@@ -659,6 +659,26 @@ describe("set bonuses on the wearer's own damage (#206)", () => {
   const value = (c: ScoringCharacter, mates: string[], active: Reaction[], kind: string) =>
     setBuffs(c, active, [c, ...team(...mates)]).filter((b) => b.kind === kind).reduce((a, b) => a + b.value, 0);
 
+  test("the 5-star sets added for #383 read their conditions", () => {
+    // Rising Winds' CRIT Rate needs Witch's Homework (a Hexerei member); its ATK doesn't.
+    const klee = wearing("Klee", "A Day Carved From Rising Winds");
+    expect(value(klee, ["Bennett"], [], "critRate")).toBeCloseTo(0.2);
+    expect(value({ ...klee, families: [] }, ["Bennett"], [], "critRate")).toBe(0);
+    expect(value(klee, ["Bennett"], [], "atkPct")).toBeCloseTo(0.25);
+    // Retracing Bolide: only while shielded (a shielder, or Crystallize's shards).
+    const bolide = (...mates: string[]) =>
+      setBuffs(wearing("Diluc", "Retracing Bolide"), [], team("Diluc", ...mates)).filter((b) => b.kind === "dmgBonus").reduce((a, b) => a + b.value, 0);
+    expect(bolide("Zhongli")).toBeCloseTo(0.4);
+    expect(bolide("Bennett")).toBe(0);
+    // Nighttime Whispers: 20% Geo DMG, 150% more with Crystallize.
+    const navia = wearing("Navia", "Nighttime Whispers in the Echoing Woods");
+    expect(value(navia, ["Bennett"], [], "dmgBonus")).toBeCloseTo(0.2);
+    expect(value(navia, ["Bennett"], ["crystallize"], "dmgBonus")).toBeCloseTo(0.5);
+    // Carries whose guide set came in with #383 wear it by default.
+    expect(setsOf(get("Eula"), [])).toEqual([{ set: "Pale Flame", pieces: 4 }]);
+    expect(setsOf(get("Tartaglia"), [])).toEqual([{ set: "Nymph's Dream", pieces: 4 }]);
+  });
+
   test("a benchmark carry wears their guide's set, by team where the guide says so", () => {
     expect(setsOf(get("Neuvillette"), [])).toEqual([{ set: "Marechaussee Hunter", pieces: 4 }]);
     expect(setsOf(get("Skirk"), [], team("Skirk", "Furina"))).toEqual([{ set: "Marechaussee Hunter", pieces: 4 }]);
