@@ -826,7 +826,7 @@ describe("sub-DPS (#96)", () => {
     expect(own("Rosaria", 2, ...mav)).toBeGreaterThan(own("Rosaria", 1, ...mav));
   });
 
-  test("a buffer's constellation buffs need that constellation (#106): Faruzan C6, Beidou C6, Xingqiu C2", () => {
+  test("a buffer's constellation buffs need that constellation (#106): Faruzan C6, Beidou C6, Xingqiu C2, Mizuki C1/C2", () => {
     const teamDps = (who: string, constellation: number, ...ids: string[]) =>
       scoreTeam(team(...ids).map((c) => (c.id === who ? { ...c, constellation } : c))).damage.perSecond;
     // Faruzan's 40% CRIT DMG on Anemo DMG while her Burst is up.
@@ -839,6 +839,20 @@ describe("sub-DPS (#96)", () => {
     // Xingqiu's C2 Hydro RES shred reaches a Hydro carry.
     const ayato = ["Kamisato Ayato", "Xingqiu", "Bennett", "Kaedehara Kazuha"];
     expect(teamDps("Xingqiu", 2, ...ayato)).toBeGreaterThan(teamDps("Xingqiu", 1, ...ayato));
+    // Mizuki's C2 Pyro/Hydro/Cryo/Electro DMG Bonus reaches her teammates' hits while she's on field, never another
+    // carry's: Odette's Hydro under Mizuki, nothing for Xiangling's Pyro carry with Mizuki off field.
+    const sub = (constellation: number, ...ids: string[]) =>
+      dps(scoreTeam(team(...ids).map((c) => (c.id === "Yumemizuki Mizuki" ? { ...c, constellation } : c))).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Odette"))?.reason);
+    const mizuki = ["Yumemizuki Mizuki", "Odette", "Faruzan", "Diona"];
+    expect(sub(2, ...mizuki)).toBeGreaterThan(sub(1, ...mizuki) * 1.1);
+    // Her C1: one Swirl or Stellar Swirl per 3.5s deals more, its own Reactions line; none at C0.
+    const c1Line = (constellation: number) =>
+      scoreTeam(team(...mizuki).map((c) => (c.id === "Yumemizuki Mizuki" ? { ...c, constellation } : c))).breakdown.find((l) => l.reason.startsWith("Mizuki's C1"))?.reason;
+    expect(dps(c1Line(1))).toBeGreaterThan(500);
+    expect(c1Line(0)).toBeUndefined();
+    const c2 = { ...byId.get("Yumemizuki Mizuki")!, constellation: 2 };
+    const xiangling = team("Xiangling", "Bennett", "Xingqiu");
+    expect(kitBuffValue(c2, xiangling[0], [], [c2, ...xiangling])?.gain ?? 0).toBe(0);
   });
 
   test("Aino's Ascendant Gleam upgrade is in her sub-DPS damage: 20 water balls per Burst instead of 9 (#159)", () => {

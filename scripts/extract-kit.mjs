@@ -304,6 +304,31 @@ const SPEC = {
     ],
     duration: 10,
     cd: "CD",
+    // C2: "When Yumemizuki Mizuki enters the Dreamdrifter state, every Elemental Mastery point she has will increase all
+    // nearby party members' Pyro, Hydro, Cryo, and Electro DMG Bonuses by 0.04% until the Dreamdrifter state ends": her
+    // teammates' hits while she's on field (PARTY_WIDE), not her own Anemo.
+    also: [
+      // C1: during Dreamdrifter, every 3.5s she marks nearby opponents for 3s; the next Swirl or Stellar Swirl by Anemo
+      // DMG on one "deals DMG against this opponent increased by 1,100% and 550% of Mizuki's Elemental Mastery,
+      // respectively", and clears the mark: one such Swirl per `every` seconds at most (score.ts transformativeLines).
+      {
+        from: "c1",
+        constellation: 1,
+        values: [
+          { kind: "flatDmgFromEm", re: /increased by ([\d,]+)% and [\d,]+% of Mizuki/, unit: "of Mizuki's EM as flat DMG on one Swirl per 3.5s (C1)", percent: true, reactions: ["swirl"], whileOnField: true, every: /for 3s every ([\d.]+)s/ },
+          { kind: "flatDmgFromEm", re: /increased by [\d,]+% and ([\d,]+)% of Mizuki/, unit: "of Mizuki's EM as flat DMG on one Stellar Swirl per 3.5s (C1)", percent: true, reactions: ["stellar-swirl"], whileOnField: true, every: /for 3s every ([\d.]+)s/ },
+        ],
+        duration: 10,
+        cd: { talent: "skill", label: "CD" },
+      },
+      {
+        from: "c2",
+        constellation: 2,
+        values: [{ kind: "dmgBonusPerEm", re: /DMG Bonuses by ([\d.]+)%/, unit: "Pyro/Hydro/Cryo/Electro DMG % per point of Mizuki's EM (C2)", percent: true, elements: ["Pyro", "Hydro", "Cryo", "Electro"], whileOnField: true }],
+        duration: 10,
+        cd: { talent: "skill", label: "CD" },
+      },
+    ],
   },
   Nilou: {
     from: ["passive2", "passive1"],
@@ -538,7 +563,8 @@ function readBuffs(id, spec) {
     const above = v.hpAbove ? { threshold: num(v.hpAbove), ...(v.maxText ? { max: num(v.maxText) / 100 } : {}) } : null;
     return {
       kind: v.kind,
-      value: steps ? steps.values[steps.values.length - 1] : round((Number(m[1]) / (v.percent ? 100 : 1)) * (v.scale ?? 1)),
+      value: steps ? steps.values[steps.values.length - 1] : round((Number(m[1].replace(/,/g, "")) / (v.percent ? 100 : 1)) * (v.scale ?? 1)),
+      ...(v.every ? { every: num(v.every) } : {}), // at most once per this many seconds (Mizuki's C1)
       ...(points ? { points } : {}),
       ...(excess ? { threshold: excess.threshold, max: excess.max } : {}),
       ...(above ?? {}),

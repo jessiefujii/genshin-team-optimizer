@@ -1457,6 +1457,53 @@
           "duration": 10,
           "cd": 15,
           "uptime": 0.666667
+        },
+        {
+          "kind": "flatDmgFromEm",
+          "value": 11,
+          "every": 3.5,
+          "reactions": [
+            "swirl"
+          ],
+          "whileOnField": true,
+          "unit": "of Mizuki's EM as flat DMG on one Swirl per 3.5s (C1)",
+          "source": "c1: \"increased by 1,100% and 550% of Mizuki\"",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667,
+          "constellation": 1
+        },
+        {
+          "kind": "flatDmgFromEm",
+          "value": 5.5,
+          "every": 3.5,
+          "reactions": [
+            "stellar-swirl"
+          ],
+          "whileOnField": true,
+          "unit": "of Mizuki's EM as flat DMG on one Stellar Swirl per 3.5s (C1)",
+          "source": "c1: \"increased by 1,100% and 550% of Mizuki\"",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667,
+          "constellation": 1
+        },
+        {
+          "kind": "dmgBonusPerEm",
+          "value": 0.0004,
+          "elements": [
+            "Pyro",
+            "Hydro",
+            "Cryo",
+            "Electro"
+          ],
+          "whileOnField": true,
+          "unit": "Pyro/Hydro/Cryo/Electro DMG % per point of Mizuki's EM (C2)",
+          "source": "c2: \"DMG Bonuses by 0.04%\"",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667,
+          "constellation": 2
         }
       ]
     },
