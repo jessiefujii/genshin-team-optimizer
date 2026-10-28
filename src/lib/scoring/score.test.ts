@@ -302,7 +302,7 @@ describe("scoreTeam", () => {
     // so is his guide's Night of the Sky's Unveiling going from 15% to 30% CRIT Rate (#206). 71% -> 73% with Night's
     // Gleaming Moon +10% Lunar Reaction DMG in his hits (#306), the unlocked ones included.
     expect(lines("Flins", "Aino", "Ineffa", "Xilonen")).toEqual([
-      { rule: "Moonsign", points: 0, reason: "Ascendant Gleam adds ~+73% to Flins's damage" },
+      { rule: "Moonsign", points: 0, reason: "Ascendant Gleam adds ~+82% to Flins's damage" }, // Aino's Silken Moon's Serenade (#369)
     ]);
     // One Moonsign member is only Nascent Gleam.
     expect(lines("Flins", "Bennett", "Xingqiu", "Xilonen")).toEqual([]);
@@ -1251,7 +1251,7 @@ describe("talent levels (#25)", () => {
     // Alhaitham and Tighnari are modeled, so their Spread counts by damage (#134). Alhaitham's hits that apply Dendro
     // (#226): 7 of 20 Normal Attack hits, 4 of 10 Burst hits, every other Projection Attack.
     expect(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu").breakdown.map((l) => l.reason)).toContain(
-      "Spread adds ~+78% to Alhaitham's damage", // ICDs (#226); his guide's Gilded Dreams needs a reaction (#206)
+      "Spread adds ~+74% to Alhaitham's damage", // ICDs (#226); his guide's Gilded Dreams needs a reaction (#206); Kuki's Tenacity ATK (#369)
     );
     expect(score("Tighnari", "Yae Miko", "Fischl", "Zhongli").breakdown.map((l) => l.reason)).toContain(
       // 1 in 4 Clusterbloom Arrows applies Dendro (#221); his guide's Wanderer's Troupe raises his Charged Attacks (#206).
@@ -1264,9 +1264,9 @@ describe("talent levels (#25)", () => {
     // Bennett's ATK raises Alhaitham's hits but not Spread's flat damage, so Spread adds a smaller share.
     // (ICDs, #226; with his guide's Gilded Dreams, whose ATK and EM need a reaction, #206.)
     expect(spread("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe("Spread adds ~+69% to Alhaitham's damage"); // Nahida's EM in damage (#186), Zhongli's Tenacity (#338)
-    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+60% to Alhaitham's damage"); // Noblesse (#338)
-    // Lauma's flat DMG is for Bloom-type reactions, not his hits: no change.
-    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+78% to Alhaitham's damage");
+    expect(spread("Alhaitham", "Bennett", "Nahida", "Kuki Shinobu")).toBe("Spread adds ~+57% to Alhaitham's damage"); // Noblesse (#338), Kuki's Tenacity (#369)
+    // Lauma's flat DMG is for Bloom-type reactions, not his hits: no change from it (Kuki's Tenacity ATK lowers it, #369).
+    expect(spread("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu")).toBe("Spread adds ~+74% to Alhaitham's damage");
     // Vaporize multiplies the whole hit, so ATK buffs leave its share alone.
     const vape = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Vaporize adds"))?.reason;
     expect(vape("Hu Tao", "Xingqiu", "Bennett", "Zhongli")).toBe(vape("Hu Tao", "Xingqiu", "Yelan", "Zhongli"));
