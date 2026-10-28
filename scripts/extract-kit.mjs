@@ -4634,64 +4634,85 @@ for (const c of tags.filter((c) => (c.families ?? []).includes("stellar"))) {
 //   missing: no duration or cooldown to read; the scorer then counts the member as covering the rotation, as the
 //   flat healer/shielder tag did
 // Instant heals (Barbara's and Jean's Burst, Baizhu's Skill) top HP up once; they add no coverage and are left out.
+//   every / ticks (heals, #351): seconds between heals, or heals per cast (spread over the duration), from the wiki's
+//   talent notes; without either, one heal a second (estimate: Jahoda, Linnea, Vodyanitsa, Kokomi's Burst). targets:
+//   "party" when each heal reaches every party member, else the active character only. Used by the healing sets.
 const SUSTAIN = {
   Alyosha: { missing: "Tugarin's healing (passive 1) has no duration or rate in genshin-db's text" },
   Baizhu: [{ kind: "shield", talent: "burst", value: "Seamless Shield DMG Absorption", duration: "Pulsing Clarity Duration", cd: "CD" }],
-  Barbara: [{ kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD" }],
+  // wiki: "ticks once on Barbara herself upon activation then every 5 seconds for 4 heals in total".
+  Barbara: [{ kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD", ticks: 4 }],
   Beidou: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables" },
   Candace: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)" },
   "Yun Jin": { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)" },
-  Bennett: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration Per Sec", duration: "Duration", cd: "CD" }],
+  // wiki: "first activates 1s after casting and every second afterwards for a total of 12 activations".
+  Bennett: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration Per Sec", duration: "Duration", cd: "CD", every: 1 }],
   // Newsflash Field Duration is the field's own; the wiki gives no longer duration for Kamera's regeneration.
-  Charlotte: [{ kind: "heal", talent: "burst", value: "Kamera Continuous Regeneration", duration: "Newsflash Field Duration", cd: "CD" }],
-  Chevreuse: [{ kind: "heal", talent: "skill", value: "HP Regeneration Over Time", duration: "Healing Duration", cd: "CD" }],
+  // wiki: "Newsflash Field's DMG and healing effects activate a total of 8 times".
+  Charlotte: [{ kind: "heal", talent: "burst", value: "Kamera Continuous Regeneration", duration: "Newsflash Field Duration", cd: "CD", ticks: 8 }],
+  // wiki: "first activates 2s after casting and every 2s afterwards for a total of 6 activations".
+  Chevreuse: [{ kind: "heal", talent: "skill", value: "HP Regeneration Over Time", duration: "Healing Duration", cd: "CD", every: 2 }],
   Citlali: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Dahlia: [{ kind: "shield", talent: "burst", value: "Shield of Sacred Favor DMG Absorption", duration: "Favonian Favor Duration", cd: "CD" }],
   Diona: [
     { kind: "shield", talent: "skill", value: "Base Shield DMG Absorption", duration: "Duration", paws: 5, cd: "Hold CD" },
-    { kind: "heal", talent: "burst", value: "HP Regeneration Over Time", duration: "Duration", cd: "CD" },
+    // wiki: Drunken Mist "first activates 2s after casting and every 2s afterwards for a total of 6 activations".
+    { kind: "heal", talent: "burst", value: "HP Regeneration Over Time", duration: "Duration", cd: "CD", every: 2 },
   ],
   // Mitigation (#113): the share of the DMG taken it takes away. Dehya's Fiery Sanctum moves it into Redmane's Blood
   // (up to 200% of her Max HP stored, well above one Abyss hit, so not a limit here).
   Dehya: [{ kind: "mitigation", talent: "skill", value: "Mitigation", duration: "Field Duration", cd: "CD" }],
-  Dori: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD" }],
-  Escoffier: [{ kind: "heal", from: "passive1", re: /Rehab Diet effect for (\d+)s: Restores HP for nearby active characters every 1s based on ([\d.]+)% of Escoffier's ATK/, cd: { talent: "burst", label: "CD" } }],
-  Furina: [{ kind: "heal", talent: "skill", value: "Singer of Many Waters Healing", duration: "Duration", cd: "CD" }],
-  Iansan: [{ kind: "heal", from: "passive2", re: /she will heal your current active character for (\d+)% of her ATK/, duration: { talent: "burst", label: "Duration" }, cd: { talent: "burst", label: "CD" } }],
+  // wiki: "The Healing and Energy restoration effects occur every 2 seconds".
+  Dori: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD", every: 2 }],
+  Escoffier: [{ kind: "heal", every: 1, from: "passive1", re: /Rehab Diet effect for (\d+)s: Restores HP for nearby active characters every 1s based on ([\d.]+)% of Escoffier's ATK/, cd: { talent: "burst", label: "CD" } }],
+  // wiki: "The Singer of Many Waters will heal nearby active characters every 2s".
+  Furina: [{ kind: "heal", talent: "skill", value: "Singer of Many Waters Healing", duration: "Duration", cd: "CD", every: 2 }],
+  // wiki: "This effect can be triggered once every 2.8s" (taken as triggered whenever it can: estimate).
+  Iansan: [{ kind: "heal", every: 2.8, from: "passive2", re: /she will heal your current active character for (\d+)% of her ATK/, duration: { talent: "burst", label: "Duration" }, cd: { talent: "burst", label: "CD" } }],
   Ifa: { missing: "his Tonicshots heal while he's on-field in Nightsoul's Blessing; no duration in the tables" },
   Ineffa: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Jahoda: [{ kind: "heal", talent: "burst", value: "Purrsonal Coordinated Assistance Robot Healing", duration: "Purrsonal Coordinated Assistance Robot Duration", cd: "CD" }],
   Jean: { missing: "the Dandelion Field's duration isn't in genshin-db or the wiki's talent table" },
   Kirara: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
-  "Kuki Shinobu": [{ kind: "heal", talent: "skill", value: "Grass Ring of Sanctification Healing", duration: "Duration", cd: "CD" }],
+  // wiki: "every 1.5s and restores HP for the active character(s) within the ring's AoE".
+  "Kuki Shinobu": [{ kind: "heal", talent: "skill", value: "Grass Ring of Sanctification Healing", duration: "Duration", cd: "CD", every: 1.5 }],
   "Lan Yan": [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Layla: [{ kind: "shield", talent: "skill", value: "Base Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Linnea: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Healing Duration", cd: "CD" }],
-  Mika: [{ kind: "heal", talent: "burst", value: "Eagleplume Healing", duration: "Eagleplume Duration", cd: "CD" }],
+  // wiki table: "Eagleplume Healing Interval" 2.5s (on the active character's Normal Attack hits).
+  Mika: [{ kind: "heal", talent: "burst", value: "Eagleplume Healing", duration: "Eagleplume Duration", cd: "CD", every: 2.5 }],
   Nicole: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Noelle: [{ kind: "shield", talent: "skill", value: "DMG Absorption", duration: "Duration", cd: "CD" }],
   Qiqi: [
-    { kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD" },
-    { kind: "heal", talent: "burst", value: "Healing", duration: "Duration", cd: "CD" },
+    // wiki: Herald of Frost "Heals a total of 4 times"; the Talisman's healing "can only occur once every second".
+    { kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD", ticks: 4 },
+    { kind: "heal", talent: "burst", value: "Healing", duration: "Duration", cd: "CD", every: 1 },
   ],
   "Sangonomiya Kokomi": [
-    { kind: "heal", talent: "skill", value: "Regeneration", duration: "Duration", cd: "CD" },
-    { kind: "heal", talent: "burst", value: "HP Regeneration Per Hit", duration: "Duration", cd: "CD" },
+    // wiki: "The Bake-Kurage ticks every 2 seconds". Her Burst heals "all nearby party members" per Normal or Charged
+    // Attack hit; the hit rate isn't sourced, so one a second (estimate, #351).
+    { kind: "heal", talent: "skill", value: "Regeneration", duration: "Duration", cd: "CD", every: 2 },
+    { kind: "heal", talent: "burst", value: "HP Regeneration Per Hit", duration: "Duration", cd: "CD", targets: "party" },
   ],
-  Sayu: [{ kind: "heal", talent: "burst", value: "Muji-Muji Daruma Healing", duration: "Duration", cd: "CD" }],
+  // wiki: the Daruma heals "7 more times (once per ~1.7 seconds)" after the cast.
+  Sayu: [{ kind: "heal", talent: "burst", value: "Muji-Muji Daruma Healing", duration: "Duration", cd: "CD", every: 1.7 }],
   Sigewinne: { missing: "Bolstering Bubblebalm heals per bounce; no duration in the tables" },
   Thoma: [
     { kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" },
     { kind: "shield", talent: "burst", value: "Shield DMG Absorption", duration: "Scorching Ooyoroi Duration", cd: "CD" },
   ],
   Vodyanitsa: [{ kind: "heal", talent: "skill", value: "Song of Ages Past Healing", duration: "Duration", cd: "Skill CD" }],
-  Xianyun: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD" }],
-  Xilonen: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Ebullient Rhythm Duration", cd: "CD" }],
+  // wiki: Starwicker "periodically heals all nearby party members"; "The healing interval is 2.5 seconds".
+  Xianyun: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD", every: 2.5, targets: "party" }],
+  // wiki: "Healing occurs once every 1.5s for a total of 8 instances".
+  Xilonen: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Ebullient Rhythm Duration", cd: "CD", every: 1.5 }],
   // Mitigation (#113): Rain Swords "reducing the amount of DMG taken" while his Skill's swords last.
   Xingqiu: [{ kind: "mitigation", talent: "skill", value: "Damage Reduction Ratio", duration: "Duration", cd: "CD" }],
   Xinyan: [{ kind: "shield", talent: "skill", value: "Shield Level 3 DMG Absorption", duration: "Shield Duration", cd: "CD" }],
-  Yaoyao: [{ kind: "heal", talent: "skill", value: "White Jade Radish Healing", duration: "Yuegui: Throwing Mode Duration", cd: "CD" }],
-  "Yumemizuki Mizuki": [{ kind: "heal", talent: "burst", value: "Snack Pick-Up HP Regeneration", duration: "Duration", cd: "CD" }],
+  // wiki: "throws 1 radish every second for a total of 10 radishes over the full duration".
+  Yaoyao: [{ kind: "heal", talent: "skill", value: "White Jade Radish Healing", duration: "Yuegui: Throwing Mode Duration", cd: "CD", every: 1 }],
+  // wiki: "Yumemi Style Special Snack is created every 1.5 second" (each taken as picked up: estimate).
+  "Yumemizuki Mizuki": [{ kind: "heal", talent: "burst", value: "Snack Pick-Up HP Regeneration", duration: "Duration", cd: "CD", every: 1.5 }],
   Zhongli: [{ kind: "shield", talent: "skill", value: ["Shield Base Absorption", "Additional Shield Absorption"], duration: "Shield Duration", cd: "Hold CD" }],
 };
 
@@ -4709,6 +4730,12 @@ function sizeOf(attrs, labels, id) {
   return out;
 }
 
+// A heal's interval (seconds between heals) and targets (#351), when sourced.
+const rate = (e, duration) => ({
+  ...(e.every || e.ticks ? { interval: e.every ?? round(duration / e.ticks) } : {}),
+  ...(e.targets ? { targets: e.targets } : {}),
+});
+
 function readSustain(id, spec) {
   if (spec.missing) return { effects: [], coverage: null, missing: spec.missing };
   const talents = talentsOf(id);
@@ -4722,7 +4749,7 @@ function readSustain(id, spec) {
       // Escoffier's sentence holds the duration first, then the % of ATK; Iansan's only the %.
       const duration = e.duration ? label(e.duration) : Number(m[1]);
       const cd = label(e.cd);
-      return { kind: e.kind, size: { atk: Number(m[m.length - 1]) / 100 }, source: `${e.from}: "${m[0]}"`, duration, cd, uptime: uptime(duration, cd) };
+      return { kind: e.kind, size: { atk: Number(m[m.length - 1]) / 100 }, source: `${e.from}: "${m[0]}"`, duration, cd, uptime: uptime(duration, cd), ...rate(e, duration) };
     }
     const duration = typeof e.duration === "number" ? e.duration : label(e.duration, e.talent) * (e.paws ?? 1);
     const cd = label(e.cd, e.talent);
@@ -4735,6 +4762,7 @@ function readSustain(id, spec) {
       duration,
       cd,
       uptime: uptime(duration, cd),
+      ...rate(e, duration),
     };
   });
   return { effects, coverage: round(1 - effects.reduce((a, e) => a * (1 - e.uptime), 1)) };
