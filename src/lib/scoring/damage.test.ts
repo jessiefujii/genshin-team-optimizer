@@ -322,6 +322,24 @@ describe("carry damage (#101)", () => {
       expect(modelsSecretRite("Varka")).toBe(true); // his second Four Winds' Ascension (#233)
     });
 
+    test("single-target hits sourced since #225: Klee's mines with suction, Yanfei's passive 2 at her CRIT Rate", () => {
+      const team = (...ids: string[]) => ids.map((id) => byId.get(id)!);
+      // Klee: all 8 mines with an Anemo teammate whose suction gathers them (KQM); none sourced without (Zhongli and
+      // Xingqiu alike). No reactions and no team buffs: only the mines differ.
+      const klee = (id: string) => carryDamage(byId.get("Klee")!, [], team("Klee", id, "Bennett", "Fischl"))!.perSecond;
+      expect(klee("Sucrose")).toBeGreaterThan(klee("Zhongli") * 1.05);
+      expect(klee("Xingqiu")).toBeCloseTo(klee("Zhongli"), 6);
+      // Yanfei: one 80% ATK Charged Attack hit per Charged Attack that crits. At 0% CRIT Rate there are none; at 100%
+      // every one lands and crits: more than the (1 + 100% CRIT DMG) = 2x that every other hit gains.
+      const yanfei = (critRate: number) => {
+        const y = { ...byId.get("Yanfei")!, stats: { atk: 2000, hp: 15000, def: 700, critRate, critDmg: 100, energyRecharge: 120, elementalMastery: 0, elementalDmgBonus: 46.6 } };
+        return carryDamage(y, [], [y, ...team("Zhongli", "Bennett", "Fischl")])!.perSecond;
+      };
+      const ratio = yanfei(100) / yanfei(0);
+      expect(ratio).toBeGreaterThan(2.1);
+      expect(ratio).toBeLessThan(2.6);
+    });
+
     test("Varka: two claymores, his right one by PHEC priority; passive 1's 140%/220% by the party (#233)", () => {
       const v = (...ids: string[]) => carryDamage(byId.get("Varka")!, [], ids.map((id) => byId.get(id)!))!;
       // 2 Anemo members (Kazuha) against none besides him: his Sturm und Drang attacks deal 140%.

@@ -12701,6 +12701,22 @@
           "reacting": 1.090909
         },
         {
+          "label": "Mine DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.5576
+          },
+          "count": 8,
+          "when": {
+            "members": [
+              "Sucrose",
+              "Kaedehara Kazuha",
+              "Traveler (Anemo)",
+              "Jean"
+            ]
+          }
+        },
+        {
           "label": "Sparks 'n' Splash DMG",
           "type": "burst",
           "scaling": {
@@ -13491,6 +13507,15 @@
           "reacting": 5
         },
         {
+          "label": "passive2 bonus",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.8
+          },
+          "count": 5,
+          "perCrit": true
+        },
+        {
           "label": "Skill DMG",
           "type": "skill",
           "scaling": {
@@ -13612,6 +13637,15 @@
               "reacting": 6
             },
             {
+              "label": "passive2 bonus",
+              "type": "charged",
+              "scaling": {
+                "atk": 0.8
+              },
+              "count": 6,
+              "perCrit": true
+            },
+            {
               "label": "Skill DMG",
               "type": "skill",
               "scaling": {
@@ -13681,6 +13715,15 @@
               },
               "count": 7,
               "reacting": 7
+            },
+            {
+              "label": "passive2 bonus",
+              "type": "charged",
+              "scaling": {
+                "atk": 0.8
+              },
+              "count": 7,
+              "perCrit": true
             },
             {
               "label": "Skill DMG",

@@ -32,11 +32,13 @@ interface CarryHit {
   collision?: boolean; // a plunge's collision hit: no teammates' flat DMG (Xianyun's is for the shockwave)
   nightsoulBursts?: string; // count: the party's Nightsoul Bursts per rotation, at most the hits with this label (#288)
   when?: When; // the hit only lands with these
+  perCrit?: boolean; // lands only when another hit crits (Yanfei's passive 2, #225): count x the carry's CRIT Rate
 }
 // secretRite: two Hexerei members (Klee's Boom-Boom Strikes from her third Normal Attack, #241).
 // noHealer: no teammate heals the on-field character in play (healsInPlay; Hu Tao's passive 2, #2).
 // constellation: the carry is at least that constellation (#106).
-type When = { reaction?: Reaction; ascendantGleam?: boolean; secretRite?: boolean; noHealer?: boolean; constellation?: number };
+// members: one of these is a teammate (Klee's mines, gathered by their suction, #225).
+type When = { reaction?: Reaction; ascendantGleam?: boolean; secretRite?: boolean; noHealer?: boolean; constellation?: number; members?: string[] };
 // A teammate whose heals reach the on-field character in play (#2): a tagged healer, but not Furina: her damage profile
 // plays her in Ousia, where her Salon Members drain HP; only Pneuma's Singer of Many Waters heals.
 export const healsInPlay = (m: ScoringCharacter) => m.roles.includes("healer") && m.id !== "Furina";
@@ -366,9 +368,14 @@ export function carryStats(c: ScoringCharacter, goblet?: "Physical") {
 // circlet for a CRIT DMG one (critCirclet, #279).
 // extraDmg: teammates' CRIT DMG (#106: Faruzan's C6).
 export function expectedCrit(c: ScoringCharacter, extraRate = 0, dmgCirclet = false, extraDmg = 0): number {
-  if (c.stats) return 1 + Math.min(c.stats.critRate / 100 + extraRate, 1) * (c.stats.critDmg / 100 + extraDmg);
+  if (c.stats) return 1 + critChance(c, extraRate) * (c.stats.critDmg / 100 + extraDmg);
   const swap = dmgCirclet ? BENCHMARK.circlet : { critRate: 0, critDmg: 0 };
-  return 1 + Math.min(BENCHMARK.carryCritRate - swap.critRate + extraRate, 1) * (BENCHMARK.carryCritDmg + swap.critDmg + extraDmg);
+  return 1 + critChance(c, extraRate, dmgCirclet) * (BENCHMARK.carryCritDmg + swap.critDmg + extraDmg);
+}
+// The carry's CRIT Rate (at most 100%), as expectedCrit reads it.
+function critChance(c: ScoringCharacter, extraRate = 0, dmgCirclet = false): number {
+  if (c.stats) return Math.min(c.stats.critRate / 100 + extraRate, 1);
+  return Math.min(BENCHMARK.carryCritRate - (dmgCirclet ? BENCHMARK.circlet.critRate : 0) + extraRate, 1);
 }
 
 // Vaporize and Melt multiply the hits that react: 2x for Hydro on Pyro / Pyro on Cryo, 1.5x the other way, plus EM.
@@ -624,7 +631,8 @@ function computeCarryDamage(
   const fits = (w?: When) =>
     !w ||
     ((!w.reaction || active.includes(w.reaction)) && (!w.ascendantGleam || gleam) && (!w.secretRite || secretRite) &&
-      (!w.noHealer || !team.some((m) => m !== c && healsInPlay(m))) && (!w.constellation || (c.constellation ?? 0) >= w.constellation));
+      (!w.noHealer || !team.some((m) => m !== c && healsInPlay(m))) && (!w.constellation || (c.constellation ?? 0) >= w.constellation) &&
+      (!w.members || team.some((m) => m !== c && w.members!.includes(m.id))));
   const lands = (h: CarryHit) => fits(h.when);
   const buffs = kit.buffs.filter((b) => !("when" in b) || fits(b.when));
   // EM from ATK (Flins' passive 2), with or without a build: Enka's panel EM doesn't include it (#149: Jessie's Flins
@@ -768,7 +776,7 @@ function computeCarryDamage(
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     if (!lands(h)) continue;
-    const count = (h.count + teamCount(h)) * (h.type === "burst" ? burstPart : 1);
+    const count = (h.count + teamCount(h)) * (h.type === "burst" ? burstPart : 1) * (h.perCrit ? critChance(c, critRate, dmgCirclet) : 1);
     if (count <= 0) continue;
     if (h.element === "priority") total += hitTotal(h, priorityEl ?? c.element, count);
     else if (h.element !== "teammates") total += hitTotal(h, h.element ?? c.element, count);
