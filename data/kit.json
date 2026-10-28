@@ -15682,7 +15682,7 @@
           "scaling": {
             "atk": 0.79
           },
-          "count": 3
+          "count": 27
         },
         {
           "label": "Charged Attack Condensed Beam DMG",
@@ -15740,7 +15740,7 @@
               "scaling": {
                 "atk": 0.79
               },
-              "count": 3
+              "count": 27
             },
             {
               "label": "Charged Attack Condensed Beam Stellar-Conduct DMG",
@@ -15825,7 +15825,7 @@
               "scaling": {
                 "atk": 0.79
               },
-              "count": 3
+              "count": 27
             },
             {
               "label": "Charged Attack Condensed Beam Stellar Swirl DMG",

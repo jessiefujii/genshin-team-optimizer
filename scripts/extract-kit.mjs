@@ -3402,7 +3402,10 @@ const CARRIES = {
   // "Burst Every Rotation". "Sandrone's Charged Attacks comprise the majority of her personal damage": each Charged
   // Attack summons Fagio, whose beam fills Decoding Power to 100 (Power Overdrive), and "Sandrone's Skill resets Fagio's
   // state". Beams per Charged Attack: 3 (estimate: tags.json "hold CA (3 beams)"; KQM's C2/C6 notes have the third as
-  // "the final beam"); its Sweeping Fire once ("a sweeping fire attack"). Her Skill fires 2 Prism Shots. In Radiance:
+  // "the final beam"). Prydwen (https://www.prydwen.gg/genshin-impact/characters/sandrone, via Jessie, 2026-10-28): "at C0
+  // deals up to 3 sets of attacks, with each set consisting of 3 instances of Cryo damage and one 'Condensed Beam'"; the
+  // wiki's Decoding mode has "a sweeping fire attack, as well as fire condensed beams at intervals", so the 3 Cryo
+  // instances are Sweeping Fire: 9 per Charged Attack. Her Skill fires 2 Prism Shots. In Radiance:
   // Stellar Glimmer (her passive 3: inside a Polestar Field, or 8s after a Stellar Swirl; Stellar-Conduct first) the
   // condensed beams, the second Prism Shot and the Convective Inhibition Ray are direct Stellar hits (0U: none
   // reacting). Passive 1 (KQM: each Skill drains Decoding Power from ~100, "If you cancel too early, Fagio cannot fully
@@ -3413,7 +3416,7 @@ const CARRIES = {
     radianceInDamage: true,
     combo: "3[C E] (Q)",
     hits: [
-      { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 3, type: CH },
+      { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 27, type: CH },
       { table: "normal", label: "Charged Attack Condensed Beam DMG", count: 9, type: CH },
       { table: "skill", label: "Prism Shot DMG", count: 6, type: SK },
       { table: "burst", label: "Bombardment DMG", count: 1, instances: 3, type: BU },
@@ -3426,7 +3429,7 @@ const CARRIES = {
         combo: `3[C E] (Q), Radiance: ${name}`,
         when: [{ reaction: r, radiance: true }],
         hits: [
-          { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 3, type: CH },
+          { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 27, type: CH },
           { table: "normal", label: `Charged Attack Condensed Beam ${name} DMG`, count: 9, reacting: 0, type: CH, lunar: r },
           { table: "skill", label: "Prism Shot DMG", count: 3, type: SK },
           { table: "skill", label: `Prism Shot ${name} DMG`, ofText: { from: "passive1", re: /will deal (\d+)% of its original DMG/ }, count: 3, reacting: 0, type: SK, lunar: r },
