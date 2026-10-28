@@ -316,6 +316,17 @@ describe("carry damage (#101)", () => {
       // 2 Anemo and 2 Pyro: 220%.
       expect(v("Varka", "Kaedehara Kazuha", "Bennett", "Xiangling").perSecond / one).toBeGreaterThan(1.9);
     });
+
+    test("Sandrone: 3[C E] (Q); in Radiance her beams, second Prism Shot (400%) and Ray (200%) are direct Stellar hits (#234)", () => {
+      const comboOf = (ids: string[], active: Reaction[]) => carryDamage(byId.get(ids[0])!, active, team(...ids))!.combo;
+      const ids = ["Sandrone", "Yae Miko", "Odette", "Escoffier"];
+      expect(comboOf(ids, ["stellar-conduct"])).toBe("3[C E] (Q), Radiance: Stellar-Conduct");
+      expect(comboOf(["Sandrone", "Odette", "Sucrose", "Traveler (Cryo)"], ["stellar-swirl"])).toBe("3[C E] (Q), Radiance: Stellar Swirl");
+      expect(comboOf(["Sandrone", "Bennett", "Xingqiu", "Zhongli"], ["melt"])).toBe("3[C E] (Q)");
+      const stellar = carryDamage(byId.get("Sandrone")!, ["stellar-conduct"], team(...ids))!;
+      const plain = carryDamage(byId.get("Sandrone")!, [], team(...ids))!;
+      expect(stellar.perSecond).toBeGreaterThan(plain.perSecond * 1.5);
+    });
   });
 
   test("a build's stats change the damage", () => {

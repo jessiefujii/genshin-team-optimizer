@@ -14822,6 +14822,234 @@
       "baseHp": 12613,
       "baseDef": 795
     },
+    "Sandrone": {
+      "rotationSeconds": 20,
+      "combo": "3[C E] (Q)",
+      "radianceInDamage": true,
+      "hits": [
+        {
+          "label": "Charged Attack Sweeping Fire DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.79
+          },
+          "count": 3
+        },
+        {
+          "label": "Charged Attack Condensed Beam DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.2515
+          },
+          "count": 9
+        },
+        {
+          "label": "Prism Shot DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.5508
+          },
+          "count": 6
+        },
+        {
+          "label": "Bombardment DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 4.499016
+          },
+          "count": 1,
+          "instances": 3
+        },
+        {
+          "label": "Convective Inhibition Ray DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 5.6236
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "emBonus",
+          "value": 160
+        }
+      ],
+      "combos": [
+        {
+          "combo": "3[C E] (Q), Radiance: Stellar-Conduct",
+          "when": [
+            {
+              "reaction": "stellar-conduct",
+              "radiance": true
+            }
+          ],
+          "hits": [
+            {
+              "label": "Charged Attack Sweeping Fire DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 0.79
+              },
+              "count": 3
+            },
+            {
+              "label": "Charged Attack Condensed Beam Stellar-Conduct DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 1.501
+              },
+              "count": 9,
+              "reacting": 0,
+              "lunar": "stellar-conduct"
+            },
+            {
+              "label": "Prism Shot DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.5508
+              },
+              "count": 3
+            },
+            {
+              "label": "Prism Shot Stellar-Conduct DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 1.4688
+              },
+              "count": 3,
+              "reacting": 0,
+              "lunar": "stellar-conduct"
+            },
+            {
+              "label": "Bombardment DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 4.499016
+              },
+              "count": 1,
+              "instances": 3
+            },
+            {
+              "label": "Convective Inhibition Ray Stellar-Conduct DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 3.749067
+              },
+              "count": 1,
+              "reacting": 0,
+              "lunar": "stellar-conduct"
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "emBonus",
+              "value": 160
+            },
+            {
+              "kind": "baseDmgMultiplier",
+              "value": 1,
+              "labels": [
+                "Convective Inhibition Ray Stellar-Conduct DMG"
+              ]
+            },
+            {
+              "kind": "lunarBaseBonus",
+              "stat": "atk",
+              "perPoint": 0.00007,
+              "max": 0.14
+            }
+          ]
+        },
+        {
+          "combo": "3[C E] (Q), Radiance: Stellar Swirl",
+          "when": [
+            {
+              "reaction": "stellar-swirl",
+              "radiance": true
+            }
+          ],
+          "hits": [
+            {
+              "label": "Charged Attack Sweeping Fire DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 0.79
+              },
+              "count": 3
+            },
+            {
+              "label": "Charged Attack Condensed Beam Stellar Swirl DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.2515
+              },
+              "count": 9,
+              "reacting": 0,
+              "lunar": "stellar-swirl"
+            },
+            {
+              "label": "Prism Shot DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.5508
+              },
+              "count": 3
+            },
+            {
+              "label": "Prism Shot Stellar Swirl DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.2032
+              },
+              "count": 3,
+              "reacting": 0,
+              "lunar": "stellar-swirl"
+            },
+            {
+              "label": "Bombardment DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 4.499016
+              },
+              "count": 1,
+              "instances": 3
+            },
+            {
+              "label": "Convective Inhibition Ray Stellar Swirl DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 5.6236
+              },
+              "count": 1,
+              "reacting": 0,
+              "lunar": "stellar-swirl"
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "emBonus",
+              "value": 160
+            },
+            {
+              "kind": "baseDmgMultiplier",
+              "value": 1,
+              "labels": [
+                "Convective Inhibition Ray Stellar Swirl DMG"
+              ]
+            },
+            {
+              "kind": "lunarBaseBonus",
+              "stat": "atk",
+              "perPoint": 0.00007,
+              "max": 0.14
+            }
+          ]
+        }
+      ],
+      "baseHp": 13226,
+      "baseDef": 752
+    },
     "Freminet": {
       "rotationSeconds": 15,
       "combo": "EQE 4[2E N1] 2E",
@@ -14948,7 +15176,6 @@
   "carriesTodo": [
     "Lohen",
     "Manekin",
-    "Manekina",
-    "Sandrone"
+    "Manekina"
   ]
 }

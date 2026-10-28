@@ -3145,6 +3145,50 @@ const CARRIES = {
       { kind: "dmgBonus", from: "passive2", re: /by ([\d.]+)% for 8s/, times: 4, types: [N, CH, SK], labels: VARKA_STURM, when: { reaction: "swirl" } },
     ],
   },
+  // #234. KQM Sandrone quick guide (https://keqingmains.com/q/sandrone-quickguide/, fetched 2026-10-28): "3[C E] (Q)
+  // This is Sandrone's default on-field combo at C0", "20s rotations are assumed" (kit-overrides rotations), its ERC
+  // "Burst Every Rotation". "Sandrone's Charged Attacks comprise the majority of her personal damage": each Charged
+  // Attack summons Fagio, whose beam fills Decoding Power to 100 (Power Overdrive), and "Sandrone's Skill resets Fagio's
+  // state". Beams per Charged Attack: 3 (estimate: tags.json "hold CA (3 beams)"; KQM's C2/C6 notes have the third as
+  // "the final beam"); its Sweeping Fire once ("a sweeping fire attack"). Her Skill fires 2 Prism Shots. In Radiance:
+  // Stellar Glimmer (her passive 3: inside a Polestar Field, or 8s after a Stellar Swirl; Stellar-Conduct first) the
+  // condensed beams, the second Prism Shot and the Convective Inhibition Ray are direct Stellar hits (0U: none
+  // reacting). Passive 1 (KQM: each Skill drains Decoding Power from ~100, "If you cancel too early, Fagio cannot fully
+  // repair"): every second Prism Shot at 400%, and 10 Refined Tactics stacks (one per 10 points lost, max 10) cleared
+  // by her Burst: "100% + (number of stacks cleared) × 10%", so 200%. In her damage, so no flat Stellar points.
+  // Passive 2's EM (8 per 100 ATK) at its 160 cap (estimate: 2,000 ATK).
+  Sandrone: {
+    radianceInDamage: true,
+    combo: "3[C E] (Q)",
+    hits: [
+      { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 3, type: CH },
+      { table: "normal", label: "Charged Attack Condensed Beam DMG", count: 9, type: CH },
+      { table: "skill", label: "Prism Shot DMG", count: 6, type: SK },
+      { table: "burst", label: "Bombardment DMG", count: 1, instances: 3, type: BU },
+      { table: "burst", label: "Convective Inhibition Ray DMG", count: 1, type: BU },
+    ],
+    buffs: [{ kind: "emBonus", from: "passive2", re: /The maximum increase she can gain this way is (\d+)/ }],
+    combos: [SC, SS].map((r) => {
+      const name = r === SC ? "Stellar-Conduct" : "Stellar Swirl";
+      return {
+        combo: `3[C E] (Q), Radiance: ${name}`,
+        when: [{ reaction: r, radiance: true }],
+        hits: [
+          { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 3, type: CH },
+          { table: "normal", label: `Charged Attack Condensed Beam ${name} DMG`, count: 9, reacting: 0, type: CH, lunar: r },
+          { table: "skill", label: "Prism Shot DMG", count: 3, type: SK },
+          { table: "skill", label: `Prism Shot ${name} DMG`, ofText: { from: "passive1", re: /will deal (\d+)% of its original DMG/ }, count: 3, reacting: 0, type: SK, lunar: r },
+          { table: "burst", label: "Bombardment DMG", count: 1, instances: 3, type: BU },
+          { table: "burst", label: `Convective Inhibition Ray ${name} DMG`, count: 1, reacting: 0, type: BU, lunar: r },
+        ],
+        buffs: [
+          { kind: "emBonus", from: "passive2", re: /The maximum increase she can gain this way is (\d+)/ },
+          { kind: "baseDmgMultiplier", value: 10 * 0.1, labels: [`Convective Inhibition Ray ${name} DMG`] },
+          { kind: "lunarBaseBonus", from: "passive3", re: /increased by ([\d.]+)% for every 100 points of Sandrone's ATK/, per: 100, stat: "atk", max: /maximum increase of (\d+)%/ },
+        ],
+      };
+    }),
+  },
   Freminet: {
     // #231. KQM quick guide, Cryo Skill DPS: "EQE 4[2E N1] 2E" ("maximizes the number of Pressure Level 0 casts per
     // rotation"): 6 Upward Thrusts, 6 Level 0 Shattering Pressures (Cryo), 4 Normal Attacks (Physical) and the frost

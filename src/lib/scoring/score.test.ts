@@ -420,9 +420,10 @@ describe("scoreTeam", () => {
   test("Stellar Radiance scores what it does for this team (#63)", () => {
     const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Stellar").map((l) => l.reason);
     // Sandrone converts Superconduct (Cryo + Electro) to Stellar-Conduct: her Radiance kit upgrade, plus
-    // Alyosha's +20% Stellar-Conduct DMG for the on-field carry.
+    // Alyosha's +20% Stellar-Conduct DMG for the on-field carry. Her Radiance hits are in her damage since her damage
+    // model (#234).
     const sandrone = lines("Sandrone", "Alyosha", "Fischl", "Bennett");
-    expect(sandrone).toContain("Radiance: Stellar-conduct enhances Sandrone's kit");
+    expect(sandrone).toContain("Radiance: Stellar-conduct enhances Sandrone's kit (in their damage)");
     expect(sandrone.some((r) => r.startsWith("Alyosha's Stellar buff gives Sandrone"))).toBe(true);
     // No Stellar reaction (no Electro or Anemo partner): no Radiance.
     expect(lines("Sandrone", "Bennett", "Xingqiu", "Zhongli")).toEqual([]);
