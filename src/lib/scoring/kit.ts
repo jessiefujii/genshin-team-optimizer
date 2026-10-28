@@ -315,7 +315,7 @@ function stepValue(buff: KitBuff, team: TeamShape): number {
 // A modeled carry's hits per rotation (kit.json carries, default combo): the hits of their own element that land in this
 // team (a `when` met: the reaction active, Ascendant Gleam at two Moonsign members), and of those the direct Lunar hits.
 // Zibai's Passive 1 bonus is part of a Stride hit, not a hit of its own. Other `when` conditions are taken as met.
-type CarryKitHit = { count: number; instances?: number; element?: string; lunar?: string; additive?: boolean; when?: { reaction?: string; ascendantGleam?: boolean } };
+type CarryKitHit = { count: number; type?: string; instances?: number; element?: string; lunar?: string; additive?: boolean; when?: { reaction?: string; ascendantGleam?: boolean } };
 const CARRY_KITS = (kitJson as unknown as { carries: Record<string, { rotationSeconds: number; hits: CarryKitHit[] }> }).carries;
 function carryHitCounts(carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape) {
   const kit = CARRY_KITS[carry.id];
@@ -353,7 +353,10 @@ function applicable(buff: KitBuff, carry: ScoringCharacter, carryReactions: read
   if (buff.teamOnly && !team.elements.every((e) => buff.teamOnly!.includes(e))) return null;
   if (buff.carryReactions && !buff.carryReactions.some((r) => carryReactions.includes(r as Reaction))) return null;
   if (buff.steps) buff = { ...buff, value: stepValue(buff, team) };
-  if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return null;
+  // An attack-type buff reaches a modeled carry whose hits include that type, whatever their key talent (#382: Yun Jin's
+  // Normal Attack DMG on Clorinde, whose key talent is her Skill but whose hits in it are Normal Attacks).
+  const hitsOfType = (t: string) => CARRY_KITS[carry.id]?.hits.some((h) => h.type === t) ?? false;
+  if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t || hitsOfType(t)))) return null;
   if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return null;
   if (buff.physical) return null; // Physical hits are in damage (#222); Physical buffs from weapons and sets wait for #206
   if (buff.whileOnField && !buff.reactions) return null; // the buffer is on field: her teammates' hits, never a carry's

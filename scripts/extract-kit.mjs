@@ -2441,6 +2441,8 @@ const CARRIES = {
       { table: "burst", label: "Skill DMG", count: 1, type: BU, instances: 5 },
     ],
     // Passive 1: after an Electro-related reaction, +20% ATK per stack (3) on Normal Attacks and the Burst, up to 1,800.
+    // Electro Swirl and Electro Crystallize count too (Jessie, 2026-10-28, #382: no source says either way); in her teams
+    // the swirled or crystallized aura is taken as Electro, hers.
     buffs: [
       {
         kind: "flatAtk",
@@ -2449,7 +2451,7 @@ const CARRIES = {
         stacks: /Max (\d+) stacks/,
         cap: /achievable this way for the above attacks is ([\d,]+)/,
         types: [N, BU],
-        reactions: ["overloaded", "superconduct", "electrocharged", "quicken", "aggravate", "hyperbloom", "lunar-charged", "stellar-conduct"],
+        reactions: ["overloaded", "superconduct", "electrocharged", "quicken", "aggravate", "hyperbloom", "lunar-charged", "stellar-conduct", "swirl", "crystallize"],
       },
       // Passive 2: at 100%+ Bond of Life, +10% CRIT Rate for 15s whenever it rises or falls, 2 stacks. Each N3's third
       // shot takes it to 105% and the Pact after lowers it: two triggers every N3E, so both stacks are up on every hit
