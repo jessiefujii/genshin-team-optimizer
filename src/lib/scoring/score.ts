@@ -469,7 +469,13 @@ const INCOMING_HIT = 4 * 1674.8092;
 const CRYSTALLIZE_SHIELD_90 = 1851.0603;
 // A mitigation's size is its ratio of the DMG taken (#113: Xingqiu's Rain Swords, Dehya's Fiery Sanctum), counted as
 // that share of the hit while it is up.
-type Sized = { kind: string; size: Partial<Record<"flat" | "hp" | "def" | "atk" | "ratio", number>>; uptime: number | null };
+type Sized = {
+  kind: string;
+  size: Partial<Record<"flat" | "hp" | "def" | "atk" | "em" | "ratio", number>>;
+  uptime: number | null;
+  interval?: number;
+  targets?: "party";
+};
 function sustainCoverage(m: ScoringCharacter, heals: boolean): number {
   const entry = SUSTAIN[m.id];
   if (!entry || !entry.effects?.length) return entry?.coverage ?? 1;
@@ -487,8 +493,8 @@ function sustainCoverage(m: ScoringCharacter, heals: boolean): number {
   return 1 - parts.reduce((a, c) => a * (1 - c), 1);
 }
 // Healing turned into damage (#345): Ocean-Hued Clam's foam and Song of Days Past's added damage, from the wearer's
-// heal rate. Estimate until #351: each kit.json sustain heal read as that much healing a second on one target, times
-// its uptime. Clam: a foam every 3.5s ("Only one Sea-Dyed Foam can be produced every 3.5 seconds") of 90% of 3s of
+// heal rate (#351): each kit.json sustain heal's size over its interval (the wiki's; one a second where unsourced), on
+// every party member for a party-wide heal (overflow counts for both sets), times its uptime. Clam: a foam every 3.5s ("Only one Sea-Dyed Foam can be produced every 3.5 seconds") of 90% of 3s of
 // healing, up to 30,000 healed; no crit, "not affected by Elemental Mastery, Character Levels, or Reaction DMG
 // Bonuses", Physical RES (10%). Song: a Yearning records 6s of healing (up to 15,000), then the on-field carry's next
 // 5 hits gain 8% of it each, once per 6s: at the carry's crit, against 10% RES.
@@ -497,7 +503,10 @@ function healPerSecond(m: ScoringCharacter): number {
   const stats = subDpsStats(m) ?? carryStats(m);
   return (SUSTAIN[m.id]?.effects ?? [])
     .filter((e) => e.kind === "heal")
-    .reduce((a, e) => a + ((e.size.flat ?? 0) + (e.size.hp ?? 0) * stats.hp + (e.size.def ?? 0) * stats.def + (e.size.atk ?? 0) * stats.atk) * (e.uptime ?? 1), 0);
+    .reduce((a, e) => {
+      const size = (e.size.flat ?? 0) + (e.size.hp ?? 0) * stats.hp + (e.size.def ?? 0) * stats.def + (e.size.atk ?? 0) * stats.atk + (e.size.em ?? 0) * stats.em;
+      return a + ((size * (e.targets === "party" ? 4 : 1)) / (e.interval ?? 1)) * (e.uptime ?? 1);
+    }, 0);
 }
 function healSetLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): number {
   let total = 0;
@@ -512,7 +521,7 @@ function healSetLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
           : carry ? ((Math.min(e.max!, heal * 6) * e.value) / 6) * expectedCrit(carry) * 0.9 : 0;
       if (dps < 1) continue;
       total += dps;
-      out.add("Sub-DPS", 0, () => `${m.id}'s ${set}: ~${Math.round(dps)} damage per second (heal rate estimated, #351)`);
+      out.add("Sub-DPS", 0, () => `${m.id}'s ${set}: ~${Math.round(dps)} damage per second`);
     }
   }
   return total;

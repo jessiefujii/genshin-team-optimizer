@@ -110,7 +110,7 @@ describe("scoreTeam", () => {
     expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+87% to Gaming's damage"); // his benchmark Fruitful Hook (#206), Fervent Flames in damage (#186)
   });
 
-  test("Ocean-Hued Clam turns its wearer's healing into team damage (#345, heal rate estimated: #351)", () => {
+  test("Ocean-Hued Clam turns its wearer's healing into team damage (#345; heal rates and targets: #351)", () => {
     const stats: CharacterStats = {
       atk: 1500, hp: 30000, def: 800, critRate: 20, critDmg: 50, energyRecharge: 180, elementalMastery: 0, elementalDmgBonus: 0,
     };
@@ -118,9 +118,15 @@ describe("scoreTeam", () => {
     const run = (sets: { set: string; pieces: 4 }[]) => scoreTeam([team("Eula")[0], mika(sets), ...team("Raiden Shogun", "Rosaria")]);
     const clam = run([{ set: "Ocean-Hued Clam", pieces: 4 }]);
     const line = clam.breakdown.find((l) => l.reason.startsWith("Mika's Ocean-Hued Clam"));
-    // ~1,715 healing a second (4.13% of 30,000 HP + 476) x 83% uptime: a foam of 90% of 3s of it every 3.5s, vs 10% RES.
-    expect(Number(line?.reason.match(/~(\d+) damage/)?.[1])).toBeCloseTo((1715 * 0.8333 * 3 * 0.9 * 0.9) / 3.5, -1);
+    // 1,715 healing (4.13% of 30,000 HP + 476) every 2.5s (Eagleplume Healing Interval) x 83% uptime: a foam of 90%
+    // of 3s of it every 3.5s, vs 10% RES.
+    expect(Number(line?.reason.match(/~(\d+) damage/)?.[1])).toBeCloseTo(((1715 / 2.5) * 0.8333 * 3 * 0.9 * 0.9) / 3.5, -1);
     expect(run([]).breakdown.some((l) => l.reason.includes("Ocean-Hued Clam"))).toBe(false);
+    // Xianyun's Starwicker heals all 4 party members every 2.5s: (73.11% of 1,500 ATK + 548) x 4 / 2.5 x 89% uptime.
+    const xianyun = { ...team("Xianyun")[0], stats, sets: [{ set: "Ocean-Hued Clam", pieces: 4 as const }] };
+    const party = scoreTeam([team("Eula")[0], xianyun, ...team("Raiden Shogun", "Rosaria")]);
+    const foam = party.breakdown.find((l) => l.reason.startsWith("Xianyun's Ocean-Hued Clam"));
+    expect(Number(foam?.reason.match(/~(\d+) damage/)?.[1])).toBeCloseTo((((1096.7 + 548.3) * 4) / 2.5 * 0.8889 * 3 * 0.9 * 0.9) / 3.5, -1);
   });
 
   test("Spread and Aggravate need the Quicken aura, which Hydro eats (#303)", () => {
