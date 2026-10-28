@@ -351,6 +351,20 @@ describe("carry damage (#101)", () => {
       expect(v("Varka", "Kaedehara Kazuha", "Bennett", "Xiangling").perSecond / one).toBeGreaterThan(1.9);
     });
 
+    test("Lohen: E 2[N1C] E/Q 4[N1C] E 5[N1C] E at full Will to Win; Secret Rite's +40% on his attacks (#356)", () => {
+      const lohen = kit.carries.Lohen;
+      expect(lohen.combo).toBe("E 2[N1C] E/Q 4[N1C] E 5[N1C] E");
+      // 100 Will to Win at 0.4% of his ATK per point, on each instance of Etched Into Bone and Soul and his Burst.
+      const wtw = lohen.buffs.filter((b) => b.kind === "addPerStack").map((b) => ("stacks" in b ? b.value * b.stacks : 0));
+      expect(wtw.map((v) => Math.round(v * 100) / 100)).toEqual([0.4, 0.4]);
+      const ids = ["Lohen", "Durin", "Nicole", "Citlali"];
+      const rite = carryDamage(byId.get("Lohen")!, ["melt"], team(...ids))!;
+      const none = carryDamage(byId.get("Lohen")!, ["melt"], team(...ids).map((c) => (c.id === "Lohen" ? c : { ...c, families: [] })))!;
+      expect(rite.perSecond).toBeGreaterThan(none.perSecond * 1.1);
+      // Freeze: N1C strings only (KQM's low Will to Win combo, GameWith's Freeze team).
+      expect(carryDamage(byId.get("Lohen")!, ["freeze"], team("Lohen", "Escoffier", "Furina", "Mona"))!.combo).toBe("E 16[N1C]");
+    });
+
     test("Sandrone: 3[C E] (Q); in Radiance her beams, second Prism Shot (400%) and Ray (200%) are direct Stellar hits (#234)", () => {
       const comboOf = (ids: string[], active: Reaction[]) => carryDamage(byId.get(ids[0])!, active, team(...ids))!.combo;
       const ids = ["Sandrone", "Yae Miko", "Odette", "Escoffier"];

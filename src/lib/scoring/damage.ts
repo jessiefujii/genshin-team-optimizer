@@ -574,8 +574,9 @@ export function carryDamage(
   if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs, noGleam, ampShare, frozen);
   let byKey = cache.get(c);
   if (!byKey) cache.set(c, (byKey = new Map()));
-  // Teammates' constellations pick combos too (#119: Yanfei beside C6 Xingqiu).
-  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}#${frozen}`;
+  // Teammates' constellations pick combos too (#119: Yanfei beside C6 Xingqiu), and their families Secret Rite (#356).
+  const rite = team.filter((m) => m.families?.includes("hexerei")).length >= 2 ? "#rite" : "";
+  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}#${frozen}${rite}`;
   if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam, ampShare, frozen));
   return byKey.get(key)!;
 }

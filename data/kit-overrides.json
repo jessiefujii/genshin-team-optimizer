@@ -864,6 +864,10 @@
       "seconds": 13,
       "source": "KeqingMains Varka quick guide, https://keqingmains.com/q/varka-quickguide/, fetched 2026-10-24: best combos \"E N1CW N4sE 3[N1CW] N1sE N1\" ... \"They take around 13s to perform\". Field time as the rotation (Jessie, 2026-10-24, #233)."
     },
+    "Lohen": {
+      "seconds": 20,
+      "source": "KeqingMains Lohen quick guide, https://keqingmains.com/q/lohen-quickguide/: its ERC rotations run 18-24s, mostly 20-22s (#356); his Skill's CD is 18s and Masterstroke lasts 13s (+1.65s with his Burst)."
+    },
     "Sandrone": {
       "seconds": 20,
       "source": "KeqingMains Sandrone quick guide, https://keqingmains.com/q/sandrone-quickguide/, fetched 2026-10-28: \"3[C E] (Q) This is Sandrone's default on-field combo at C0\" ... \"20s rotations are assumed.\" (#234)"
