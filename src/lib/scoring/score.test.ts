@@ -245,7 +245,7 @@ describe("scoreTeam", () => {
     expect(survival("Arlecchino", "Bennett", "Yelan", "Zhongli").reason).toBe("Zhongli, Crystallize shields shield ~100% of an Abyss hit per rotation");
     // Other carries still count healers.
     expect(survival("Hu Tao", "Xingqiu", "Bennett", "Zhongli").reason).toBe(
-      "Bennett, Zhongli, Crystallize shields heal or shield ~100% of an Abyss hit per rotation",
+      "Bennett, Xingqiu, Zhongli, Crystallize shields heal, shield or mitigate ~100% of an Abyss hit per rotation",
     );
   });
 
@@ -331,16 +331,25 @@ describe("scoreTeam", () => {
     expect(line("Hu Tao", "Zhongli", "Xingqiu", "Yelan")).toEqual({
       rule: "Survivability",
       points: 10,
-      reason: "Zhongli, Crystallize shields heal or shield ~100% of an Abyss hit per rotation",
+      reason: "Xingqiu, Zhongli, Crystallize shields heal, shield or mitigate ~100% of an Abyss hit per rotation",
     });
     // Bennett's field: 12s per 15s; Bennett and Xianyun (16s per 18s) together: 1 - 0.2 x 0.11.
     expect(line("Raiden Shogun", "Bennett", "Xiangling", "Xingqiu").points).toBe(8);
     expect(line("Xiao", "Bennett", "Xianyun", "Faruzan").reason).toBe("Bennett, Xianyun heal or shield ~98% of an Abyss hit per rotation");
     // Jean's field has no duration in the kit: she counts as full, as the healer tag did.
     expect(line("Kamisato Ayaka", "Jean", "Shenhe", "Furina").points).toBe(10);
-    expect(line("Hu Tao", "Xingqiu", "Yelan", "Kaedehara Kazuha")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
+    // Xingqiu's Rain Swords mitigate (#113): 28% of the DMG taken, 15s per 21s.
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Kaedehara Kazuha")).toEqual({
+      rule: "Survivability",
+      points: 2,
+      reason: "Xingqiu heal, shield or mitigate ~20% of an Abyss hit per rotation",
+    });
+    expect(line("Hu Tao", "Yelan", "Kaedehara Kazuha", "Bennett").points).toBe(8);
+    expect(line("Hu Tao", "Yelan", "Kaedehara Kazuha", "Xiangling")).toEqual({ rule: "Survivability", points: -10, reason: "No healer or shielder" });
     // Albedo has no shield of his own, but his Geo crystallizes the team's auras (#208).
-    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo").reason).toBe("Crystallize shields heal or shield ~31% of an Abyss hit per rotation");
+    expect(line("Hu Tao", "Xingqiu", "Yelan", "Albedo").reason).toBe("Xingqiu, Crystallize shields heal, shield or mitigate ~45% of an Abyss hit per rotation");
+    // Dehya's Fiery Sanctum: 48% of the DMG taken, 12s per 20s; it counts for Arlecchino, who can't be healed.
+    expect(line("Arlecchino", "Dehya", "Bennett", "Xilonen").reason).toBe("Dehya, Crystallize shields shield or mitigate ~51% of an Abyss hit per rotation");
   });
 
   test("shields are sized against the Abyss Discharge hit; Crystallize shields count (#208)", () => {

@@ -4537,6 +4537,9 @@ const SUSTAIN = {
     { kind: "shield", talent: "skill", value: "Base Shield DMG Absorption", duration: "Duration", paws: 5, cd: "Hold CD" },
     { kind: "heal", talent: "burst", value: "HP Regeneration Over Time", duration: "Duration", cd: "CD" },
   ],
+  // Mitigation (#113): the share of the DMG taken it takes away. Dehya's Fiery Sanctum moves it into Redmane's Blood
+  // (up to 200% of her Max HP stored, well above one Abyss hit, so not a limit here).
+  Dehya: [{ kind: "mitigation", talent: "skill", value: "Mitigation", duration: "Field Duration", cd: "CD" }],
   Dori: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD" }],
   Escoffier: [{ kind: "heal", from: "passive1", re: /Rehab Diet effect for (\d+)s: Restores HP for nearby active characters every 1s based on ([\d.]+)% of Escoffier's ATK/, cd: { talent: "burst", label: "CD" } }],
   Furina: [{ kind: "heal", talent: "skill", value: "Singer of Many Waters Healing", duration: "Duration", cd: "CD" }],
@@ -4570,6 +4573,8 @@ const SUSTAIN = {
   Vodyanitsa: [{ kind: "heal", talent: "skill", value: "Song of Ages Past Healing", duration: "Duration", cd: "Skill CD" }],
   Xianyun: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD" }],
   Xilonen: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Ebullient Rhythm Duration", cd: "CD" }],
+  // Mitigation (#113): Rain Swords "reducing the amount of DMG taken" while his Skill's swords last.
+  Xingqiu: [{ kind: "mitigation", talent: "skill", value: "Damage Reduction Ratio", duration: "Duration", cd: "CD" }],
   Xinyan: [{ kind: "shield", talent: "skill", value: "Shield Level 3 DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Yaoyao: [{ kind: "heal", talent: "skill", value: "White Jade Radish Healing", duration: "Yuegui: Throwing Mode Duration", cd: "CD" }],
   "Yumemizuki Mizuki": [{ kind: "heal", talent: "burst", value: "Snack Pick-Up HP Regeneration", duration: "Duration", cd: "CD" }],
@@ -4610,7 +4615,8 @@ function readSustain(id, spec) {
     const values = [e.value].flat();
     return {
       kind: e.kind,
-      size: sizeOf(attrsOf(e.talent), values, id),
+      // A mitigation's size is its ratio of the DMG taken (#113), not an amount.
+      size: e.kind === "mitigation" ? { ratio: tableValue(attrsOf(e.talent), e.value, id) } : sizeOf(attrsOf(e.talent), values, id),
       source: `${e.talent} talent ${values.map((v) => `"${v}"`).join(" + ")}, "${typeof e.duration === "string" ? e.duration : e.duration.label}"${e.paws ? ` x ${e.paws} Icy Paws (Hold)` : ""} / "${typeof e.cd === "string" ? e.cd : e.cd.label}", level ${TALENT_LEVEL}`,
       duration,
       cd,
@@ -4620,13 +4626,13 @@ function readSustain(id, spec) {
   return { effects, coverage: round(1 - effects.reduce((a, e) => a * (1 - e.uptime), 1)) };
 }
 
-// Every healer and shielder needs a SUSTAIN entry, so a new one can't be missed.
+// Every healer, shielder and mitigator needs a SUSTAIN entry, so a new one can't be missed.
 const sustain = {};
-for (const c of tags.filter((c) => c.roles.includes("healer") || c.roles.includes("shielder"))) {
-  if (!SUSTAIN[c.id]) throw new Error(`${c.id} heals or shields in tags.json but has no SUSTAIN entry`);
+for (const c of tags.filter((c) => ["healer", "shielder", "mitigation"].some((r) => c.roles.includes(r)))) {
+  if (!SUSTAIN[c.id]) throw new Error(`${c.id} heals, shields or mitigates in tags.json but has no SUSTAIN entry`);
   sustain[c.id] = readSustain(c.id, SUSTAIN[c.id]);
 }
-for (const id of Object.keys(SUSTAIN)) if (!sustain[id]) throw new Error(`SUSTAIN: ${id} isn't a healer or shielder in tags.json`);
+for (const id of Object.keys(SUSTAIN)) if (!sustain[id]) throw new Error(`SUSTAIN: ${id} isn't a healer, shielder or mitigator in tags.json`);
 
 const out = new URL("../data/kit.json", import.meta.url);
 writeFileSync(
