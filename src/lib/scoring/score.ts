@@ -223,7 +223,10 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   // keeps the flat points.
   const worn = carryActive.includes("freeze") && freezeInDamage(carry, ctx.active);
   const frozen = worn || (carryActive.includes("freeze") && freezeSetModeled(carry));
-  if (worn) out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents`);
+  if (worn) {
+    const share = Math.round(frozenShare(ctx, carry) * 100); // #282
+    out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents (Frozen ~${share}% of the time)`);
+  }
   else if (frozen) out.add("Reactions", 0, () => `Freeze: adds nothing without a set whose CRIT Rate needs it (Blizzard Strayer)`);
   const modeled = [...kitModeled, ...transformative, ...(frozen ? ["freeze" as Reaction] : [])];
   const flat = carryActive.filter((r) => !modeled.includes(r));
@@ -584,8 +587,8 @@ function ascendantGleamLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   // points (#245: as points it counted twice, Flins +35). Upgrades not modeled yet keep the flat points.
   if (moonsign.includes(carry) && GLEAM[carry.id]?.target === "self") {
     const share = carryAmpShare(ctx, carry);
-    const withGleam = modelsAscendantGleam(carry.id) ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, share) : null;
-    const without = withGleam ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, true, share) : null;
+    const withGleam = modelsAscendantGleam(carry.id) ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, share, frozenShare(ctx, carry)) : null;
+    const without = withGleam ? carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, true, share, frozenShare(ctx, carry)) : null;
     if (withGleam && without && withGleam.missing.length === 0 && without.perSecond > 0) {
       const gain = withGleam.perSecond / without.perSecond - 1;
       if (gain > 0) out.add("Moonsign", 0, () => `Ascendant Gleam adds ~+${Math.round(gain * 100)}% to ${carry.id}'s damage`);
@@ -1102,6 +1105,10 @@ function auraShares(ctx: TeamContext, carry: ScoringCharacter): Map<ScoringChara
 function carryAmpShare(ctx: TeamContext, carry: ScoringCharacter): number {
   return auraBudget(ctx, carry).carry;
 }
+// The share of the time the enemy is Frozen (#282), for Blizzard Strayer's "If the opponent is Frozen".
+function frozenShare(ctx: TeamContext, carry: ScoringCharacter): number {
+  return auraBudget(ctx, carry).frozen;
+}
 const budgetCache = new WeakMap<TeamContext, Map<ScoringCharacter, ReturnType<typeof computeAuraBudget>>>();
 function auraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   let byCarry = budgetCache.get(ctx);
@@ -1193,6 +1200,12 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   if (anyActive(["quicken", "aggravate", "spread"])) {
     addPair("quicken", "Dendro", "Electro", perAuraApp(1), true);
     addPair("quicken", "Electro", "Dendro", perAuraApp(1), true);
+  }
+  // Frozen (#282): Hydro on Cryo or Cryo on Hydro, 1x ("Gauge_Reaction = min(Gauge_Origin Aura, Gauge_Trigger
+  // Element)": wiki Elemental Gauge Theory/Advanced Mechanics § Frozen, fetched 2026-10-28).
+  if (ctx.active.includes("freeze")) {
+    addPair("freeze", "Hydro", "Cryo", perAuraApp(1), true);
+    addPair("freeze", "Cryo", "Hydro", perAuraApp(1), true);
   }
   // Stellar Swirl (#235): Anemo on Cryo, like Swirl (0.5x), replacing the Cryo Swirl (swirlAuras).
   if (ctx.active.includes("stellar-swirl")) addPair("stellar-swirl", "Anemo", "Cryo", perAuraApp(0.5), true);
@@ -1307,10 +1320,19 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   // Crystallize shards per second for survival (#208): Geo on any aura but Hydro's when it turns Lunar-Crystallize.
   const crystals = pairs.filter((p) => p.r === "crystallize" && !(p.aura === "Hydro" && ctx.active.includes("lunar-crystallize")));
   const crystallize = { perSecond: crystals.reduce((s, p) => s + p.reactions, 0), geo: [...new Set(crystals.flatMap((p) => p.members))] };
-  return { subs: out, carry: carryShare, quicken, transformative, appsOf, indirect, crystallize };
+  // Frozen uptime (#282): each Freeze holds the enemy FREEZE_SECONDS; taking Freezes as random arrivals, the share of
+  // the time it is Frozen is 1 - e^(-rate x FREEZE_SECONDS) (estimate). Against Freeze-immune enemies ("Most Bosses":
+  // wiki Freeze § Immunity) it is 0, but the benchmark has no enemy type, so they aren't weighed. When Hydro or Cryo
+  // has no modeled applier (no sub-DPS entry), 1 stays as the stand-in.
+  const freezes = pairs.filter((p) => p.r === "freeze").reduce((s, p) => s + p.reactions, 0);
+  const frozen = (full.get("Hydro") ?? 0) > 0 && (full.get("Cryo") ?? 0) > 0 ? 1 - Math.exp(-freezes * FREEZE_SECONDS) : 1;
+  return { subs: out, carry: carryShare, quicken, transformative, appsOf, indirect, crystallize, frozen };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
 const QUICKEN_SECONDS = 0.8 * 5 + 6; // a Quicken aura from 0.8U (wiki Quicken § Duration)
+// A Freeze from a 0.8U aura and a 1U trigger: "Gauge_Freeze Aura = 2 min(Gauge_Origin Aura, Gauge_Trigger Element)",
+// 1.6U, lasting "2 sqrt(5 x Gauge_Freeze Aura x (1 - Freeze Resistance) + 4) - 4" seconds, 2.93s (wiki Freeze § Duration).
+const FREEZE_SECONDS = 2 * Math.sqrt(5 * 1.6 + 4) - 4;
 const CRYSTALLIZE_PER_SECOND = 1;
 // A converter turns these into their Lunar or Stellar form (Moonsign Benediction, Stellar Jubilee): with the converted
 // reaction in the team, the base one doesn't happen. Stellar Swirl is the Cryo Swirl only (reactions.ts: Anemo + Cryo).
@@ -1454,11 +1476,13 @@ function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
 // A modeled carry's measured reaction shares in this team (#94 part 5): which share of their damage a bonus to each
 // reaction reaches, from the same reading as their reactions' damage (aura-limited); undefined when not modeled.
 function measuredShares(carry: ScoringCharacter, ctx: TeamContext): Partial<Record<string, number>> | undefined {
-  const own = carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry));
+  const own = carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry), frozenShare(ctx, carry));
   return own && own.missing.length === 0 ? own.shares : undefined;
 }
 function modeledCarryDps(carry: ScoringCharacter, ctx: TeamContext, reactions = true, buffs = NO_TEAM_BUFFS): number | null {
-  const own = carryDamage(carry, reactions ? ctx.active : [], ctx.members, buffs, false, reactions ? carryAmpShare(ctx, carry) : 1);
+  const own = reactions
+    ? carryDamage(carry, ctx.active, ctx.members, buffs, false, carryAmpShare(ctx, carry), frozenShare(ctx, carry))
+    : carryDamage(carry, [], ctx.members, buffs, false);
   return own && own.missing.length === 0 ? own.perSecond : null;
 }
 
@@ -1628,7 +1652,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
 // A member's EM for the reactions they trigger (#186): the carry's as their damage reads it (with the team's EM buffs),
 // a teammate's own plus their teammates' EM buffs (memberBuffStats).
 function teamEm(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext, own: number): number {
-  if (m === carry) return (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry))?.em ?? 0) + carryTeamBuffs(carry, ctx).em;
+  if (m === carry) return (carryDamage(carry, ctx.active, ctx.members, NO_TEAM_BUFFS, false, carryAmpShare(ctx, carry), frozenShare(ctx, carry))?.em ?? 0) + carryTeamBuffs(carry, ctx).em;
   return own + memberBuffStats(m, carry, ctx.active, ctx.members, undefined, burstSharesFor(ctx, carry)).em;
 }
 

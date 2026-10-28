@@ -208,7 +208,10 @@ describe("scoreTeam", () => {
     const withZhongli = line("Durin", "Skirk", "Escoffier", "Durin", "Zhongli");
     expect(withZhongli).toMatch(/, with Melt$/);
     expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).not.toMatch(/with/);
-    expect(pct(line("Durin", "Skirk", "Escoffier", "Durin", "Xingqiu"))).toBeLessThan(pct(withZhongli));
+    // Xingqiu's Hydro vaporizes some of Durin's Pyro, and Freezes on the Cryo aura (#282) with the rest; the budget
+    // splits it. (Durin then melts more than beside Zhongli, whose Crystallize takes Cryo aura too.)
+    expect(line("Xingqiu", "Skirk", "Escoffier", "Durin", "Xingqiu")).toMatch(/, with Vaporize$/);
+    expect(score("Skirk", "Escoffier", "Durin", "Xingqiu").breakdown.map((l) => l.reason)).toContain("Hydro (Xingqiu) and Pyro (Durin) split Freeze and Melt");
     // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
     // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
     expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
@@ -1014,6 +1017,21 @@ describe("talent levels (#25)", () => {
     // Freeze is worth only the set's crit: a build without it gets nothing from Freeze (#279).
     expect(none.freeze).toMatchObject({ points: 0 });
     expect(four.freeze).toMatchObject({ points: 0 });
+  });
+
+  test("Blizzard Strayer's Frozen CRIT Rate covers the share of the time the enemy is Frozen (#282)", () => {
+    const share = (...ids: string[]) =>
+      Number(score(...ids).breakdown.find((l) => l.reason.startsWith("Freeze: in"))?.reason.match(/Frozen ~(\d+)%/)?.[1]);
+    // Furina's Salon and Escoffier's Cryo meet often, not always: 1 - e^(-Freezes a second x 2.93s).
+    const furina = share("Ganyu", "Furina", "Escoffier", "Shenhe");
+    expect(furina).toBeGreaterThan(0);
+    expect(furina).toBeLessThan(100);
+    // The +20% "if Frozen" CRIT Rate is in her damage at that share: between none and all of it.
+    const t = team("Ganyu", "Furina", "Escoffier", "Shenhe");
+    const s = scoreTeam(t);
+    const at = (frozen: number) => carryDamage(t[0], s.activeReactions, t, undefined, false, 1, frozen)!.perSecond;
+    expect(at(furina / 100)).toBeGreaterThan(at(0));
+    expect(at(furina / 100)).toBeLessThan(at(1));
   });
 
   test("a carry without a build wears their guide's set in its reaction's teams, with a CRIT DMG circlet (#279)", () => {
