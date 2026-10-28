@@ -1,5 +1,5 @@
 {
-  "median": 216355.3,
+  "median": 217200.2,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -8,7 +8,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 215823.3
+      "value": 223251.4
     },
     "Aloy": {
       "team": [
@@ -17,7 +17,7 @@
         "Xiangling",
         "Shenhe"
       ],
-      "value": 132054.4
+      "value": 134587.4
     },
     "Arataki Itto": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 178614.2
+      "value": 182979
     },
     "Diluc": {
       "team": [
@@ -71,7 +71,7 @@
         "Yelan",
         "Bennett"
       ],
-      "value": 125410.5
+      "value": 129245.2
     },
     "Eula": {
       "team": [
@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 113210.1
+      "value": 118690
     },
     "Flins": {
       "team": [
@@ -170,7 +170,7 @@
         "Emilie",
         "Iansan"
       ],
-      "value": 254408.6
+      "value": 271245.7
     },
     "Klee": {
       "team": [
@@ -188,7 +188,7 @@
         "Nicole",
         "Citlali"
       ],
-      "value": 340967.1
+      "value": 349655.9
     },
     "Lyney": {
       "team": [
@@ -215,7 +215,7 @@
         "Xilonen",
         "Sucrose"
       ],
-      "value": 286660.2
+      "value": 291257.6
     },
     "Navia": {
       "team": [
@@ -251,7 +251,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 146072.4
+      "value": 150659.2
     },
     "Noelle": {
       "team": [
@@ -274,29 +274,29 @@
     "Razor": {
       "team": [
         "Razor",
-        "Rosaria",
+        "Yaoyao",
         "Fischl",
-        "Zhongli"
+        "Kaedehara Kazuha"
       ],
-      "value": 109295.6
+      "value": 115124.5
     },
     "Sandrone": {
       "team": [
         "Sandrone",
         "Yae Miko",
-        "Escoffier",
-        "Nicole"
+        "Odette",
+        "Escoffier"
       ],
-      "value": 160950.4
+      "value": 177655
     },
     "Sethos": {
       "team": [
         "Sethos",
         "Fischl",
-        "Nahida",
-        "Zhongli"
+        "Kirara",
+        "Sucrose"
       ],
-      "value": 105258.1
+      "value": 115115.1
     },
     "Shikanoin Heizou": {
       "team": [
@@ -305,7 +305,7 @@
         "Xingqiu",
         "Yelan"
       ],
-      "value": 76208
+      "value": 79331.8
     },
     "Skirk": {
       "team": [
@@ -323,25 +323,25 @@
         "Xiangling",
         "Bennett"
       ],
-      "value": 73390.7
+      "value": 75126.7
     },
     "Tighnari": {
       "team": [
         "Tighnari",
         "Fischl",
-        "Nahida",
-        "Zhongli"
+        "Yae Miko",
+        "Yaoyao"
       ],
-      "value": 147560.6
+      "value": 154922.3
     },
     "Traveler (Cryo)": {
       "team": [
         "Traveler (Cryo)",
         "Yae Miko",
-        "Odette",
-        "Alyosha"
+        "Nicole",
+        "Odette"
       ],
-      "value": 121699.5
+      "value": 138657.1
     },
     "Varesa": {
       "team": [
@@ -359,7 +359,7 @@
         "Nicole",
         "Durin"
       ],
-      "value": 305410.3
+      "value": 330802.4
     },
     "Vesna": {
       "team": [
@@ -368,7 +368,7 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 73478.7
+      "value": 89278.9
     },
     "Wanderer": {
       "team": [
@@ -422,7 +422,7 @@
         "Traveler (Cryo)",
         "Lan Yan"
       ],
-      "value": 131448.8
+      "value": 147717
     },
     "Zibai": {
       "team": [

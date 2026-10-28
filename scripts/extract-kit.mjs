@@ -4191,6 +4191,9 @@ for (const [id, bySet] of Object.entries(holderStates.setStacks)) {
 // Venerer, a team set; Keqing: Marechaussee or Night by team; Kaveh: Deepwood Memories) has none yet.
 const kqmOn = (date, page, quote) => `KQM ${page.replace(/-quickguide$/, "")} quick guide (keqingmains.com/q/${page}, accessed ${date}): "${quote}"`;
 const kqm = (page, quote) => kqmOn("2026-10-20", page, quote);
+// genshin-builds' character pages for the characters without a KQM quick guide (#369; Jessie, 2026-10-29: search
+// outside KQM): the recommended build's sets in order and its first non-5-star weapon.
+const gbOn = (date, page, what) => `genshin-builds (genshin-builds.com/en/character/${page}, accessed ${date}): ${what}`;
 const benchmarkSets = {
   Ganyu: [{ set: "Blizzard Strayer", when: { reaction: "freeze" }, source: kqm("ganyu-quickguide", "This set is Ganyu's best-in-slot against freezable enemies") }],
   Freminet: [{ set: "Blizzard Strayer", when: { reaction: "freeze" }, source: kqm("freminet-quickguide", "4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle") }],
@@ -4340,6 +4343,162 @@ const benchmarkSets = {
     { defer: true, set: "Silken Moon's Serenade", when: { reaction: "lunar-bloom" }, source: kqmOn("2026-10-24", "nilou-quickguide", "4pc SMS is Nilou's default set in Lunar-Bloom teams if her teammates prefer other sets") },
     { set: "Instructor", when: { reaction: "lunar-bloom" }, source: kqmOn("2026-10-24", "nilou-quickguide", "Nilou can hold 4pc Instructor if another character is holding 4pc SMS") },
   ],
+  // #369: the remaining supports, from their KQM quick guides' Artifact Sets (accessed 2026-10-29), in the guide's
+  // order (the later ones are the next picks when a teammate holds the first, #348). A set not in SETS is skipped for
+  // the next: Barbara's Maiden Beloved, Kokomi's Flower of Paradise Lost, Durin's A Day Carved From Rising Winds (#383).
+  // No quick guide: Yae Miko, the Anemo, Electro and Geo Travelers, Manekin and Manekina.
+  Aino: [
+    { set: "Silken Moon's Serenade", source: kqmOn("2026-10-29", "aino-quickguide", "As a Nod-Krai character, Aino can use 4pc SMS for its teamwide EM buff with full uptime.") },
+    { set: "Instructor", source: kqmOn("2026-10-29", "aino-quickguide", "An alternative to 4pc SMS when another character is already holding it, although 4pc Instructor wants Aino to trigger a reaction while she is on-field right before swapping to the dedicated on-fielder for maximum buff uptime.") },
+  ],
+  Amber: [
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "amber-quickguide", "Support set for ATK-scaling damage dealers.") },
+  ],
+  Barbara: [
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-29", "barbara-quickguide", "Though pure healer Barbara is unable to cap out on 4OHC, it is still the better set to farm as it contributes to team damage while giving comfortable healing.") },
+  ],
+  Beidou: [
+    { set: "Emblem of Severed Fate", source: kqmOn("2026-10-29", "beidou-quickguide", "As Beidou has relatively high ER requirements and deals most of her damage through her Burst, 4pc Emblem of Severed Fate is her general Best-in-Slot set.") },
+  ],
+  Charlotte: [
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "charlotte-quickguide", "Grants a teamwide ATK% buff for 12s and a marginal increase to Charlotte's personal damage.") },
+    { set: "Tenacity of the Millelith", source: kqmOn("2026-10-29", "charlotte-quickguide", "While the HP% stat is wasted on Charlotte, she can provide a useful team ATK% buff due to her off-field Skill damage.") },
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-29", "charlotte-quickguide", "Provides a decent bonus to Charlotte's healing, while also converting it into additional damage via Bubble detonations.") },
+  ],
+  Chiori: [
+    { set: "Golden Troupe", source: kqmOn("2026-10-29", "chiori-quickguide", "4pc GT is Chiori's default set for off-field playstyle.") },
+  ],
+  Chongyun: [
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "chongyun-quickguide", "Chongyun can use 4NO to provide a teamwide ATK% buff with his Burst.") },
+    { set: "Emblem of Severed Fate", source: kqmOn("2026-10-29", "chongyun-quickguide", "One of Chongyun's best sets for personal damage.") },
+  ],
+  Collei: [
+    { set: "Deepwood Memories", source: kqmOn("2026-10-29", "collei-quickguide", "The most important set for teams that deal mostly Dendro DMG, including all Bloom variants.") },
+    { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-29", "collei-quickguide", "4pc Scroll is a useful set for buffing non-ATK scalers, even despite Collei not being able to fully activate its effect.") },
+    { set: "Instructor", source: kqmOn("2026-10-29", "collei-quickguide", "4pc Instructor can be useful in teams where the Dendro damage share of the team damage profile is negligible or if you already have a Deepwood / Scroll holder.") },
+  ],
+  Dehya: [
+    { set: "Marechaussee Hunter", when: { members: ["Furina"] }, source: kqmOn("2026-10-29", "dehya-quickguide", "4pc Marechaussee Hunter (MH) is Dehya's best set when paired with Furina.") },
+    { set: "Unfinished Reverie", when: { members: ["Emilie"] }, source: kqmOn("2026-10-29", "dehya-quickguide", "4pc Unfinished Reverie is Dehya's best set in a Burning team with Emilie.") },
+    { set: "Emblem of Severed Fate", source: kqmOn("2026-10-29", "dehya-quickguide", "4pc Emblem of Severed Fate (Emblem) can be Dehya's best artifact set in teams with very high ER requirements, or with a shielder.") },
+  ],
+  Diona: [
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "diona-quickguide", "4pc NO is Diona's default set for ATK-scaling DPS teammates if no one else on the team can hold it.") },
+    { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-29", "diona-quickguide", "4pc Scroll is a viable option for teammates who care about Elemental DMG% buffs.") },
+    { set: "Song of Days Past", source: kqmOn("2026-10-29", "diona-quickguide", "4pc SoDP is another option if a teammate can hold 4pc NO.") },
+  ],
+  Dori: [
+    { set: "Gilded Dreams", source: kqmOn("2026-10-29", "dori-quickguide", "A stable set for Dori's reaction-based builds; she is able to proc the 4p effect consistently regardless of her field time thanks to its lenient condition.") },
+  ],
+  Durin: [
+    { set: "Celestial Gift", source: kqmOn("2026-10-29", "durin-quickguide", "4pc CG is typically Durin's best support-oriented artifact set for teammates who appreciate its Elemental DMG% buff.") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "durin-quickguide", "4pc NO is Durin's default support set for ATK-scaling DPS teammates.") },
+    { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-29", "durin-quickguide", "4pc Scroll is another option for PHEC (Pyro, Hydro, Electro, or Cryo) teammates if another teammate can hold 4pc Celestial Gift.") },
+  ],
+  Emilie: [
+    { set: "Unfinished Reverie", source: kqmOn("2026-10-29", "emilie-quickguide", "Emilie's best set. 4pc Reverie grants her a permanent DMG Bonus in her preferred teams, and it can outperform 4pc Deepwood Memories even if it means losing the latter's RES Shred.") },
+    { set: "Deepwood Memories", source: kqmOn("2026-10-29", "emilie-quickguide", "even if it means losing the latter's RES Shred.") },
+  ],
+  Fischl: [
+    { set: "Golden Troupe", source: kqmOn("2026-10-29", "fischl-quickguide", "Uncontested best artifact set for off-field DPS Fischl due to the massive amount of Skill DMG% it provides.") },
+  ],
+  Ifa: [
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-29", "ifa-quickguide", "A great option in teams with strong off-field damage dealers (like Electro-Charged teams).") },
+  ],
+  Jahoda: [
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-29", "jahoda-quickguide", "As an Anemo support, Jahoda's most natural artifact option is 4pc VV.") },
+    { set: "Tenacity of the Millelith", source: kqmOn("2026-10-29", "jahoda-quickguide", "Jahoda's Skill hits once every 2s in Ascendant Gleam teams, which makes her a perfect holder of the set for ATK-scaling teammates.") },
+  ],
+  Kaeya: [
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "kaeya-quickguide", "4pc NO is often Kaeya's preferred set for team DPS.") },
+    { set: "Instructor", source: kqmOn("2026-10-29", "kaeya-quickguide", "Another buffing set to use for Kaeya's Melt support playstyle.") },
+  ],
+  Kirara: [
+    { set: "Instructor", source: kqmOn("2026-10-29", "kirara-quickguide", "Provides a teamwide EM buff that is much appreciated in Dendro teams.") },
+    { set: "Deepwood Memories", source: kqmOn("2026-10-29", "kirara-quickguide", "A must-have for teams triggering Spread or any sort of Bloom-derivative reactions.") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "kirara-quickguide", "If the team benefits from the ATK% buff and Kirara can Burst every rotation, 4NO is a viable option.") },
+  ],
+  "Kuki Shinobu": [
+    { set: "Tenacity of the Millelith", source: kqmOn("2026-10-29", "shinobu-quickguide", "The 2-piece effect increases Shinobu's healing and survivability while the 4-piece effect allows her to buff the team with 20% ATK.") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "shinobu-quickguide", "Shinobu benefits only from the 2-piece effect and there are usually better holders for this set.") },
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-29", "shinobu-quickguide", "The 2-piece effect increases Shinobu's healing while the 4-piece effect increases her personal damage.") },
+  ],
+  Layla: [
+    { set: "Tenacity of the Millelith", source: kqmOn("2026-10-29", "layla-quickguide", "Layla's general Best-in-Slot set.") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "layla-quickguide", "4pc Noblesse is essentially a worse 4pc Tenacity for Layla - it has less uptime on its ATK% buff, has a much weaker shield, and does not significantly improve her personal damage.") },
+  ],
+  Lisa: [
+    { set: "Emblem of Severed Fate", source: kqmOn("2026-10-29", "lisa-quickguide", "Given that being off-field as Lisa already requires her to hold substantial ER%, 4EoSF can get tangible offensive value.") },
+    { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-29", "lisa-quickguide", "Lisa can equip 4Scroll to buff teammates with a 12% DMG Bonus buff.") },
+  ],
+  Odette: [
+    { set: "Heart of the Furnace", source: kqmOn("2026-10-29", "odette-quickguide", "Generally one of her best options if the team does not have other suitable holders.") },
+  ],
+  Ororon: [
+    { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-29", "ororon-quickguide", "As a Natlan character, 4pc Scroll is a naturally great option for Ororon; it offers a 40% DMG Bonus to the Elements he reacts with.") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "ororon-quickguide", "An alternative option for when there is already another 4pc Scroll user in the team.") },
+    { set: "Instructor", source: kqmOn("2026-10-29", "ororon-quickguide", "Similar to 4pc Noblesse Oblige, Ororon can use 4pc Instructor if there is another viable 4pc Scroll holder in the team.") },
+  ],
+  Qiqi: [
+    { set: "Tenacity of the Millelith", source: kqmOn("2026-10-29", "qiqi-quickguide", "4pc TotM is a good buffing set with ATK-scaling teammates.") },
+    { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-29", "qiqi-quickguide", "4pc Scroll gives a teamwide 12% DMG Bonus to the Element with which Qiqi triggers a reaction.") },
+    { set: "Instructor", source: kqmOn("2026-10-29", "qiqi-quickguide", "4pc Instructor grants the team 120 EM for 8s if Qiqi triggers an Elemental Reaction while on-field.") },
+  ],
+  "Sangonomiya Kokomi": [
+    { set: "Gilded Dreams", when: { reaction: "bloom" }, source: kqmOn("2026-10-29", "kokomi-quickguide", "The most recommended artifact set in double Dendro comps where Kokomi has high Bloom ownership, providing 180 EM with an easily triggered 4pc effect.") },
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-29", "kokomi-quickguide", "A good option for triple Hydro teams where Kokomi owns fewer Blooms and will benefit more from the 2pc Healing Bonus and AoE damage from the 4pc passive.") },
+  ],
+  Sayu: [
+    { set: "Viridescent Venerer", source: kqmOn("2026-10-29", "sayu-quickguide", "For both on-field and off-field builds, 4VV is indisputably Sayu's best set , and by quite a large margin.") },
+    { set: "Deepwood Memories", source: kqmOn("2026-10-29", "sayu-quickguide", "Viable if Sayu is used in a Bloom team (including Hyperbloom and Burgeon) or for an on-field Dendro DPS.") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "sayu-quickguide", "Not a bad set for the teamwide ATK% buff, although Sayu may be an inconsistent holder due to her expensive Burst.") },
+  ],
+  Sigewinne: [
+    { set: "Ocean-Hued Clam", source: kqmOn("2026-10-29", "sigewinne-quickguide", "This set deals unconditional Physical damage, due to Sigewinne's strong healing.") },
+    { set: "Song of Days Past", source: kqmOn("2026-10-29", "sigewinne-quickguide", "This set is competitive with 4pc Clam in single-target and in teams with large amounts of DMG% and/or CRIT buffs.") },
+  ],
+  Thoma: [
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "thoma-quickguide", "4pc Noblesse Oblige gives Thoma's team a useful ATK% buff after using his Burst.") },
+  ],
+  "Traveler (Dendro)": [
+    { set: "Deepwood Memories", source: kqmOn("2026-10-29", "dendro-traveler-quickguide", "Main set to aim for as it is generally the Best in Slot for teams that deal a decent amount of Dendro DMG (like using a Dendro on-field DPS) or use the Bloom reaction (including Hyperbloom/Burgeon).") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "dendro-traveler-quickguide", "Mainly sees use in Aggravate teams as it can provide a useful buff for ATK-scaling teammates.") },
+  ],
+  "Traveler (Pyro)": [
+    { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-29", "pyro-traveler-quickguide", "General Best-in-Slot for Pyro Traveler due to its immense 40% DMG buff that they can easily trigger and maintain.") },
+    { set: "Tenacity of the Millelith", source: kqmOn("2026-10-29", "pyro-traveler-quickguide", "Viable alternative if 4pc Scroll is already used by another character.") },
+    { set: "Instructor", source: kqmOn("2026-10-29", "pyro-traveler-quickguide", "Instructor can provide a strong EM buff that may be more useful than the ATK% buffs from 4pc TotM or 4pc NO.") },
+  ],
+  Xiangling: [
+    { set: "Emblem of Severed Fate", source: kqmOn("2026-10-29", "xiangling-quickguide", "Emblem of Severed Fate is Xiangling's best set in almost every scenario, as it maximizes her Burst damage and helps fulfill her high ER requirements.") },
+  ],
+  Xingqiu: [
+    { set: "Emblem of Severed Fate", source: kqmOn("2026-10-29", "xingqiu-quickguide", "By far, Xingqiu's Best-in-Slot artifact set that provides everything he needs - ER% and increased Burst damage.") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "xingqiu-quickguide", "Support sets for teams where the buffs are more important than Xingqiu's personal damage") },
+  ],
+  Yaoyao: [
+    { set: "Deepwood Memories", source: kqmOn("2026-10-29", "yaoyao-quickguide", "Essential for Dendro teams.") },
+    { set: "Instructor", source: kqmOn("2026-10-29", "yaoyao-quickguide", "Great for boosting reaction damage, which most Dendro teams rely on.") },
+  ],
+  "Yun Jin": [
+    { set: "Husk of Opulent Dreams", source: kqmOn("2026-10-29", "yunjin-quickguide", "4pc Husk of Opulent Dreams (Husk) provides a solid DEF% buff.") },
+    { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "yunjin-quickguide", "4pc Noblesse Oblige (NO) is an alternative option to 4pc Husk that generally has similar or better performance in ATK-scaling teams.") },
+  ],
+  // #369, no KQM quick guide: genshin-builds. Geo Traveler's first pick, Nighttime Whispers, isn't in SETS (#383).
+  "Yae Miko": [
+    { set: "Golden Troupe", source: gbOn("2026-10-29", "yae_miko", "OFF-FIELD DPS Build, first set: Golden Troupe (4pc)") },
+    { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "yae_miko", "OFF-FIELD DPS Build, second set: Emblem of Severed Fate (4pc)") },
+  ],
+  "Traveler (Anemo)": [{ set: "Viridescent Venerer", source: gbOn("2026-10-29", "traveler_anemo", "ANEMO DPS Build: 4-piece Viridescent Venerer") }],
+  "Traveler (Electro)": [
+    { set: "Noblesse Oblige", source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build, first set: Noblesse Oblige (4-piece)") },
+    { set: "Scroll of the Hero of Cinder City", source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build, second set") },
+    { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build, third set") },
+  ],
+  "Traveler (Geo)": [
+    { set: "Golden Troupe", source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build, second set (the first, Nighttime Whispers, isn't modeled)") },
+    { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build, third set") },
+  ],
 };
 // Benchmark carries' weapons (#206, Jessie 2026-10-21: "Best 4★"; "if a best weapon is a 3 star make sure to use it"):
 // the first non-5-star weapon in the carry's KQM quick guide weapon list, at the refinement it names (else R1); game8
@@ -4430,6 +4589,57 @@ const benchmarkWeapons = {
   Columbina: { weapon: "Sacrificial Jade", refinement: 1, source: kqmOn("2026-10-24", "columbina-quickguide", "Sacrificial Jade") },
   Illuga: { weapon: "Dragon's Bane", refinement: 1, source: kqmOn("2026-10-24", "illuga-quickguide", "Dragon's Bane") },
   Nilou: { weapon: "The Dockhand's Assistant", refinement: 1, source: kqmOn("2026-10-24", "nilou-quickguide", "The Dockhand's Assistant") },
+  // #369: the rest, by the #349 rule (the first non-5-star weapon in their KQM quick guide's weapon list, accessed
+  // 2026-10-29, R1), carries without one too (Lohen, Sandrone, Varka). No quick guide: Yae Miko, the Anemo, Electro and
+  // Geo Travelers, Manekin, Manekina.
+  Aino: { weapon: "Favonius Greatsword", refinement: 1, source: kqmOn("2026-10-29", "aino-quickguide", "Best option for general use.") },
+  Amber: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "amber-quickguide", "Ensures Amber meets her ER requirement and reduces teammates' ER needs; build CRIT Rate on Amber to reliably trigger the passive.") },
+  Barbara: { weapon: "Prototype Amber", refinement: 1, source: kqmOn("2026-10-29", "barbara-quickguide", "F2P weapon that mirrors the Everlasting Moonglow.") },
+  Beidou: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-29", "beidou-quickguide", "A fully stacked Serpent Spine can be Beidou's best weapon, especially at high refinements, with Bennett, or in Aggravate.") },
+  Candace: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-29", "candace-quickguide", "Favonius Lance is the go-to option for Candace as it reduces ER requirements for the whole team.") },
+  Charlotte: { weapon: "Prototype Amber", refinement: 1, source: kqmOn("2026-10-29", "charlotte-quickguide", "Charlotte's best weapon for healing by a large margin.") },
+  Chiori: { weapon: "Cinnabar Spindle", refinement: 1, source: kqmOn("2026-10-29", "chiori-quickguide", "Cinnabar Spindle and Flute of Ezpitzal perform very similarly.") },
+  Chongyun: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-29", "chongyun-quickguide", "Serpent Spine") },
+  Collei: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "collei-quickguide", "One can be acquired for free by completing Mondstadt's story quest.") },
+  Dehya: { weapon: "Akuoumaru", refinement: 1, source: kqmOn("2026-10-29", "dehya-quickguide", "Akuoumaru is a strong weapon with variable performance based on refinements.") },
+  Diona: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "diona-quickguide", "Favonius Warbow is Diona's default weapon option.") },
+  Dori: { weapon: "Favonius Greatsword", refinement: 1, source: kqmOn("2026-10-29", "dori-quickguide", "[Flexible] One of Dori's most competitive options for all of her playstyles thanks to its battery capabilities.") },
+  Durin: { weapon: "Xiphos' Moonlight", refinement: 1, source: kqmOn("2026-10-29", "durin-quickguide", "Xiphos' Moonlight is a gacha-exclusive Sword that leads to higher personal DPS than Favonius Sword.") },
+  Emilie: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-29", "emilie-quickguide", "Emilie's best 4-star option.") },
+  Fischl: { weapon: "Alley Hunter", refinement: 1, source: kqmOn("2026-10-29", "fischl-quickguide", "A strong 4-star option for off-field DPS builds due to its easily obtainable stacks.") },
+  Ifa: { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-29", "ifa-quickguide", "Best 4-star Catalyst with averaged buffs, and can outperform the lower-tier 5-star options at R5.") },
+  Jahoda: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "jahoda-quickguide", "Default option due to its advantageous Energy generation passive, which helps many teammates.") },
+  Jean: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "jean-quickguide", "Favonius practically meets all of Jean's ER requirements while lowering the ER requirements for the rest of the team.") },
+  Kachina: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-29", "kachina-quickguide", "Due to Kachina's low personal damage, the particles provided by Favonius Lance yield the most utility for her team.") },
+  Kaeya: { weapon: "Moonweaver's Dawn", refinement: 1, source: kqmOn("2026-10-29", "kaeya-quickguide", "Moonweaver's Dawn is a freely obtained weapon from a Nod-Krai World Quest, and its copies are only obtained from exclusive weapon banners.") },
+  Kirara: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "kirara-quickguide", "Kirara's most recommended option.") },
+  "Kuki Shinobu": { weapon: "The Dockhand's Assistant", refinement: 1, source: kqmOn("2026-10-29", "shinobu-quickguide", "The Dockhand's Assistant") },
+  "Lan Yan": { weapon: "Thrilling Tales of Dragon Slayers", refinement: 1, source: kqmOn("2026-10-29", "lan-yan-quickguide", "(TTDS) Her best general option, providing a strong 48% ATK buff.") },
+  Layla: { weapon: "The Dockhand's Assistant", refinement: 1, source: kqmOn("2026-10-29", "layla-quickguide", "The next best option for Layla's shield.") },
+  Lisa: { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-29", "lisa-quickguide", "Widsith often will be Lisa's best-in-slot 4-star weapon; it can be similar to 5-star weapons as well.") },
+  Lohen: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-29", "lohen-quickguide", "Deathmatch is Lohen's default 4-star option.") },
+  Odette: { weapon: "Finale of the Deep", refinement: 1, source: kqmOn("2026-10-29", "odette-quickguide", "The best 4 star weapon for Odette if you can clear the BoL, and remains one of her best 4-star weapons even if BoL cannot be cleared.") },
+  Ororon: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "ororon-quickguide", "Favonius Warbow reduces Ororon's and his teammates' ER requirements.") },
+  Qiqi: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "qiqi-quickguide", "Favonius Sword is the best option for decreasing both Qiqi's and her teammates' ER requirements.") },
+  Sandrone: { weapon: "Forged by the Golden Melody", refinement: 1, source: kqmOn("2026-10-29", "sandrone-quickguide", "Forged by the Golden Melody is a Battle Pass-exclusive Claymore released in Version 7.0.") },
+  "Sangonomiya Kokomi": { weapon: "Sacrificial Fragments", refinement: 1, source: kqmOn("2026-10-29", "kokomi-quickguide", "Not only does Sacrificial Fragments have an EM secondary stat, it also allows Kokomi to reposition her Bake-Kurage via extra Skill casts to maintain Hydro application.") },
+  Sayu: { weapon: "Favonius Greatsword", refinement: 1, source: kqmOn("2026-10-29", "sayu-quickguide", "Although Favonius requires Sayu to build some CRIT Rate, it makes Bursting every rotation significantly more achievable and is one of her best choices for off-field Burst support.") },
+  Sigewinne: { weapon: "Recurve Bow", refinement: 1, source: kqmOn("2026-10-29", "sigewinne-quickguide", "The HP% secondary stat is very useful for Sigewinne's damage and buff, even though the passive is useless.") },
+  Thoma: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-29", "thoma-quickguide", "Favonius as a useful ER% main stat.") },
+  "Traveler (Dendro)": { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "dendro-traveler-quickguide", "Generally DMC's BiS for most situations due to their massive Energy Recharge requirements across various team archetypes, even when intentionally building for personal damage.") },
+  "Traveler (Pyro)": { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "pyro-traveler-quickguide", "Pyro Traveler's best general-use weapon, providing them with a high ER secondary stat and a useful passive to help with meeting team ER requirements 4\u2605 Sacrificial Sword At R5, Sacrificial ...") },
+  Varka: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-29", "varka-quickguide", "Varka's best 4-star option.") },
+  Venti: { weapon: "The Stringless", refinement: 1, source: kqmOn("2026-10-29", "venti-quickguide", "Unconditional EM stat stick that also gives a massive Skill and Burst DMG Bonus.") },
+  Xiangling: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-29", "xiangling-quickguide", "Favonius Lance is a great option when Xiangling and her teammates have high ER requirements.") },
+  Xingqiu: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "xingqiu-quickguide", "One of Xingqiu's best 4-star weapon choices.") },
+  Xinyan: { weapon: "Prototype Rancour", refinement: 1, source: kqmOn("2026-10-29", "xinyan2-quickguide", "Prototype Rancour") },
+  Yaoyao: { weapon: "Dialogues of the Desert Sages", refinement: 1, source: kqmOn("2026-10-29", "yaoyao-quickguide", "Yaoyao can reliably proc the Energy passive twice per rotation with her constant healing from her Radishes and A4 Passive's healing over time.") },
+  "Yun Jin": { weapon: "Footprint of the Rainbow", refinement: 1, source: kqmOn("2026-10-29", "yunjin-quickguide", "Footprint of the Rainbow is a craftable weapon and the only DEF% Polearm.") },
+  // #369, no KQM quick guide: genshin-builds' first non-5-star weapon in the recommended build.
+  "Yae Miko": { weapon: "Oathsworn Eye", refinement: 1, source: gbOn("2026-10-29", "yae_miko", "OFF-FIELD DPS Build weapons: Oathsworn Eye, the first non-5-star (7th)") },
+  "Traveler (Anemo)": { weapon: "Sacrificial Sword", refinement: 1, source: gbOn("2026-10-29", "traveler_anemo", "ANEMO DPS Build weapons: Sacrificial Sword, the first non-5-star (4th)") },
+  "Traveler (Electro)": { weapon: "Favonius Sword", refinement: 1, source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build weapons: Favonius Sword (1st)") },
+  "Traveler (Geo)": { weapon: "Wolf-Fang", refinement: 1, source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build weapons: Wolf-Fang, the first non-5-star (9th)") },
 };
 for (const [id, b] of Object.entries(benchmarkWeapons)) {
   const w = genshindb.weapons(b.weapon);
