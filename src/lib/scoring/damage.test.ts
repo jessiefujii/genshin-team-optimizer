@@ -111,7 +111,7 @@ describe("carry damage (#101)", () => {
       expect(comboOf(["Cyno", "Nahida", "Yelan", "Kuki Shinobu"], ["aggravate"])).toBe("E Q E 6[N4E]");
       const keqing = ["Keqing", "Fischl", "Nahida", "Kaedehara Kazuha"];
       expect(comboOf(keqing, ["aggravate"])).toBe("EQE 5[N1C]");
-      const tf = { ...byId.get("Keqing")!, sets: [{ set: "Thundering Fury", pieces: 4 }] };
+      const tf = { ...byId.get("Keqing")!, sets: [{ set: "Thundering Fury", pieces: 4 as const }] };
       expect(carryDamage(tf, ["aggravate"], [tf, ...team(...keqing.slice(1))])!.combo).toBe("EQE N1C N1 E 3[N1C]");
       // Yanfei: Xianyun with Furina as the only Hydro member; 4[N2C] beside C6 Xingqiu; 5[N2C] in Overloaded teams.
       expect(comboOf(["Yanfei", "Xianyun", "Furina", "Bennett"], ["vaporize"])).toBe("E 8[JhPD], with Xianyun");
