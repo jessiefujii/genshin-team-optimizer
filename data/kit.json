@@ -7300,6 +7300,23 @@
           "hits": 1,
           "cd": 15,
           "icd": "none"
+        },
+        {
+          "talent": "skill",
+          "label": "Special-Grade Frosty Parfait (C6)",
+          "scaling": {
+            "atk": 5
+          },
+          "hits": 6,
+          "onCarryNormal": true,
+          "when": {
+            "constellation": 6
+          },
+          "cd": 15,
+          "icd": {
+            "reset": 1.5,
+            "every": "first"
+          }
         }
       ]
     },
@@ -8077,7 +8094,16 @@
           "icd": {
             "reset": 3,
             "every": "first"
-          }
+          },
+          "alternatives": [
+            {
+              "when": {
+                "constellation": 4
+              },
+              "hits": 12,
+              "rateSource": "Same KQM note (#106): with C4 \"totalling ~12 hits instead of ~9\"."
+            }
+          ]
         }
       ]
     },
@@ -8490,7 +8516,16 @@
           "duration": 15,
           "onCarryNormal": true,
           "cd": 20,
-          "rateSource": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xingqiu, fetched 2026-10-10: \"Sword rain attacks have a 1-second cooldown.\" and \"Before unlocking this constellation, sword rain alternates between firing 2 swords and 3 swords. After unlocking this constellation, the order is 2 swords → 3 swords → 5 swords.\" (C0: 2.5 swords per wave)"
+          "rateSource": "pasted by Jessie 2026-10-10; matches Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Xingqiu, fetched 2026-10-10: \"Sword rain attacks have a 1-second cooldown.\" and \"Before unlocking this constellation, sword rain alternates between firing 2 swords and 3 swords. After unlocking this constellation, the order is 2 swords → 3 swords → 5 swords.\" (C0: 2.5 swords per wave)",
+          "alternatives": [
+            {
+              "when": {
+                "constellation": 6
+              },
+              "hits": 3.33,
+              "rateSource": "Same wiki note (#106): with C6 \"the order is 2 swords → 3 swords → 5 swords\": 10 swords per 3 waves."
+            }
+          ]
         }
       ]
     },

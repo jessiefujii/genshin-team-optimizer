@@ -22,6 +22,10 @@ function talentsOf(id) {
   if (!base && filled.length === 0) return undefined;
   const merged = { ...(base ?? {}) };
   for (const s of filled) merged[s.talent] = { ...(merged[s.talent] ?? {}), name: s.name || merged[s.talent]?.name, description: s.text, override: s.source };
+  // Constellations as c1-c6 (#106), so `from: "c6"` reads like a passive's text. Not enumerable: scans over a kit's
+  // talents (the Secret Rite check) stay on its talents (Cyno's and Sethos's constellations name Secret Rite).
+  const cons = genshindb.constellations(id);
+  for (const k of ["c1", "c2", "c3", "c4", "c5", "c6"]) if (cons?.[k]) Object.defineProperty(merged, k, { value: cons[k], enumerable: false });
   return merged;
 }
 
@@ -1356,6 +1360,21 @@ const SUBDPS = {
     { talent: "skill", label: "Frosty Parfait DMG", every: "rate", duration: "Cold Storage Mode Duration", cd: "Press CD" },
     { talent: "skill", label: "Surging Blade DMG", every: "Surging Blade CD Interval", duration: "Cold Storage Mode Duration", cd: "Press CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    // C6 (#106): "When your party's active character's Normal, Charged, or Plunging Attacks hit opponents, Cooking Mek:
+    // Cold Storage Mode will fire off another Special-Grade Frosty Parfait, dealing 500% of Escoffier's ATK as AoE Cryo
+    // DMG. This DMG is considered Elemental Skill DMG ... once every 0.5s, and this effect can be triggered 6 times
+    // within the duration of one Cooking Mek: Cold Storage Mode": all 6 per Skill (estimate: the carry attacks often
+    // enough; read as Normal Attacks, like Xingqiu's swords).
+    {
+      talent: "skill",
+      label: "Frosty Parfait DMG",
+      name: "Special-Grade Frosty Parfait (C6)",
+      passive: { from: "c6", re: /dealing (\d+)% of Escoffier's ATK/, stat: "atk" },
+      hits: { from: "c6", re: /can be triggered (\d+) times within the duration/ },
+      onCarryNormal: true,
+      cd: "Press CD",
+      when: { constellation: 6 },
+    },
   ],
   Fischl: [
     { talent: "skill", label: "Summoning DMG", hits: 1, cd: "CD" },

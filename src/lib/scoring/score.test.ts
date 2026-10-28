@@ -767,6 +767,23 @@ describe("sub-DPS (#96)", () => {
     expect(indirect("Nefer", "Lauma", "Columbina", "Furina")).toBeNull();
   });
 
+  test("a sub-DPS's constellation picks their kit (#106): C6 Xingqiu's 2/3/5 swords, C4 Ororon, C6 Escoffier", () => {
+    const own = (who: string, constellation: number | undefined, ...ids: string[]) =>
+      dps(scoreTeam(team(...ids).map((c) => (c.id === who ? { ...c, constellation } : c))).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
+    const xq = ["Raiden Shogun", "Xingqiu", "Zhongli", "Bennett"];
+    // 10 swords per 3 waves against 2.5 a wave: 4/3 the swords (Xingqiu's line is his Skill and swords together).
+    expect(own("Xingqiu", 6, ...xq) / own("Xingqiu", 0, ...xq)).toBeGreaterThan(1.15);
+    expect(own("Xingqiu", 6, ...xq) / own("Xingqiu", 0, ...xq)).toBeLessThan(4 / 3 + 0.01);
+    // No constellation is C0; one below the threshold changes nothing.
+    expect(own("Xingqiu", undefined, ...xq)).toBe(own("Xingqiu", 0, ...xq));
+    expect(own("Xingqiu", 5, ...xq)).toBe(own("Xingqiu", 0, ...xq));
+    const oro = ["Kinich", "Ororon", "Bennett", "Xingqiu"];
+    expect(own("Ororon", 4, ...oro)).toBeGreaterThan(own("Ororon", 3, ...oro));
+    // Escoffier's 6 Special-Grade Frosty Parfaits at 500% ATK per Skill.
+    const esc = ["Kamisato Ayaka", "Escoffier", "Shenhe", "Furina"];
+    expect(own("Escoffier", 6, ...esc)).toBeGreaterThan(own("Escoffier", 5, ...esc) * 1.3);
+  });
+
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
     const share = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.

@@ -835,7 +835,7 @@ interface SubDpsSource {
   // More DMG on this source's hits while `when` holds (Venti's Stormeye at 135% under Secret Rite, #98): 1 + value.
   factor?: { value: number; when: SourceWhen };
   // Other rates for teams that fit: the first whose `when` matches replaces hits/every/duration (Jahoda, #175).
-  alternatives?: { when: { topElement?: Element; radiance?: boolean }; hits?: number; every?: number; duration?: number; cd?: number; perRotation?: boolean }[];
+  alternatives?: { when: { topElement?: Element; radiance?: boolean; constellation?: number }; hits?: number; every?: number; duration?: number; cd?: number; perRotation?: boolean }[];
   perRotation?: boolean; // cast once per rotation: the cd is at least the carry's rotation (Yae's totems before her quest, #304)
   dmgBonusPerStat?: Partial<Record<ScaleStat, number>>; // DMG Bonus per point of a stat (Dendro Traveler, #172)
   // More DMG on the first `stacks` hits per use, by a share of a stat, capped (Durin's Primordial Fusion, #195).
@@ -850,7 +850,8 @@ interface SubDpsSource {
 // When a sub-DPS source hits (sourceFits). reaction / reactions: the team triggers it / one of them; ascendantGleam: two
 // Moonsign members; radiance: the member's own Stellar family is active (Witch's Revelation done; their Radiance then
 // needs the Stellar reaction too, as `reaction`); secretRite: two Hexerei members; carryReactions: the carry deals one
-// of them (Venti's Secret Rite needs the active character's own Swirl); unless: the team triggers none of them.
+// of them (Venti's Secret Rite needs the active character's own Swirl); unless: the team triggers none of them;
+// constellation: the sub-DPS is at least that constellation (Escoffier's C6 Parfaits, #106).
 type SourceWhen = {
   ascendantGleam?: boolean;
   reaction?: Reaction;
@@ -859,6 +860,7 @@ type SourceWhen = {
   radiance?: boolean;
   secretRite?: boolean;
   carryReactions?: Reaction[];
+  constellation?: number;
 };
 // lunarBaseBonus: their own Moonsign Benediction's Base DMG bonus to their direct Lunar hits (PR #155); teammates' add
 // to it (teammatesLunarBase, #88).
@@ -977,18 +979,20 @@ function sourceFits(w: SourceWhen, carry: ScoringCharacter, ctx: TeamContext, su
     (!w.ascendantGleam || count("moonsign") >= 2) && // Ascendant Gleam is two Moonsign members (Jahoda's robots)
     (!w.radiance || !!sub.families?.includes("stellar")) &&
     (!w.secretRite || (!!sub.families?.includes("hexerei") && count("hexerei") >= 2)) &&
-    (!w.carryReactions || w.carryReactions.some((r) => carry.reactions.includes(r) && ctx.active.includes(r)))
+    (!w.carryReactions || w.carryReactions.some((r) => carry.reactions.includes(r) && ctx.active.includes(r))) &&
+    (!w.constellation || (sub.constellation ?? 0) >= w.constellation)
   );
 }
 
 // Hits per second of one source, averaged over its cooldown; 0 when it can't fire in this team.
 function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
   // radiance: their own Stellar family is active, i.e. their Witch's Revelation done (the team is quest-adjusted:
-  // questView, #124): Yae's 24s totems (#304).
+  // questView, #124): Yae's 24s totems (#304). constellation: at least that one (Xingqiu's C6 swords, #106).
   const alt = source.alternatives?.find(
     (a) =>
       (!a.when.topElement || a.when.topElement === topElement(ctx.members)) &&
-      (!a.when.radiance || !!sub.families?.includes("stellar")),
+      (!a.when.radiance || !!sub.families?.includes("stellar")) &&
+      (!a.when.constellation || (sub.constellation ?? 0) >= a.when.constellation),
   );
   const s = alt ? { ...source, ...alt, when: source.when } : source;
   if (s.onCarryNormal && !normalAttacks(carry)) return 0; // Xingqiu's rain swords need the carry's Normal Attacks

@@ -75,7 +75,7 @@ export default function RosterPlanner({
           const effects = characterEffects(c.id, constellation, build);
           // A build below the minimum sits out of the search unless the player ticked "Include anyway" (#133).
           const below = includeAnyway ? [] : belowMinimum(build, catalog.weaponRarity, c.keyTalent);
-          return { ...c, stats: build?.stats, talents: build?.talents, sets: build?.artifactSets, weaponBuild: build?.weapon, built, effects, belowMinimum: below };
+          return { ...c, stats: build?.stats, talents: build?.talents, sets: build?.artifactSets, weaponBuild: build?.weapon, constellation, built, effects, belowMinimum: below };
         }),
     [characters, roster, catalog],
   );

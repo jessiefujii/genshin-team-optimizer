@@ -16,6 +16,7 @@ export type ScoringCharacter = CharacterTags & {
   effects?: EffectTag[];
   sets?: CharacterBuild["artifactSets"]; // the build's active set bonuses: their own 4pc buffs in carry damage (#206)
   weaponBuild?: CharacterBuild["weapon"]; // the build's weapon: its passive on their own hits (damage.ts weaponBuffs, #40)
+  constellation?: number; // 0-6, from the roster: constellation-dependent kits (#106); undefined = C0
   built?: boolean; // false = the player marked them not built: left out of the search, suggested for building
   belowMinimum?: string[]; // why their build misses the search's minimum (#133): left out like built: false
 };
