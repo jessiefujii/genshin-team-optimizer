@@ -840,7 +840,7 @@ interface SubDpsSource {
   // More DMG on this source's hits while `when` holds (Venti's Stormeye at 135% under Secret Rite, #98): 1 + value.
   factor?: { value: number; when: SourceWhen };
   // Other rates for teams that fit: the first whose `when` matches replaces hits/every/duration (Jahoda, #175).
-  alternatives?: { when: { topElement?: Element; radiance?: boolean; constellation?: number }; hits?: number; every?: number; duration?: number; cd?: number; perRotation?: boolean }[];
+  alternatives?: { when: { topElement?: Element; radiance?: boolean; constellation?: number; ascendantGleam?: boolean }; hits?: number; every?: number; duration?: number; cd?: number; perRotation?: boolean }[];
   perRotation?: boolean; // cast once per rotation: the cd is at least the carry's rotation (Yae's totems before her quest, #304)
   dmgBonusPerStat?: Partial<Record<ScaleStat, number>>; // DMG Bonus per point of a stat (Dendro Traveler, #172)
   // More DMG on the first `stacks` hits per use, by a share of a stat, capped (Durin's Primordial Fusion, #195).
@@ -994,11 +994,13 @@ function sourceFits(w: SourceWhen, carry: ScoringCharacter, ctx: TeamContext, su
 function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamContext, sub: ScoringCharacter): number {
   // radiance: their own Stellar family is active, i.e. their Witch's Revelation done (the team is quest-adjusted:
   // questView, #124): Yae's 24s totems (#304). constellation: at least that one (Xingqiu's C6 swords, #106).
+  // ascendantGleam: two Moonsign members (Aino's faster water balls, #159).
   const alt = source.alternatives?.find(
     (a) =>
       (!a.when.topElement || a.when.topElement === topElement(ctx.members)) &&
       (!a.when.radiance || !!sub.families?.includes("stellar")) &&
-      (!a.when.constellation || (sub.constellation ?? 0) >= a.when.constellation),
+      (!a.when.constellation || (sub.constellation ?? 0) >= a.when.constellation) &&
+      (!a.when.ascendantGleam || ctx.members.filter((m) => m.families?.includes("moonsign")).length >= 2),
   );
   const s = alt ? { ...source, ...alt, when: source.when } : source;
   if (s.onCarryNormal && !normalAttacks(carry)) return 0; // Xingqiu's rain swords need the carry's Normal Attacks

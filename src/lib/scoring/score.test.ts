@@ -819,6 +819,17 @@ describe("sub-DPS (#96)", () => {
     expect(teamDps("Xingqiu", 2, ...ayato)).toBeGreaterThan(teamDps("Xingqiu", 1, ...ayato));
   });
 
+  test("Aino's Ascendant Gleam upgrade is in her sub-DPS damage: 20 water balls per Burst instead of 9 (#159)", () => {
+    const own = (gleam: boolean) =>
+      dps(
+        scoreTeam(team("Neuvillette", "Aino", "Ineffa", "Bennett").map((c) => (c.id === "Ineffa" && !gleam ? { ...c, families: [] } : c))).breakdown.find(
+          (l) => l.rule === "Sub-DPS" && l.reason.startsWith("Aino"),
+        )?.reason,
+      );
+    // Her Skill's two stages stay; the water balls go from 9 to 20.
+    expect(own(true) / own(false)).toBeGreaterThan(1.4);
+  });
+
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {
     const share = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Ineffa's Overclocking Circuit needs thunderclouds (Lunar-Charged): Xingqiu's Hydro makes them, Zhongli doesn't.

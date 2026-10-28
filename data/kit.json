@@ -6476,7 +6476,16 @@
           },
           "hits": 9,
           "cd": 13.5,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Aino, fetched 2026-10-10: \"Water balls are fired every 1.5 seconds and up to 9 can be fired during the skill's duration.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Aino, fetched 2026-10-10: \"Water balls are fired every 1.5 seconds and up to 9 can be fired during the skill's duration.\"",
+          "alternatives": [
+            {
+              "when": {
+                "ascendantGleam": true
+              },
+              "hits": 20,
+              "rateSource": "Same wiki page, fetched 2026-10-28 (#159): \"With Moonsign: Ascendant Gleam, water balls are fired every 0.75 seconds and up to 20 can be fired during the skill's duration.\" (passive 1: \"fire water balls more frequently\")"
+            }
+          ]
         }
       ]
     },
