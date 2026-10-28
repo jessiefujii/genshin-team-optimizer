@@ -495,7 +495,10 @@ function readBuffs(id, spec) {
 // and Ascendant Gleam is level 2. target "party": a numeric buff for party members (read like the buffs above);
 // target "self": an upgrade to that character's own kit, kept as the quoted sentence.
 const GLEAM = {
+  // In her sub-DPS damage (#159): 20 water balls per Burst instead of 9 (kit-overrides hitRates alternatives).
   Aino: { from: "passive1", target: "self" },
+  // Only a wider area ("Gravity Ripple inflicts AoE Hydro DMG over a wider area", #159): nothing on one target, so
+  // nothing in her single-target damage.
   Columbina: { from: "combat2", target: "self" },
   Flins: { from: "passive1", target: "self" },
   Illuga: { from: "passive1", target: "party", values: [{ kind: "em", re: /have their Elemental Mastery increased by (\d+)/, unit: "EM" }] },
