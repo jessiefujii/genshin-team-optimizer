@@ -76,6 +76,9 @@ interface ComboWhen {
   elements?: Partial<Record<Element, number>>;
   radiance?: boolean; // the carry's own Stellar family is active (Witch's Revelation done, #124)
   constellation?: number; // the carry is at least that constellation (#106)
+  sets?: string[]; // the carry wears one of these 4pc sets (#119: Cyno's and Keqing's Thundering Fury combos)
+  // A teammate at that constellation or higher (#119: Yanfei's 4[N2C] with C6 Xingqiu or C2 Yelan's Hydro).
+  memberConstellations?: Record<string, number>;
 }
 interface CarryCombo {
   combo: string;
@@ -470,7 +473,9 @@ function teamFits(c: ScoringCharacter, active: readonly Reaction[], team: readon
     (w.members ?? []).every((ids) => mates.some((m) => ids.includes(m.id))) &&
     Object.entries(w.elements ?? {}).every(([e, n]) => mates.filter((m) => m.element === e).length === n) &&
     (!w.radiance || !!c.families?.includes("stellar")) &&
-    (!w.constellation || (c.constellation ?? 0) >= w.constellation);
+    (!w.constellation || (c.constellation ?? 0) >= w.constellation) &&
+    (!w.sets || setsOf(c, active, team).some((s) => s.pieces >= 4 && w.sets!.includes(s.set))) &&
+    (!w.memberConstellations || mates.some((m) => (m.constellation ?? 0) >= (w.memberConstellations![m.id] ?? Infinity)));
 }
 // The rotation's length (#103): a sourced length for a team that fits (kit.json rotationTeams, first match), else
 // the carry's sourced default, else their Burst cooldown (both in rotationSeconds).
@@ -549,7 +554,8 @@ export function carryDamage(
   if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs, noGleam, ampShare);
   let byKey = cache.get(c);
   if (!byKey) cache.set(c, (byKey = new Map()));
-  const key = `${active.join("|")}#${team.map((m) => m.id).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}`;
+  // Teammates' constellations pick combos too (#119: Yanfei beside C6 Xingqiu).
+  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}`;
   if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam, ampShare));
   return byKey.get(key)!;
 }

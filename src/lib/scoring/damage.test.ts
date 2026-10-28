@@ -105,6 +105,22 @@ describe("carry damage (#101)", () => {
       expect(melt).toBeGreaterThan(none * 1.3);
     });
 
+    test("combos by set and by a teammate's constellation (#119): Cyno and Keqing on 4pc TF, Yanfei", () => {
+      // Cyno's benchmark wears 4pc Thundering Fury: KQM's TF combo. Keqing's has no 4pc set: her default, until a build
+      // wears TF.
+      expect(comboOf(["Cyno", "Nahida", "Yelan", "Kuki Shinobu"], ["aggravate"])).toBe("E Q E 6[N4E]");
+      const keqing = ["Keqing", "Fischl", "Nahida", "Kaedehara Kazuha"];
+      expect(comboOf(keqing, ["aggravate"])).toBe("EQE 5[N1C]");
+      const tf = { ...byId.get("Keqing")!, sets: [{ set: "Thundering Fury", pieces: 4 }] };
+      expect(carryDamage(tf, ["aggravate"], [tf, ...team(...keqing.slice(1))])!.combo).toBe("EQE N1C N1 E 3[N1C]");
+      // Yanfei: Xianyun with Furina as the only Hydro member; 4[N2C] beside C6 Xingqiu; 5[N2C] in Overloaded teams.
+      expect(comboOf(["Yanfei", "Xianyun", "Furina", "Bennett"], ["vaporize"])).toBe("E 8[JhPD], with Xianyun");
+      const xq = (constellation: number) => [byId.get("Yanfei")!, { ...byId.get("Xingqiu")!, constellation }, ...team("Bennett", "Kaedehara Kazuha")];
+      expect(carryDamage(byId.get("Yanfei")!, ["vaporize"], xq(6))!.combo).toBe("N1 Q N1C N1 E C 4[N2C]");
+      expect(carryDamage(byId.get("Yanfei")!, ["vaporize"], xq(5))!.combo).toBe("N1 Q N1C N1 E C 3[N3C]");
+      expect(comboOf(["Yanfei", "Fischl", "Chevreuse", "Bennett"], ["overloaded"])).toBe("N1 Q N1C N1 E C 5[N2C]");
+    });
+
     test("Wriothesley: E 3[N5CD] N2 when the team triggers Stellar-Conduct, else E 5[N3C]", () => {
       expect(comboOf(["Wriothesley", "Sandrone", "Fischl", "Furina"], ["stellar-conduct", "electrocharged"])).toBe("E 3[N5CD] N2");
       expect(comboOf(["Wriothesley", "Furina", "Fischl", "Bennett"], ["freeze"])).toBe("E 5[N3C] (Q)");

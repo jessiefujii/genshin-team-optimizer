@@ -2795,6 +2795,53 @@ const CARRIES = {
       { kind: "dmgBonus", from: "passive1", re: /increase Yanfei's Pyro DMG Bonus by (\d+)%/, times: 3, share: 4 / 5, types: [CH] },
       { kind: "dmgBonus", table: "burst", label: "Charged Attack DMG Bonus", types: [CH] },
     ],
+    // #119. KQM quick guide (fetched 2026-10-28), Normal Attack combos after the same opener: "3[N3C] Standard combo
+    // that ensures a Hydro aura ... when using either non-C6 Xingqiu or non-C2 Yelan"; "4[N2C] Highest-damage normal
+    // combo ... Generally requires a high amount of off-field Hydro" (so with C6 Xingqiu or C2 Yelan); Reaction DPS
+    // "5[N2C] This combo allows for the most possible Overloaded procs"; Plunge Combos (Xianyun) "E 8[JhPD] The
+    // preferred combo if Furina is the sole Hydro unit" (high plunges and their collision hits, as Xiao's; no Burst).
+    combos: [
+      {
+        combo: "E 8[JhPD], with Xianyun",
+        when: [{ members: [["Xianyun"], ["Furina"]], elements: { Hydro: 1 } }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "normal", label: "Low/High Plunge DMG", pick: 1, count: 8, type: PL },
+          { table: "normal", label: "Plunge DMG", count: 8, type: PL, collision: true },
+        ],
+        buffs: [],
+      },
+      {
+        combo: "N1 Q N1C N1 E C 4[N2C]",
+        when: [{ memberConstellations: { Xingqiu: 6, Yelan: 2 } }],
+        hits: [
+          { table: "normal", label: "1-Hit DMG", count: 7, type: N },
+          { table: "normal", label: "2-Hit DMG", count: 4, type: N },
+          { table: "normal", label: "Charged Attack", pick: 3, count: 6, type: CH },
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "burst", label: "Skill DMG", count: 1, type: BU },
+        ],
+        buffs: [
+          { kind: "dmgBonus", from: "passive1", re: /increase Yanfei's Pyro DMG Bonus by (\d+)%/, times: 3, share: 5 / 6, types: [CH] },
+          { kind: "dmgBonus", table: "burst", label: "Charged Attack DMG Bonus", types: [CH] },
+        ],
+      },
+      {
+        combo: "N1 Q N1C N1 E C 5[N2C]",
+        when: [{ reaction: "overloaded" }],
+        hits: [
+          { table: "normal", label: "1-Hit DMG", count: 8, type: N },
+          { table: "normal", label: "2-Hit DMG", count: 5, type: N },
+          { table: "normal", label: "Charged Attack", pick: 3, count: 7, type: CH },
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "burst", label: "Skill DMG", count: 1, type: BU },
+        ],
+        buffs: [
+          { kind: "dmgBonus", from: "passive1", re: /increase Yanfei's Pyro DMG Bonus by (\d+)%/, times: 3, share: 6 / 7, types: [CH] },
+          { kind: "dmgBonus", table: "burst", label: "Charged Attack DMG Bonus", types: [CH] },
+        ],
+      },
+    ],
   },
   Cyno: {
     // KQM quick guide, non-Thundering Fury: "E (N1) Q N2E 3[N5 N2E]" ((N1) optional, left out): his Skill before the
@@ -2819,6 +2866,31 @@ const CARRIES = {
       { kind: "emBonus", table: "burst", label: "Elemental Mastery Bonus" },
       // Judication's +35% on 3 of the 4 Mortuary Rites, averaged; no flat DMG lands on them, so as a multiplier.
       { kind: "baseDmgMultiplier", value: 0.35 * 3 / 4, labels: ["Mortuary Rite DMG"] },
+    ],
+    combos: [
+      {
+        // #119. KQM quick guide (fetched 2026-10-28), 4pc Thundering Fury: "Cyno should aim to use his Skill during each
+        // Endseer stance and between each Endseer stance", "E (N1) Q E 6[N4E] This is the preferred combo for C0 Cyno on
+        // 4pc TF" ((N1) left out); its alternative "has 6 Skill uses (instead of 7 as above)": 7 Mortuary Rites after the
+        // first Skill. Still 3 Endseer windows, so 3 Judications (9 bolts). Normal Attacks: 6 N4, 36 hit instances.
+        combo: "E Q E 6[N4E]",
+        when: [{ sets: ["Thundering Fury"] }],
+        hits: [
+          { table: "skill", label: "Skill DMG", count: 1, type: SK },
+          { table: "skill", label: "Mortuary Rite DMG", count: 7, type: SK },
+          { table: "burst", label: "1-Hit DMG", count: 6, type: N },
+          { table: "burst", label: "2-Hit DMG", count: 6, type: N },
+          { table: "burst", label: "3-Hit DMG", count: 6, instances: 2, type: N },
+          { table: "burst", label: "4-Hit DMG", count: 6, instances: 2, type: N },
+          { from: "passive1", re: /Duststalker Bolts that deal (\d+)% of Cyno's ATK/, count: 9, type: SK },
+          { from: "passive2", re: /Normal Attack DMG is increased by (\d+)% of his Elemental Mastery/, stat: "em", count: 36, type: N, addOn: true },
+          { from: "passive2", re: /Duststalker Bolt DMG .*? increased by (\d+)% of his Elemental Mastery/, stat: "em", count: 9, type: SK, addOn: true },
+        ],
+        buffs: [
+          { kind: "emBonus", table: "burst", label: "Elemental Mastery Bonus" },
+          { kind: "baseDmgMultiplier", value: 0.35 * 3 / 7, labels: ["Mortuary Rite DMG"] },
+        ],
+      },
     ],
   },
   Mualani: {
@@ -2999,6 +3071,32 @@ const CARRIES = {
         from: "passive2",
         re: /CRIT Rate is increased by (\d+)%/,
         labels: ["Skill DMG", "Consecutive Slash DMG", "Last Attack DMG", "Thunderclap Slash DMG", "1-Hit DMG", "Charged Attack DMG"],
+      },
+    ],
+    combos: [
+      {
+        // #119. KQM quick guide (fetched 2026-10-28): "EQE N1C N1 E 3[N1C] (N1) Keqing's default combo when using 4pc TF",
+        // "Detonating the second Stiletto instead of teleporting onto it is mandatory for 4pc TF to outdamage other
+        // options": a second Lightning Stiletto, detonated by the next Charged Attack (a second Thunderclap Slash).
+        combo: "EQE N1C N1 E 3[N1C]",
+        when: [{ sets: ["Thundering Fury"] }],
+        hits: [
+          { table: "skill", label: "Lightning Stiletto DMG", count: 2, type: SK },
+          { table: "burst", label: "Skill DMG", count: 1, type: BU },
+          { table: "burst", label: "Consecutive Slash DMG", count: 1, instances: 8, type: BU },
+          { table: "burst", label: "Last Attack DMG", count: 1, type: BU },
+          { table: "skill", label: "Thunderclap Slash DMG", count: 2, instances: 2, type: SK },
+          { table: "normal", label: "1-Hit DMG", count: 5, type: N },
+          { table: "normal", label: "Charged Attack DMG", count: 4, instances: 2, type: CH },
+        ],
+        buffs: [
+          {
+            kind: "critRate",
+            from: "passive2",
+            re: /CRIT Rate is increased by (\d+)%/,
+            labels: ["Skill DMG", "Consecutive Slash DMG", "Last Attack DMG", "Thunderclap Slash DMG", "1-Hit DMG", "Charged Attack DMG"],
+          },
+        ],
       },
     ],
   },
@@ -3575,13 +3673,49 @@ const nightsoulRule = OVERRIDES.rules.nightsoulBurst;
 const fightingSpirit = readFightingSpirit(tags.filter((c) => (c.families ?? []).includes("nightsoul")).map((c) => c.id));
 
 // Carries (#101): the 16 compare carries first; other main DPS are listed until they get an entry.
+// Carries with one combo for every team (#119): why, in kit.json `oneCombo`. Each carry has team combos or an entry here.
+const NO_TEAM_COMBO = "one combo: no team-specific combo sourced yet";
+const ONE_COMBO = {
+  Alhaitham: "KQM changes his Normal Attack strings with Xingqiu, Yelan or C6 Fischl but gives no hit counts for them (#119)",
+  Aloy: NO_TEAM_COMBO,
+  "Arataki Itto": NO_TEAM_COMBO,
+  Chasca: NO_TEAM_COMBO,
+  Clorinde: "KQM gives no team-specific hit counts (#119)",
+  Diluc: NO_TEAM_COMBO,
+  Flins: NO_TEAM_COMBO,
+  "Kamisato Ayato": NO_TEAM_COMBO,
+  Kaveh: NO_TEAM_COMBO,
+  Klee: NO_TEAM_COMBO,
+  Lyney: NO_TEAM_COMBO,
+  Mualani: NO_TEAM_COMBO,
+  Nefer: NO_TEAM_COMBO,
+  Neuvillette: NO_TEAM_COMBO,
+  Ningguang: NO_TEAM_COMBO,
+  Noelle: NO_TEAM_COMBO,
+  Razor: NO_TEAM_COMBO,
+  Sethos: NO_TEAM_COMBO,
+  "Shikanoin Heizou": NO_TEAM_COMBO,
+  Skirk: NO_TEAM_COMBO,
+  Tartaglia: NO_TEAM_COMBO,
+  Tighnari: NO_TEAM_COMBO,
+  "Traveler (Hydro)": NO_TEAM_COMBO,
+  Varesa: NO_TEAM_COMBO,
+  Varka: NO_TEAM_COMBO,
+  Wanderer: NO_TEAM_COMBO,
+  Yoimiya: "KQM gives no team-specific hit counts (#119)",
+  Zibai: NO_TEAM_COMBO,
+};
 const carries = {};
 // `baseHp`, `baseDef`: level 90 character base HP and DEF (genshin-db), for HP % buffs on the carry (#186: Soothing
 // Water) and set DEF % (#346: Husk).
 for (const [id, spec] of Object.entries(CARRIES)) {
   const b = baseStatsOf(id);
-  carries[id] = { ...readCarry(id, spec), ...(b ? { baseHp: b.hp, baseDef: b.def } : {}) };
+  const one = ONE_COMBO[id];
+  if (!spec.combos?.length && !one) throw new Error(`${id}: a carry without team combos needs a ONE_COMBO entry (#119)`);
+  if (spec.combos?.length && one) throw new Error(`${id}: has team combos, so no ONE_COMBO entry`);
+  carries[id] = { ...readCarry(id, spec), ...(one ? { oneCombo: one } : {}), ...(b ? { baseHp: b.hp, baseDef: b.def } : {}) };
 }
+for (const id of Object.keys(ONE_COMBO)) if (!CARRIES[id]) throw new Error(`ONE_COMBO: ${id} isn't a carry`);
 for (const [id, table] of Object.entries(OVERRIDES.carryIcd ?? {}))
   for (const key of Object.keys(id === "_howTo" ? {} : table))
     if (!icdUsed.has(`${id}|${key}`)) throw new Error(`${id}: carryIcd "${key}" matches no carry hit`);
