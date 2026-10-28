@@ -44,7 +44,7 @@
         "Furina",
         "Citlali"
       ],
-      "value": 227785.4
+      "value": 227503.4
     },
     "Clorinde": {
       "team": [
@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 118391.9
+      "value": 113210.1
     },
     "Flins": {
       "team": [
@@ -98,7 +98,7 @@
         "Escoffier",
         "Shenhe"
       ],
-      "value": 222178.3
+      "value": 221751.5
     },
     "Gaming": {
       "team": [
@@ -116,7 +116,7 @@
         "Escoffier",
         "Shenhe"
       ],
-      "value": 287915.1
+      "value": 287282.2
     },
     "Hu Tao": {
       "team": [
@@ -283,11 +283,11 @@
     "Sandrone": {
       "team": [
         "Sandrone",
-        "Columbina",
-        "Ineffa",
-        "Yae Miko"
+        "Yae Miko",
+        "Escoffier",
+        "Nicole"
       ],
-      "value": 178115
+      "value": 160950.4
     },
     "Sethos": {
       "team": [
@@ -368,7 +368,7 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 71444.6
+      "value": 73478.7
     },
     "Wanderer": {
       "team": [
@@ -404,7 +404,7 @@
         "Yelan",
         "Xianyun"
       ],
-      "value": 149347.8
+      "value": 153999.2
     },
     "Yoimiya": {
       "team": [
