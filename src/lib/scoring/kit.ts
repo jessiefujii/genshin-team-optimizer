@@ -30,6 +30,8 @@ export interface KitBuff {
   lunar?: string; // lunarAdditiveFromEm: the direct Lunar reaction hits it adds to (Illuga's Lunar-Crystallize, #186)
   stacks?: number; // used one per hit of the carry's, this many per use (Illuga's Nightingale's Song, #186)
   constellation?: number; // only from that constellation of the buffer's on (#106: Faruzan's C6 CRIT DMG)
+  weapons?: string[]; // only carries with these weapon types (#358: Chongyun's ATK SPD for Sword, Claymore, Polearm)
+  perBurstCost?: boolean; // value per Energy of the carry's Burst cost (#358: Raiden's Eye of Stormy Judgment)
   cd?: number | null;
   unit: string;
   source: string;
@@ -43,6 +45,7 @@ interface KitCharacter {
   buildFor?: { atk?: number; em?: number | "built" };
   buffs: KitBuff[];
   missing?: string;
+  inLunarBase?: boolean; // their buff is a Base DMG bonus already in team damage (kit.json lunarBase, #358)
 }
 
 const KIT = kitJson.characters as Record<string, KitCharacter>;
@@ -344,6 +347,8 @@ function stackShare(buff: KitBuff, carry: ScoringCharacter, carryReactions: read
 // help them: wrong element, team makeup, attack type or reaction, or Physical.
 function applicable(buff: KitBuff, carry: ScoringCharacter, carryReactions: readonly Reaction[], team: TeamShape): KitBuff | null {
   if (buff.elements && !buff.elements.includes(carry.element)) return null;
+  if (buff.weapons && !buff.weapons.includes(carry.weapon)) return null;
+  if (buff.perBurstCost) buff = { ...buff, value: buff.value * (carry.burstCost ?? 0), perBurstCost: undefined };
   if (buff.teamOnly && !team.elements.every((e) => buff.teamOnly!.includes(e))) return null;
   if (buff.carryReactions && !buff.carryReactions.some((r) => carryReactions.includes(r as Reaction))) return null;
   if (buff.steps) buff = { ...buff, value: stepValue(buff, team) };
@@ -766,15 +771,23 @@ export function memberBuffStats(
   for (const s of team) {
     const wide = PARTY_WIDE[s.id];
     const entry = KIT[s.id];
-    if (s === m || !entry || entry.missing) continue;
-    // RES and DEF shred are on the enemy: every member's hits of the element they cover get them (#204).
+    if (!entry || entry.missing) continue;
+    // RES and DEF shred are on the enemy: every member's hits of the element they cover get them (#204), their own
+    // included (#364: Beidou's C6 shred on her own lightning, Zhongli's on his pillar).
     const shape0 = shapeOf(s, carry, team);
     for (const kind of ["resShred", "defShred"] as const) {
-      const b = buffsAt(entry, s).find((x) => x.kind === kind && !x.reactions && (!x.elements || x.elements.includes(m.element)) && (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))));
+      const b = buffsAt(entry, s).find(
+        (x) =>
+          x.kind === kind &&
+          !x.reactions &&
+          (!x.elements || x.elements.includes(m.element)) &&
+          (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))) &&
+          (!x.carryReactions || x.carryReactions.some((r) => carry.reactions.includes(r as Reaction) && active.includes(r as Reaction))),
+      );
       const funded = b?.burst ? (shares?.get(s) ?? 1) : 1;
       if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor, shape0.partyEm), shape0, (b.uptime ?? 1) * funded, out);
     }
-    if (!wide) continue;
+    if (s === m || !wide) continue;
     if (wide.elements && !wide.elements.includes(m.element)) continue;
     if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
     const shape = shapeOf(s, carry, team);

@@ -270,6 +270,11 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     const fit = s.buffs?.[misfits.indexOf(null)];
     const talent = fit?.talent;
     const level = talent && talent !== "passive" ? s.talents?.[talent] : undefined;
+    // A Base DMG converter's buff is in team damage already (#358: kit.json lunarBase, teammatesLunarBase).
+    if (KIT_BUFFS[s.id]?.inLunarBase) {
+      out.add("Buffs", 0, () => `${s.id}'s Base DMG bonus: in team damage`);
+      continue;
+    }
     // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
     const burst = burstSharesFor(ctx, carry).get(s) ?? 1;
     const shares = measuredShares(carry, ctx);
@@ -568,7 +573,7 @@ const GLEAM = kitJson.ascendantGleam as Record<string, GleamEntry>;
 const SUSTAIN = kitJson.sustain as unknown as Record<string, { coverage: number | null; missing?: string; effects?: Sized[] }>;
 const KIT_BUFFS = kitJson.characters as Record<
   string,
-  { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number; burst?: boolean }[] }
+  { base: { atk: number } | null; buildFor?: { atk?: number }; buffs: { kind: string; value: number; threshold?: number; max?: number; burst?: boolean }[]; inLunarBase?: boolean }
 >;
 
 // Moonsign: Ascendant Gleam (#63). Each Moonsign member's "Moonsign Benediction" raises the party's Moonsign by

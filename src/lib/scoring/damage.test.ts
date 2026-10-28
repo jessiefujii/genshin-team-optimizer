@@ -111,7 +111,7 @@ describe("carry damage (#101)", () => {
       expect(comboOf(["Cyno", "Nahida", "Yelan", "Kuki Shinobu"], ["aggravate"])).toBe("E Q E 6[N4E]");
       const keqing = ["Keqing", "Fischl", "Nahida", "Kaedehara Kazuha"];
       expect(comboOf(keqing, ["aggravate"])).toBe("EQE 5[N1C]");
-      const tf = { ...byId.get("Keqing")!, sets: [{ set: "Thundering Fury", pieces: 4 }] };
+      const tf = { ...byId.get("Keqing")!, sets: [{ set: "Thundering Fury", pieces: 4 as const }] };
       expect(carryDamage(tf, ["aggravate"], [tf, ...team(...keqing.slice(1))])!.combo).toBe("EQE N1C N1 E 3[N1C]");
       // Yanfei: Xianyun with Furina as the only Hydro member; 4[N2C] beside C6 Xingqiu; 5[N2C] in Overloaded teams.
       expect(comboOf(["Yanfei", "Xianyun", "Furina", "Bennett"], ["vaporize"])).toBe("E 8[JhPD], with Xianyun");
@@ -619,6 +619,19 @@ describe("set bonuses on the wearer's own damage (#206)", () => {
     expect(setsOf(get("Skirk"), [], team("Skirk", "Escoffier"))).toEqual([{ set: "Finale of the Deep Galleries", pieces: 4 }]);
     expect(setsOf(get("Kamisato Ayaka"), [], team("Kamisato Ayaka", "Shenhe"))).toEqual([]);
     expect(setsOf(wearing("Neuvillette", "Gilded Dreams"), [])).toEqual([{ set: "Gilded Dreams", pieces: 4 }]);
+  });
+
+  test("the supports whose buffs come from their set wear their guide's (#352)", () => {
+    const of = (id: string, ...mates: string[]) => setsOf(get(id), [], team(id, ...mates))[0]?.set;
+    expect(of("Venti", "Mavuika", "Bennett", "Furina")).toBe("Viridescent Venerer");
+    expect(of("Venti", "Wanderer", "Bennett", "Furina")).toBe("Scroll of the Hero of Cinder City"); // an on-field Anemo DPS
+    expect(of("Lan Yan", "Xiao", "Furina", "Bennett")).toBe("Scroll of the Hero of Cinder City");
+    expect(of("Kachina", "Mualani", "Furina", "Bennett")).toBe("Scroll of the Hero of Cinder City");
+    expect(of("Xinyan", "Eula", "Bennett", "Furina")).toBe("Tenacity of the Millelith");
+    // One wearer per party set (#348): with Kazuha on VV, Jean takes Noblesse; with Bennett on Noblesse too, Clam.
+    expect(of("Jean", "Kaedehara Kazuha", "Furina", "Xiao")).toBe("Noblesse Oblige");
+    expect(of("Jean", "Kaedehara Kazuha", "Bennett", "Xiao")).toBe("Ocean-Hued Clam");
+    expect(of("Candace", "Kachina", "Furina", "Bennett")).toBe("Silken Moon's Serenade"); // Scroll and Noblesse taken
   });
 
   test("Marechaussee's CRIT Rate needs the wearer's HP to change: HP drain or a healer", () => {
