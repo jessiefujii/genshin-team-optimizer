@@ -47,8 +47,17 @@
         "atk": 234,
         "def": 676
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "atkPct",
+          "value": 0.08,
+          "unit": "ATK % (Coil)",
+          "source": "passive1: \"nearby party members' ATK is increased by 8%\"",
+          "duration": 10,
+          "cd": 20,
+          "uptime": 0.5
+        }
+      ]
     },
     "Alyosha": {
       "base": {
@@ -219,8 +228,34 @@
         "atk": 223,
         "def": 648
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "atkSpd",
+          "value": 0.08,
+          "weapons": [
+            "Sword",
+            "Claymore",
+            "Polearm"
+          ],
+          "unit": "Normal ATK SPD % (Sword, Claymore, Polearm)",
+          "source": "passive1: \"Normal ATK SPD increased by 8%\"",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667
+        },
+        {
+          "kind": "resShred",
+          "value": 0.1,
+          "elements": [
+            "Cryo"
+          ],
+          "unit": "Cryo RES (after the field)",
+          "source": "passive2: \"Cryo RES decreased by 10%\"",
+          "duration": 8,
+          "cd": 15,
+          "uptime": 0.533333
+        }
+      ]
     },
     "Citlali": {
       "base": {
@@ -296,8 +331,27 @@
         "atk": 347,
         "def": 822
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "resShred",
+          "value": 0.2,
+          "elements": [
+            "Pyro"
+          ],
+          "carryReactions": [
+            "burning",
+            "overloaded",
+            "swirl",
+            "crystallize"
+          ],
+          "unit": "Pyro RES (White Flame)",
+          "source": "passive1: \"are decreased by 20% for\"",
+          "duration": 20,
+          "cd": 18,
+          "uptime": 1,
+          "burst": true
+        }
+      ]
     },
     "Escoffier": {
       "base": {
@@ -340,8 +394,20 @@
         "atk": 342,
         "def": 751
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "resShred",
+          "value": 0.24,
+          "elements": [
+            "Cryo"
+          ],
+          "unit": "Cryo RES (Hold Skill)",
+          "source": "skill talent \"Cryo RES Decrease\", level 9",
+          "duration": 7,
+          "cd": 10,
+          "uptime": 0.7
+        }
+      ]
     },
     "Faruzan": {
       "base": {
@@ -399,7 +465,7 @@
         "def": 809
       },
       "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "inLunarBase": true
     },
     "Furina": {
       "base": {
@@ -429,8 +495,21 @@
         "atk": 335,
         "def": 630
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.2,
+          "elements": [
+            "Cryo"
+          ],
+          "unit": "Cryo DMG % (Celestial Shower)",
+          "source": "passive2: \"grants a 20% Cryo DMG Bonus\"",
+          "duration": 15,
+          "cd": 15,
+          "uptime": 1,
+          "burst": true
+        }
+      ]
     },
     "Gorou": {
       "base": {
@@ -644,8 +723,18 @@
         "atk": 223,
         "def": 580
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "em",
+          "value": 100,
+          "unit": "EM (robot heals above 70% HP)",
+          "source": "passive2: \"Elemental Mastery will be increased by 100\"",
+          "duration": 12,
+          "cd": 18,
+          "uptime": 0.666667,
+          "burst": true
+        }
+      ]
     },
     "Kaedehara Kazuha": {
       "base": {
@@ -671,8 +760,21 @@
         "atk": 299,
         "def": 769
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.19,
+          "appliesTo": [
+            "normal"
+          ],
+          "unit": "Normal Attack DMG %",
+          "source": "burst talent \"Normal Attack DMG Bonus\", level 9",
+          "duration": 18,
+          "cd": 20,
+          "uptime": 0.9,
+          "burst": true
+        }
+      ]
     },
     "Kaveh": {
       "base": {
@@ -808,7 +910,7 @@
         "def": 784
       },
       "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "missing": "his passive 2 ATK buff needs him on field in Masterstroke (#358); his damage model is #356"
     },
     "Lynette": {
       "base": {
@@ -924,7 +1026,7 @@
         "def": 799
       },
       "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "inLunarBase": true
     },
     "Nicole": {
       "base": {
@@ -993,7 +1095,7 @@
         "def": 787
       },
       "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "inLunarBase": true
     },
     "Prune": {
       "base": {
@@ -1024,8 +1126,21 @@
         "atk": 337,
         "def": 789
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "dmgBonus",
+          "value": 0.003,
+          "appliesTo": [
+            "burst"
+          ],
+          "perBurstCost": true,
+          "unit": "Burst DMG % per Energy of the carry's Burst",
+          "source": "skill talent \"Elemental Burst DMG Bonus\", level 9",
+          "duration": 25,
+          "cd": 10,
+          "uptime": 1
+        }
+      ]
     },
     "Rosaria": {
       "base": {
@@ -1053,7 +1168,7 @@
         "def": 752
       },
       "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "inLunarBase": true
     },
     "Shenhe": {
       "base": {
@@ -1095,8 +1210,17 @@
         "atk": 225,
         "def": 684
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "em",
+          "value": 80,
+          "unit": "EM (party, not him)",
+          "source": "passive2: \"Elemental Mastery by 80\"",
+          "duration": 10,
+          "cd": 10,
+          "uptime": 1
+        }
+      ]
     },
     "Sigewinne": {
       "base": {
@@ -1144,7 +1268,7 @@
         "def": 730
       },
       "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "inLunarBase": true
     },
     "Vodyanitsa": {
       "base": {
@@ -1283,8 +1407,18 @@
         "atk": 323,
         "def": 615
       },
-      "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "buffs": [
+        {
+          "kind": "atkPct",
+          "value": 0.1,
+          "unit": "ATK % (party, not her)",
+          "source": "passive2: \"gain a 10% ATK increase\"",
+          "duration": 15,
+          "cd": 15,
+          "uptime": 1,
+          "burst": true
+        }
+      ]
     },
     "Yumemizuki Mizuki": {
       "base": {
@@ -1373,7 +1507,7 @@
         "def": 957
       },
       "buffs": [],
-      "missing": "buffer since #178's review; its SPEC is #358"
+      "inLunarBase": true
     }
   },
   "ascendantGleam": {
@@ -8828,7 +8962,7 @@
     "Candace": {
       "effects": [],
       "coverage": null,
-      "missing": "shielder since #178's review; her shield's numbers are #358"
+      "missing": "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)"
     },
     "Charlotte": {
       "effects": [
@@ -9384,7 +9518,7 @@
     "Yun Jin": {
       "effects": [],
       "coverage": null,
-      "missing": "shielder since #178's review; her shield's numbers are #358"
+      "missing": "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)"
     },
     "Zhongli": {
       "effects": [
