@@ -181,7 +181,16 @@ function setFits(w: SetWhen | undefined, c: ScoringCharacter, active: readonly R
 }
 // The wearer's set effects that hold in this team, each at its value: a stack count from holderStates.setStacks, and
 // per-member effects (Gilded Dreams) by the other members' elements. Party-wide effects are partySetBuffs' (#306).
-export function setBuffs(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], gleam = false, onField = true): SetBuff[] {
+// `frozen`: the share of the time the enemy is Frozen (score.ts computeAuraBudget, #282), for Blizzard Strayer's
+// "If the opponent is Frozen" part; 1 when not given.
+export function setBuffs(
+  c: ScoringCharacter,
+  active: readonly Reaction[],
+  team: readonly ScoringCharacter[],
+  gleam = false,
+  onField = true,
+  frozen = 1,
+): SetBuff[] {
   const out: SetBuff[] = [];
   const mates = team.filter((m) => m.id !== c.id);
   for (const { set, pieces } of setsOf(c, active, team)) {
@@ -191,14 +200,16 @@ export function setBuffs(c: ScoringCharacter, active: readonly Reaction[], team:
       let value = stacks !== undefined ? b.perStack! * stacks : b.value;
       if (b.kind === "atkPctPerSame") value *= Math.min(b.max!, mates.filter((m) => m.element === c.element).length);
       if (b.kind === "emPerOther") value *= Math.min(b.max!, mates.filter((m) => m.element !== c.element).length);
+      if (b.when?.reaction === "freeze") value *= frozen;
       if (value) out.push({ ...b, value });
     }
   }
   return out;
 }
 export const sumSet = (buffs: readonly SetBuff[], kind: SetBuff["kind"]) => buffs.reduce((a, b) => a + (b.kind === kind ? b.value : 0), 0);
-// The carry's own set CRIT Rate in this team (Blizzard Strayer "affected by Cryo" when a member applies Cryo and
-// "Frozen" when the team Freezes, each taken as up on every hit: estimate; Marechaussee, Obsidian Codex, Night).
+// The carry's own set CRIT Rate in this team (Blizzard Strayer "affected by Cryo" when a member applies Cryo, taken
+// as up on every hit: estimate; its "Frozen" part on the share of the time the enemy is Frozen, #282; Marechaussee,
+// Obsidian Codex, Night).
 export const setCritRate = (c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], gleam = false) =>
   sumSet(setBuffs(c, active, team, gleam), "critRate");
 // A set's Reaction Bonus for this reaction (Crimson Witch's Vaporize/Melt, Thundering Fury's Aggravate/Lunar-Charged,
@@ -549,14 +560,16 @@ export function carryDamage(
   // The share of the carry's Vaporize or Melt hits the team's aura can feed (score.ts auraShares, #239), or of their
   // Spread or Aggravate hits that find a Quicken aura (score.ts computeAuraBudget, #303); 1 alone.
   ampShare = 1,
+  // The share of the time the enemy is Frozen (score.ts computeAuraBudget, #282); 1 alone.
+  frozen = 1,
 ): CarryDamage | null {
   // Readings with team buffs aren't cached: they're cheap, and one more entry per team ran the compare out of memory.
-  if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs, noGleam, ampShare);
+  if (buffs !== NO_TEAM_BUFFS) return computeCarryDamage(c, active, team, buffs, noGleam, ampShare, frozen);
   let byKey = cache.get(c);
   if (!byKey) cache.set(c, (byKey = new Map()));
   // Teammates' constellations pick combos too (#119: Yanfei beside C6 Xingqiu).
-  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}`;
-  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam, ampShare));
+  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}#${frozen}`;
+  if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam, ampShare, frozen));
   return byKey.get(key)!;
 }
 
@@ -567,6 +580,7 @@ function computeCarryDamage(
   teamBuffs: TeamBuffStats,
   noGleam: boolean,
   ampShare = 1,
+  frozen = 1,
 ): CarryDamage | null {
   if (!CARRIES[c.id]) return null;
   const base = CARRIES[c.id];
@@ -577,7 +591,7 @@ function computeCarryDamage(
   // Ascendant Gleam: two Moonsign members (each Moonsign Benediction raises the party's Moonsign by a level).
   const gleam = !noGleam && team.filter((m) => m.families?.includes("moonsign")).length >= 2;
   // The carry's own set effects in this team (#206), and teammates' CRIT Rate buffs (#157) with the set's.
-  const set = setBuffs(c, active, team, gleam);
+  const set = setBuffs(c, active, team, gleam, true, frozen);
   const weapon = weaponBuffs(c, team, active, gleam); // the build's weapon passive (#40, #206)
   // Party-wide set effects (#306, kit.ts partySetBuffs): Silken's EM, the Gleaming Moon Lunar Reaction Bonus.
   const party = partySetBuffs(team, active, c, gleam);
