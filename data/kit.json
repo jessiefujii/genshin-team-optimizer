@@ -1457,6 +1457,23 @@
           "duration": 10,
           "cd": 15,
           "uptime": 0.666667
+        },
+        {
+          "kind": "dmgBonusPerEm",
+          "value": 0.0004,
+          "elements": [
+            "Pyro",
+            "Hydro",
+            "Cryo",
+            "Electro"
+          ],
+          "whileOnField": true,
+          "unit": "Pyro/Hydro/Cryo/Electro DMG % per point of Mizuki's EM (C2)",
+          "source": "c2: \"DMG Bonuses by 0.04%\"",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667,
+          "constellation": 2
         }
       ]
     },

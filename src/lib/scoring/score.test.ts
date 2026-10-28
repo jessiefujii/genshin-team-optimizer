@@ -830,6 +830,15 @@ describe("sub-DPS (#96)", () => {
     // Xingqiu's C2 Hydro RES shred reaches a Hydro carry.
     const ayato = ["Kamisato Ayato", "Xingqiu", "Bennett", "Kaedehara Kazuha"];
     expect(teamDps("Xingqiu", 2, ...ayato)).toBeGreaterThan(teamDps("Xingqiu", 1, ...ayato));
+    // Mizuki's C2 Pyro/Hydro/Cryo/Electro DMG Bonus reaches her teammates' hits while she's on field, never another
+    // carry's: Odette's Hydro under Mizuki, nothing for Xiangling's Pyro carry with Mizuki off field.
+    const sub = (constellation: number, ...ids: string[]) =>
+      dps(scoreTeam(team(...ids).map((c) => (c.id === "Yumemizuki Mizuki" ? { ...c, constellation } : c))).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Odette"))?.reason);
+    const mizuki = ["Yumemizuki Mizuki", "Odette", "Faruzan", "Diona"];
+    expect(sub(2, ...mizuki)).toBeGreaterThan(sub(1, ...mizuki) * 1.1);
+    const c2 = { ...byId.get("Yumemizuki Mizuki")!, constellation: 2 };
+    const xiangling = team("Xiangling", "Bennett", "Xingqiu");
+    expect(kitBuffValue(c2, xiangling[0], [], [c2, ...xiangling])?.gain ?? 0).toBe(0);
   });
 
   test("Aino's Ascendant Gleam upgrade is in her sub-DPS damage: 20 water balls per Burst instead of 9 (#159)", () => {

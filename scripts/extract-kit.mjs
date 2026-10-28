@@ -304,6 +304,18 @@ const SPEC = {
     ],
     duration: 10,
     cd: "CD",
+    // C2: "When Yumemizuki Mizuki enters the Dreamdrifter state, every Elemental Mastery point she has will increase all
+    // nearby party members' Pyro, Hydro, Cryo, and Electro DMG Bonuses by 0.04% until the Dreamdrifter state ends": her
+    // teammates' hits while she's on field (PARTY_WIDE), not her own Anemo.
+    also: [
+      {
+        from: "c2",
+        constellation: 2,
+        values: [{ kind: "dmgBonusPerEm", re: /DMG Bonuses by ([\d.]+)%/, unit: "Pyro/Hydro/Cryo/Electro DMG % per point of Mizuki's EM (C2)", percent: true, elements: ["Pyro", "Hydro", "Cryo", "Electro"], whileOnField: true }],
+        duration: 10,
+        cd: { talent: "skill", label: "CD" },
+      },
+    ],
   },
   Nilou: {
     from: ["passive2", "passive1"],
