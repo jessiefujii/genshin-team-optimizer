@@ -1,6 +1,7 @@
 // Types for data/tags.json, the hand-maintained character tags used by the scorer.
 
-export const ROLES = ['main-dps', 'sub-dps', 'buffer', 'healer', 'shielder', 'battery', 'enabler'] as const;
+// mitigation (#113): reduces the DMG the team takes, without a heal or shield (Xingqiu's Rain Swords, Dehya's Fiery Sanctum).
+export const ROLES = ['main-dps', 'sub-dps', 'buffer', 'healer', 'shielder', 'mitigation', 'battery', 'enabler'] as const;
 export type Role = (typeof ROLES)[number];
 
 export const REACTIONS = [

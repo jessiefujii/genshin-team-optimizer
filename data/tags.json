@@ -860,7 +860,8 @@
     "id": "Dehya",
     "roles": [
       "sub-dps",
-      "buffer"
+      "buffer",
+      "mitigation"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -4170,7 +4171,8 @@
     "id": "Xingqiu",
     "roles": [
       "sub-dps",
-      "enabler"
+      "enabler",
+      "mitigation"
     ],
     "fieldTime": "off",
     "reactions": [

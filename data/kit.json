@@ -8885,6 +8885,21 @@
       ],
       "coverage": 0.8
     },
+    "Dehya": {
+      "effects": [
+        {
+          "kind": "mitigation",
+          "size": {
+            "ratio": 0.48
+          },
+          "source": "skill talent \"Mitigation\", \"Field Duration\" / \"CD\", level 9",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6
+        }
+      ],
+      "coverage": 0.6
+    },
     "Diona": {
       "effects": [
         {
@@ -9293,6 +9308,21 @@
         }
       ],
       "coverage": 0.8
+    },
+    "Xingqiu": {
+      "effects": [
+        {
+          "kind": "mitigation",
+          "size": {
+            "ratio": 0.28
+          },
+          "source": "skill talent \"Damage Reduction Ratio\", \"Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 21,
+          "uptime": 0.714286
+        }
+      ],
+      "coverage": 0.714286
     },
     "Xinyan": {
       "effects": [

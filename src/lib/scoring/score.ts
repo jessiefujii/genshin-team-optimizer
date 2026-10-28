@@ -459,15 +459,19 @@ const SELF_HEALS = new Set(["Clorinde"]);
 // least every 15s ("These Shield last for 15 seconds": KQM TCL, Shields); not Hydro's when it turns Lunar-Crystallize.
 const INCOMING_HIT = 4 * 1674.8092;
 const CRYSTALLIZE_SHIELD_90 = 1851.0603;
-type Sized = { kind: string; size: Partial<Record<"flat" | "hp" | "def" | "atk", number>>; uptime: number | null };
+// A mitigation's size is its ratio of the DMG taken (#113: Xingqiu's Rain Swords, Dehya's Fiery Sanctum), counted as
+// that share of the hit while it is up.
+type Sized = { kind: string; size: Partial<Record<"flat" | "hp" | "def" | "atk" | "ratio", number>>; uptime: number | null };
 function sustainCoverage(m: ScoringCharacter, heals: boolean): number {
   const entry = SUSTAIN[m.id];
   if (!entry || !entry.effects?.length) return entry?.coverage ?? 1;
   const stats = subDpsStats(m) ?? carryStats(m);
   const parts = entry.effects
-    .filter((e) => e.kind === "shield" || heals)
+    .filter((e) => e.kind === "shield" || e.kind === "mitigation" || heals)
     .map((e) => {
       const up = e.uptime ?? 1;
+      // Mitigation (#113): the share of the hit it takes away, whether or not the carry can be healed.
+      if (e.kind === "mitigation") return up * (e.size.ratio ?? 0);
       if (e.kind !== "shield") return up;
       const absorb = (e.size.flat ?? 0) + (e.size.hp ?? 0) * stats.hp + (e.size.def ?? 0) * stats.def + (e.size.atk ?? 0) * stats.atk;
       return up * Math.min(1, (absorb * (m.element === "Geo" ? 1.5 : 1)) / INCOMING_HIT);
@@ -508,7 +512,7 @@ function healSetLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sin
 function survivabilityLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const heals = !carry || !SHIELDS_ONLY.has(carry.id);
   const healer = (m: ScoringCharacter) => hasRole(m, "healer") || (m === carry && SELF_HEALS.has(m.id));
-  const sustainers = ctx.members.filter((m) => hasRole(m, "shielder") || (heals && healer(m)));
+  const sustainers = ctx.members.filter((m) => hasRole(m, "shielder") || hasRole(m, "mitigation") || (heals && healer(m)));
   const parts = sustainers.map((m) => ({ name: m.id, coverage: sustainCoverage(m, heals) }));
   const crystallize = carry ? auraBudget(ctx, carry).crystallize : null;
   if (crystallize && crystallize.perSecond > 0 && crystallize.geo.length > 0) {
@@ -519,7 +523,8 @@ function survivabilityLines(ctx: TeamContext, carry: ScoringCharacter | null, ou
   if (parts.length) {
     const coverage = 1 - parts.reduce((a, p) => a * (1 - p.coverage), 1);
     const names = parts.map((p) => p.name).join(", ");
-    const verb = heals ? "heal or shield" : "shield";
+    const mitigates = sustainers.some((m) => hasRole(m, "mitigation"));
+    const verb = mitigates ? (heals ? "heal, shield or mitigate" : "shield or mitigate") : heals ? "heal or shield" : "shield";
     const reason = () => `${names} ${verb} ~${Math.round(coverage * 100)}% of an Abyss hit per rotation`;
     out.add("Survivability", Math.round(POINTS.survivability * coverage), reason);
   } else {
