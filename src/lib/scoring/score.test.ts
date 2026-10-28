@@ -142,7 +142,7 @@ describe("scoreTeam", () => {
     expect(furina).toBeLessThan(70);
     expect(own("Yae Miko", "Alhaitham", "Furina", "Xilonen", "Yae Miko")).toBeLessThan(31193); // 31193 before #303
     // Kazuha's Anemo doesn't touch Quicken: Clorinde keeps her full Aggravate there.
-    expect(reasons("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toContain("Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive") // Nahida's EM in damage (#186); // ICDs (#226)
+    expect(reasons("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toContain("Aggravate, Quicken, Swirl add ~+39% to Clorinde's damage, on top of the passive") // Nahida's EM in damage (#186); // ICDs (#226)
   });
 
   test("Dendro Cores: Electro pops them into Hyperbloom, with a Lunar-Bloom converter too (#253, #354)", () => {
@@ -170,7 +170,7 @@ describe("scoreTeam", () => {
     expect(reactions("Clorinde", "Fischl", "Nahida", "Kaedehara Kazuha")).toEqual([
       { rule: "Reactions", points: 0, reason: "Any Electro-related reaction enables Clorinde's passive: ~+77% damage" },
       // 1 in 3 of her Swift Hunt and Impale hits applies Electro (one Normal Attack ICD, #226), 2 of 5 Burst hits.
-      { rule: "Reactions", points: 0, reason: "Aggravate, Quicken add ~+39% to Clorinde's damage, on top of the passive" },
+      { rule: "Reactions", points: 0, reason: "Aggravate, Quicken, Swirl add ~+39% to Clorinde's damage, on top of the passive" },
       // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
       { rule: "Reactions", points: 0, reason: "Swirl: ~3213 damage per second (Kaedehara Kazuha ~0.4/s)" }, // his guide's VV: shred (#338), Swirl DMG (#344)
     ]);
@@ -265,7 +265,8 @@ describe("scoreTeam", () => {
       reason: "Clorinde heal or shield ~100% of an Abyss hit per rotation",
     });
     // Only as the on-field carry: as a teammate she isn't anyone's healer.
-    expect(survival("Raiden Shogun", "Clorinde", "Fischl", "Kaedehara Kazuha").reason).toBe("No healer or shielder");
+    // (Raiden, Clorinde, Fischl, Kazuha no longer shows it: Kazuha's Swirls enable her passive since #382, so she takes the field.)
+    expect(survival("Neuvillette", "Clorinde", "Kaedehara Kazuha", "Xilonen").reason).not.toContain("Clorinde");
   });
 
   test("a hypercarry is not penalized for a team without reactions (#49)", () => {
@@ -830,6 +831,8 @@ describe("sub-DPS (#96)", () => {
     // Yun Jin's flat Normal Attack DMG on Clorinde: her key talent is her Skill, her hits in it Normal Attacks.
     const yunJin = score("Clorinde", "Fischl", "Yun Jin", "Zhongli").breakdown.find((l) => l.reason.startsWith("Yun Jin") && l.rule === "Buffs")!;
     expect(yunJin.reason).toMatch(/^Yun Jin buffs Clorinde \(~\+\d+% damage/);
+    // Electro Crystallize enables her passive (Jessie, 2026-10-28): the team's only Electro reaction.
+    expect(score("Clorinde", "Fischl", "Yun Jin", "Zhongli").breakdown.some((l) => l.reason.startsWith("Any Electro-related reaction enables Clorinde's passive"))).toBe(true);
   });
 
   test("a buffer's constellation buffs need that constellation (#106): Faruzan C6, Beidou C6, Xingqiu C2, Mizuki C1/C2", () => {
