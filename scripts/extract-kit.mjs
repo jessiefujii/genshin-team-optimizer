@@ -4943,6 +4943,82 @@ const WEAPONS = {
   Emberwell: [{ kind: "atkPct", when: { holderReacts: true }, re: /Triggering an Elemental Reaction increases the equipping character's ATK by ([\d.]+)%/ }],
   '"The Catch"': [{ kind: "dmgBonus", types: ["burst"], re: /Increases Elemental Burst DMG by ([\d.]+)%/ }],
   "Crane's Echoing Call": [{ kind: "dmgBonus", party: true, scope: "party", types: ["plunge"], re: /all nearby party members' Plunging Attacks will deal ([\d.]+)% increased DMG/ }],
+  // #385: the benchmark weapons and Jessie's built characters' weapons that had no entry. Passives with no damage
+  // effect (Energy, ER, a Skill cooldown reset, healing, slimes) are accounted for with none. Left out for a hit kind
+  // of their own: The Viridescent Hunt's Cyclone, Sword of Narzissenkreuz's energy blast, Skyward Atlas' clouds,
+  // Luxurious Sea-Lord's tuna, Skyward Blade's extra DMG; Fleuve Cendre Ferryman's Skill CRIT Rate (by hit type);
+  // Sapwood Blade's Leaf (EM for whoever picks it up).
+  "Favonius Sword": [],
+  "Favonius Lance": [],
+  "Favonius Warbow": [],
+  "Favonius Codex": [],
+  "Favonius Greatsword": [],
+  "Sacrificial Sword": [],
+  "Sacrificial Bow": [],
+  "Sacrificial Greatsword": [],
+  "Sacrificial Fragments": [],
+  "Prototype Amber": [],
+  "Recurve Bow": [],
+  "Oathsworn Eye": [],
+  "Xiphos' Moonlight": [],
+  "Dialogues of the Desert Sages": [],
+  "Amenoma Kageuchi": [],
+  "Black Tassel": [],
+  "The Stringless": [{ kind: "dmgBonus", types: ["skill", "burst"], re: /Increases Elemental Skill and Elemental Burst DMG by ([\d.]+)%/ }],
+  "White Tassel": [{ kind: "dmgBonus", types: ["normal"], re: /Increases Normal Attack DMG by ([\d.]+)%/ }],
+  "Luxurious Sea-Lord": [{ kind: "dmgBonus", types: ["burst"], re: /Increases Elemental Burst DMG by ([\d.]+)%/ }],
+  "Moonweaver's Dawn": [
+    { kind: "dmgBonus", types: ["burst"], re: /Increases Elemental Burst DMG by ([\d.]+)%/ },
+    // The 60-Energy step; a 40-cost Burst's larger one is left out (no 40-cost holder yet).
+    { kind: "dmgBonus", types: ["burst"], when: { burstCostAtMost: 60 }, re: /increased by an additional ([\d.]+)%\/[\d.]+%/ },
+  ],
+  "Ibis Piercer": [{ kind: "em", flat: true, full: true, re: /Elemental Mastery will increase by (\d+)/, stacks: /Max (\d+) stacks/ }],
+  "Etherlight Spindlelute": [{ kind: "em", flat: true, full: true, re: /Elemental Mastery is increased by (\d+)/ }],
+  "Footprint of the Rainbow": [{ kind: "defPct", full: true, re: /Using an Elemental Skill increases DEF by ([\d.]+)%/ }],
+  "Prototype Rancour": [
+    { kind: "atkPct", full: true, re: /increase ATK and DEF by ([\d.]+)%/, stacks: /Max (\d+) stacks/ },
+    { kind: "defPct", full: true, re: /increase ATK and DEF by ([\d.]+)%/, stacks: /Max (\d+) stacks/ },
+  ],
+  "Cinnabar Spindle": [
+    // "no more than once every 1.5s": every Skill hit (estimate; Albedo's Transient Blossoms come every 2s).
+    { kind: "flatFromDef", types: ["skill"], full: true, re: /Elemental Skill DMG is increased by ([\d.]+)% of DEF/ },
+  ],
+  "Sacrificial Jade": [
+    { kind: "hpPct", when: { offField: true }, re: /Max HP will be increased by ([\d.]+)%/ },
+    { kind: "em", flat: true, when: { offField: true }, re: /Elemental Mastery will be increased by (\d+)/ },
+  ],
+  "Alley Hunter": [{ kind: "dmgBonus", when: { offField: true }, re: /every second up to a max of ([\d.]+)%/ }],
+  // "When the wielder is healed or heals others ... up to a maximum of 3 Symbols", spent on the next Skill or Burst:
+  // full while the team's HP keeps changing (estimate).
+  "The Dockhand's Assistant": [{ kind: "em", flat: true, full: true, when: { hpChanges: true }, re: /For each Symbol consumed, gain (\d+) Elemental Mastery/, stacks: /up to a maximum of (\d+) Symbols/ }],
+  "Prospector's Drill": [
+    { kind: "atkPct", full: true, when: { hpChanges: true }, re: /For each Symbol consumed, gain ([\d.]+)% ATK/, stacks: /up to a maximum of (\d+) Symbols/ },
+    { kind: "dmgBonus", full: true, when: { hpChanges: true }, re: /ATK and ([\d.]+)% All Elemental DMG Bonus/, stacks: /up to a maximum of (\d+) Symbols/ },
+  ],
+  "Flowing Purity": [
+    { kind: "dmgBonus", full: true, re: /All Elemental DMG Bonus will be increased by ([\d.]+)% for 15s/ },
+    // The Bond of Life it grants, cleared by healing: its cap with a healer in the team (estimate).
+    { kind: "dmgBonus", full: true, when: { hpChanges: true }, re: /up to a maximum of ([\d.]+)%/ },
+  ],
+  // "A CRIT Hit removes all stacks": about one stack on average at a carry's crit rate (estimate).
+  "Royal Grimoire": [{ kind: "critRate", full: true, re: /increases CRIT Rate by ([\d.]+)%/ }],
+  // "Every 10s ... in the following order: ATK > Elemental Mastery > Stellar Glimmer reaction DMG. Each ... lasts 10s":
+  // each a third of the time (its extra Stellar Glimmer instance left out).
+  "Forged by the Golden Melody": [
+    { kind: "atkPct", uptime: /(?=.*lasts (\d+)s)Every (\d+)s/, songs: 3, re: /\+([\d.]+)% ATK/ },
+    { kind: "em", flat: true, uptime: /(?=.*lasts (\d+)s)Every (\d+)s/, songs: 3, re: /\+(\d+) Elemental Mastery/ },
+    { kind: "reactionBonus", reactions: ["stellar-conduct", "stellar-swirl"], uptime: /(?=.*lasts (\d+)s)Every (\d+)s/, songs: 3, re: /\+([\d.]+)% Stellar Glimmer reaction DMG/ },
+  ],
+  "Prospector's Shovel": [
+    { kind: "reactionBonus", reactions: ["electrocharged"], re: /Electro-Charged DMG is increased by ([\d.]+)%/ },
+    { kind: "reactionBonus", reactions: ["lunar-charged"], re: /and Lunar-Charged DMG is increased by ([\d.]+)%/ },
+    { kind: "reactionBonus", reactions: ["lunar-charged"], when: { ascendantGleam: true }, re: /Lunar-Charged DMG is increased by an additional ([\d.]+)%/ },
+  ],
+  "Blackmarrow Lantern": [
+    { kind: "reactionBonus", reactions: ["bloom"], re: /Bloom DMG is increased by ([\d.]+)%, and/ },
+    { kind: "reactionBonus", reactions: ["lunar-bloom"], re: /and Lunar-Bloom DMG is increased by ([\d.]+)%/ },
+    { kind: "reactionBonus", reactions: ["lunar-bloom"], when: { ascendantGleam: true }, re: /Lunar-Bloom DMG is increased by an additional ([\d.]+)%/ },
+  ],
 };
 const weapons = {};
 for (const [name, specs] of Object.entries(WEAPONS)) {
@@ -4970,6 +5046,7 @@ for (const [name, specs] of Object.entries(WEAPONS)) {
       ...(s.party ? { party: true, scope: s.scope } : {}),
       ...(s.group ? { group: s.group } : {}),
       ...(s.elements ? { elements: s.elements } : {}),
+      ...(s.reactions ? { reactions: s.reactions } : {}),
       ...(s.when ? { when: s.when } : {}),
       source: `R1: "${texts[0].match(s.re)[0]}"${stacks > 1 ? ` x${stacks} stacks` : ""}${s.full ? " (taken at full stacks / up throughout: estimate)" : ""}${up ? ` x ${up[1]}s/${up[2]}s / ${s.songs} songs (estimate)` : ""}`,
     };

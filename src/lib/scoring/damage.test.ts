@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import kit from "../../../data/kit.json";
-import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite, setBuffs, setsOf, weaponBuffs, weaponDmgBonus } from "./damage";
+import { carryDamage, expectedCrit, hasCarryKit, modelsAscendantGleam, modelsReaction, modelsSecretRite, setBuffs, setsOf, weaponBuffs, weaponDmgBonus, weaponFlatFromDef, weaponReactionBonus } from "./damage";
 import { NO_TEAM_BUFFS, memberBuffStats, partySetBuffs, teamBuffStats } from "./kit";
 import { characterEffects } from "./effects";
 import { scoreTeam } from "./score";
@@ -582,6 +582,26 @@ describe("weapon passives on the holder's hits (#40)", () => {
   const get = (id: string) => byId.get(id)!;
   const holding = (id: string, weapon: string, refinement = 1): ScoringCharacter => ({ ...get(id), weaponBuild: { id: weapon, level: 90, refinement } });
   const bonus = (c: ScoringCharacter, team: ScoringCharacter[], type: "normal" | "charged" | "skill" | "burst") => weaponDmgBonus(weaponBuffs(c, [c, ...team]), type);
+
+  test("the weapons added for #385: Reaction Bonus, off-field, Burst cost and DEF-based Skill DMG", () => {
+    // Prospector's Shovel: Electro-Charged and Lunar-Charged Reaction Bonus (+12% more at Ascendant Gleam).
+    const shovel = weaponBuffs(holding("Flins", "Prospector's Shovel"), [get("Flins"), get("Ineffa")], [], false);
+    expect(weaponReactionBonus(shovel, "electrocharged")).toBeCloseTo(0.48);
+    expect(weaponReactionBonus(shovel, "lunar-charged")).toBeCloseTo(0.12);
+    expect(weaponReactionBonus(weaponBuffs(holding("Flins", "Prospector's Shovel"), [get("Flins")], [], true), "lunar-charged")).toBeCloseTo(0.24);
+    // Alley Hunter builds only off-field.
+    const fischl = holding("Fischl", "Alley Hunter");
+    expect(weaponDmgBonus(weaponBuffs(fischl, [fischl], [], false, false), "skill")).toBeCloseTo(0.2);
+    expect(weaponDmgBonus(weaponBuffs(fischl, [fischl], [], false, true), "skill")).toBe(0);
+    // Moonweaver's Dawn's extra 16% for a Burst of 60 Energy or less.
+    expect(bonus(holding("Kaeya", "Moonweaver's Dawn"), [], "burst")).toBeCloseTo(0.36);
+    // Cinnabar Spindle: 40% of DEF on Skill hits only.
+    const cinnabar = weaponBuffs(holding("Albedo", "Cinnabar Spindle"), [get("Albedo")]);
+    expect(weaponFlatFromDef(cinnabar, "skill", 2000)).toBeCloseTo(800);
+    expect(weaponFlatFromDef(cinnabar, "burst", 2000)).toBe(0);
+    // A passive with no damage effect has an entry with none.
+    expect(weaponBuffs(holding("Bennett", "Favonius Sword"), [get("Bennett")])).toEqual([]);
+  });
 
   test("Watatsumi weapons: Burst DMG per point of the party's max Energy, capped, by refinement", () => {
     const team = ["Bennett", "Xingqiu", "Xiangling"].map(get);
