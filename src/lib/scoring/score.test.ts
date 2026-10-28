@@ -4,7 +4,7 @@ import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { carryDamage } from "./damage";
-import { fightingSpiritBuilt, memberBuffStats, teamBuffStats } from "./kit";
+import { fightingSpiritBuilt, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
@@ -727,6 +727,17 @@ describe("sub-DPS (#96)", () => {
     expect(ratio).toBeLessThan((2 * (1 + (10 / 18) * 0.75)) / (1 + (10 / 18) * 0.45));
   });
 
+  test("a member's own RES shred reaches their own hits (#364)", () => {
+    const own = (constellation: number) =>
+      dps(
+        scoreTeam(team("Raiden Shogun", "Beidou", "Xiangling", "Bennett").map((c) => (c.id === "Beidou" ? { ...c, constellation } : c))).breakdown.find(
+          (l) => l.rule === "Sub-DPS" && l.reason.startsWith("Beidou"),
+        )?.reason,
+      );
+    // Beidou's C6 Electro RES shred during her Burst: on her own lightning too, not only her teammates' Electro hits.
+    expect(own(6)).toBeGreaterThan(own(5));
+  });
+
   test("teammates' RES shred reaches a sub-DPS's own hits (#204)", () => {
     const own = (who: string, ...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     // Zhongli's shield shreds every element's RES by 20%: Xingqiu's swords hit harder than beside Diona.
@@ -781,12 +792,14 @@ describe("sub-DPS (#96)", () => {
     const own = (who: string, constellation: number | undefined, ...ids: string[]) =>
       dps(scoreTeam(team(...ids).map((c) => (c.id === who ? { ...c, constellation } : c))).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith(who))?.reason);
     const xq = ["Raiden Shogun", "Xingqiu", "Zhongli", "Bennett"];
-    // 10 swords per 3 waves against 2.5 a wave: 4/3 the swords (Xingqiu's line is his Skill and swords together).
-    expect(own("Xingqiu", 6, ...xq) / own("Xingqiu", 0, ...xq)).toBeGreaterThan(1.15);
-    expect(own("Xingqiu", 6, ...xq) / own("Xingqiu", 0, ...xq)).toBeLessThan(4 / 3 + 0.01);
+    // 10 swords per 3 waves against 2.5 a wave: 4/3 the swords (Xingqiu's line is his Skill and swords together). From
+    // C5: both have his C2 Hydro shred, which reaches his own swords (#364).
+    expect(own("Xingqiu", 6, ...xq) / own("Xingqiu", 5, ...xq)).toBeGreaterThan(1.15);
+    expect(own("Xingqiu", 6, ...xq) / own("Xingqiu", 5, ...xq)).toBeLessThan(4 / 3 + 0.01);
     // No constellation is C0; one below the threshold changes nothing.
     expect(own("Xingqiu", undefined, ...xq)).toBe(own("Xingqiu", 0, ...xq));
-    expect(own("Xingqiu", 5, ...xq)).toBe(own("Xingqiu", 0, ...xq));
+    expect(own("Xingqiu", 1, ...xq)).toBe(own("Xingqiu", 0, ...xq));
+    expect(own("Xingqiu", 5, ...xq)).toBe(own("Xingqiu", 2, ...xq));
     const oro = ["Kinich", "Ororon", "Bennett", "Xingqiu"];
     expect(own("Ororon", 4, ...oro)).toBeGreaterThan(own("Ororon", 3, ...oro));
     // Escoffier's 6 Special-Grade Frosty Parfaits at 500% ATK per Skill.
@@ -941,6 +954,19 @@ describe("talent levels (#25)", () => {
     const swirl = ["Diluc (no model)", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
     const kazuha = lines(leveled({ "Kaedehara Kazuha": talents(1, 1, 1) }, ...swirl), "Buffs").find((l) => l.reason.startsWith("Kaedehara"));
     expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Diluc (no model) (~+20% damage)" });
+  });
+
+  test("the #178 buffers score their kit's values (#358)", () => {
+    const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
+    // Base DMG converters: their bonus is in team damage, no buffer points on top.
+    expect(buffLine(score("Sandrone", "Odette", "Alyosha", "Escoffier"), "Odette")).toEqual({ rule: "Buffs", points: 0, reason: "Odette's Base DMG bonus: in team damage" });
+    // Chongyun's ATK SPD reaches a claymore carry, not a Pyro catalyst (and his Cryo shred no Pyro hit).
+    expect(buffLine(score("Diluc", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBeGreaterThan(0);
+    expect(buffLine(score("Klee", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBe(0);
+    // Raiden's Eye: 0.3% Burst DMG per Energy of the carry's Burst, so a costlier Burst gains more.
+    const burstCarry = (burstCost: number) => ({ ...byId.get("Diluc (no model)")!, keyTalent: "burst" as const, burstCost });
+    const raiden = (cost: number) => kitBuffValue(byId.get("Raiden Shogun")!, burstCarry(cost), [], [burstCarry(cost), ...team("Raiden Shogun", "Bennett", "Zhongli")])!.gain;
+    expect(raiden(80)).toBeGreaterThan(raiden(40) * 1.5);
   });
 
   test("buffer points come from the kit's numbers: +20% damage = 10 points, no cap (#68, #90)", () => {

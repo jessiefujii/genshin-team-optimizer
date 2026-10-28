@@ -14,7 +14,8 @@ test("every tagged buffer has a kit entry with readable values", () => {
   // C2 RES shred, #106).
   expect(Object.keys(characters).sort()).toEqual([...new Set([...buffers, "Kaveh", "Yumemizuki Mizuki", "Beidou", "Xingqiu"])].sort()); // both buffers since #178
   for (const [id, c] of Object.entries(characters)) {
-    if (c.missing) continue;
+    // Base DMG converters' buffs are in team damage (kit.json lunarBase, #358).
+    if (c.missing || (c as { inLunarBase?: boolean }).inLunarBase) continue;
     expect(c.buffs.length, id).toBeGreaterThan(0);
     for (const b of c.buffs) {
       expect(b.value, id).toBeGreaterThan(0);
