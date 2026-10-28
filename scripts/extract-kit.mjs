@@ -4191,6 +4191,9 @@ for (const [id, bySet] of Object.entries(holderStates.setStacks)) {
 // Venerer, a team set; Keqing: Marechaussee or Night by team; Kaveh: Deepwood Memories) has none yet.
 const kqmOn = (date, page, quote) => `KQM ${page.replace(/-quickguide$/, "")} quick guide (keqingmains.com/q/${page}, accessed ${date}): "${quote}"`;
 const kqm = (page, quote) => kqmOn("2026-10-20", page, quote);
+// genshin-builds' character pages for the characters without a KQM quick guide (#369; Jessie, 2026-10-29: search
+// outside KQM): the recommended build's sets in order and its first non-5-star weapon.
+const gbOn = (date, page, what) => `genshin-builds (genshin-builds.com/en/character/${page}, accessed ${date}): ${what}`;
 const benchmarkSets = {
   Ganyu: [{ set: "Blizzard Strayer", when: { reaction: "freeze" }, source: kqm("ganyu-quickguide", "This set is Ganyu's best-in-slot against freezable enemies") }],
   Freminet: [{ set: "Blizzard Strayer", when: { reaction: "freeze" }, source: kqm("freminet-quickguide", "4pc BS is one of Freminet's best artifact sets in his Cryo Skill DPS playstyle") }],
@@ -4481,6 +4484,21 @@ const benchmarkSets = {
     { set: "Husk of Opulent Dreams", source: kqmOn("2026-10-29", "yunjin-quickguide", "4pc Husk of Opulent Dreams (Husk) provides a solid DEF% buff.") },
     { set: "Noblesse Oblige", source: kqmOn("2026-10-29", "yunjin-quickguide", "4pc Noblesse Oblige (NO) is an alternative option to 4pc Husk that generally has similar or better performance in ATK-scaling teams.") },
   ],
+  // #369, no KQM quick guide: genshin-builds. Geo Traveler's first pick, Nighttime Whispers, isn't in SETS (#383).
+  "Yae Miko": [
+    { set: "Golden Troupe", source: gbOn("2026-10-29", "yae_miko", "OFF-FIELD DPS Build, first set: Golden Troupe (4pc)") },
+    { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "yae_miko", "OFF-FIELD DPS Build, second set: Emblem of Severed Fate (4pc)") },
+  ],
+  "Traveler (Anemo)": [{ set: "Viridescent Venerer", source: gbOn("2026-10-29", "traveler_anemo", "ANEMO DPS Build: 4-piece Viridescent Venerer") }],
+  "Traveler (Electro)": [
+    { set: "Noblesse Oblige", source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build, first set: Noblesse Oblige (4-piece)") },
+    { set: "Scroll of the Hero of Cinder City", source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build, second set") },
+    { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build, third set") },
+  ],
+  "Traveler (Geo)": [
+    { set: "Golden Troupe", source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build, second set (the first, Nighttime Whispers, isn't modeled)") },
+    { set: "Emblem of Severed Fate", source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build, third set") },
+  ],
 };
 // Benchmark carries' weapons (#206, Jessie 2026-10-21: "Best 4★"; "if a best weapon is a 3 star make sure to use it"):
 // the first non-5-star weapon in the carry's KQM quick guide weapon list, at the refinement it names (else R1); game8
@@ -4571,6 +4589,57 @@ const benchmarkWeapons = {
   Columbina: { weapon: "Sacrificial Jade", refinement: 1, source: kqmOn("2026-10-24", "columbina-quickguide", "Sacrificial Jade") },
   Illuga: { weapon: "Dragon's Bane", refinement: 1, source: kqmOn("2026-10-24", "illuga-quickguide", "Dragon's Bane") },
   Nilou: { weapon: "The Dockhand's Assistant", refinement: 1, source: kqmOn("2026-10-24", "nilou-quickguide", "The Dockhand's Assistant") },
+  // #369: the rest, by the #349 rule (the first non-5-star weapon in their KQM quick guide's weapon list, accessed
+  // 2026-10-29, R1), carries without one too (Lohen, Sandrone, Varka). No quick guide: Yae Miko, the Anemo, Electro and
+  // Geo Travelers, Manekin, Manekina.
+  Aino: { weapon: "Favonius Greatsword", refinement: 1, source: kqmOn("2026-10-29", "aino-quickguide", "Best option for general use.") },
+  Amber: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "amber-quickguide", "Ensures Amber meets her ER requirement and reduces teammates' ER needs; build CRIT Rate on Amber to reliably trigger the passive.") },
+  Barbara: { weapon: "Prototype Amber", refinement: 1, source: kqmOn("2026-10-29", "barbara-quickguide", "F2P weapon that mirrors the Everlasting Moonglow.") },
+  Beidou: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-29", "beidou-quickguide", "A fully stacked Serpent Spine can be Beidou's best weapon, especially at high refinements, with Bennett, or in Aggravate.") },
+  Candace: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-29", "candace-quickguide", "Favonius Lance is the go-to option for Candace as it reduces ER requirements for the whole team.") },
+  Charlotte: { weapon: "Prototype Amber", refinement: 1, source: kqmOn("2026-10-29", "charlotte-quickguide", "Charlotte's best weapon for healing by a large margin.") },
+  Chiori: { weapon: "Cinnabar Spindle", refinement: 1, source: kqmOn("2026-10-29", "chiori-quickguide", "Cinnabar Spindle and Flute of Ezpitzal perform very similarly.") },
+  Chongyun: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-29", "chongyun-quickguide", "Serpent Spine") },
+  Collei: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "collei-quickguide", "One can be acquired for free by completing Mondstadt's story quest.") },
+  Dehya: { weapon: "Akuoumaru", refinement: 1, source: kqmOn("2026-10-29", "dehya-quickguide", "Akuoumaru is a strong weapon with variable performance based on refinements.") },
+  Diona: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "diona-quickguide", "Favonius Warbow is Diona's default weapon option.") },
+  Dori: { weapon: "Favonius Greatsword", refinement: 1, source: kqmOn("2026-10-29", "dori-quickguide", "[Flexible] One of Dori's most competitive options for all of her playstyles thanks to its battery capabilities.") },
+  Durin: { weapon: "Xiphos' Moonlight", refinement: 1, source: kqmOn("2026-10-29", "durin-quickguide", "Xiphos' Moonlight is a gacha-exclusive Sword that leads to higher personal DPS than Favonius Sword.") },
+  Emilie: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-29", "emilie-quickguide", "Emilie's best 4-star option.") },
+  Fischl: { weapon: "Alley Hunter", refinement: 1, source: kqmOn("2026-10-29", "fischl-quickguide", "A strong 4-star option for off-field DPS builds due to its easily obtainable stacks.") },
+  Ifa: { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-29", "ifa-quickguide", "Best 4-star Catalyst with averaged buffs, and can outperform the lower-tier 5-star options at R5.") },
+  Jahoda: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "jahoda-quickguide", "Default option due to its advantageous Energy generation passive, which helps many teammates.") },
+  Jean: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "jean-quickguide", "Favonius practically meets all of Jean's ER requirements while lowering the ER requirements for the rest of the team.") },
+  Kachina: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-29", "kachina-quickguide", "Due to Kachina's low personal damage, the particles provided by Favonius Lance yield the most utility for her team.") },
+  Kaeya: { weapon: "Moonweaver's Dawn", refinement: 1, source: kqmOn("2026-10-29", "kaeya-quickguide", "Moonweaver's Dawn is a freely obtained weapon from a Nod-Krai World Quest, and its copies are only obtained from exclusive weapon banners.") },
+  Kirara: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "kirara-quickguide", "Kirara's most recommended option.") },
+  "Kuki Shinobu": { weapon: "The Dockhand's Assistant", refinement: 1, source: kqmOn("2026-10-29", "shinobu-quickguide", "The Dockhand's Assistant") },
+  "Lan Yan": { weapon: "Thrilling Tales of Dragon Slayers", refinement: 1, source: kqmOn("2026-10-29", "lan-yan-quickguide", "(TTDS) Her best general option, providing a strong 48% ATK buff.") },
+  Layla: { weapon: "The Dockhand's Assistant", refinement: 1, source: kqmOn("2026-10-29", "layla-quickguide", "The next best option for Layla's shield.") },
+  Lisa: { weapon: "The Widsith", refinement: 1, source: kqmOn("2026-10-29", "lisa-quickguide", "Widsith often will be Lisa's best-in-slot 4-star weapon; it can be similar to 5-star weapons as well.") },
+  Lohen: { weapon: "Deathmatch", refinement: 1, source: kqmOn("2026-10-29", "lohen-quickguide", "Deathmatch is Lohen's default 4-star option.") },
+  Odette: { weapon: "Finale of the Deep", refinement: 1, source: kqmOn("2026-10-29", "odette-quickguide", "The best 4 star weapon for Odette if you can clear the BoL, and remains one of her best 4-star weapons even if BoL cannot be cleared.") },
+  Ororon: { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-29", "ororon-quickguide", "Favonius Warbow reduces Ororon's and his teammates' ER requirements.") },
+  Qiqi: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "qiqi-quickguide", "Favonius Sword is the best option for decreasing both Qiqi's and her teammates' ER requirements.") },
+  Sandrone: { weapon: "Forged by the Golden Melody", refinement: 1, source: kqmOn("2026-10-29", "sandrone-quickguide", "Forged by the Golden Melody is a Battle Pass-exclusive Claymore released in Version 7.0.") },
+  "Sangonomiya Kokomi": { weapon: "Sacrificial Fragments", refinement: 1, source: kqmOn("2026-10-29", "kokomi-quickguide", "Not only does Sacrificial Fragments have an EM secondary stat, it also allows Kokomi to reposition her Bake-Kurage via extra Skill casts to maintain Hydro application.") },
+  Sayu: { weapon: "Favonius Greatsword", refinement: 1, source: kqmOn("2026-10-29", "sayu-quickguide", "Although Favonius requires Sayu to build some CRIT Rate, it makes Bursting every rotation significantly more achievable and is one of her best choices for off-field Burst support.") },
+  Sigewinne: { weapon: "Recurve Bow", refinement: 1, source: kqmOn("2026-10-29", "sigewinne-quickguide", "The HP% secondary stat is very useful for Sigewinne's damage and buff, even though the passive is useless.") },
+  Thoma: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-29", "thoma-quickguide", "Favonius as a useful ER% main stat.") },
+  "Traveler (Dendro)": { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "dendro-traveler-quickguide", "Generally DMC's BiS for most situations due to their massive Energy Recharge requirements across various team archetypes, even when intentionally building for personal damage.") },
+  "Traveler (Pyro)": { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "pyro-traveler-quickguide", "Pyro Traveler's best general-use weapon, providing them with a high ER secondary stat and a useful passive to help with meeting team ER requirements 4\u2605 Sacrificial Sword At R5, Sacrificial ...") },
+  Varka: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-29", "varka-quickguide", "Varka's best 4-star option.") },
+  Venti: { weapon: "The Stringless", refinement: 1, source: kqmOn("2026-10-29", "venti-quickguide", "Unconditional EM stat stick that also gives a massive Skill and Burst DMG Bonus.") },
+  Xiangling: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-29", "xiangling-quickguide", "Favonius Lance is a great option when Xiangling and her teammates have high ER requirements.") },
+  Xingqiu: { weapon: "Favonius Sword", refinement: 1, source: kqmOn("2026-10-29", "xingqiu-quickguide", "One of Xingqiu's best 4-star weapon choices.") },
+  Xinyan: { weapon: "Prototype Rancour", refinement: 1, source: kqmOn("2026-10-29", "xinyan2-quickguide", "Prototype Rancour") },
+  Yaoyao: { weapon: "Dialogues of the Desert Sages", refinement: 1, source: kqmOn("2026-10-29", "yaoyao-quickguide", "Yaoyao can reliably proc the Energy passive twice per rotation with her constant healing from her Radishes and A4 Passive's healing over time.") },
+  "Yun Jin": { weapon: "Footprint of the Rainbow", refinement: 1, source: kqmOn("2026-10-29", "yunjin-quickguide", "Footprint of the Rainbow is a craftable weapon and the only DEF% Polearm.") },
+  // #369, no KQM quick guide: genshin-builds' first non-5-star weapon in the recommended build.
+  "Yae Miko": { weapon: "Oathsworn Eye", refinement: 1, source: gbOn("2026-10-29", "yae_miko", "OFF-FIELD DPS Build weapons: Oathsworn Eye, the first non-5-star (7th)") },
+  "Traveler (Anemo)": { weapon: "Sacrificial Sword", refinement: 1, source: gbOn("2026-10-29", "traveler_anemo", "ANEMO DPS Build weapons: Sacrificial Sword, the first non-5-star (4th)") },
+  "Traveler (Electro)": { weapon: "Favonius Sword", refinement: 1, source: gbOn("2026-10-29", "traveler_electro", "ENERGY SUPPORT build weapons: Favonius Sword (1st)") },
+  "Traveler (Geo)": { weapon: "Wolf-Fang", refinement: 1, source: gbOn("2026-10-29", "traveler_geo", "GEO DPS Build weapons: Wolf-Fang, the first non-5-star (9th)") },
 };
 for (const [id, b] of Object.entries(benchmarkWeapons)) {
   const w = genshindb.weapons(b.weapon);

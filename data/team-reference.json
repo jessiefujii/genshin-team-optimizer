@@ -1,5 +1,5 @@
 {
-  "median": 216355.3,
+  "median": 217200.2,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -8,7 +8,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 215823.3
+      "value": 223251.4
     },
     "Aloy": {
       "team": [
@@ -170,7 +170,7 @@
         "Emilie",
         "Iansan"
       ],
-      "value": 266946.4
+      "value": 271245.7
     },
     "Klee": {
       "team": [
@@ -188,7 +188,7 @@
         "Nicole",
         "Citlali"
       ],
-      "value": 340967.1
+      "value": 349655.9
     },
     "Lyney": {
       "team": [
@@ -215,7 +215,7 @@
         "Xilonen",
         "Sucrose"
       ],
-      "value": 288781.4
+      "value": 291257.6
     },
     "Navia": {
       "team": [
@@ -287,7 +287,7 @@
         "Odette",
         "Escoffier"
       ],
-      "value": 171028.7
+      "value": 177655
     },
     "Sethos": {
       "team": [
@@ -329,10 +329,10 @@
       "team": [
         "Tighnari",
         "Fischl",
-        "Nahida",
-        "Zhongli"
+        "Yae Miko",
+        "Yaoyao"
       ],
-      "value": 153141.8
+      "value": 154922.3
     },
     "Traveler (Cryo)": {
       "team": [
@@ -341,7 +341,7 @@
         "Nicole",
         "Odette"
       ],
-      "value": 131435.1
+      "value": 138657.1
     },
     "Varesa": {
       "team": [
@@ -359,7 +359,7 @@
         "Nicole",
         "Durin"
       ],
-      "value": 305410.3
+      "value": 330802.4
     },
     "Vesna": {
       "team": [
@@ -368,7 +368,7 @@
         "Vodyanitsa",
         "Traveler (Cryo)"
       ],
-      "value": 87943.4
+      "value": 89278.9
     },
     "Wanderer": {
       "team": [
@@ -422,7 +422,7 @@
         "Traveler (Cryo)",
         "Lan Yan"
       ],
-      "value": 145146.1
+      "value": 147717
     },
     "Zibai": {
       "team": [
