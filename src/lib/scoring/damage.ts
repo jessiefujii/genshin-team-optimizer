@@ -120,7 +120,7 @@ export function nightsoulCooldown(team: readonly ScoringCharacter[]): number | n
 // bonus stands in for its 2pc). holderStates: the kit facts their conditions read.
 type SetWhen = {
   aura?: Element;
-  reaction?: Reaction;
+  reaction?: Reaction | Reaction[]; // one the team triggers; a list: any of them (Disenchantment's Superconduct or Stellar-Conduct, #383)
   wearerReacts?: boolean;
   hpChanges?: boolean;
   hpDrops?: boolean;
@@ -131,6 +131,8 @@ type SetWhen = {
   moonsign?: "nascent" | "ascendant";
   offField?: boolean; // the wearer isn't the on-field carry (Aubade of Morningstar and Moon, #306)
   stellar?: boolean; // the team triggers a Stellar Glimmer reaction (Heart of the Furnace, #345)
+  hexerei?: boolean; // the wearer has done Witch's Homework: a Hexerei member (A Day Carved From Rising Winds, #383)
+  shielded?: boolean; // a shielder in the team, the wearer included, or Crystallize's shards (Retracing Bolide, #383)
 };
 type SetBuff = {
   kind: "critRate" | "dmgBonus" | "atkPct" | "defPct" | "reactionBonus" | "dmgBonusFromEr" | "atkPctPerSame" | "emPerOther";
@@ -168,7 +170,7 @@ function setFits(w: SetWhen | undefined, c: ScoringCharacter, active: readonly R
   const lunar = active.some((r) => r.startsWith("lunar-"));
   return (
     (!w.aura || team.some((m) => m.element === w.aura)) &&
-    (!w.reaction || active.includes(w.reaction)) &&
+    (!w.reaction || [w.reaction].flat().some((r) => active.includes(r))) &&
     (!w.wearerReacts || c.reactions.some((r) => active.includes(r))) &&
     (!w.hpChanges || hpChanges(c, team)) &&
     (!w.hpDrops || hpDrops(c, team)) &&
@@ -178,6 +180,8 @@ function setFits(w: SetWhen | undefined, c: ScoringCharacter, active: readonly R
     (!w.weapons || w.weapons.includes(c.weapon)) &&
     (!w.offField || !onField) &&
     (!w.stellar || active.some((r) => r.startsWith("stellar-"))) &&
+    (!w.hexerei || !!c.families?.includes("hexerei")) &&
+    (!w.shielded || [c, ...team].some((m) => m.roles.includes("shielder")) || active.includes("crystallize")) &&
     (!w.moonsign || (lunar && (w.moonsign === "ascendant" ? gleam : moonsign === 1 || (moonsign >= 2 && !gleam))))
   );
 }

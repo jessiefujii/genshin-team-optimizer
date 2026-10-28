@@ -26,7 +26,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 258336.2
+      "value": 274531.6
     },
     "Arlecchino": {
       "team": [
@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 118690
+      "value": 129502.8
     },
     "Flins": {
       "team": [
@@ -152,16 +152,16 @@
         "Yelan",
         "Furina"
       ],
-      "value": 104027
+      "value": 111659.5
     },
     "Keqing": {
       "team": [
         "Keqing",
         "Ineffa",
-        "Yelan",
-        "Kaedehara Kazuha"
+        "Furina",
+        "Xilonen"
       ],
-      "value": 163500
+      "value": 180648.6
     },
     "Kinich": {
       "team": [
@@ -179,7 +179,7 @@
         "Albedo",
         "Xilonen"
       ],
-      "value": 247861.5
+      "value": 279946.6
     },
     "Lohen": {
       "team": [
@@ -224,7 +224,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 231356.3
+      "value": 244422.2
     },
     "Nefer": {
       "team": [
@@ -260,7 +260,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 195237.2
+      "value": 202466.6
     },
     "Raiden Shogun": {
       "team": [
@@ -305,7 +305,7 @@
         "Xingqiu",
         "Yelan"
       ],
-      "value": 79331.8
+      "value": 93988.2
     },
     "Skirk": {
       "team": [
@@ -323,7 +323,7 @@
         "Xiangling",
         "Bennett"
       ],
-      "value": 75126.7
+      "value": 83068.1
     },
     "Tighnari": {
       "team": [
@@ -377,7 +377,7 @@
         "Bennett",
         "Furina"
       ],
-      "value": 109167.3
+      "value": 109185.7
     },
     "Wriothesley": {
       "team": [

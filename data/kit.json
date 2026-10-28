@@ -2231,6 +2231,207 @@
     }
   },
   "sets": {
+    "A Day Carved From Rising Winds": [
+      {
+        "kind": "atkPct",
+        "value": 0.25,
+        "source": "4pc: \"ATK is increased by 25%\" (taken as up by the wearer's hits: estimate)"
+      },
+      {
+        "kind": "critRate",
+        "value": 0.2,
+        "when": {
+          "hexerei": true
+        },
+        "source": "4pc: \"increases the CRIT Rate of the equipping character by 20%\" (taken as up by the wearer's hits: estimate)"
+      }
+    ],
+    "Bloodstained Chivalry": [],
+    "Desert Pavilion Chronicle": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.4,
+        "types": [
+          "normal",
+          "charged",
+          "plunge"
+        ],
+        "source": "4pc: \"Normal, Charged, and Plunging Attack DMG will increase by 40%\" (taken as up by the wearer's Charged Attacks: estimate)"
+      }
+    ],
+    "Disenchantment in Deep Shadow": [
+      {
+        "kind": "reactionBonus",
+        "value": 0.8,
+        "reactions": [
+          "superconduct"
+        ],
+        "source": "4pc: \"Increases Superconduct Reaction DMG by 80%\""
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.4,
+        "reactions": [
+          "stellar-conduct"
+        ],
+        "source": "4pc: \"Stellar-Conduct Reaction DMG by 40%\""
+      },
+      {
+        "kind": "critRate",
+        "value": 0.16,
+        "when": {
+          "reaction": [
+            "superconduct",
+            "stellar-conduct"
+          ]
+        },
+        "source": "4pc: \"this attack's CRIT Rate is increased by 16%\""
+      }
+    ],
+    "Flower of Paradise Lost": [
+      {
+        "kind": "reactionBonus",
+        "value": 0.8,
+        "reactions": [
+          "bloom",
+          "hyperbloom",
+          "burgeon"
+        ],
+        "source": "4pc: \"Bloom, Hyperbloom, and Burgeon reaction DMG are increased by 40%\" (taken as up at 4 stacks: estimate)"
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.2,
+        "reactions": [
+          "lunar-bloom"
+        ],
+        "source": "4pc: \"Lunar-Bloom reaction DMG is increased by 10%\" (taken as up at 4 stacks: estimate)"
+      }
+    ],
+    "Lavawalker": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.35,
+        "when": {
+          "aura": "Pyro"
+        },
+        "source": "4pc: \"Increases DMG against opponents affected by Pyro by 35%\" (taken as up while a teammate keeps Pyro on: estimate)"
+      }
+    ],
+    "Maiden Beloved": [],
+    "Nighttime Whispers in the Echoing Woods": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.2,
+        "element": "Geo",
+        "source": "4pc: \"gain a 20% Geo DMG Bonus\" (taken as up by the wearer's Skill: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.3,
+        "element": "Geo",
+        "when": {
+          "reaction": [
+            "crystallize",
+            "lunar-crystallize"
+          ]
+        },
+        "source": "4pc: \"the above effect is increased by 150%\" (taken as up by the wearer's Skill: estimate)"
+      }
+    ],
+    "Nymph's Dream": [
+      {
+        "kind": "atkPct",
+        "value": 0.25,
+        "source": "4pc: \"ATK will be increased by 7%/16%/25%\" (taken as up at 3 stacks: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.15,
+        "element": "Hydro",
+        "source": "4pc: \"Hydro DMG Bonus will be increased by 4%/9%/15%\" (taken as up at 3 stacks: estimate)"
+      }
+    ],
+    "Pale Flame": [
+      {
+        "kind": "atkPct",
+        "value": 0.18,
+        "source": "4pc: \"ATK is increased by 9% for 7s\" x2 stacks (taken as up by the wearer's Skill: estimate)"
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.25,
+        "element": "Physical",
+        "source": "4pc: \"the 2-set effect is increased by 100%\" (taken as up by the wearer's Skill: estimate)"
+      }
+    ],
+    "Retracing Bolide": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.4,
+        "types": [
+          "normal",
+          "charged"
+        ],
+        "when": {
+          "shielded": true
+        },
+        "source": "4pc: \"gain an additional 40% Normal and Charged Attack DMG\""
+      }
+    ],
+    "Scarlet Proof": [
+      {
+        "kind": "critRate",
+        "value": 0.16,
+        "when": {
+          "reaction": "stellar-swirl",
+          "wearerReacts": true
+        },
+        "source": "4pc: \"Increases the equipping character's CRIT Rate by 16%\""
+      },
+      {
+        "kind": "reactionBonus",
+        "value": 0.4,
+        "reactions": [
+          "stellar-swirl"
+        ],
+        "when": {
+          "reaction": "stellar-swirl",
+          "wearerReacts": true
+        },
+        "source": "4pc: \"their Stellar Swirl reaction DMG dealt by 40%\""
+      }
+    ],
+    "Thundersoother": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.35,
+        "when": {
+          "aura": "Electro"
+        },
+        "source": "4pc: \"Increases DMG against opponents affected by Electro by 35%\" (taken as up while a teammate keeps Electro on: estimate)"
+      }
+    ],
+    "Vourukasha's Glow": [
+      {
+        "kind": "dmgBonus",
+        "value": 0.1,
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "source": "4pc: \"Elemental Skill and Elemental Burst DMG will be increased by 10%\""
+      },
+      {
+        "kind": "dmgBonus",
+        "value": 0.08,
+        "types": [
+          "skill",
+          "burst"
+        ],
+        "source": "4pc: \"the aforementioned DMG Bonus is increased by 80%\" (taken as up at 1 stack: estimate)"
+      }
+    ],
     "Blizzard Strayer": [
       {
         "kind": "critRate",
@@ -2783,6 +2984,83 @@
     ]
   },
   "benchmarkSets": {
+    "Arataki Itto": [
+      {
+        "set": "Husk of Opulent Dreams",
+        "source": "KQM itto quick guide (keqingmains.com/q/itto-quickguide, accessed 2026-10-29): \"4pc Husk of Opulent Dreams is Itto's Best-in-Slot artifact set.\""
+      }
+    ],
+    "Navia": [
+      {
+        "set": "Nighttime Whispers in the Echoing Woods",
+        "source": "KQM navia quick guide (keqingmains.com/q/navia-quickguide, accessed 2026-10-29): \"Navia's best-in-slot artifact set provides ATK% and good Geo DMG Bonus.\""
+      }
+    ],
+    "Noelle": [
+      {
+        "set": "Husk of Opulent Dreams",
+        "source": "KQM noelle quick guide (keqingmains.com/q/noelle-quickguide, accessed 2026-10-29): \"4pc Husk of Opulent Dreams is the recommended set to farm for dedicated Noelle players.\""
+      }
+    ],
+    "Eula": [
+      {
+        "set": "Pale Flame",
+        "source": "KQM eula quick guide (keqingmains.com/q/eula-quickguide, accessed 2026-10-29): \"Eula's Best-in-Slot artifact set, developed with her kit in mind.\""
+      }
+    ],
+    "Klee": [
+      {
+        "set": "A Day Carved From Rising Winds",
+        "source": "KQM klee quick guide (keqingmains.com/q/klee-quickguide, accessed 2026-10-29): \"Klee's best set in almost any team.\""
+      }
+    ],
+    "Tartaglia": [
+      {
+        "set": "Nymph's Dream",
+        "source": "KQM tartaglia quick guide (keqingmains.com/q/tartaglia-quickguide, accessed 2026-10-29): \"Childe's new BiS artifact set.\""
+      }
+    ],
+    "Shikanoin Heizou": [
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM heizou quick guide (keqingmains.com/q/heizou-quickguide, accessed 2026-10-29): \"4pc Viridescent Venerer is by far Heizou's most recommended set since it boosts his teammates' damage.\""
+      }
+    ],
+    "Wanderer": [
+      {
+        "set": "Viridescent Venerer",
+        "source": "KQM wanderer quick guide (keqingmains.com/q/wanderer-quickguide, accessed 2026-10-29): \"4pc Viridescent Venerer (VV) is the go-to set for Wanderer in his driver playstyle since it maximizes his Swirl damage and buffs his off-field teammates' damage.\""
+      }
+    ],
+    "Keqing": [
+      {
+        "set": "Marechaussee Hunter",
+        "when": {
+          "members": [
+            "Furina"
+          ]
+        },
+        "source": "KQM keqing quick guide (keqingmains.com/q/keqing-quickguide, accessed 2026-10-29): \"4pc MH is Keqing's top option in Lunar-Charged by an exceedingly large margin when there is only one Nod-Krai unit on the team.\""
+      },
+      {
+        "set": "Thundersoother",
+        "source": "KQM keqing quick guide (keqingmains.com/q/keqing-quickguide, accessed 2026-10-29): \"Electro aura uptime is essentially perfect in Lunar-Charged, making 4pc Thundersoother Keqing's best traditional option.\""
+      }
+    ],
+    "Kaveh": [
+      {
+        "set": "Deepwood Memories",
+        "source": "KQM kaveh quick guide (keqingmains.com/q/kaveh-quickguide, accessed 2026-10-29): \"A generalist support set for Dendro teams; Kaveh can have full uptime on the 4-piece effect by using his Skill every 6-8s.\""
+      },
+      {
+        "set": "Ocean-Hued Clam",
+        "source": "KQM kaveh quick guide (keqingmains.com/q/kaveh-quickguide, accessed 2026-10-29): \"If there is another consistent 4pc DM holder in the team, Kaveh can hold this set to contribute more damage.\""
+      },
+      {
+        "set": "Instructor",
+        "source": "KQM kaveh quick guide (keqingmains.com/q/kaveh-quickguide, accessed 2026-10-29): \"Provides a useful teamwide EM buff.\""
+      }
+    ],
     "Ganyu": [
       {
         "set": "Blizzard Strayer",
@@ -3749,6 +4027,13 @@
     ],
     "Sangonomiya Kokomi": [
       {
+        "set": "Flower of Paradise Lost",
+        "when": {
+          "reaction": "bloom"
+        },
+        "source": "KQM kokomi quick guide (keqingmains.com/q/kokomi-quickguide, accessed 2026-10-29): \"Maximizes Kokomi's Bloom damage, but comes from a highly resin-inefficient domain.\""
+      },
+      {
         "set": "Gilded Dreams",
         "when": {
           "reaction": "bloom"
@@ -3882,8 +4167,12 @@
     ],
     "Traveler (Geo)": [
       {
+        "set": "Nighttime Whispers in the Echoing Woods",
+        "source": "genshin-builds (genshin-builds.com/en/character/traveler_geo, accessed 2026-10-29): GEO DPS Build, first set: Nighttime Whispers in the Echoing Woods (4-piece)"
+      },
+      {
         "set": "Golden Troupe",
-        "source": "genshin-builds (genshin-builds.com/en/character/traveler_geo, accessed 2026-10-29): GEO DPS Build, second set (the first, Nighttime Whispers, isn't modeled)"
+        "source": "genshin-builds (genshin-builds.com/en/character/traveler_geo, accessed 2026-10-29): GEO DPS Build, second set"
       },
       {
         "set": "Emblem of Severed Fate",
