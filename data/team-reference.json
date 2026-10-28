@@ -1,5 +1,5 @@
 {
-  "median": 212394.3,
+  "median": 213106.9,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -267,9 +267,9 @@
         "Raiden Shogun",
         "Furina",
         "Yelan",
-        "Xilonen"
+        "Jean"
       ],
-      "value": 214398.1
+      "value": 216887.3
     },
     "Razor": {
       "team": [
@@ -355,11 +355,11 @@
     "Varka": {
       "team": [
         "Varka",
-        "Prune",
+        "Venti",
         "Nicole",
         "Durin"
       ],
-      "value": 301978.3
+      "value": 305410.3
     },
     "Vesna": {
       "team": [
@@ -418,11 +418,11 @@
     "Yumemizuki Mizuki": {
       "team": [
         "Yumemizuki Mizuki",
-        "Ineffa",
-        "Columbina",
-        "Xilonen"
+        "Odette",
+        "Traveler (Cryo)",
+        "Lan Yan"
       ],
-      "value": 130593.9
+      "value": 131448.8
     },
     "Zibai": {
       "team": [

@@ -621,6 +621,19 @@ describe("set bonuses on the wearer's own damage (#206)", () => {
     expect(setsOf(wearing("Neuvillette", "Gilded Dreams"), [])).toEqual([{ set: "Gilded Dreams", pieces: 4 }]);
   });
 
+  test("the supports whose buffs come from their set wear their guide's (#352)", () => {
+    const of = (id: string, ...mates: string[]) => setsOf(get(id), [], team(id, ...mates))[0]?.set;
+    expect(of("Venti", "Mavuika", "Bennett", "Furina")).toBe("Viridescent Venerer");
+    expect(of("Venti", "Wanderer", "Bennett", "Furina")).toBe("Scroll of the Hero of Cinder City"); // an on-field Anemo DPS
+    expect(of("Lan Yan", "Xiao", "Furina", "Bennett")).toBe("Scroll of the Hero of Cinder City");
+    expect(of("Kachina", "Mualani", "Furina", "Bennett")).toBe("Scroll of the Hero of Cinder City");
+    expect(of("Xinyan", "Eula", "Bennett", "Furina")).toBe("Tenacity of the Millelith");
+    // One wearer per party set (#348): with Kazuha on VV, Jean takes Noblesse; with Bennett on Noblesse too, Clam.
+    expect(of("Jean", "Kaedehara Kazuha", "Furina", "Xiao")).toBe("Noblesse Oblige");
+    expect(of("Jean", "Kaedehara Kazuha", "Bennett", "Xiao")).toBe("Ocean-Hued Clam");
+    expect(of("Candace", "Kachina", "Furina", "Bennett")).toBe("Silken Moon's Serenade"); // Scroll and Noblesse taken
+  });
+
   test("Marechaussee's CRIT Rate needs the wearer's HP to change: HP drain or a healer", () => {
     expect(value(get("Neuvillette"), ["Kaedehara Kazuha"], [], "critRate")).toBeCloseTo(0.36); // his own drain
     expect(value(wearing("Kamisato Ayaka", "Marechaussee Hunter"), ["Shenhe"], [], "critRate")).toBe(0);
