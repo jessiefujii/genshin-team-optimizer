@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -1557,14 +1557,14 @@ function reactionDamageLine(ctx: TeamContext, carry: ScoringCharacter, out: Sink
 function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamContext) {
   const gleam = ctx.members.filter((x) => x.families?.includes("moonsign")).length >= 2;
   const party = partySetBuffs(ctx.members, ctx.active, carry, gleam);
-  const weapon = weaponBuffs(m, ctx.members, ctx.active, gleam);
+  const weapon = weaponBuffs(m, ctx.members, ctx.active, gleam, m === carry);
   const set = setBuffs(m, ctx.active, ctx.members, gleam, m === carry);
   return {
     weapon,
     em: party.em + weaponSum(weapon, "em"),
     critRate: weaponSum(weapon, "critRate"),
-    lunar: (r: Reaction | LunarReaction) => party.lunar + (r.startsWith("stellar-") ? party.stellar : 0) + setReactionBonus(set, r), // Heart of the Furnace (#345)
-    reaction: (r: Reaction) => setReactionBonus(set, r),
+    lunar: (r: Reaction | LunarReaction) => party.lunar + (r.startsWith("stellar-") ? party.stellar : 0) + setReactionBonus(set, r) + weaponReactionBonus(weapon, r), // Heart of the Furnace (#345)
+    reaction: (r: Reaction) => setReactionBonus(set, r) + weaponReactionBonus(weapon, r), // a weapon's too (#385)
     set,
   };
 }
@@ -1599,7 +1599,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     const stat = {
       ...base,
       em: base.em + extras.em + whole.em + sumSet(set, "emPerOther") + (ownNs?.kind === "em" ? ownNs.value : 0), // party set and weapon EM (#306)
-      def: base.def + ((ownNs?.kind === "defPct" ? ownNs.value : 0) + sumSet(set, "defPct")) * (entry.base?.def ?? 0),
+      def: base.def + ((ownNs?.kind === "defPct" ? ownNs.value : 0) + sumSet(set, "defPct") + weaponSum(extras.weapon, "defPct")) * (entry.base?.def ?? 0),
     };
     const er = base.er ?? (erTargetOf(m) ?? 100) / 100;
     const dmgBonus = stat.dmgBonus + (ownNs?.kind === "dmgBonus" ? ownNs.value : 0);
@@ -1624,7 +1624,9 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       // Teammates' party-wide kit buffs on this hit (#204, kit.ts memberBuffStats): ATK, DMG Bonus, CRIT Rate, flat DMG.
       const team = memberBuffStats(m, carry, ctx.active, ctx.members, s.talent, burstSharesFor(ctx, carry));
       const atk = stat.atk + team.atk + team.atkPct * baseAtk + weaponAtk(weapon, baseAtk, stat.em) + setAtk; // weapon ATK (#206), set ATK%
-      const perHit = (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em;
+      const perHit =
+        (s.scaling.atk ?? 0) * atk + (s.scaling.hp ?? 0) * hp + (s.scaling.def ?? 0) * stat.def + (s.scaling.em ?? 0) * stat.em +
+        weaponFlatFromDef(weapon, s.talent === "skill" || s.talent === "burst" || s.talent === "normal" ? s.talent : undefined, stat.def); // Cinnabar Spindle (#385)
       // By talent (#40); a Normal Attack talent's hits read as Normal Attack DMG (#206: every-hit bonuses reach them).
       const talent = s.talent === "normal" || s.talent === "skill" || s.talent === "burst" ? s.talent : undefined;
       const weaponBonus = talent ? weaponDmgBonus(weapon, talent) : 0;

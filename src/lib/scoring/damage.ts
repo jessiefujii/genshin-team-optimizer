@@ -252,8 +252,20 @@ type WeaponWhen = {
   healed?: boolean; // a teammate heals the holder (Song of Stillness, Tidal Shadow: "After the wielder is healed", #206)
   shielded?: boolean; // a teammate shields (Calamity of Eshu: "While characters are protected by a Shield", #206)
   elementTypes?: number; // at least this many element types in the party (Ballad of the Fjords, #206)
+  offField?: boolean; // the holder isn't the on-field carry (Alley Hunter, Sacrificial Jade, #385)
+  burstCostAtMost?: number; // the holder's Burst costs no more than this (Moonweaver's Dawn, #385)
 };
-type WeaponBuff = { kind: "dmgBonus" | "hpPct" | "atkPct" | "atkFromEm" | "critRate" | "em"; types?: HitType[]; values: number[]; max?: number[]; when?: WeaponWhen; party?: true };
+// reactionBonus: the Reaction Bonus of those reactions (Prospector's Shovel, Blackmarrow Lantern); defPct: of base DEF;
+// flatFromDef: flat DMG per hit of `types`, as a share of DEF (Cinnabar Spindle's Skill DMG) (#385).
+type WeaponBuff = {
+  kind: "dmgBonus" | "hpPct" | "atkPct" | "atkFromEm" | "critRate" | "em" | "reactionBonus" | "defPct" | "flatFromDef";
+  types?: HitType[];
+  reactions?: (Reaction | LunarReaction)[];
+  values: number[];
+  max?: number[];
+  when?: WeaponWhen;
+  party?: true;
+};
 const WEAPONS = (kitJson as unknown as { weapons: Record<string, WeaponBuff[]> }).weapons;
 const BENCHMARK_WEAPONS = Object.fromEntries(
   Object.entries((kitJson as unknown as { benchmarkWeapons: Record<string, { weapon: string; refinement: number }> }).benchmarkWeapons).map(
@@ -275,7 +287,8 @@ export function weaponBuffs(
   team: readonly ScoringCharacter[],
   active: readonly Reaction[] = [],
   gleam = team.filter((m) => m.families?.includes("moonsign")).length >= 2,
-): { kind: WeaponBuff["kind"]; types?: HitType[]; value: number }[] {
+  onField = true, // the holder is the on-field carry (a sub-DPS's own hits: false)
+): { kind: WeaponBuff["kind"]; types?: HitType[]; reactions?: (Reaction | LunarReaction)[]; value: number }[] {
   // Without a build, a benchmark carry's guide weapon (#206, kit.json benchmarkWeapons: its passive only).
   const w = c.weaponBuild ?? (c.stats ? undefined : BENCHMARK_WEAPONS[c.id]);
   if (!w) return [];
@@ -292,13 +305,15 @@ export function weaponBuffs(
     (!when.reactions || when.reactions.some((x) => active.includes(x))) &&
     (!when.healed || team.some((m) => m !== c && healsInPlay(m))) &&
     (!when.shielded || team.some((m) => m !== c && m.roles.includes("shielder"))) &&
-    (!when.elementTypes || new Set(team.map((m) => m.element)).size >= when.elementTypes);
+    (!when.elementTypes || new Set(team.map((m) => m.element)).size >= when.elementTypes) &&
+    (!when.offField || !onField) &&
+    (when.burstCostAtMost === undefined || (c.burstCost ?? 0) <= when.burstCostAtMost);
   return (WEAPONS[w.id] ?? [])
     .filter((b) => !b.party && fits(b.when)) // party effects are kit.ts partyGearStats' (#206)
     .map((b) => {
       const energy = team.reduce((a, m) => a + (m.burstCost ?? 0), 0);
       const value = b.when?.energy ? Math.min(b.max![r], b.values[r] * energy) : b.values[r];
-      return { kind: b.kind, ...(b.types ? { types: b.types } : {}), value };
+      return { kind: b.kind, ...(b.types ? { types: b.types } : {}), ...(b.reactions ? { reactions: b.reactions } : {}), value };
     });
 }
 // The DMG bonus the holder's weapon gives a hit of this type in this team (weaponBuffs); no `types`: every hit.
@@ -309,8 +324,15 @@ export const weaponDmgBonus = (buffs: ReturnType<typeof weaponBuffs>, type: HitT
 export const weaponAtk = (buffs: ReturnType<typeof weaponBuffs>, baseAtk: number, em: number) =>
   buffs.reduce((a, b) => a + (b.kind === "atkPct" ? b.value * baseAtk : b.kind === "atkFromEm" ? b.value * em : 0), 0);
 // The holder's weapon CRIT Rate or EM the character screen doesn't show (#306: Harbinger of Dawn, Snare Hook, Widsith).
-export const weaponSum = (buffs: ReturnType<typeof weaponBuffs>, kind: "critRate" | "em") =>
+export const weaponSum = (buffs: ReturnType<typeof weaponBuffs>, kind: "critRate" | "em" | "defPct") =>
   buffs.reduce((a, b) => a + (b.kind === kind ? b.value : 0), 0);
+// The holder's weapon Reaction Bonus for this reaction (#385: Prospector's Shovel's Electro-Charged/Lunar-Charged,
+// Blackmarrow Lantern's Bloom/Lunar-Bloom), beside the set's.
+export const weaponReactionBonus = (buffs: ReturnType<typeof weaponBuffs>, r: Reaction | LunarReaction | "none" | undefined) =>
+  buffs.reduce((a, b) => a + (b.kind === "reactionBonus" && r && b.reactions!.includes(r as Reaction) ? b.value : 0), 0);
+// Flat DMG a hit of this type gets from the holder's DEF (#385: Cinnabar Spindle on Skill hits).
+export const weaponFlatFromDef = (buffs: ReturnType<typeof weaponBuffs>, type: HitType | undefined, def: number) =>
+  buffs.reduce((a, b) => a + (b.kind === "flatFromDef" && type && b.types!.includes(type) ? b.value * def : 0), 0);
 
 // A benchmark carry whose set gives CRIT Rate wears a CRIT DMG circlet instead of a CRIT Rate one (#279: KQM's Ganyu
 // guide, Freeze stat priority "CRIT DMG ≥ ATK% > CRIT Rate" with Blizzard Strayer).
@@ -616,7 +638,7 @@ function computeCarryDamage(
     atk: own.atk + teamBuffs.atk + teamBuffs.atkPct * own.baseAtk,
     dmgBonus: own.dmgBonus + teamBuffs.dmgBonus,
     hp: own.hp + teamBuffs.hpPct * (CARRIES[c.id]?.baseHp ?? 0), // HP % of base HP (#186: Soothing Water)
-    def: own.def + sumSet(set, "defPct") * baseDefOf(c.id), // set DEF% of base DEF (Husk's stacks, #346)
+    def: own.def + (sumSet(set, "defPct") + weaponSum(weapon, "defPct")) * baseDefOf(c.id), // set and weapon DEF% of base DEF (#346, #385)
   };
   const fsShare = kit.buffs.some((b) => "fightingSpirit" in b && b.fightingSpirit) ? fightingSpirit(c, c, team) / FIGHTING_SPIRIT_LIMIT : 1;
   let atk = s.atk;
@@ -651,8 +673,8 @@ function computeCarryDamage(
     if (b.kind === "emBonus") em += b.value; // Nefer at 3 Veil of Falsehood stacks (#148)
   }
   const main = reaction ?? mainReactionOf(c);
-  const amp = amplifyGain(c, em, active, main, setReactionBonus(set, main)) * ampShare;
-  const catalyze = catalyzeDamage(c, em, active, main, setReactionBonus(set, main)) * ampShare; // Quicken uptime (#303)
+  const amp = amplifyGain(c, em, active, main, setReactionBonus(set, main) + weaponReactionBonus(weapon, main)) * ampShare;
+  const catalyze = catalyzeDamage(c, em, active, main, setReactionBonus(set, main) + weaponReactionBonus(weapon, main)) * ampShare; // Quicken uptime (#303)
   // A hit of another damage type (#222): its own DMG Bonus (Physical: the build's; another element: none of the carry's),
   // the team buffs that reach that type (read as if it were the carry's element, so a Cryo-only buff skips Physical
   // hits), and its own reactions (Physical hits don't react). ATK and CRIT buffs reach every hit alike.
@@ -670,7 +692,7 @@ function computeCarryDamage(
       const tb = teamBuffs === NO_TEAM_BUFFS ? NO_TEAM_BUFFS : teamBuffStats(view, c.reactions.filter((r) => active.includes(r)), team, teamBuffs.burstShares, active);
       const r = reaction ?? mainReactionOf(c);
       const own = el === "Physical" ? s.physicalDmgBonus : 0;
-      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, byHit: tb.byHit, amp: amplifyGain(view, em, active, r, setReactionBonus(set, r)), catalyze: catalyzeDamage(view, em, active, r, setReactionBonus(set, r)), res: tb.resShred + (el === "Physical" ? superconduct : 0), def: tb.defShred, lunarAdditive: tb.lunarAdditive }));
+      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, byHit: tb.byHit, amp: amplifyGain(view, em, active, r, setReactionBonus(set, r) + weaponReactionBonus(weapon, r)), catalyze: catalyzeDamage(view, em, active, r, setReactionBonus(set, r) + weaponReactionBonus(weapon, r)), res: tb.resShred + (el === "Physical" ? superconduct : 0), def: tb.defShred, lunarAdditive: tb.lunarAdditive }));
     }
     return v;
   };
@@ -682,6 +704,7 @@ function computeCarryDamage(
   const lunarBonus = (r: LunarReaction) =>
     buffs.reduce((a, b) => a + (b.kind === "lunarReactionBonus" && b.reaction === r ? (b.perEm ? (b.value * em) / b.perEm : b.value) : 0), 0) +
     setReactionBonus(set, r) + // Thundering Fury's Lunar-Charged (#206)
+    weaponReactionBonus(weapon, r) + // Prospector's Shovel's Lunar-Charged (#385)
     party.lunar + // Gleaming Moon (#306)
     (r.startsWith("stellar-") ? party.stellar : 0); // Heart of the Furnace (#345)
   // Base DMG Multiplier by hit label (Nefer's Veil of Falsehood, #148): multiplies the hit's base, Lunar or not.
@@ -714,6 +737,7 @@ function computeCarryDamage(
   };
   const hitTotal = (h: CarryHit, el: Element | "Physical", count: number) => {
     let perHit = (h.scaling.atk ?? 0) * atk + (h.scaling.hp ?? 0) * s.hp + (h.scaling.def ?? 0) * s.def + (h.scaling.em ?? 0) * em;
+    perHit += weaponFlatFromDef(weapon, h.type, s.def); // Cinnabar Spindle (#385)
     perHit *= baseMultiplier(h);
     const t = typed(el);
     // Shred as a ratio to the unshredded enemy (benchmark.ts: 10% RES, level 100), so every baseline stays put. Lunar
