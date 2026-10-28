@@ -343,6 +343,8 @@ describe("carry damage (#101)", () => {
       const rite = carryDamage(byId.get("Lohen")!, ["melt"], team(...ids))!;
       const none = carryDamage(byId.get("Lohen")!, ["melt"], team(...ids).map((c) => (c.id === "Lohen" ? c : { ...c, families: [] })))!;
       expect(rite.perSecond).toBeGreaterThan(none.perSecond * 1.1);
+      // Freeze: N1C strings only (KQM's low Will to Win combo, GameWith's Freeze team).
+      expect(carryDamage(byId.get("Lohen")!, ["freeze"], team("Lohen", "Escoffier", "Furina", "Mona"))!.combo).toBe("E 16[N1C]");
     });
 
     test("Sandrone: 3[C E] (Q); in Radiance her beams, second Prism Shot (400%) and Ray (200%) are direct Stellar hits (#234)", () => {

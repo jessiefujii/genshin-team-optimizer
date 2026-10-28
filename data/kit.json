@@ -15678,7 +15678,41 @@
           }
         }
       ],
-      "oneCombo": "KQM's optimized combo is a faster version of the same rotation, not a team-specific one (#356)",
+      "combos": [
+        {
+          "combo": "E 16[N1C]",
+          "when": [
+            {
+              "reaction": "freeze"
+            }
+          ],
+          "hits": [
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.48791
+              },
+              "count": 16
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 3.63084
+              },
+              "count": 16,
+              "instances": 2
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "atkPct",
+              "value": 0.15
+            }
+          ]
+        }
+      ],
       "baseHp": 12858,
       "baseDef": 784
     },
