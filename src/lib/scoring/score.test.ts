@@ -4,7 +4,7 @@ import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { carryDamage } from "./damage";
-import { fightingSpiritBuilt, memberBuffStats, teamBuffStats } from "./kit";
+import { fightingSpiritBuilt, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
@@ -941,6 +941,19 @@ describe("talent levels (#25)", () => {
     const swirl = ["Diluc (no model)", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
     const kazuha = lines(leveled({ "Kaedehara Kazuha": talents(1, 1, 1) }, ...swirl), "Buffs").find((l) => l.reason.startsWith("Kaedehara"));
     expect(kazuha).toEqual({ rule: "Buffs", points: 10, reason: "Kaedehara Kazuha buffs Diluc (no model) (~+20% damage)" });
+  });
+
+  test("the #178 buffers score their kit's values (#358)", () => {
+    const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
+    // Base DMG converters: their bonus is in team damage, no buffer points on top.
+    expect(buffLine(score("Sandrone", "Odette", "Alyosha", "Escoffier"), "Odette")).toEqual({ rule: "Buffs", points: 0, reason: "Odette's Base DMG bonus: in team damage" });
+    // Chongyun's ATK SPD reaches a claymore carry, not a Pyro catalyst (and his Cryo shred no Pyro hit).
+    expect(buffLine(score("Diluc", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBeGreaterThan(0);
+    expect(buffLine(score("Klee", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBe(0);
+    // Raiden's Eye: 0.3% Burst DMG per Energy of the carry's Burst, so a costlier Burst gains more.
+    const burstCarry = (burstCost: number) => ({ ...byId.get("Diluc (no model)")!, keyTalent: "burst" as const, burstCost });
+    const raiden = (cost: number) => kitBuffValue(byId.get("Raiden Shogun")!, burstCarry(cost), [], [burstCarry(cost), ...team("Raiden Shogun", "Bennett", "Zhongli")])!.gain;
+    expect(raiden(80)).toBeGreaterThan(raiden(40) * 1.5);
   });
 
   test("buffer points come from the kit's numbers: +20% damage = 10 points, no cap (#68, #90)", () => {
