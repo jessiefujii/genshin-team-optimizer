@@ -1914,7 +1914,9 @@ function readSubDps(id, specs) {
 //     reacting (how many of `count` trigger the combo's amplifying reaction, where the source says; else from the
 //     hit's kit-overrides.json carryIcd entry, icdReacting #226; damage.ts uses its flat estimate for hits with
 //     neither), lunar (the hit is direct Lunar reaction DMG of that reaction, #135),
-//     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true })
+//     when (the hit only lands with { reaction } active and/or at { ascendantGleam: true } / { secretRite: true },
+//     or with { members: [ids] }, one of them a teammate), perCrit (the hit lands when another crits: count x the
+//     carry's CRIT Rate, Yanfei's passive 2)
 //     collision (a plunge's collision hit: no flat team bonus, as Xianyun's is for the shockwave only),
 //     ofRow ({ table, label }: the hit deals that row's share of its own row, as Razor's Soul Companion; with `as`, its
 //     own label), ofText ({ from, re }: the same from a talent's text, "60% of their original Cryo DMG": Wriothesley's
@@ -2665,7 +2667,10 @@ const CARRIES = {
     // text), so they need it (#241). Jumpy Dumpty "bounces thrice" per throw, one throw: the guide's sE is cancelled by
     // the Burst before it is released ("her cooldown is not triggered until her Skill is fully released ... cancel her
     // Skill using her Burst"; "Klee generally only uses her Skill once in a rotation"). Sparks 'n' Splash: 6 waves of 4
-    // sparks (wiki). Her mines are left out: how many of the 8 hit one opponent isn't sourced.
+    // sparks (wiki). Her mines (#225): "the bomb splits into 8 mines, which will set off if an enemy comes into its
+    // small range", and "Sucrose's, Kazuha's, Anemo Traveler's, and Jean's suction abilities will suck in these mines"
+    // (KQM's Klee guide, keqingmains.com/klee, fetched 2026-10-28: with suction, "6 Jumpy Dumpty bounces, 16 mine
+    // explosions" for two throws). So all 8 with one of them; without, how many reach one opponent isn't sourced.
     combo: "N1 sEQ N3 E 5[N3]",
     hits: [
       { table: "normal", label: "1-Hit DMG", count: 7, type: N },
@@ -2673,6 +2678,7 @@ const CARRIES = {
       { table: "normal", label: "3-Hit DMG", count: 6, type: N },
       { table: "normal", label: "Charged Attack DMG", count: 5, type: CH, when: { secretRite: true } },
       { table: "skill", label: "Jumpy Dumpty DMG", count: 3, type: SK },
+      { table: "skill", label: "Mine DMG", count: 8, type: SK, when: { members: ["Sucrose", "Kaedehara Kazuha", "Traveler (Anemo)", "Jean"] } },
       { table: "burst", label: "Sparks 'n' Splash DMG", count: "rate", type: BU },
     ],
     // Passive 1 (kit-overrides.json's updated text): a Spark Charged Attack, Boom-Boom Strike, deals 50% more; all 5 are.
@@ -2875,13 +2881,16 @@ const CARRIES = {
   Yanfei: {
     // KQM quick guide: opener "N1 Q N1C N1 E C", then "3[N3C]". Her Burst and Skill grant the most Scarlet Seals,
     // and each Normal Attack adds one (3 max): every Charged Attack consumes 3. Passive 1: +5% Pyro DMG per Seal
-    // consumed for 6s: +15% on the 4 Charged Attacks after the first. Passive 2's extra hit on a CRIT Charged Attack is left out.
+    // consumed for 6s: +15% on the 4 Charged Attacks after the first. Passive 2 (#225): "When Yanfei's Charged Attack
+    // deals a CRIT Hit to opponents, she will deal an additional instance of AoE Pyro DMG equal to 80% of her ATK. This
+    // DMG counts as Charged Attack DMG": one per Charged Attack, at her CRIT Rate.
     combo: "N1 Q N1C N1 E C 3[N3C]",
     hits: [
       { table: "normal", label: "1-Hit DMG", count: 6, type: N },
       { table: "normal", label: "2-Hit DMG", count: 3, type: N },
       { table: "normal", label: "3-Hit DMG", count: 3, type: N },
       { table: "normal", label: "Charged Attack", pick: 3, count: 5, type: CH },
+      { from: "passive2", re: /AoE Pyro DMG equal to (\d+)% of her ATK/, count: 5, type: CH, perCrit: true },
       { table: "skill", label: "Skill DMG", count: 1, type: SK },
       { table: "burst", label: "Skill DMG", count: 1, type: BU },
     ],
@@ -2912,6 +2921,7 @@ const CARRIES = {
           { table: "normal", label: "1-Hit DMG", count: 7, type: N },
           { table: "normal", label: "2-Hit DMG", count: 4, type: N },
           { table: "normal", label: "Charged Attack", pick: 3, count: 6, type: CH },
+          { from: "passive2", re: /AoE Pyro DMG equal to (\d+)% of her ATK/, count: 6, type: CH, perCrit: true },
           { table: "skill", label: "Skill DMG", count: 1, type: SK },
           { table: "burst", label: "Skill DMG", count: 1, type: BU },
         ],
@@ -2927,6 +2937,7 @@ const CARRIES = {
           { table: "normal", label: "1-Hit DMG", count: 8, type: N },
           { table: "normal", label: "2-Hit DMG", count: 5, type: N },
           { table: "normal", label: "Charged Attack", pick: 3, count: 7, type: CH },
+          { from: "passive2", re: /AoE Pyro DMG equal to (\d+)% of her ATK/, count: 7, type: CH, perCrit: true },
           { table: "skill", label: "Skill DMG", count: 1, type: SK },
           { table: "burst", label: "Skill DMG", count: 1, type: BU },
         ],
@@ -3417,7 +3428,10 @@ const CARRIES = {
   // "Burst Every Rotation". "Sandrone's Charged Attacks comprise the majority of her personal damage": each Charged
   // Attack summons Fagio, whose beam fills Decoding Power to 100 (Power Overdrive), and "Sandrone's Skill resets Fagio's
   // state". Beams per Charged Attack: 3 (estimate: tags.json "hold CA (3 beams)"; KQM's C2/C6 notes have the third as
-  // "the final beam"); its Sweeping Fire once ("a sweeping fire attack"). Her Skill fires 2 Prism Shots. In Radiance:
+  // "the final beam"). Prydwen (https://www.prydwen.gg/genshin-impact/characters/sandrone, via Jessie, 2026-10-28): "at C0
+  // deals up to 3 sets of attacks, with each set consisting of 3 instances of Cryo damage and one 'Condensed Beam'"; the
+  // wiki's Decoding mode has "a sweeping fire attack, as well as fire condensed beams at intervals", so the 3 Cryo
+  // instances are Sweeping Fire: 9 per Charged Attack. Her Skill fires 2 Prism Shots. In Radiance:
   // Stellar Glimmer (her passive 3: inside a Polestar Field, or 8s after a Stellar Swirl; Stellar-Conduct first) the
   // condensed beams, the second Prism Shot and the Convective Inhibition Ray are direct Stellar hits (0U: none
   // reacting). Passive 1 (KQM: each Skill drains Decoding Power from ~100, "If you cancel too early, Fagio cannot fully
@@ -3428,7 +3442,7 @@ const CARRIES = {
     radianceInDamage: true,
     combo: "3[C E] (Q)",
     hits: [
-      { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 3, type: CH },
+      { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 27, type: CH },
       { table: "normal", label: "Charged Attack Condensed Beam DMG", count: 9, type: CH },
       { table: "skill", label: "Prism Shot DMG", count: 6, type: SK },
       { table: "burst", label: "Bombardment DMG", count: 1, instances: 3, type: BU },
@@ -3441,7 +3455,7 @@ const CARRIES = {
         combo: `3[C E] (Q), Radiance: ${name}`,
         when: [{ reaction: r, radiance: true }],
         hits: [
-          { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 3, type: CH },
+          { table: "normal", label: "Charged Attack Sweeping Fire DMG", count: 27, type: CH },
           { table: "normal", label: `Charged Attack Condensed Beam ${name} DMG`, count: 9, reacting: 0, type: CH, lunar: r },
           { table: "skill", label: "Prism Shot DMG", count: 3, type: SK },
           { table: "skill", label: `Prism Shot ${name} DMG`, ofText: { from: "passive1", re: /will deal (\d+)% of its original DMG/ }, count: 3, reacting: 0, type: SK, lunar: r },
@@ -3590,6 +3604,7 @@ function readCarry(id, spec) {
         ...(h.element ? { element: h.element } : {}),
         ...(h.byTeammates ? { byTeammates: { elements: h.byTeammates.elements, ...(h.byTeammates.members ? { members: h.byTeammates.members.map(round) } : {}), ...(h.byTeammates.types ? { types: h.byTeammates.types.map(round) } : {}) } } : {}),
         ...(h.when ? { when: h.when } : {}),
+        ...(h.perCrit ? { perCrit: true } : {}),
         ...(h.tag ? { tag: h.tag } : h.resolve ? { tag: h.resolve } : h.fightingSpirit ? { tag: h.fightingSpirit } : {}),
       });
       keys.push(h.from || h.addOn || h.reacting !== undefined ? null : `${h.table}: ${h.label}`);
@@ -4648,64 +4663,85 @@ for (const c of tags.filter((c) => (c.families ?? []).includes("stellar"))) {
 //   missing: no duration or cooldown to read; the scorer then counts the member as covering the rotation, as the
 //   flat healer/shielder tag did
 // Instant heals (Barbara's and Jean's Burst, Baizhu's Skill) top HP up once; they add no coverage and are left out.
+//   every / ticks (heals, #351): seconds between heals, or heals per cast (spread over the duration), from the wiki's
+//   talent notes; without either, one heal a second (estimate: Jahoda, Linnea, Vodyanitsa, Kokomi's Burst). targets:
+//   "party" when each heal reaches every party member, else the active character only. Used by the healing sets.
 const SUSTAIN = {
   Alyosha: { missing: "Tugarin's healing (passive 1) has no duration or rate in genshin-db's text" },
   Baizhu: [{ kind: "shield", talent: "burst", value: "Seamless Shield DMG Absorption", duration: "Pulsing Clarity Duration", cd: "CD" }],
-  Barbara: [{ kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD" }],
+  // wiki: "ticks once on Barbara herself upon activation then every 5 seconds for 4 heals in total".
+  Barbara: [{ kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD", ticks: 4 }],
   Beidou: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables" },
   Candace: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)" },
   "Yun Jin": { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)" },
-  Bennett: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration Per Sec", duration: "Duration", cd: "CD" }],
+  // wiki: "first activates 1s after casting and every second afterwards for a total of 12 activations".
+  Bennett: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration Per Sec", duration: "Duration", cd: "CD", every: 1 }],
   // Newsflash Field Duration is the field's own; the wiki gives no longer duration for Kamera's regeneration.
-  Charlotte: [{ kind: "heal", talent: "burst", value: "Kamera Continuous Regeneration", duration: "Newsflash Field Duration", cd: "CD" }],
-  Chevreuse: [{ kind: "heal", talent: "skill", value: "HP Regeneration Over Time", duration: "Healing Duration", cd: "CD" }],
+  // wiki: "Newsflash Field's DMG and healing effects activate a total of 8 times".
+  Charlotte: [{ kind: "heal", talent: "burst", value: "Kamera Continuous Regeneration", duration: "Newsflash Field Duration", cd: "CD", ticks: 8 }],
+  // wiki: "first activates 2s after casting and every 2s afterwards for a total of 6 activations".
+  Chevreuse: [{ kind: "heal", talent: "skill", value: "HP Regeneration Over Time", duration: "Healing Duration", cd: "CD", every: 2 }],
   Citlali: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Dahlia: [{ kind: "shield", talent: "burst", value: "Shield of Sacred Favor DMG Absorption", duration: "Favonian Favor Duration", cd: "CD" }],
   Diona: [
     { kind: "shield", talent: "skill", value: "Base Shield DMG Absorption", duration: "Duration", paws: 5, cd: "Hold CD" },
-    { kind: "heal", talent: "burst", value: "HP Regeneration Over Time", duration: "Duration", cd: "CD" },
+    // wiki: Drunken Mist "first activates 2s after casting and every 2s afterwards for a total of 6 activations".
+    { kind: "heal", talent: "burst", value: "HP Regeneration Over Time", duration: "Duration", cd: "CD", every: 2 },
   ],
   // Mitigation (#113): the share of the DMG taken it takes away. Dehya's Fiery Sanctum moves it into Redmane's Blood
   // (up to 200% of her Max HP stored, well above one Abyss hit, so not a limit here).
   Dehya: [{ kind: "mitigation", talent: "skill", value: "Mitigation", duration: "Field Duration", cd: "CD" }],
-  Dori: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD" }],
-  Escoffier: [{ kind: "heal", from: "passive1", re: /Rehab Diet effect for (\d+)s: Restores HP for nearby active characters every 1s based on ([\d.]+)% of Escoffier's ATK/, cd: { talent: "burst", label: "CD" } }],
-  Furina: [{ kind: "heal", talent: "skill", value: "Singer of Many Waters Healing", duration: "Duration", cd: "CD" }],
-  Iansan: [{ kind: "heal", from: "passive2", re: /she will heal your current active character for (\d+)% of her ATK/, duration: { talent: "burst", label: "Duration" }, cd: { talent: "burst", label: "CD" } }],
+  // wiki: "The Healing and Energy restoration effects occur every 2 seconds".
+  Dori: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD", every: 2 }],
+  Escoffier: [{ kind: "heal", every: 1, from: "passive1", re: /Rehab Diet effect for (\d+)s: Restores HP for nearby active characters every 1s based on ([\d.]+)% of Escoffier's ATK/, cd: { talent: "burst", label: "CD" } }],
+  // wiki: "The Singer of Many Waters will heal nearby active characters every 2s".
+  Furina: [{ kind: "heal", talent: "skill", value: "Singer of Many Waters Healing", duration: "Duration", cd: "CD", every: 2 }],
+  // wiki: "This effect can be triggered once every 2.8s" (taken as triggered whenever it can: estimate).
+  Iansan: [{ kind: "heal", every: 2.8, from: "passive2", re: /she will heal your current active character for (\d+)% of her ATK/, duration: { talent: "burst", label: "Duration" }, cd: { talent: "burst", label: "CD" } }],
   Ifa: { missing: "his Tonicshots heal while he's on-field in Nightsoul's Blessing; no duration in the tables" },
   Ineffa: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Jahoda: [{ kind: "heal", talent: "burst", value: "Purrsonal Coordinated Assistance Robot Healing", duration: "Purrsonal Coordinated Assistance Robot Duration", cd: "CD" }],
   Jean: { missing: "the Dandelion Field's duration isn't in genshin-db or the wiki's talent table" },
   Kirara: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
-  "Kuki Shinobu": [{ kind: "heal", talent: "skill", value: "Grass Ring of Sanctification Healing", duration: "Duration", cd: "CD" }],
+  // wiki: "every 1.5s and restores HP for the active character(s) within the ring's AoE".
+  "Kuki Shinobu": [{ kind: "heal", talent: "skill", value: "Grass Ring of Sanctification Healing", duration: "Duration", cd: "CD", every: 1.5 }],
   "Lan Yan": [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Layla: [{ kind: "shield", talent: "skill", value: "Base Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Linnea: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Healing Duration", cd: "CD" }],
-  Mika: [{ kind: "heal", talent: "burst", value: "Eagleplume Healing", duration: "Eagleplume Duration", cd: "CD" }],
+  // wiki table: "Eagleplume Healing Interval" 2.5s (on the active character's Normal Attack hits).
+  Mika: [{ kind: "heal", talent: "burst", value: "Eagleplume Healing", duration: "Eagleplume Duration", cd: "CD", every: 2.5 }],
   Nicole: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Noelle: [{ kind: "shield", talent: "skill", value: "DMG Absorption", duration: "Duration", cd: "CD" }],
   Qiqi: [
-    { kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD" },
-    { kind: "heal", talent: "burst", value: "Healing", duration: "Duration", cd: "CD" },
+    // wiki: Herald of Frost "Heals a total of 4 times"; the Talisman's healing "can only occur once every second".
+    { kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD", ticks: 4 },
+    { kind: "heal", talent: "burst", value: "Healing", duration: "Duration", cd: "CD", every: 1 },
   ],
   "Sangonomiya Kokomi": [
-    { kind: "heal", talent: "skill", value: "Regeneration", duration: "Duration", cd: "CD" },
-    { kind: "heal", talent: "burst", value: "HP Regeneration Per Hit", duration: "Duration", cd: "CD" },
+    // wiki: "The Bake-Kurage ticks every 2 seconds". Her Burst heals "all nearby party members" per Normal or Charged
+    // Attack hit; the hit rate isn't sourced, so one a second (estimate, #351).
+    { kind: "heal", talent: "skill", value: "Regeneration", duration: "Duration", cd: "CD", every: 2 },
+    { kind: "heal", talent: "burst", value: "HP Regeneration Per Hit", duration: "Duration", cd: "CD", targets: "party" },
   ],
-  Sayu: [{ kind: "heal", talent: "burst", value: "Muji-Muji Daruma Healing", duration: "Duration", cd: "CD" }],
+  // wiki: the Daruma heals "7 more times (once per ~1.7 seconds)" after the cast.
+  Sayu: [{ kind: "heal", talent: "burst", value: "Muji-Muji Daruma Healing", duration: "Duration", cd: "CD", every: 1.7 }],
   Sigewinne: { missing: "Bolstering Bubblebalm heals per bounce; no duration in the tables" },
   Thoma: [
     { kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" },
     { kind: "shield", talent: "burst", value: "Shield DMG Absorption", duration: "Scorching Ooyoroi Duration", cd: "CD" },
   ],
   Vodyanitsa: [{ kind: "heal", talent: "skill", value: "Song of Ages Past Healing", duration: "Duration", cd: "Skill CD" }],
-  Xianyun: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD" }],
-  Xilonen: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Ebullient Rhythm Duration", cd: "CD" }],
+  // wiki: Starwicker "periodically heals all nearby party members"; "The healing interval is 2.5 seconds".
+  Xianyun: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD", every: 2.5, targets: "party" }],
+  // wiki: "Healing occurs once every 1.5s for a total of 8 instances".
+  Xilonen: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Ebullient Rhythm Duration", cd: "CD", every: 1.5 }],
   // Mitigation (#113): Rain Swords "reducing the amount of DMG taken" while his Skill's swords last.
   Xingqiu: [{ kind: "mitigation", talent: "skill", value: "Damage Reduction Ratio", duration: "Duration", cd: "CD" }],
   Xinyan: [{ kind: "shield", talent: "skill", value: "Shield Level 3 DMG Absorption", duration: "Shield Duration", cd: "CD" }],
-  Yaoyao: [{ kind: "heal", talent: "skill", value: "White Jade Radish Healing", duration: "Yuegui: Throwing Mode Duration", cd: "CD" }],
-  "Yumemizuki Mizuki": [{ kind: "heal", talent: "burst", value: "Snack Pick-Up HP Regeneration", duration: "Duration", cd: "CD" }],
+  // wiki: "throws 1 radish every second for a total of 10 radishes over the full duration".
+  Yaoyao: [{ kind: "heal", talent: "skill", value: "White Jade Radish Healing", duration: "Yuegui: Throwing Mode Duration", cd: "CD", every: 1 }],
+  // wiki: "Yumemi Style Special Snack is created every 1.5 second" (each taken as picked up: estimate).
+  "Yumemizuki Mizuki": [{ kind: "heal", talent: "burst", value: "Snack Pick-Up HP Regeneration", duration: "Duration", cd: "CD", every: 1.5 }],
   Zhongli: [{ kind: "shield", talent: "skill", value: ["Shield Base Absorption", "Additional Shield Absorption"], duration: "Shield Duration", cd: "Hold CD" }],
 };
 
@@ -4723,6 +4759,12 @@ function sizeOf(attrs, labels, id) {
   return out;
 }
 
+// A heal's interval (seconds between heals) and targets (#351), when sourced.
+const rate = (e, duration) => ({
+  ...(e.every || e.ticks ? { interval: e.every ?? round(duration / e.ticks) } : {}),
+  ...(e.targets ? { targets: e.targets } : {}),
+});
+
 function readSustain(id, spec) {
   if (spec.missing) return { effects: [], coverage: null, missing: spec.missing };
   const talents = talentsOf(id);
@@ -4736,7 +4778,7 @@ function readSustain(id, spec) {
       // Escoffier's sentence holds the duration first, then the % of ATK; Iansan's only the %.
       const duration = e.duration ? label(e.duration) : Number(m[1]);
       const cd = label(e.cd);
-      return { kind: e.kind, size: { atk: Number(m[m.length - 1]) / 100 }, source: `${e.from}: "${m[0]}"`, duration, cd, uptime: uptime(duration, cd) };
+      return { kind: e.kind, size: { atk: Number(m[m.length - 1]) / 100 }, source: `${e.from}: "${m[0]}"`, duration, cd, uptime: uptime(duration, cd), ...rate(e, duration) };
     }
     const duration = typeof e.duration === "number" ? e.duration : label(e.duration, e.talent) * (e.paws ?? 1);
     const cd = label(e.cd, e.talent);
@@ -4749,6 +4791,7 @@ function readSustain(id, spec) {
       duration,
       cd,
       uptime: uptime(duration, cd),
+      ...rate(e, duration),
     };
   });
   return { effects, coverage: round(1 - effects.reduce((a, e) => a * (1 - e.uptime), 1)) };
