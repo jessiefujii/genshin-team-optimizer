@@ -1823,15 +1823,12 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
   const ctx = buildContext(team, options);
   const shared = sink();
   teamLines(ctx, shared);
-  // The member who deals the most damage carries (#96): of the main DPS whose damage is modeled, only the strongest
-  // is tried as the on-field carry. The others are still tried by team damage. With one main DPS, or the carry given,
-  // there is no strongest to pick, so their damage isn't read here (#215).
+  // Every main DPS is tried as the on-field carry, and the reading that scores the team highest stands (Jessie,
+  // 2026-10-28, #389): the strongest carry before team buffs isn't always the best one on field (Skirk's damage
+  // leans on Escoffier's and Furina's buffs, so Clorinde out-damaged her unbuffed and took the field at 87.5k
+  // against 112.6k). Before, only the strongest modeled one was tried (#96, #215).
   const mainDps = team.filter((m) => m.roles.includes("main-dps"));
-  const modeled = onlyCarry || mainDps.length < 2 ? [] : mainDps.map((m) => ({ m, dps: modeledCarryDps(m, ctx) })).filter((x) => x.dps !== null);
-  const strongest = modeled.reduce<(typeof modeled)[number] | null>((a, x) => (!a || x.dps! > a.dps! ? x : a), null);
-  const candidates = onlyCarry
-    ? team.filter((m) => m.id === onlyCarry)
-    : mainDps.filter((m) => !modeled.some((x) => x.m === m) || m === strongest?.m);
+  const candidates = onlyCarry ? team.filter((m) => m.id === onlyCarry) : mainDps;
 
   type Reading = { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink; dps: number; value: number };
   let best: Reading | null = null;

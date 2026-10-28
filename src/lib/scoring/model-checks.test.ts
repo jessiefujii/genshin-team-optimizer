@@ -178,21 +178,6 @@ function stronger(m: ScoringCharacter): ScoringCharacter {
 // with the issue that models them, and leaves this list then.
 const KNOWN_DROPS: Record<string, string> = {
   "Keqing, Chongyun, Sethos, Alyosha": "#232: Sethos, unmodelled, carries; Alyosha's buff share falls 6 -> 5",
-  // A stronger Tighnari out-damages Ayaka and takes the field (the main DPS is the one dealing the most), and his
-  // reading's team damage is a little lower (22.8k vs 23.3k per second): three carries, 4.96 -> 4.85 (#221).
-  "Tighnari, Keqing, Xiangling, Kamisato Ayaka": "#221: a stronger Tighnari becomes the main DPS; his reading is lower",
-  // The same with Jessie's Varesa (Normal Attack level 4): a stronger Cryo Traveler (#236) out-damages her and takes the
-  // field, and that reading has her "also wants field time" (-15) and less team damage (6.9k vs 7.6k): 6.50 -> 2.69.
-  "Sayu, Varesa, Chevreuse, Traveler (Cryo)": "#236: a stronger Cryo Traveler becomes the main DPS; the reading is lower",
-  // Likewise a stronger Xiao (25.6k vs 22.9k) out-damages Neuvillette in his sourced 24.5s rotation (#119) and takes
-  // the field; his reading's team damage is lower (19.7k vs 28.2k per second): 7.99 -> 5.59.
-  "Alyosha, Flins, Neuvillette, Xiao": "#119: a stronger Xiao becomes the main DPS; his reading is lower",
-  // With Harbinger of Dawn's CRIT Rate in her damage (#306: Xilonen heals) Jessie's Zibai is close to Yoimiya; a stronger
-  // Zibai out-damages her and takes the field, and that reading (no Hydro: no Lunar-Crystallize) has less team damage
-  // (24.9k vs 26.2k per second): 15.45 -> 14.34.
-  "Xilonen, Zibai, Yoimiya, Yun Jin": "#306: a stronger Zibai becomes the main DPS; her reading is lower",
-  // A stronger Yanfei out-damages Ningguang (#232) and takes the field; her reading scores lower: 2.73 -> 2.69.
-  "Ororon, Yanfei, Dahlia, Ningguang": "#232: a stronger Yanfei becomes the main DPS; her reading is lower",
 };
 const drops = (() => {
   const out: string[] = [];
