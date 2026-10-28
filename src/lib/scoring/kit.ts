@@ -29,6 +29,7 @@ export interface KitBuff {
   carryReactions?: string[]; // the carry triggers one of these (Albedo's Burst EM, only where he Bursts: #186)
   lunar?: string; // lunarAdditiveFromEm: the direct Lunar reaction hits it adds to (Illuga's Lunar-Crystallize, #186)
   stacks?: number; // used one per hit of the carry's, this many per use (Illuga's Nightingale's Song, #186)
+  constellation?: number; // only from that constellation of the buffer's on (#106: Faruzan's C6 CRIT DMG)
   cd?: number | null;
   unit: string;
   source: string;
@@ -45,6 +46,8 @@ interface KitCharacter {
 }
 
 const KIT = kitJson.characters as Record<string, KitCharacter>;
+// A buffer's buffs at their constellation (#106): values from a higher one are left out (none = C0).
+const buffsAt = (entry: KitCharacter, m: ScoringCharacter) => entry.buffs.filter((b) => !b.constellation || (m.constellation ?? 0) >= b.constellation);
 
 // A character without a build reads as wearing their KQM guide's 4pc set (#279, #206; supports' party sets #338,
 // extract-kit benchmarkSets): the first option that fits the team (the reaction it triggers, or one of `members` in
@@ -384,6 +387,8 @@ function gain(raw: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scorin
       return defShredGain(buff.value);
     case "critRate":
       return critGain(buff.value);
+    case "critDmg":
+      return critGain(0, buff.value);
     case "atkSpd":
       return buff.value * 0.5; // more hits, but only the attacks the speed applies to
     case "em":
@@ -474,10 +479,10 @@ function computeKitBuffValue(
   shares?: Partial<Record<string, number>>,
 ): KitBuffValue | null {
   const entry = KIT[s.id];
-  if (!entry || entry.missing || entry.buffs.length === 0) return null;
+  if (!entry || entry.missing || buffsAt(entry, s).length === 0) return null;
   const stats = bufferStats(s, entry.base, entry.buildFor, team.partyEm);
   const best = new Map<string, number>();
-  for (const b of entry.buffs) {
+  for (const b of buffsAt(entry, s)) {
     if (outsideDamage === true && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
     if (offFieldOnly(s, b)) continue; // not the carry's (Sigewinne's Convalescence, #204)
     if (outsideDamage && b.reactions?.every((r) => TRANSFORMATIVE[r as Reaction])) continue;
@@ -503,6 +508,7 @@ export interface TeamBuffStats {
   atkPct: number; // of the carry's base ATK
   dmgBonus: number;
   critRate: number;
+  critDmg: number; // #106: Faruzan's C6
   flat: number; // flat DMG per hit instance (Additive Base DMG Bonus: Shenhe)
   // Flat DMG and DMG Bonus for some attack types only (appliesTo: Yun Jin's and Candace's Normal Attacks, Xianyun's
   // plunges, Sigewinne's Skill, #299), by hit type: damage.ts adds them to those hits alone, not to `flat`/`dmgBonus`.
@@ -524,11 +530,11 @@ export interface TeamBuffStats {
 export type BurstShares = ReadonlyMap<ScoringCharacter, number>;
 
 type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares" | "lunarAdditive" | "byHit">;
-export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, flat: 0, resShred: 0, defShred: 0, em: 0, hpPct: 0 };
+export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, critDmg: 0, flat: 0, resShred: 0, defShred: 0, em: 0, hpPct: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
 const IN_CARRY_DAMAGE = new Set([
-  "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate",
+  "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate", "critDmg",
   "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred", "lunarAdditiveFromEm",
   "em", "emFromAtk", "emFromDef", "emFromEm", "emFromTopEm", // #186: EM feeds the reactions inside damage now
 ]);
@@ -540,6 +546,7 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
     into.atk += part.atk; // the other kinds aren't limited by attack type
     into.atkPct += part.atkPct;
     into.critRate += part.critRate;
+    into.critDmg += part.critDmg;
     into.resShred += part.resShred;
     into.defShred += part.defShred;
     for (const t of buff.appliesTo) addByHit(into, t, part.flat, part.dmgBonus);
@@ -574,6 +581,9 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
       break;
     case "critRate":
       into.critRate += v * weight;
+      break;
+    case "critDmg":
+      into.critDmg += v * weight;
       break;
     // RES and DEF shred (#204): on the enemy, so on every hit of the element they cover (`applicable`); uptime-weighted.
     case "resShred":
@@ -652,7 +662,7 @@ function bufferPart(s: ScoringCharacter, carry: ScoringCharacter, carryReactions
   const stats = bufferStats(s, entry.base, entry.buildFor, shape.partyEm);
   // The buff kitBuffValue counts for each kind: the one worth most to this carry.
   const best = new Map<string, { buff: KitBuff; weight: number; g: number }>();
-  for (const b of entry.buffs) {
+  for (const b of buffsAt(entry, s)) {
     // A buff for some reactions only (Lauma's flat Bloom-type DMG) adds to that reaction's damage, not the carry's
     // hits: like Reaction Bonus, buffer points score it.
     if (b.reactions || offFieldOnly(s, b)) continue;
@@ -683,7 +693,7 @@ export function teamBuffStats(
   partyGearStats(carry, carry, active, team, out);
   for (const s of team) {
     const entry = KIT[s.id];
-    if (s === carry || !entry || entry.missing || entry.buffs.length === 0) continue;
+    if (s === carry || !entry || entry.missing || buffsAt(entry, s).length === 0) continue;
     const part = bufferPart(s, carry, carryReactions, team, shares?.get(s) ?? 1);
     for (const k of Object.keys(NO_TEAM_BUFFS) as NumericBuff[]) out[k] += part[k];
     for (const [t, v] of Object.entries(part.byHit ?? {})) addByHit(out, t, v!.flat, v!.dmgBonus);
@@ -760,7 +770,7 @@ export function memberBuffStats(
     // RES and DEF shred are on the enemy: every member's hits of the element they cover get them (#204).
     const shape0 = shapeOf(s, carry, team);
     for (const kind of ["resShred", "defShred"] as const) {
-      const b = entry.buffs.find((x) => x.kind === kind && !x.reactions && (!x.elements || x.elements.includes(m.element)) && (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))));
+      const b = buffsAt(entry, s).find((x) => x.kind === kind && !x.reactions && (!x.elements || x.elements.includes(m.element)) && (!x.teamOnly || shape0.elements.every((e) => x.teamOnly!.includes(e))));
       const funded = b?.burst ? (shares?.get(s) ?? 1) : 1;
       if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor, shape0.partyEm), shape0, (b.uptime ?? 1) * funded, out);
     }
@@ -770,7 +780,7 @@ export function memberBuffStats(
     const shape = shapeOf(s, carry, team);
     const stats = bufferStats(s, entry.base, entry.buildFor, shape.partyEm);
     const seen = new Set<string>(); // one buff per kind, as bufferPart
-    for (const b of entry.buffs) {
+    for (const b of buffsAt(entry, s)) {
       if (b.reactions || !wide.kinds.includes(b.kind) || seen.has(b.kind)) continue;
       if (b.elements && !b.elements.includes(m.element)) continue;
       if (b.teamOnly && !shape.elements.every((e) => b.teamOnly!.includes(e))) continue;
@@ -1008,7 +1018,7 @@ export function reactionBonusesFor(
     const entry = KIT[m.id];
     if (!entry || entry.missing) continue;
     const stats = bufferStats(m, entry.base, entry.buildFor, partyEm);
-    for (const b of entry.buffs) {
+    for (const b of buffsAt(entry, m)) {
       if (!b.reactions?.includes(r)) continue;
       if (b.teamOnly && !elements.every((e) => b.teamOnly!.includes(e))) continue;
       if (b.whileOnField && m !== carry) continue;

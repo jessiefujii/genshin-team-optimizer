@@ -123,6 +123,29 @@
         }
       ]
     },
+    "Beidou": {
+      "base": {
+        "hp": 13050,
+        "atk": 225,
+        "def": 648
+      },
+      "buffs": [
+        {
+          "kind": "resShred",
+          "value": 0.15,
+          "elements": [
+            "Electro"
+          ],
+          "unit": "Electro RES (C6)",
+          "source": "c6: \"Electro RES of surrounding opponents is decreased by 15%\"",
+          "duration": 15,
+          "cd": 20,
+          "uptime": 0.75,
+          "burst": true,
+          "constellation": 6
+        }
+      ]
+    },
     "Bennett": {
       "base": {
         "hp": 12397,
@@ -352,6 +375,20 @@
           "cd": 20,
           "uptime": 0.6,
           "burst": true
+        },
+        {
+          "kind": "critDmg",
+          "value": 0.4,
+          "elements": [
+            "Anemo"
+          ],
+          "unit": "CRIT DMG on Anemo DMG (C6)",
+          "source": "c6: \"have 40% increased CRIT DMG when they deal Anemo DMG\"",
+          "duration": 12,
+          "cd": 20,
+          "uptime": 0.6,
+          "burst": true,
+          "constellation": 6
         }
       ]
     },
@@ -1176,6 +1213,29 @@
           "duration": 15,
           "cd": 7,
           "uptime": 1
+        }
+      ]
+    },
+    "Xingqiu": {
+      "base": {
+        "hp": 10222,
+        "atk": 202,
+        "def": 758
+      },
+      "buffs": [
+        {
+          "kind": "resShred",
+          "value": 0.15,
+          "elements": [
+            "Hydro"
+          ],
+          "unit": "Hydro RES (C2)",
+          "source": "c2: \"Hydro RES of opponents hit by sword rain attacks by 15%\"",
+          "duration": 15,
+          "cd": 20,
+          "uptime": 0.75,
+          "burst": true,
+          "constellation": 2
         }
       ]
     },
@@ -5769,6 +5829,20 @@
           },
           "hits": 3,
           "cd": 15
+        },
+        {
+          "talent": "burst",
+          "label": "Prayer of the Crimson Crown wave (C6)",
+          "scaling": {
+            "hp": 0.15
+          },
+          "every": 2.3,
+          "duration": 9,
+          "onCarryNormal": true,
+          "when": {
+            "constellation": 6
+          },
+          "cd": 15
         }
       ]
     },
@@ -7641,7 +7715,16 @@
           },
           "hits": 15,
           "cd": 15,
-          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kaeya, fetched 2026-10-10: \"Glacial Waltz can hit ~15 times across the initial burst, icicle rotations and final icicle explosions.\""
+          "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kaeya, fetched 2026-10-10: \"Glacial Waltz can hit ~15 times across the initial burst, icicle rotations and final icicle explosions.\"",
+          "alternatives": [
+            {
+              "when": {
+                "constellation": 6
+              },
+              "hits": 20,
+              "rateSource": "C6 (#106): \"Glacial Waltz will generate 1 additional icicle\": 4 icicles instead of 3, so ~15 x 4/3 (estimate: the hits are mostly icicles)."
+            }
+          ]
         }
       ]
     },
@@ -8191,7 +8274,16 @@
           "hits": 4,
           "cd": 15,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Rosaria, fetched 2026-10-10: \"Ice Lance releases a blast of cold air every 2 seconds for a total of 4 blasts.\"",
-          "icd": "none"
+          "icd": "none",
+          "alternatives": [
+            {
+              "when": {
+                "constellation": 2
+              },
+              "hits": 6,
+              "rateSource": "C2 (#106): \"The duration of the Ice Lance created by Rites of Termination is increased by 4s\": with the wiki's blast every 2 seconds, 2 more."
+            }
+          ]
         }
       ]
     },
@@ -8648,6 +8740,19 @@
             "reset": 2,
             "every": 3
           }
+        },
+        {
+          "talent": "normal",
+          "label": "Mastermind Breakthrough Barbs (C6)",
+          "scaling": {
+            "hp": 0.306996
+          },
+          "hits": 5,
+          "when": {
+            "constellation": 6
+          },
+          "burstFunded": true,
+          "cd": 18
         }
       ]
     }

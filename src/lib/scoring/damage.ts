@@ -350,10 +350,11 @@ export function carryStats(c: ScoringCharacter, goblet?: "Physical") {
 // that has already crit. Pure EM characters too (Nefer: her own hits crit; usesCrit only skips their CV line).
 // `extraRate` is Crit Rate from teammates' buffs (#157), as a fraction; `dmgCirclet` swaps the benchmark's CRIT Rate
 // circlet for a CRIT DMG one (critCirclet, #279).
-export function expectedCrit(c: ScoringCharacter, extraRate = 0, dmgCirclet = false): number {
-  if (c.stats) return 1 + Math.min(c.stats.critRate / 100 + extraRate, 1) * (c.stats.critDmg / 100);
+// extraDmg: teammates' CRIT DMG (#106: Faruzan's C6).
+export function expectedCrit(c: ScoringCharacter, extraRate = 0, dmgCirclet = false, extraDmg = 0): number {
+  if (c.stats) return 1 + Math.min(c.stats.critRate / 100 + extraRate, 1) * (c.stats.critDmg / 100 + extraDmg);
   const swap = dmgCirclet ? BENCHMARK.circlet : { critRate: 0, critDmg: 0 };
-  return 1 + Math.min(BENCHMARK.carryCritRate - swap.critRate + extraRate, 1) * (BENCHMARK.carryCritDmg + swap.critDmg);
+  return 1 + Math.min(BENCHMARK.carryCritRate - swap.critRate + extraRate, 1) * (BENCHMARK.carryCritDmg + swap.critDmg + extraDmg);
 }
 
 // Vaporize and Melt multiply the hits that react: 2x for Hydro on Pyro / Pyro on Cryo, 1.5x the other way, plus EM.
@@ -732,7 +733,7 @@ function computeCarryDamage(
       if (b.kind === "factorByComposition" && b.labels.includes(h.label) && composition > 0) factor *= b.values[composition - 1];
       // CRIT Rate for some hits only (Ganyu's passive 1): their expected crit over the one applied to every hit below.
       if (b.kind === "critRate" && b.labels.includes(h.label))
-        factor *= expectedCrit(c, critRate + b.value, dmgCirclet) / expectedCrit(c, critRate, dmgCirclet);
+        factor *= expectedCrit(c, critRate + b.value, dmgCirclet, teamBuffs.critDmg) / expectedCrit(c, critRate, dmgCirclet, teamBuffs.critDmg);
       if (b.kind === "factorByReactions" && b.types.includes(h.type)) {
         const stacks = Math.min(b.values.length, b.reactions.filter((r) => active.includes(r)).length);
         if (stacks > 0) factor *= b.values[stacks - 1]; // Neuvillette's passive 1: one stack per kind of reaction
@@ -767,6 +768,6 @@ function computeCarryDamage(
   }
   // Crit multiplies every part alike, so the shares are read before it.
   const shares = Object.fromEntries([...parts].map(([r, v]) => [r, total > 0 ? v / total : 0]));
-  total *= expectedCrit(c, critRate, dmgCirclet);
+  total *= expectedCrit(c, critRate, dmgCirclet, teamBuffs.critDmg);
   return { perSecond: total / rotationSeconds, ...(combo ? { combo } : {}), rotationSeconds, missing: kit.missing ?? [], em, shares };
 }

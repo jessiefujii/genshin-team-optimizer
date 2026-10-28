@@ -16,9 +16,9 @@ export function compareKnownTeams(part: number) {
     const all = loadScoringCharacters();
     const byId = new Map(all.map((c) => [c.id, c]));
     const rows: PartRow[] = [];
-    KNOWN_TEAMS.forEach(({ carry, teams, ranked }, index) => {
+    KNOWN_TEAMS.forEach(({ carry, teams, ranked, constellationTeams = [] }, index) => {
       if (!inPart(index, part)) return;
-      for (const t of teams) for (const id of t) expect(byId.has(id), `${id} is not in tags.json`).toBe(true);
+      for (const t of [...teams, ...constellationTeams.map((c) => c.team)]) for (const id of t) expect(byId.has(id), `${id} is not in tags.json`).toBe(true);
 
       // Only teams where this character is on-field and the main DPS: a flex DPS (Mavuika) can also be a support in
       // someone else's team, and an off-field DPS who out-damages them makes it that DPS's team (#96).
@@ -30,6 +30,14 @@ export function compareKnownTeams(part: number) {
         const s = scoreTeam(t.map((id) => byId.get(id)!));
         return { team: t, rank: rank(t), score: s.score, mainDps: s.mainDps };
       });
+      // Teams with a guide's constellation (#106): the search's teams are all C0, so their rank is where their score
+      // would place among the top 100.
+      for (const { team: t, constellations } of constellationTeams) {
+        const s = scoreTeam(t.map((id) => ({ ...byId.get(id)!, constellation: constellations[id] ?? 0 })));
+        const above = top.filter((x) => x.score > s.score).length;
+        const shown = t.map((id) => (constellations[id] ? `C${constellations[id]} ${id}` : id)) as typeof t;
+        guide.push({ team: shown, rank: above < top.length ? above + 1 : null, score: s.score, mainDps: s.mainDps });
+      }
       const bestGuide = guide.reduce((a, b) => ((a.rank ?? 999) <= (b.rank ?? 999) ? a : b));
       const ours = top[0];
       const overlap = ours ? ours.members.filter((id) => teams[0].includes(id)).length : 0;

@@ -518,7 +518,16 @@
     "Kaeya": {
       "burst: Skill DMG": {
         "hits": 15,
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kaeya, fetched 2026-10-10: \"Glacial Waltz can hit ~15 times across the initial burst, icicle rotations and final icicle explosions.\""
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Kaeya, fetched 2026-10-10: \"Glacial Waltz can hit ~15 times across the initial burst, icicle rotations and final icicle explosions.\"",
+        "alternatives": [
+          {
+            "when": {
+              "constellation": 6
+            },
+            "hits": 20,
+            "source": "C6 (#106): \"Glacial Waltz will generate 1 additional icicle\": 4 icicles instead of 3, so ~15 x 4/3 (estimate: the hits are mostly icicles)."
+          }
+        ]
       }
     },
     "Lauma": {
@@ -597,7 +606,16 @@
     "Rosaria": {
       "burst: Ice Lance DoT": {
         "hits": 4,
-        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Rosaria, fetched 2026-10-10: \"Ice Lance releases a blast of cold air every 2 seconds for a total of 4 blasts.\""
+        "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Rosaria, fetched 2026-10-10: \"Ice Lance releases a blast of cold air every 2 seconds for a total of 4 blasts.\"",
+        "alternatives": [
+          {
+            "when": {
+              "constellation": 2
+            },
+            "hits": 6,
+            "source": "C2 (#106): \"The duration of the Ice Lance created by Rites of Termination is increased by 4s\": with the wiki's blast every 2 seconds, 2 more."
+          }
+        ]
       }
     },
     "Sigewinne": {
