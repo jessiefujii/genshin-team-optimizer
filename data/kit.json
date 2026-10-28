@@ -15607,6 +15607,81 @@
       "baseHp": 12613,
       "baseDef": 795
     },
+    "Lohen": {
+      "rotationSeconds": 20,
+      "combo": "E 2[N1C] E/Q 4[N1C] E 5[N1C] E",
+      "hits": [
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 1.48791
+          },
+          "count": 11
+        },
+        {
+          "label": "Charged Attack DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 3.63084
+          },
+          "count": 11,
+          "instances": 2
+        },
+        {
+          "label": "Etched Into Bone and Soul DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 4.08
+          },
+          "count": 2,
+          "instances": 4,
+          "tag": "etched"
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 12.1176
+          },
+          "count": 1,
+          "instances": 6,
+          "tag": "judgment"
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "addPerStack",
+          "value": 0.004,
+          "stacks": 100,
+          "tag": "etched"
+        },
+        {
+          "kind": "addPerStack",
+          "value": 0.004,
+          "stacks": 100,
+          "tag": "judgment"
+        },
+        {
+          "kind": "atkPct",
+          "value": 0.15
+        },
+        {
+          "kind": "dmgBonus",
+          "value": 0.327273,
+          "types": [
+            "normal",
+            "charged"
+          ],
+          "when": {
+            "secretRite": true
+          }
+        }
+      ],
+      "oneCombo": "KQM's optimized combo is a faster version of the same rotation, not a team-specific one (#356)",
+      "baseHp": 12858,
+      "baseDef": 784
+    },
     "Sandrone": {
       "rotationSeconds": 20,
       "combo": "3[C E] (Q)",
@@ -15959,7 +16034,6 @@
     }
   },
   "carriesTodo": [
-    "Lohen",
     "Manekin",
     "Manekina"
   ]

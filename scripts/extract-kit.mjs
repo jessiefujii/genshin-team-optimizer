@@ -3386,6 +3386,31 @@ const CARRIES = {
       { kind: "dmgBonus", from: "passive2", re: /by ([\d.]+)% for 8s/, times: 4, types: [N, CH, SK], labels: VARKA_STURM, when: { reaction: "swirl" } },
     ],
   },
+  // #356. KQM Lohen quick guide (https://keqingmains.com/q/lohen-quickguide/, fetched 2026-10-28), average gameplay:
+  // "E 2[N1C] E/Q 4[N1C] E 5[N1C] E" (Unforeseen Strike enters Masterstroke, which converts his Normal and Charged
+  // Attacks to Cryo: the skill table's attack rows; then 3 casts of the special Skill or his Burst), "you can cast
+  // Lohen's Burst instead of his special Skill when it's available": the Burst once (estimate: every rotation), so 2
+  // Etched Into Bone and Soul. Will to Win (the wiki: 20 per teammate hit of at least 10x his Base ATK, passive 1 +60
+  // at 30x; capped at 100 at C0) adds 0.4% of his ATK per point to each instance of both: 100 at each cast (estimate:
+  // KQM, "cast Lohen's special Skill after Joy and Will to Win are full"; 30x hits are "fairly easy" with off-field
+  // Melt). Passive 2's 15% ATK after a teammate's Cryo reaction (estimate: his teams keep one going). Secret Rite
+  // (passive 4): +40% Normal and Charged Attack DMG for 6s after each cast at half Will to Win or more: the 9 N1C after
+  // the first cast (each later string fits in 6s; estimate), not the first 2. Rotation: kit-overrides.json, 20s.
+  Lohen: {
+    combo: "E 2[N1C] E/Q 4[N1C] E 5[N1C] E",
+    hits: [
+      { table: "skill", label: "1-Hit DMG", count: 11, type: N },
+      { table: "skill", label: "Charged Attack DMG", count: 11, instances: 2, type: CH },
+      { table: "skill", label: "Etched Into Bone and Soul DMG", count: 2, instances: 4, type: SK, tag: "etched" },
+      { table: "burst", label: "Skill DMG", count: 1, instances: 6, type: BU, tag: "judgment" },
+    ],
+    buffs: [
+      { kind: "addPerStack", table: "skill", label: "DMG Increase From Will to Win", stacks: 100, hits: "etched" },
+      { kind: "addPerStack", table: "burst", label: "DMG Increase From Will to Win", stacks: 100, hits: "judgment" },
+      { kind: "atkPct", from: "passive2", re: /while Lohen's ATK is increased by (\d+)%/ },
+      { kind: "dmgBonus", from: "passive4", re: /Charged Attack DMG will be increased by (\d+)%/, types: [N, CH], share: 9 / 11, when: { secretRite: true } },
+    ],
+  },
   // #234. KQM Sandrone quick guide (https://keqingmains.com/q/sandrone-quickguide/, fetched 2026-10-28): "3[C E] (Q)
   // This is Sandrone's default on-field combo at C0", "20s rotations are assumed" (kit-overrides rotations), its ERC
   // "Burst Every Rotation". "Sandrone's Charged Attacks comprise the majority of her personal damage": each Charged
@@ -3759,6 +3784,7 @@ const ONE_COMBO = {
   "Kamisato Ayato": NO_TEAM_COMBO,
   Kaveh: NO_TEAM_COMBO,
   Klee: NO_TEAM_COMBO,
+  Lohen: "KQM's optimized combo is a faster version of the same rotation, not a team-specific one (#356)",
   Lyney: NO_TEAM_COMBO,
   Mualani: NO_TEAM_COMBO,
   Nefer: NO_TEAM_COMBO,
