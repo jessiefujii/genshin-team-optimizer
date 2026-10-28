@@ -1375,10 +1375,18 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     return shreds.get(element)!;
   };
   let total = 0;
+  // Mizuki's C1 (#362): one Swirl or Stellar Swirl per `every` seconds deals more; each reaction's rate and the
+  // multiplier its flat damage takes, filled in below.
+  const marked: { flat: number; every: number; rate: number; mult: number }[] = [];
   for (const r of Object.keys(TRANSFORMATIVE) as Reaction[]) {
     const mine = triggers.filter((t) => t.r === r);
     if (mine.length === 0) continue;
-    const { bonus, additive } = reactionBonusesFor(r, carry, ctx.members, burstSharesFor(ctx, carry)); // the team's kits' (#256)
+    const { bonus, additive, once } = reactionBonusesFor(r, carry, ctx.members, burstSharesFor(ctx, carry)); // the team's kits' (#256)
+    if (once) {
+      const rate = mine.reduce((s, t) => s + t.perSecond, 0);
+      const aura = DAMAGE_ELEMENT[r] ?? mine[0].aura;
+      marked.push({ ...once, rate: Math.min(rate, TRANSFORMATIVE[r]!.perSecond), mult: 1 + shredOn(aura) });
+    }
     let dps = 0;
     const by: string[] = [];
     for (const m of new Set(mine.map((t) => t.m))) {
@@ -1408,7 +1416,9 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     const els = reactionElements(r);
     const contributors = ctx.members.filter((m) => els.includes(m.element) && (budget.appsOf.get(m) ?? 0) > 0);
     if (perSecond <= 0 || contributors.length === 0) continue;
-    const { bonus } = reactionBonusesFor(r, carry, ctx.members, burstSharesFor(ctx, carry));
+    const { bonus, once } = reactionBonusesFor(r, carry, ctx.members, burstSharesFor(ctx, carry));
+    // The Anemo hits are the Stellar Swirl instances (the Vortex is a separate hit).
+    if (once && what === "Anemo hits") marked.push({ ...once, rate: perSecond, mult: (1 + shredOn(element)) * expectedCrit(carry) });
     const base = 1 + teammatesLunarBase(r, ctx.members);
     const res = 1 + shredOn(element);
     const individual = contributors
@@ -1423,6 +1433,14 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
       .sort((a, b) => b - a);
     const dps = perSecond * individual.reduce((sum, d, i) => sum + d * INDIRECT_WEIGHTS[i], 0);
     if (dps >= 1) out.add("Reactions", 0, () => `${label(r)} ${what}: ~${Math.round(dps)} damage per second (~${perSecond.toFixed(1)}/s)`);
+    total += dps;
+  }
+  // The mark clears on the first Swirl or Stellar Swirl after it, so they share its one boosted hit per `every` s.
+  const all = marked.reduce((s, m) => s + m.rate, 0);
+  if (all > 0) {
+    const hits = Math.min(1 / marked[0].every, all);
+    const dps = marked.reduce((s, m) => s + hits * (m.rate / all) * m.flat * m.mult, 0);
+    if (dps >= 1) out.add("Reactions", 0, () => `Mizuki's C1: ~${Math.round(dps)} damage per second on ~${hits.toFixed(2)} Swirls/s`);
     total += dps;
   }
   return total;

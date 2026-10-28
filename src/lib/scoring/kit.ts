@@ -23,6 +23,7 @@ export interface KitBuff {
   threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts; a perHp reactionBonus: HP above this (Nilou)
   whileOnField?: boolean; // only while this member is the on-field carry (Kaveh's Painted Dome, #256)
   perEm?: number; // a reactionBonus per this many points of the buffer's EM (Mizuki, #235)
+  every?: number; // a flatDmgFromEm on one reaction per this many seconds at most, not each (Mizuki's C1, #362)
   burst?: boolean; // comes from the Burst (or a passive it triggers): up only in the rotations its Energy funds (#207)
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
@@ -1028,9 +1029,10 @@ export function reactionBonusesFor(
   carry: ScoringCharacter,
   team: readonly ScoringCharacter[],
   shares?: BurstShares,
-): { bonus: number; additive: number } {
+): { bonus: number; additive: number; once?: { flat: number; every: number } } {
   let bonus = 0;
   let additive = 0;
+  let once: { flat: number; every: number } | undefined;
   const elements = team.map((m) => m.element);
   const partyEm = partySetBuffs(team).em; // Silken's EM on the members' EM-based bonuses (#306)
   const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0, moonsign: 0, partyEm };
@@ -1049,8 +1051,9 @@ export function reactionBonusesFor(
         const points = b.condition === "rescueEssentials" ? essentials() : 1;
         bonus += up * reactionBonusValue(b, stats) * points;
       }
-      if (b.kind === "flatDmgFromEm") additive += up * b.value * stats.em;
+      if (b.kind === "flatDmgFromEm" && b.every) once = { flat: (once?.flat ?? 0) + up * b.value * stats.em, every: b.every };
+      else if (b.kind === "flatDmgFromEm") additive += up * b.value * stats.em;
     }
   }
-  return { bonus, additive };
+  return { bonus, additive, ...(once ? { once } : {}) };
 }
