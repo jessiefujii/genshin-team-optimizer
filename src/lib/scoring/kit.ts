@@ -23,6 +23,7 @@ export interface KitBuff {
   threshold?: number; // dmgBonusFromExcessAtk: ATK above this counts; a perHp reactionBonus: HP above this (Nilou)
   whileOnField?: boolean; // only while this member is the on-field carry (Kaveh's Painted Dome, #256)
   perEm?: number; // a reactionBonus per this many points of the buffer's EM (Mizuki, #235)
+  every?: number; // a flatDmgFromEm on one reaction per this many seconds at most, not each (Mizuki's C1, #362)
   burst?: boolean; // comes from the Burst (or a passive it triggers): up only in the rotations its Energy funds (#207)
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
@@ -355,6 +356,7 @@ function applicable(buff: KitBuff, carry: ScoringCharacter, carryReactions: read
   if (buff.appliesTo && !buff.appliesTo.some((t) => (t === "plunge" ? plunges(carry) : carry.keyTalent === t))) return null;
   if (buff.reactions && !buff.reactions.some((r) => carryReactions.includes(r as Reaction))) return null;
   if (buff.physical) return null; // Physical hits are in damage (#222); Physical buffs from weapons and sets wait for #206
+  if (buff.whileOnField && !buff.reactions) return null; // the buffer is on field: her teammates' hits, never a carry's
   return buff;
 }
 
@@ -737,6 +739,11 @@ const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?
   Nilou: { kinds: ["em"], note: "Court of Dancing Petals: \"increase the Elemental Mastery of all nearby characters by 100\"" },
   Sucrose: { kinds: ["emFromEm"], note: "Mollis Favonius: \"increases all party members' (excluding Sucrose) Elemental Mastery\"" },
   Nicole: { kinds: ["atkFromAtk"], note: "Grace of Kenosis: \"bestowing the Grace of Kenosis effect on nearby party members\"" },
+  "Yumemizuki Mizuki": {
+    kinds: ["dmgBonusPerEm"],
+    elements: ["Pyro", "Hydro", "Cryo", "Electro"],
+    note: "C2: \"all nearby party members' Pyro, Hydro, Cryo, and Electro DMG Bonuses\" while she's in Dreamdrifter",
+  },
   Illuga: { kinds: ["critRate"], elements: ["Geo"], note: "Lightkeeper's Oath (passive 1): \"other nearby party members\", Geo DMG" },
   Prune: { kinds: ["dmgBonusFromExcessAtk"], note: "Tolling Rally (passive 2): \"other nearby party members will gain the Tolling Rally effect\"" },
   Sigewinne: {
@@ -795,6 +802,7 @@ export function memberBuffStats(
     const seen = new Set<string>(); // one buff per kind, as bufferPart
     for (const b of buffsAt(entry, s)) {
       if (b.reactions || !wide.kinds.includes(b.kind) || seen.has(b.kind)) continue;
+      if (b.whileOnField && s !== carry) continue; // Mizuki's C2: only while she's the one on field
       if (b.elements && !b.elements.includes(m.element)) continue;
       if (b.teamOnly && !shape.elements.every((e) => b.teamOnly!.includes(e))) continue;
       if (b.carryReactions && !b.carryReactions.some((r) => carry.reactions.includes(r as Reaction) && active.includes(r as Reaction))) continue;
@@ -1021,9 +1029,10 @@ export function reactionBonusesFor(
   carry: ScoringCharacter,
   team: readonly ScoringCharacter[],
   shares?: BurstShares,
-): { bonus: number; additive: number } {
+): { bonus: number; additive: number; once?: { flat: number; every: number } } {
   let bonus = 0;
   let additive = 0;
+  let once: { flat: number; every: number } | undefined;
   const elements = team.map((m) => m.element);
   const partyEm = partySetBuffs(team).em; // Silken's EM on the members' EM-based bonuses (#306)
   const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0, moonsign: 0, partyEm };
@@ -1042,8 +1051,9 @@ export function reactionBonusesFor(
         const points = b.condition === "rescueEssentials" ? essentials() : 1;
         bonus += up * reactionBonusValue(b, stats) * points;
       }
-      if (b.kind === "flatDmgFromEm") additive += up * b.value * stats.em;
+      if (b.kind === "flatDmgFromEm" && b.every) once = { flat: (once?.flat ?? 0) + up * b.value * stats.em, every: b.every };
+      else if (b.kind === "flatDmgFromEm") additive += up * b.value * stats.em;
     }
   }
-  return { bonus, additive };
+  return { bonus, additive, ...(once ? { once } : {}) };
 }

@@ -110,7 +110,7 @@ describe("scoreTeam", () => {
     expect(reasons("Gaming", "Furina", "Xianyun", "Bennett")).toContain("Vaporize adds ~+87% to Gaming's damage"); // his benchmark Fruitful Hook (#206), Fervent Flames in damage (#186)
   });
 
-  test("Ocean-Hued Clam turns its wearer's healing into team damage (#345, heal rate estimated: #351)", () => {
+  test("Ocean-Hued Clam turns its wearer's healing into team damage (#345; heal rates and targets: #351)", () => {
     const stats: CharacterStats = {
       atk: 1500, hp: 30000, def: 800, critRate: 20, critDmg: 50, energyRecharge: 180, elementalMastery: 0, elementalDmgBonus: 0,
     };
@@ -118,9 +118,15 @@ describe("scoreTeam", () => {
     const run = (sets: { set: string; pieces: 4 }[]) => scoreTeam([team("Eula")[0], mika(sets), ...team("Raiden Shogun", "Rosaria")]);
     const clam = run([{ set: "Ocean-Hued Clam", pieces: 4 }]);
     const line = clam.breakdown.find((l) => l.reason.startsWith("Mika's Ocean-Hued Clam"));
-    // ~1,715 healing a second (4.13% of 30,000 HP + 476) x 83% uptime: a foam of 90% of 3s of it every 3.5s, vs 10% RES.
-    expect(Number(line?.reason.match(/~(\d+) damage/)?.[1])).toBeCloseTo((1715 * 0.8333 * 3 * 0.9 * 0.9) / 3.5, -1);
+    // 1,715 healing (4.13% of 30,000 HP + 476) every 2.5s (Eagleplume Healing Interval) x 83% uptime: a foam of 90%
+    // of 3s of it every 3.5s, vs 10% RES.
+    expect(Number(line?.reason.match(/~(\d+) damage/)?.[1])).toBeCloseTo(((1715 / 2.5) * 0.8333 * 3 * 0.9 * 0.9) / 3.5, -1);
     expect(run([]).breakdown.some((l) => l.reason.includes("Ocean-Hued Clam"))).toBe(false);
+    // Xianyun's Starwicker heals all 4 party members every 2.5s: (73.11% of 1,500 ATK + 548) x 4 / 2.5 x 89% uptime.
+    const xianyun = { ...team("Xianyun")[0], stats, sets: [{ set: "Ocean-Hued Clam", pieces: 4 as const }] };
+    const party = scoreTeam([team("Eula")[0], xianyun, ...team("Raiden Shogun", "Rosaria")]);
+    const foam = party.breakdown.find((l) => l.reason.startsWith("Xianyun's Ocean-Hued Clam"));
+    expect(Number(foam?.reason.match(/~(\d+) damage/)?.[1])).toBeCloseTo((((1096.7 + 548.3) * 4) / 2.5 * 0.8889 * 3 * 0.9 * 0.9) / 3.5, -1);
   });
 
   test("Spread and Aggravate need the Quicken aura, which Hydro eats (#303)", () => {
@@ -208,7 +214,10 @@ describe("scoreTeam", () => {
     const withZhongli = line("Durin", "Skirk", "Escoffier", "Durin", "Zhongli");
     expect(withZhongli).toMatch(/, with Melt$/);
     expect(line("Escoffier", "Skirk", "Escoffier", "Durin", "Zhongli")).not.toMatch(/with/);
-    expect(pct(line("Durin", "Skirk", "Escoffier", "Durin", "Xingqiu"))).toBeLessThan(pct(withZhongli));
+    // Xingqiu's Hydro vaporizes some of Durin's Pyro, and Freezes on the Cryo aura (#282) with the rest; the budget
+    // splits it. (Durin then melts more than beside Zhongli, whose Crystallize takes Cryo aura too.)
+    expect(line("Xingqiu", "Skirk", "Escoffier", "Durin", "Xingqiu")).toMatch(/, with Vaporize$/);
+    expect(score("Skirk", "Escoffier", "Durin", "Xingqiu").breakdown.map((l) => l.reason)).toContain("Hydro (Xingqiu) and Pyro (Durin) split Freeze and Melt");
     // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
     // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
     expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
@@ -817,7 +826,7 @@ describe("sub-DPS (#96)", () => {
     expect(own("Rosaria", 2, ...mav)).toBeGreaterThan(own("Rosaria", 1, ...mav));
   });
 
-  test("a buffer's constellation buffs need that constellation (#106): Faruzan C6, Beidou C6, Xingqiu C2", () => {
+  test("a buffer's constellation buffs need that constellation (#106): Faruzan C6, Beidou C6, Xingqiu C2, Mizuki C1/C2", () => {
     const teamDps = (who: string, constellation: number, ...ids: string[]) =>
       scoreTeam(team(...ids).map((c) => (c.id === who ? { ...c, constellation } : c))).damage.perSecond;
     // Faruzan's 40% CRIT DMG on Anemo DMG while her Burst is up.
@@ -830,6 +839,20 @@ describe("sub-DPS (#96)", () => {
     // Xingqiu's C2 Hydro RES shred reaches a Hydro carry.
     const ayato = ["Kamisato Ayato", "Xingqiu", "Bennett", "Kaedehara Kazuha"];
     expect(teamDps("Xingqiu", 2, ...ayato)).toBeGreaterThan(teamDps("Xingqiu", 1, ...ayato));
+    // Mizuki's C2 Pyro/Hydro/Cryo/Electro DMG Bonus reaches her teammates' hits while she's on field, never another
+    // carry's: Odette's Hydro under Mizuki, nothing for Xiangling's Pyro carry with Mizuki off field.
+    const sub = (constellation: number, ...ids: string[]) =>
+      dps(scoreTeam(team(...ids).map((c) => (c.id === "Yumemizuki Mizuki" ? { ...c, constellation } : c))).breakdown.find((l) => l.rule === "Sub-DPS" && l.reason.startsWith("Odette"))?.reason);
+    const mizuki = ["Yumemizuki Mizuki", "Odette", "Faruzan", "Diona"];
+    expect(sub(2, ...mizuki)).toBeGreaterThan(sub(1, ...mizuki) * 1.1);
+    // Her C1: one Swirl or Stellar Swirl per 3.5s deals more, its own Reactions line; none at C0.
+    const c1Line = (constellation: number) =>
+      scoreTeam(team(...mizuki).map((c) => (c.id === "Yumemizuki Mizuki" ? { ...c, constellation } : c))).breakdown.find((l) => l.reason.startsWith("Mizuki's C1"))?.reason;
+    expect(dps(c1Line(1))).toBeGreaterThan(500);
+    expect(c1Line(0)).toBeUndefined();
+    const c2 = { ...byId.get("Yumemizuki Mizuki")!, constellation: 2 };
+    const xiangling = team("Xiangling", "Bennett", "Xingqiu");
+    expect(kitBuffValue(c2, xiangling[0], [], [c2, ...xiangling])?.gain ?? 0).toBe(0);
   });
 
   test("Aino's Ascendant Gleam upgrade is in her sub-DPS damage: 20 water balls per Burst instead of 9 (#159)", () => {
@@ -1034,6 +1057,21 @@ describe("talent levels (#25)", () => {
     // Freeze is worth only the set's crit: a build without it gets nothing from Freeze (#279).
     expect(none.freeze).toMatchObject({ points: 0 });
     expect(four.freeze).toMatchObject({ points: 0 });
+  });
+
+  test("Blizzard Strayer's Frozen CRIT Rate covers the share of the time the enemy is Frozen (#282)", () => {
+    const share = (...ids: string[]) =>
+      Number(score(...ids).breakdown.find((l) => l.reason.startsWith("Freeze: in"))?.reason.match(/Frozen ~(\d+)%/)?.[1]);
+    // Furina's Salon and Escoffier's Cryo meet often, not always: 1 - e^(-Freezes a second x 2.93s).
+    const furina = share("Ganyu", "Furina", "Escoffier", "Shenhe");
+    expect(furina).toBeGreaterThan(0);
+    expect(furina).toBeLessThan(100);
+    // The +20% "if Frozen" CRIT Rate is in her damage at that share: between none and all of it.
+    const t = team("Ganyu", "Furina", "Escoffier", "Shenhe");
+    const s = scoreTeam(t);
+    const at = (frozen: number) => carryDamage(t[0], s.activeReactions, t, undefined, false, 1, frozen)!.perSecond;
+    expect(at(furina / 100)).toBeGreaterThan(at(0));
+    expect(at(furina / 100)).toBeLessThan(at(1));
   });
 
   test("a carry without a build wears their guide's set in its reaction's teams, with a CRIT DMG circlet (#279)", () => {

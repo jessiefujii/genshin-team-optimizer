@@ -1457,6 +1457,53 @@
           "duration": 10,
           "cd": 15,
           "uptime": 0.666667
+        },
+        {
+          "kind": "flatDmgFromEm",
+          "value": 11,
+          "every": 3.5,
+          "reactions": [
+            "swirl"
+          ],
+          "whileOnField": true,
+          "unit": "of Mizuki's EM as flat DMG on one Swirl per 3.5s (C1)",
+          "source": "c1: \"increased by 1,100% and 550% of Mizuki\"",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667,
+          "constellation": 1
+        },
+        {
+          "kind": "flatDmgFromEm",
+          "value": 5.5,
+          "every": 3.5,
+          "reactions": [
+            "stellar-swirl"
+          ],
+          "whileOnField": true,
+          "unit": "of Mizuki's EM as flat DMG on one Stellar Swirl per 3.5s (C1)",
+          "source": "c1: \"increased by 1,100% and 550% of Mizuki\"",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667,
+          "constellation": 1
+        },
+        {
+          "kind": "dmgBonusPerEm",
+          "value": 0.0004,
+          "elements": [
+            "Pyro",
+            "Hydro",
+            "Cryo",
+            "Electro"
+          ],
+          "whileOnField": true,
+          "unit": "Pyro/Hydro/Cryo/Electro DMG % per point of Mizuki's EM (C2)",
+          "source": "c2: \"DMG Bonuses by 0.04%\"",
+          "duration": 10,
+          "cd": 15,
+          "uptime": 0.666667,
+          "constellation": 2
         }
       ]
     },
@@ -9015,7 +9062,8 @@
           "source": "skill talent \"Continuous Regeneration\", \"Duration\" / \"CD\", level 9",
           "duration": 15,
           "cd": 32,
-          "uptime": 0.46875
+          "uptime": 0.46875,
+          "interval": 3.75
         }
       ],
       "coverage": 0.46875
@@ -9036,7 +9084,8 @@
           "source": "burst talent \"Continuous Regeneration Per Sec\", \"Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 15,
-          "uptime": 0.8
+          "uptime": 0.8,
+          "interval": 1
         }
       ],
       "coverage": 0.8
@@ -9057,7 +9106,8 @@
           "source": "burst talent \"Kamera Continuous Regeneration\", \"Newsflash Field Duration\" / \"CD\", level 9",
           "duration": 4,
           "cd": 20,
-          "uptime": 0.2
+          "uptime": 0.2,
+          "interval": 0.5
         }
       ],
       "coverage": 0.2
@@ -9073,7 +9123,8 @@
           "source": "skill talent \"HP Regeneration Over Time\", \"Healing Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 15,
-          "uptime": 0.8
+          "uptime": 0.8,
+          "interval": 2
         }
       ],
       "coverage": 0.8
@@ -9147,7 +9198,8 @@
           "source": "burst talent \"HP Regeneration Over Time\", \"Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 20,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "interval": 2
         }
       ],
       "coverage": 0.92
@@ -9163,7 +9215,8 @@
           "source": "burst talent \"Continuous Healing\", \"Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 20,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "interval": 2
         }
       ],
       "coverage": 0.6
@@ -9178,7 +9231,8 @@
           "source": "passive1: \"Rehab Diet effect for 9s: Restores HP for nearby active characters every 1s based on 138.24% of Escoffier's ATK\"",
           "duration": 9,
           "cd": 15,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "interval": 1
         }
       ],
       "coverage": 0.6
@@ -9194,7 +9248,8 @@
           "source": "skill talent \"Singer of Many Waters Healing\", \"Duration\" / \"CD\", level 9",
           "duration": 30,
           "cd": 20,
-          "uptime": 1
+          "uptime": 1,
+          "interval": 2
         }
       ],
       "coverage": 1
@@ -9209,7 +9264,8 @@
           "source": "passive2: \"she will heal your current active character for 60% of her ATK\"",
           "duration": 12,
           "cd": 18,
-          "uptime": 0.666667
+          "uptime": 0.666667,
+          "interval": 2.8
         }
       ],
       "coverage": 0.666667
@@ -9283,7 +9339,8 @@
           "source": "skill talent \"Grass Ring of Sanctification Healing\", \"Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 15,
-          "uptime": 0.8
+          "uptime": 0.8,
+          "interval": 1.5
         }
       ],
       "coverage": 0.8
@@ -9347,7 +9404,8 @@
           "source": "burst talent \"Eagleplume Healing\", \"Eagleplume Duration\" / \"CD\", level 9",
           "duration": 15,
           "cd": 18,
-          "uptime": 0.833333
+          "uptime": 0.833333,
+          "interval": 2.5
         }
       ],
       "coverage": 0.833333
@@ -9395,7 +9453,8 @@
           "source": "skill talent \"Continuous Regeneration\", \"Duration\" / \"CD\", level 9",
           "duration": 15,
           "cd": 30,
-          "uptime": 0.5
+          "uptime": 0.5,
+          "interval": 3.75
         },
         {
           "kind": "heal",
@@ -9406,7 +9465,8 @@
           "source": "burst talent \"Healing\", \"Duration\" / \"CD\", level 9",
           "duration": 15,
           "cd": 20,
-          "uptime": 0.75
+          "uptime": 0.75,
+          "interval": 1
         }
       ],
       "coverage": 0.875
@@ -9422,7 +9482,8 @@
           "source": "skill talent \"Regeneration\", \"Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 20,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "interval": 2
         },
         {
           "kind": "heal",
@@ -9433,7 +9494,8 @@
           "source": "burst talent \"HP Regeneration Per Hit\", \"Duration\" / \"CD\", level 9",
           "duration": 10,
           "cd": 18,
-          "uptime": 0.555556
+          "uptime": 0.555556,
+          "targets": "party"
         }
       ],
       "coverage": 0.822222
@@ -9449,7 +9511,8 @@
           "source": "burst talent \"Muji-Muji Daruma Healing\", \"Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 20,
-          "uptime": 0.6
+          "uptime": 0.6,
+          "interval": 1.7
         }
       ],
       "coverage": 0.6
@@ -9513,7 +9576,9 @@
           "source": "burst talent \"Continuous Healing\", \"Duration\" / \"CD\", level 9",
           "duration": 16,
           "cd": 18,
-          "uptime": 0.888889
+          "uptime": 0.888889,
+          "interval": 2.5,
+          "targets": "party"
         }
       ],
       "coverage": 0.888889
@@ -9529,7 +9594,8 @@
           "source": "burst talent \"Continuous Healing\", \"Ebullient Rhythm Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 15,
-          "uptime": 0.8
+          "uptime": 0.8,
+          "interval": 1.5
         }
       ],
       "coverage": 0.8
@@ -9576,7 +9642,8 @@
           "source": "skill talent \"White Jade Radish Healing\", \"Yuegui: Throwing Mode Duration\" / \"CD\", level 9",
           "duration": 10,
           "cd": 15,
-          "uptime": 0.666667
+          "uptime": 0.666667,
+          "interval": 1
         }
       ],
       "coverage": 0.666667
@@ -9592,7 +9659,8 @@
           "source": "burst talent \"Snack Pick-Up HP Regeneration\", \"Duration\" / \"CD\", level 9",
           "duration": 12,
           "cd": 15,
-          "uptime": 0.8
+          "uptime": 0.8,
+          "interval": 1.5
         }
       ],
       "coverage": 0.8
@@ -12680,6 +12748,22 @@
           "reacting": 1.090909
         },
         {
+          "label": "Mine DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 0.5576
+          },
+          "count": 8,
+          "when": {
+            "members": [
+              "Sucrose",
+              "Kaedehara Kazuha",
+              "Traveler (Anemo)",
+              "Jean"
+            ]
+          }
+        },
+        {
           "label": "Sparks 'n' Splash DMG",
           "type": "burst",
           "scaling": {
@@ -13470,6 +13554,15 @@
           "reacting": 5
         },
         {
+          "label": "passive2 bonus",
+          "type": "charged",
+          "scaling": {
+            "atk": 0.8
+          },
+          "count": 5,
+          "perCrit": true
+        },
+        {
           "label": "Skill DMG",
           "type": "skill",
           "scaling": {
@@ -13591,6 +13684,15 @@
               "reacting": 6
             },
             {
+              "label": "passive2 bonus",
+              "type": "charged",
+              "scaling": {
+                "atk": 0.8
+              },
+              "count": 6,
+              "perCrit": true
+            },
+            {
               "label": "Skill DMG",
               "type": "skill",
               "scaling": {
@@ -13660,6 +13762,15 @@
               },
               "count": 7,
               "reacting": 7
+            },
+            {
+              "label": "passive2 bonus",
+              "type": "charged",
+              "scaling": {
+                "atk": 0.8
+              },
+              "count": 7,
+              "perCrit": true
             },
             {
               "label": "Skill DMG",
@@ -15727,7 +15838,7 @@
           "scaling": {
             "atk": 0.79
           },
-          "count": 3
+          "count": 27
         },
         {
           "label": "Charged Attack Condensed Beam DMG",
@@ -15785,7 +15896,7 @@
               "scaling": {
                 "atk": 0.79
               },
-              "count": 3
+              "count": 27
             },
             {
               "label": "Charged Attack Condensed Beam Stellar-Conduct DMG",
@@ -15870,7 +15981,7 @@
               "scaling": {
                 "atk": 0.79
               },
-              "count": 3
+              "count": 27
             },
             {
               "label": "Charged Attack Condensed Beam Stellar Swirl DMG",
