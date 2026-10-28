@@ -10,8 +10,9 @@ const characters = kit.characters as Record<string, KitEntry>;
 test("every tagged buffer has a kit entry with readable values", () => {
   const buffers = tags.filter((c) => c.roles.includes("buffer") && (c.buffs ?? []).length > 0).map((c) => c.id);
   // Plus kit bonuses to the team's reaction damage from non-buffers while they're on field (Kaveh's Painted Dome, #256;
-  // Mizuki's Dreamdrifter Swirl and Stellar Swirl bonus, #235).
-  expect(Object.keys(characters).sort()).toEqual([...new Set([...buffers, "Kaveh", "Yumemizuki Mizuki"])].sort()); // both buffers since #178
+  // Mizuki's Dreamdrifter Swirl and Stellar Swirl bonus, #235), and constellation-only buffs (Beidou's C6 and Xingqiu's
+  // C2 RES shred, #106).
+  expect(Object.keys(characters).sort()).toEqual([...new Set([...buffers, "Kaveh", "Yumemizuki Mizuki", "Beidou", "Xingqiu"])].sort()); // both buffers since #178
   for (const [id, c] of Object.entries(characters)) {
     if (c.missing) continue;
     expect(c.buffs.length, id).toBeGreaterThan(0);

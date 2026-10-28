@@ -783,6 +783,31 @@ describe("sub-DPS (#96)", () => {
     // Escoffier's 6 Special-Grade Frosty Parfaits at 500% ATK per Skill.
     const esc = ["Kamisato Ayaka", "Escoffier", "Shenhe", "Furina"];
     expect(own("Escoffier", 6, ...esc)).toBeGreaterThan(own("Escoffier", 5, ...esc) * 1.3);
+    // Candace's C6 waves on the carry's Normal Attacks; Yelan's 5 Mastermind barbs; Kaeya's 4th icicle; Rosaria's
+    // longer Ice Lance.
+    const arle = ["Arlecchino", "Candace", "Bennett", "Xilonen"];
+    expect(own("Candace", 6, ...arle)).toBeGreaterThan(own("Candace", 5, ...arle));
+    const hutao = ["Hu Tao", "Yelan", "Zhongli", "Xingqiu"];
+    expect(own("Yelan", 6, ...hutao)).toBeGreaterThan(own("Yelan", 5, ...hutao));
+    const melt = ["Arlecchino", "Kaeya", "Bennett", "Xilonen"];
+    expect(own("Kaeya", 6, ...melt)).toBeGreaterThan(own("Kaeya", 5, ...melt));
+    const mav = ["Mavuika", "Kachina", "Rosaria", "Bennett"];
+    expect(own("Rosaria", 2, ...mav)).toBeGreaterThan(own("Rosaria", 1, ...mav));
+  });
+
+  test("a buffer's constellation buffs need that constellation (#106): Faruzan C6, Beidou C6, Xingqiu C2", () => {
+    const teamDps = (who: string, constellation: number, ...ids: string[]) =>
+      scoreTeam(team(...ids).map((c) => (c.id === who ? { ...c, constellation } : c))).damage.perSecond;
+    // Faruzan's 40% CRIT DMG on Anemo DMG while her Burst is up.
+    const xiao = ["Xiao", "Faruzan", "Zhongli", "Bennett"];
+    expect(teamDps("Faruzan", 6, ...xiao)).toBeGreaterThan(teamDps("Faruzan", 5, ...xiao) * 1.05);
+    // Beidou's Electro RES shred during her Burst reaches Electro hits; nothing below C6.
+    const raiden = ["Raiden Shogun", "Beidou", "Xiangling", "Bennett"];
+    expect(teamDps("Beidou", 6, ...raiden)).toBeGreaterThan(teamDps("Beidou", 5, ...raiden));
+    expect(teamDps("Beidou", 5, ...raiden)).toBe(teamDps("Beidou", 0, ...raiden));
+    // Xingqiu's C2 Hydro RES shred reaches a Hydro carry.
+    const ayato = ["Kamisato Ayato", "Xingqiu", "Bennett", "Kaedehara Kazuha"];
+    expect(teamDps("Xingqiu", 2, ...ayato)).toBeGreaterThan(teamDps("Xingqiu", 1, ...ayato));
   });
 
   test("Lunar sub-DPS hits only fire with their Lunar reaction (#151)", () => {

@@ -49,6 +49,16 @@ const COMBAT = { normal: "combat1", skill: "combat2", burst: "combat3" };
 const ALBEDO_BURST_TEAMS = ["vaporize", "melt", "aggravate", "spread", "burning", "bloom", "hyperbloom", "burgeon", "overloaded", "electrocharged", "superconduct", "swirl", "lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-conduct", "stellar-swirl"];
 const SPEC = {
   Alyosha: { talent: "skill", values: [{ kind: "atkPct", label: "Hunter's Precision ATK Bonus", unit: "ATK %" }], duration: "Hunter's Precision Duration", cd: "CD" },
+  // C6 (#106): "During the duration of Stormbreaker, the Electro RES of surrounding opponents is decreased by 15%".
+  Beidou: {
+    from: "c6",
+    constellation: 6,
+    burst: true,
+    values: [{ kind: "resShred", re: /Electro RES of surrounding opponents is decreased by (\d+)%/, unit: "Electro RES (C6)", percent: true, elements: ["Electro"] }],
+    table: "burst",
+    duration: "Duration",
+    cd: { talent: "burst", label: "CD" },
+  },
   Bennett: { talent: "burst", values: [{ kind: "atkFromBase", label: "ATK Bonus Ratio", unit: "of Bennett's base ATK" }], duration: "Duration", cd: "CD" },
   Candace: { talent: "burst", values: [{ kind: "dmgBonus", label: "DMG Bonus", unit: "Normal Attack DMG %", appliesTo: ["normal"] }], duration: "Duration", cd: "CD" },
   Columbina: { talent: "burst", values: [{ kind: "reactionBonus", label: "Lunar Reaction DMG Bonus", unit: "Lunar reaction DMG %", reactions: ["lunar-charged", "lunar-bloom", "lunar-crystallize"] }], duration: "Lunar Domain Duration", cd: "CD" },
@@ -60,6 +70,20 @@ const SPEC = {
     ],
     duration: "Duration",
     cd: "CD",
+    // C6 (#106): "Characters affected by The Wind's Secret Ways' Prayerful Wind's Benefit have 40% increased CRIT DMG
+    // when they deal Anemo DMG": while her Burst's buff is up. Its Pressurized Collapse on the active character's hits
+    // is left out (its shred is the Burst's, already counted).
+    also: [
+      {
+        from: "c6",
+        constellation: 6,
+        burst: true,
+        values: [{ kind: "critDmg", re: /have (\d+)% increased CRIT DMG when they deal Anemo DMG/, unit: "CRIT DMG on Anemo DMG (C6)", percent: true, elements: ["Anemo"] }],
+        table: "burst",
+        duration: "Duration",
+        cd: { talent: "burst", label: "CD" },
+      },
+    ],
   },
   Furina: {
     talent: "burst",
@@ -269,6 +293,17 @@ const SPEC = {
   Sucrose: { from: "passive2", values: [{ kind: "emFromEm", re: /equal to (\d+)% of Sucrose's Elemental Mastery/, unit: "of Sucrose's EM as EM", percent: true }], duration: /for (\d+)s/ },
   Xianyun: { from: "passive2", values: [{ kind: "flatDmgFromAtk", re: /increased by (\d+)% of Xianyun's ATK/, unit: "of Xianyun's ATK as flat Plunge DMG (max 9,000)", percent: true, appliesTo: ["plunge"], max: 9000 }] },
   Xinyan: { from: "passive2", values: [{ kind: "dmgBonus", re: /deal (\d+)% increased Physical DMG/, unit: "Physical DMG %", percent: true, physical: true }] },
+  // C2 (#106): "Decreases the Hydro RES of opponents hit by sword rain attacks by 15% for 4s": while his Burst's swords
+  // fall (estimate: its 15s; C2's +3s left out).
+  Xingqiu: {
+    from: "c2",
+    constellation: 2,
+    burst: true,
+    values: [{ kind: "resShred", re: /Hydro RES of opponents hit by sword rain attacks by (\d+)%/, unit: "Hydro RES (C2)", percent: true, elements: ["Hydro"] }],
+    table: "burst",
+    duration: "Duration",
+    cd: { talent: "burst", label: "CD" },
+  },
   Yelan: { from: "passive2", values: [{ kind: "dmgBonus", re: /maximum increase to DMG dealt is (\d+)%/, unit: "active character DMG %, averaged over the ramp from 1% to the max", percent: true, scale: 0.5 }] },
   Zhongli: { from: "combat2", values: [{ kind: "resShred", re: /Elemental RES and Physical RES of opponents in a small AoE by (\d+)%/, unit: "all RES", percent: true }], duration: "Shield Duration", cd: "Hold CD", table: "skill" },
 };
@@ -353,8 +388,14 @@ function fromBurst(id, from, talents) {
 }
 
 // spec.also: more specs for the same buffer, from other talents (Shenhe's Burst RES shred, #177).
+// spec.constellation (#106): the values need that constellation (`from: "c6"`); spec.burst: they come from the Burst
+// though their text is a constellation's (Faruzan's C6 needs Prayerful Wind's Benefit).
 function readBuffs(id, spec) {
   if (spec.also) return [...readBuffs(id, { ...spec, also: undefined }), ...spec.also.flatMap((s) => readBuffs(id, s))];
+  if (spec.constellation || spec.burst) {
+    const { constellation, burst, ...rest } = spec;
+    return readBuffs(id, rest).map((b) => ({ ...b, ...(burst ? { burst: true } : {}), ...(constellation ? { constellation } : {}) }));
+  }
   const talents = talentsOf(id);
   if (!talents) throw new Error(`${id}: no talent data in genshin-db`);
   if (spec.talent) {
@@ -1153,6 +1194,21 @@ const SUBDPS = {
     { talent: "skill", label: "Basic DMG", hits: 1, cd: "Press CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Wave Impact DMG", hits: "Wave Instances", cd: "CD" },
+    // C6 (#106): "When characters (excluding Candace herself) affected by the Prayer of the Crimson Crown ... deal
+    // Elemental DMG to opponents using Normal Attacks, an attack wave will be unleashed that deals AoE Hydro DMG equal
+    // to 15% of Candace's Max HP. This effect can trigger once every 2.3s and is considered Elemental Burst DMG": on the
+    // carry's Normal Attacks while her Burst lasts (her Burst makes them Hydro for most weapons).
+    {
+      talent: "burst",
+      label: "Wave Impact DMG",
+      name: "Prayer of the Crimson Crown wave (C6)",
+      passive: { from: "c6", re: /equal to (\d+)% of Candace's Max HP/, stat: "hp" },
+      onCarryNormal: true,
+      every: { from: "c6", re: /trigger once every ([\d.]+)s/ },
+      duration: "Duration",
+      cd: "CD",
+      when: { constellation: 6 },
+    },
   ],
   Charlotte: [
     { talent: "skill", label: "Photo DMG (Press)", hits: 1, cd: "CD" },
@@ -1603,6 +1659,20 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Exquisite Throw DMG", onCarryNormal: true, every: /Can occur once every (second)/, duration: "Duration", cd: "CD" },
+    // C6 (#106): after her Burst "all of Yelan's Normal Attacks will be special Breakthrough Barbs ... dealing 156% of a
+    // normal Breakthrough Barb's DMG. The Mastermind state lasts 20s and will be cleared after Yelan fires 5 arrows": 5
+    // per Burst. Estimate: she fires them on a swap-in each rotation (their field time is left out); KQM counts them as
+    // Charged Attack DMG, read here by her Normal Attack talent.
+    {
+      talent: "normal",
+      label: "Breakthrough Barb DMG",
+      name: "Mastermind Breakthrough Barbs (C6)",
+      ofText: { from: "c6", re: /dealing (\d+)% of a normal Breakthrough Barb's DMG/ },
+      hits: { from: "c6", re: /cleared after Yelan fires (\d+) arrows/ },
+      cd: { talent: "burst", label: "CD" },
+      burstFunded: true,
+      when: { constellation: 6 },
+    },
   ],
 };
 
@@ -1694,6 +1764,8 @@ function readSubDps(id, specs) {
     };
     // `passive`: the whole hit is a passive's (Ineffa's Overclocking Circuit); `addScaling` adds to a talent hit's.
     const scaling = s.passive ? { [s.passive.stat]: passiveValue(s.passive) } : scalingOf(attrs, s.label, id, s.pick);
+    // ofText: a share of the row from a text (Yelan's C6 barbs at 156% of a Breakthrough Barb's, #106).
+    if (s.ofText) for (const k of Object.keys(scaling)) scaling[k] = round(scaling[k] * passiveValue(s.ofText));
     for (const p of s.addScaling ?? []) scaling[p.stat] = round((scaling[p.stat] ?? 0) + passiveValue(p) * (p.times ?? 1));
     const dmgBonusPerStat = s.dmgBonusPer ? Object.fromEntries(s.dmgBonusPer.map((p) => [p.stat, round(passiveValue(p))])) : undefined;
     const boost = s.boost && {
@@ -1722,8 +1794,10 @@ function readSubDps(id, specs) {
         ? { reactionBonus: s.reactionBonus.map((b) => ({ value: round(passiveValue(b) * (b.times ? passiveValue(b.times) : 1)), reactions: b.reactions, ...(b.when ? { when: b.when } : {}) })) }
         : {}),
       ...(s.perRotation ? { perRotation: true } : {}),
+      ...(s.burstFunded ? { burstFunded: true } : {}),
       ...(s.factor ? { factor: { value: round(passiveValue(s.factor) - 1), when: s.factor.when } } : {}),
-      cd: tableValue(attrs, s.cd, id),
+      // cd: a row of this talent's table, or { talent, label } of another's (Yelan's C6: her Burst's CD, #106).
+      cd: typeof s.cd === "object" ? tableValue(talents[COMBAT[s.cd.talent]].attributes, s.cd.label, id) : tableValue(attrs, s.cd, id),
       ...(needsRate ? { rateSource: rate.source } : {}),
       ...(icds[`${s.talent}: ${s.label}`] ? { icd: icds[`${s.talent}: ${s.label}`] } : {}),
       ...(needsRate && rate.alternatives ? { alternatives: rate.alternatives.map(({ source, ...alt }) => ({ ...alt, rateSource: source })) } : {}),

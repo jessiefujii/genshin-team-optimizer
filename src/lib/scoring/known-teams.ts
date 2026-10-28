@@ -3,7 +3,8 @@
 // - Only the guide's fully named teams, in its order, including archetype images with no open slot (Hu Tao's Double
 //   Geo); archetypes with open slots ("an Anemo unit") or only flex examples are left out.
 // - A slot with named alternatives ("Xilonen / Iansan") is expanded into one team per option.
-// - Teams that need a constellation ("C6 Candace", "C2+ Rosaria") are left out until constellation kits exist (#106).
+// - Teams that need a constellation ("C6 Candace", "C2+ Rosaria") are in constellationTeams (#106): the compare scores
+//   them with it; the guide-team reference and the meta lists read `teams` only, which are all C0.
 // - "Limited Roster Alternatives" (KQM: lower damage, for new players) are left out.
 // - Only sections where the character is the DPS: Raiden as the Hyperbloom trigger counts; not her Overloaded trigger
 //   teams (a Pyro DPS carries) or off-field Mavuika.
@@ -14,6 +15,8 @@ export interface KnownTeams {
   teams: [string, string, string, string][];
   source: string;
   ranked: boolean; // false when the guide says its teams aren't in order (KQM example teams): no top pick to compare
+  // Teams with members at the constellation the guide names ("C6 Candace", #106): scored with it in the compare only.
+  constellationTeams?: { team: [string, string, string, string]; constellations: Record<string, number> }[];
 }
 
 export const KNOWN_TEAMS: KnownTeams[] = [
@@ -203,6 +206,12 @@ export const KNOWN_TEAMS: KnownTeams[] = [
     ],
     source: "https://keqingmains.com/q/arlecchino-quickguide/",
     ranked: false,
+    // "Arlecchino — C6 Candace — Bennett — Xilonen" (Reverse Vaporize), "Arlecchino — (C6) Kaeya — Bennett — Xilonen"
+    // (Forward Melt).
+    constellationTeams: [
+      { team: ["Arlecchino", "Candace", "Bennett", "Xilonen"], constellations: { Candace: 6 } },
+      { team: ["Arlecchino", "Kaeya", "Bennett", "Xilonen"], constellations: { Kaeya: 6 } },
+    ],
   },
   {
     carry: "Mavuika",
@@ -218,6 +227,11 @@ export const KNOWN_TEAMS: KnownTeams[] = [
     ],
     source: "https://keqingmains.com/q/mavuika-quickguide/",
     ranked: false,
+    // On-Field DPS: "Mavuika — Kachina / Iansan — C2+ Rosaria — Bennett".
+    constellationTeams: [
+      { team: ["Mavuika", "Kachina", "Rosaria", "Bennett"], constellations: { Rosaria: 2 } },
+      { team: ["Mavuika", "Iansan", "Rosaria", "Bennett"], constellations: { Rosaria: 2 } },
+    ],
   },
   {
     carry: "Flins",
@@ -355,6 +369,8 @@ export const KNOWN_TEAMS: KnownTeams[] = [
     ],
     source: "https://keqingmains.com/q/xiao-quickguide/",
     ranked: false,
+    // "Xiao — Faruzan (C6) — Zhongli — Bennett".
+    constellationTeams: [{ team: ["Xiao", "Faruzan", "Zhongli", "Bennett"], constellations: { Faruzan: 6 } }],
   },
   {
     carry: "Wriothesley",
@@ -376,6 +392,8 @@ export const KNOWN_TEAMS: KnownTeams[] = [
     ],
     source: "https://keqingmains.com/q/wriothesley-quickguide/",
     ranked: false,
+    // Stellar-Conduct DPS: "Wriothesley — Odette — C6 Beidou — Xilonen".
+    constellationTeams: [{ team: ["Wriothesley", "Odette", "Beidou", "Xilonen"], constellations: { Beidou: 6 } }],
   },
   {
     carry: "Kinich",

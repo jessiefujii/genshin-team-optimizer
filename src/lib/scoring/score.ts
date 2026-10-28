@@ -845,6 +845,7 @@ interface SubDpsSource {
   // More Vaporize/Melt DMG on this source's own reactions while `when` holds (Durin's Dark Decay, #316): amplifyGain's bonus.
   reactionBonus?: { value: number; reactions: Reaction[]; when?: SourceWhen }[];
   talent?: string; // the talent the hit is from: "burst" hits need the Burst's Energy (#37)
+  burstFunded?: boolean; // another talent's hits that need the Burst too (Yelan's C6 Mastermind barbs, #106)
   cd: number;
 }
 // When a sub-DPS source hits (sourceFits). reaction / reactions: the team triggers it / one of them; ascendantGleam: two
@@ -1003,7 +1004,7 @@ function hitsPerSecond(source: SubDpsSource, carry: ScoringCharacter, ctx: TeamC
   const perUse = s.every !== undefined ? Math.min(s.duration!, s.cd) / s.every : 1;
   // A Burst is cast at most once per rotation (#186), as the Energy model funds it (energy.ts energyNeeds, #37): Albedo's
   // 12s cooldown counted his Burst every 12s in a 20s rotation.
-  const cd = s.perRotation || s.talent === "burst" ? Math.max(s.cd, carryRotationSeconds(carry, ctx.active, ctx.members) ?? s.cd) : s.cd;
+  const cd = s.perRotation || s.talent === "burst" || s.burstFunded ? Math.max(s.cd, carryRotationSeconds(carry, ctx.active, ctx.members) ?? s.cd) : s.cd;
   // Furina's Salon bonus needs members above 50% HP, which takes another healer (#130).
   const healed = ctx.members.some((m) => m !== sub && m.roles.includes("healer"));
   const times = s.timesNeedsHealer && !healed ? 1 : (s.times ?? 1);
@@ -1566,7 +1567,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       const weaponBonus = talent ? weaponDmgBonus(weapon, talent) : 0;
       const setBonus = setDmgBonus(set, talent ?? "normal", m.element, er);
       // Direct Lunar hits crit too (wiki, Damage § Direct; #156), so expected crit applies to both.
-      const crit = 1 + Math.min(stat.critRate + team.critRate + extras.critRate + sumSet(set, "critRate"), 1) * stat.critDmg; // weapon, set CRIT (#306)
+      const crit = 1 + Math.min(stat.critRate + team.critRate + extras.critRate + sumSet(set, "critRate"), 1) * (stat.critDmg + team.critDmg); // weapon, set CRIT (#306)
       // Teammates' RES and DEF shred on this hit (#204), as on the carry's: Lunar hits take RES only.
       const res = 1 + resShredGain(team.resShred);
       const def = 1 + defShredGain(Math.min(0.9, team.defShred));
@@ -1574,7 +1575,7 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
       // their own Moonsign Benediction Base DMG bonus (PR #155).
       // A conditional factor on the source's own DMG (#98: Venti's Stormeye under Secret Rite).
       const factor = s.factor && sourceFits(s.factor.when, carry, ctx, m) ? 1 + s.factor.value : 1;
-      const rate = hitsPerSecond(s, carry, ctx, m) * (s.talent === "burst" ? burstPart : 1) * factor;
+      const rate = hitsPerSecond(s, carry, ctx, m) * (s.talent === "burst" || s.burstFunded ? burstPart : 1) * factor;
       if (s.lunar) lunarDps += lunarHit(s.lunar, perHit, stat.em, lunarBase(s.lunar), extras.lunar(s.lunar)) * rate * crit * res;
       else {
         // Additive Base DMG Bonus from teammates (Shenhe's quills): per hit, before DMG Bonus and crit, as on the carry.
