@@ -342,6 +342,10 @@ describe("carry damage (#101)", () => {
       const stellar = carryDamage(byId.get("Sandrone")!, ["stellar-conduct"], team(...ids))!;
       const plain = carryDamage(byId.get("Sandrone")!, [], team(...ids))!;
       expect(stellar.perSecond).toBeGreaterThan(plain.perSecond * 1.5);
+      // Each Charged Attack: 3 sets of 3 Sweeping Fire instances and 1 Condensed Beam (Prydwen).
+      const count = (label: string) => kit.carries.Sandrone.hits.find((h) => h.label === label)?.count;
+      expect(count("Charged Attack Sweeping Fire DMG")).toBe(27);
+      expect(count("Charged Attack Condensed Beam DMG")).toBe(9);
     });
   });
 
