@@ -6,7 +6,7 @@ import { canTrigger } from "./reactions";
 import { carryDamage } from "./damage";
 import { fightingSpiritBuilt, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
-import { scoreTeam, subDpsStats, teamScore, topElement } from "./score";
+import { carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
@@ -256,6 +256,15 @@ describe("scoreTeam", () => {
     expect(survival("Hu Tao", "Xingqiu", "Bennett", "Zhongli").reason).toBe(
       "Bennett, Xingqiu, Zhongli, Crystallize shields heal, shield or mitigate ~100% of an Abyss hit per rotation",
     );
+  });
+
+  test("every main DPS is tried on field and the best team reading stands (#389)", () => {
+    // Skirk's damage leans on Escoffier's and Furina's buffs: unbuffed, Clorinde out-damages her, but the team scores
+    // higher with Skirk on field.
+    const s = score("Skirk", "Clorinde", "Escoffier", "Furina");
+    expect(s.onField).toBe("Skirk");
+    const members = team("Skirk", "Clorinde", "Escoffier", "Furina");
+    expect(carryTeamValue(members, "Skirk")).toBeGreaterThan(carryTeamValue(members, "Clorinde"));
   });
 
   test("Clorinde heals herself on field: her guide's Aggravate team isn't 'No healer' (#324)", () => {
