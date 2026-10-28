@@ -10436,6 +10436,7 @@
           ]
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 10164,
       "baseDef": 607
     },
@@ -10520,6 +10521,7 @@
         }
       ],
       "buffs": [],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12699,
       "baseDef": 782
     },
@@ -10929,6 +10931,7 @@
           "max": 0.14
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12919,
       "baseDef": 957
     },
@@ -10986,6 +10989,7 @@
           "hitsCap": 10
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12417,
       "baseDef": 806
     },
@@ -11130,6 +11134,7 @@
           }
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12704,
       "baseDef": 799
     },
@@ -11205,6 +11210,7 @@
           ]
         }
       ],
+      "oneCombo": "KQM gives no team-specific hit counts (#119)",
       "baseHp": 12956,
       "baseDef": 784
     },
@@ -11325,6 +11331,7 @@
           }
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12491,
       "baseDef": 809
     },
@@ -12081,6 +12088,7 @@
           "note": "passive2 at 50% HP"
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 14695,
       "baseDef": 576
     },
@@ -12364,6 +12372,7 @@
           ]
         }
       ],
+      "oneCombo": "KQM changes his Normal Attack strings with Xingqiu, Yelan or C6 Fischl but gives no hit counts for them (#119)",
       "baseHp": 13348,
       "baseDef": 782
     },
@@ -12474,6 +12483,7 @@
           }
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 10287,
       "baseDef": 615
     },
@@ -12548,6 +12558,7 @@
           ]
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 10850,
       "baseDef": 630
     },
@@ -12630,6 +12641,7 @@
           ]
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 11021,
       "baseDef": 538
     },
@@ -12690,6 +12702,7 @@
           ]
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 9787,
       "baseDef": 573
     },
@@ -12735,6 +12748,7 @@
         }
       ],
       "buffs": [],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 9787,
       "baseDef": 560
     },
@@ -12817,6 +12831,7 @@
           "note": "passive1: 2% per hit, 10 stacks max, ~8.5 averaged over E 3[N5]"
         }
       ],
+      "oneCombo": "KQM gives no team-specific hit counts (#119)",
       "baseHp": 10164,
       "baseDef": 615
     },
@@ -13013,6 +13028,7 @@
           ]
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 13715,
       "baseDef": 769
     },
@@ -13263,6 +13279,200 @@
           ]
         }
       ],
+      "combos": [
+        {
+          "combo": "E 8[JhPD], with Xianyun",
+          "when": [
+            {
+              "members": [
+                [
+                  "Xianyun"
+                ],
+                [
+                  "Furina"
+                ]
+              ],
+              "elements": {
+                "Hydro": 1
+              }
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.8832
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Low/High Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 2.607632
+              },
+              "count": 8
+            },
+            {
+              "label": "Plunge DMG",
+              "type": "plunge",
+              "scaling": {
+                "atk": 1.044064
+              },
+              "count": 8,
+              "collision": true
+            }
+          ],
+          "buffs": []
+        },
+        {
+          "combo": "N1 Q N1C N1 E C 4[N2C]",
+          "when": [
+            {
+              "memberConstellations": {
+                "Xingqiu": 6,
+                "Yelan": 2
+              }
+            }
+          ],
+          "hits": [
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.991807
+              },
+              "count": 7,
+              "reacting": 2.545455
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.886135
+              },
+              "count": 4,
+              "reacting": 1.454545
+            },
+            {
+              "label": "Charged Attack",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.329964
+              },
+              "count": 6,
+              "reacting": 6
+            },
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.8832
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 3.1008
+              },
+              "count": 1,
+              "reacting": 1
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "dmgBonus",
+              "value": 0.125,
+              "types": [
+                "charged"
+              ]
+            },
+            {
+              "kind": "dmgBonus",
+              "value": 0.518,
+              "types": [
+                "charged"
+              ]
+            }
+          ]
+        },
+        {
+          "combo": "N1 Q N1C N1 E C 5[N2C]",
+          "when": [
+            {
+              "reaction": "overloaded"
+            }
+          ],
+          "hits": [
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.991807
+              },
+              "count": 8,
+              "reacting": 3.076923
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.886135
+              },
+              "count": 5,
+              "reacting": 1.923077
+            },
+            {
+              "label": "Charged Attack",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.329964
+              },
+              "count": 7,
+              "reacting": 7
+            },
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.8832
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 3.1008
+              },
+              "count": 1,
+              "reacting": 1
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "dmgBonus",
+              "value": 0.128571,
+              "types": [
+                "charged"
+              ]
+            },
+            {
+              "kind": "dmgBonus",
+              "value": 0.518,
+              "types": [
+                "charged"
+              ]
+            }
+          ]
+        }
+      ],
       "baseHp": 9352,
       "baseDef": 587
     },
@@ -13375,6 +13585,115 @@
           ]
         }
       ],
+      "combos": [
+        {
+          "combo": "E Q E 6[N4E]",
+          "when": [
+            {
+              "sets": [
+                "Thundering Fury"
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Skill DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.2168
+              },
+              "count": 1,
+              "reacting": 1
+            },
+            {
+              "label": "Mortuary Rite DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.6656
+              },
+              "count": 7,
+              "reacting": 7
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.438227
+              },
+              "count": 6,
+              "reacting": 2
+            },
+            {
+              "label": "2-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.515125
+              },
+              "count": 6,
+              "reacting": 2
+            },
+            {
+              "label": "3-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.922339
+              },
+              "count": 6,
+              "instances": 2,
+              "reacting": 2
+            },
+            {
+              "label": "4-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 1.89946
+              },
+              "count": 6,
+              "instances": 2,
+              "reacting": 2
+            },
+            {
+              "label": "passive1 bonus",
+              "type": "skill",
+              "scaling": {
+                "atk": 1
+              },
+              "count": 9
+            },
+            {
+              "label": "passive2 bonus",
+              "type": "normal",
+              "scaling": {
+                "em": 1.5
+              },
+              "count": 36,
+              "addOn": true
+            },
+            {
+              "label": "passive2 bonus",
+              "type": "skill",
+              "scaling": {
+                "em": 2.5
+              },
+              "count": 9,
+              "addOn": true
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "emBonus",
+              "value": 100
+            },
+            {
+              "kind": "baseDmgMultiplier",
+              "value": 0.15,
+              "labels": [
+                "Mortuary Rite DMG"
+              ]
+            }
+          ]
+        }
+      ],
       "baseHp": 12491,
       "baseDef": 859
     },
@@ -13418,6 +13737,7 @@
           "stat": "hp"
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 15185,
       "baseDef": 570
     },
@@ -13497,6 +13817,7 @@
           "value": 0.9792
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12858,
       "baseDef": 959
     },
@@ -13570,6 +13891,7 @@
         }
       ],
       "buffs": [],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 13103,
       "baseDef": 815
     },
@@ -13653,6 +13975,7 @@
           "value": 0.16
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 10899,
       "baseDef": 676
     },
@@ -13715,6 +14038,7 @@
           "value": 0.68
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12071,
       "baseDef": 799
     },
@@ -13781,6 +14105,7 @@
           "tag": "heartstopper"
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 10657,
       "baseDef": 684
     },
@@ -13961,6 +14286,7 @@
           ]
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12981,
       "baseDef": 784
     },
@@ -14049,6 +14375,100 @@
           ]
         }
       ],
+      "combos": [
+        {
+          "combo": "EQE N1C N1 E 3[N1C]",
+          "when": [
+            {
+              "sets": [
+                "Thundering Fury"
+              ]
+            }
+          ],
+          "hits": [
+            {
+              "label": "Lightning Stiletto DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 0.8568
+              },
+              "count": 2,
+              "reacting": 2
+            },
+            {
+              "label": "Skill DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 1.496
+              },
+              "count": 1,
+              "reacting": 0.4
+            },
+            {
+              "label": "Consecutive Slash DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 3.264
+              },
+              "count": 1,
+              "instances": 8,
+              "reacting": 0.4
+            },
+            {
+              "label": "Last Attack DMG",
+              "type": "burst",
+              "scaling": {
+                "atk": 3.2096
+              },
+              "count": 1,
+              "reacting": 0.4
+            },
+            {
+              "label": "Thunderclap Slash DMG",
+              "type": "skill",
+              "scaling": {
+                "atk": 2.856
+              },
+              "count": 2,
+              "instances": 2,
+              "reacting": 1
+            },
+            {
+              "label": "1-Hit DMG",
+              "type": "normal",
+              "scaling": {
+                "atk": 0.75366
+              },
+              "count": 5,
+              "reacting": 1.923077
+            },
+            {
+              "label": "Charged Attack DMG",
+              "type": "charged",
+              "scaling": {
+                "atk": 2.99094
+              },
+              "count": 4,
+              "instances": 2,
+              "reacting": 1.538462
+            }
+          ],
+          "buffs": [
+            {
+              "kind": "critRate",
+              "value": 0.15,
+              "labels": [
+                "Skill DMG",
+                "Consecutive Slash DMG",
+                "Last Attack DMG",
+                "Thunderclap Slash DMG",
+                "1-Hit DMG",
+                "Charged Attack DMG"
+              ]
+            }
+          ]
+        }
+      ],
       "baseHp": 13103,
       "baseDef": 799
     },
@@ -14103,6 +14523,7 @@
         }
       ],
       "buffs": [],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 11962,
       "baseDef": 751
     },
@@ -14309,6 +14730,7 @@
         }
       ],
       "buffs": [],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 10875,
       "baseDef": 683
     },
@@ -14403,6 +14825,7 @@
       ],
       "buffs": [],
       "goblet": "Physical",
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 11962,
       "baseDef": 751
     },
@@ -14760,6 +15183,7 @@
           ]
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 9797,
       "baseDef": 615
     },
@@ -14954,6 +15378,7 @@
           }
         }
       ],
+      "oneCombo": "one combo: no team-specific combo sourced yet",
       "baseHp": 12613,
       "baseDef": 795
     },
