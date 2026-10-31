@@ -230,7 +230,9 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   else if (frozen) out.add("Reactions", 0, () => `Freeze: adds nothing without a set whose CRIT Rate needs it (Blizzard Strayer)`);
   // Quicken is the aura Aggravate and Spread need: with either in the carry's damage, so is what it's worth (#427).
   const quicken = kitModeled.some((r) => r === "aggravate" || r === "spread") ? ["quicken" as Reaction] : [];
-  const modeled = [...kitModeled, ...transformative, ...quicken, ...(frozen ? ["freeze" as Reaction] : [])];
+  // Lunar-Bloom deals damage only through Columbina's, Lauma's and Nefer's talents, each in their own damage (#429).
+  const lunarBloom = carryActive.includes("lunar-bloom") && modeledCarryDps(carry, ctx) !== null ? ["lunar-bloom" as Reaction] : [];
+  const modeled = [...kitModeled, ...transformative, ...quicken, ...lunarBloom, ...(frozen ? ["freeze" as Reaction] : [])];
   const flat = carryActive.filter((r) => !modeled.includes(r));
   const mainIn = (r: Reaction) =>
     TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r) || (r === "freeze" && frozen);

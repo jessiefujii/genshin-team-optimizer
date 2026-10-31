@@ -592,9 +592,23 @@ describe("scoreTeam", () => {
       // Lunar-Bloom is Nefer's main reaction: ~0.8 of her damage (#87).
       // On the ~0.57 of Nefer's damage that her Lunar-Bloom hits are (measured, #94; the 0.8 estimate gave 9).
       expect(buffLine(score("Nefer", "Aino", "Columbina", "Baizhu"), "Columbina")?.points).toBe(7);
-      // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, so Lauma's buff counts for him, on the
-      // ~0.3 of his damage that a side reaction is. With her guide's Silken Moon's Serenade EM (#338).
-      expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(7);
+      // Alhaitham triggers Lunar-Bloom with Lauma and a Hydro teammate, but deals none of its damage: only Columbina's,
+      // Lauma's and Nefer's talents do (#429). Her Lunar-Bloom bonus reaches none of his hits.
+      expect(buffLine(score("Alhaitham", "Lauma", "Xingqiu", "Kuki Shinobu"), "Lauma")?.points).toBe(0);
+    });
+
+    test("Lunar-Bloom scores nothing for a modeled carry who deals none of it (#429)", () => {
+      const reasons = score("Alhaitham", "Furina", "Ineffa", "Lauma").breakdown.map((l) => l.reason);
+      expect(reasons.some((r) => r.startsWith("Lunar-bloom as a secondary reaction"))).toBe(false);
+      expect(reasons.some((r) => r.startsWith("Ascendant Gleam: Lauma gives Alhaitham"))).toBe(false);
+      // Nefer deals it: Lauma's Lunar-Bloom crit still counts for her.
+      expect(score("Nefer", "Lauma", "Aino", "Yaoyao").breakdown.some((l) => l.reason.startsWith("Ascendant Gleam: Lauma gives Nefer"))).toBe(true);
+    });
+
+    test("Lauma's Hold Skill deals Lunar-Bloom damage while the team triggers it (#430)", () => {
+      const lauma = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.reason.startsWith("Lauma's own hits"))?.reason);
+      // Same Spread and shred either way; with a Hydro teammate Lunar-Bloom gives her the Verdant Dew her Hold spends.
+      expect(lauma("Alhaitham", "Lauma", "Furina", "Kuki Shinobu")).toBeGreaterThan(lauma("Alhaitham", "Lauma", "Fischl", "Kuki Shinobu"));
     });
 
     test("Kazuha's swirl buff does nothing for an Anemo carry (#58)", () => {

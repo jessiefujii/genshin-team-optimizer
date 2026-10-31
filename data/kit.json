@@ -9396,6 +9396,18 @@
           "cd": 12,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lauma, fetched 2026-10-10: \"The Frostgrove Sanctuary will follow the active character, dealing a single instance of AoE Dendro DMG to opponents within the array every 2s.\"",
           "icd": "none"
+        },
+        {
+          "talent": "skill",
+          "label": "2-Hit Hold DMG",
+          "scaling": {
+            "em": 2.584
+          },
+          "hits": 1,
+          "times": 3,
+          "lunar": "lunar-bloom",
+          "whenReaction": "lunar-bloom",
+          "cd": 12
         }
       ],
       "lunarBaseBonus": {
@@ -10432,9 +10444,19 @@
       "coverage": 0.46875
     },
     "Beidou": {
-      "effects": [],
-      "coverage": null,
-      "missing": "her Hold shield lasts only while the Skill is held; no duration in the tables"
+      "effects": [
+        {
+          "kind": "mitigation",
+          "size": {
+            "ratio": 0.32
+          },
+          "source": "burst talent \"DMG Reduction\", \"Duration\" / \"CD\", level 9",
+          "duration": 15,
+          "cd": 20,
+          "uptime": 0.75
+        }
+      ],
+      "coverage": 0.75
     },
     "Bennett": {
       "effects": [
@@ -10452,11 +10474,6 @@
         }
       ],
       "coverage": 0.8
-    },
-    "Candace": {
-      "effects": [],
-      "coverage": null,
-      "missing": "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)"
     },
     "Charlotte": {
       "effects": [
@@ -10671,9 +10688,21 @@
       "coverage": 0.666667
     },
     "Jean": {
-      "effects": [],
-      "coverage": null,
-      "missing": "the Dandelion Field's duration isn't in genshin-db or the wiki's talent table"
+      "effects": [
+        {
+          "kind": "heal",
+          "size": {
+            "atk": 0.42704,
+            "flat": 313.2215
+          },
+          "source": "burst talent \"Continuous Regeneration\", 10s (wiki) / \"CD\", level 9",
+          "duration": 10,
+          "cd": 20,
+          "uptime": 0.5,
+          "interval": 1
+        }
+      ],
+      "coverage": 0.5
     },
     "Kirara": {
       "effects": [
@@ -11027,11 +11056,6 @@
         }
       ],
       "coverage": 0.8
-    },
-    "Yun Jin": {
-      "effects": [],
-      "coverage": null,
-      "missing": "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)"
     },
     "Zhongli": {
       "effects": [

@@ -351,7 +351,7 @@
     "id": "Beidou",
     "roles": [
       "sub-dps",
-      "shielder"
+      "mitigation"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -424,8 +424,7 @@
     "id": "Candace",
     "roles": [
       "buffer",
-      "enabler",
-      "shielder"
+      "enabler"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -559,8 +558,7 @@
   {
     "id": "Chiori",
     "roles": [
-      "sub-dps",
-      "buffer"
+      "sub-dps"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -860,7 +858,6 @@
     "id": "Dehya",
     "roles": [
       "sub-dps",
-      "buffer",
       "mitigation"
     ],
     "fieldTime": "off",
@@ -4456,8 +4453,7 @@
   {
     "id": "Yun Jin",
     "roles": [
-      "buffer",
-      "shielder"
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [

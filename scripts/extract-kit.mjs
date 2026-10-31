@@ -1581,6 +1581,20 @@ const SUBDPS = {
   Lauma: [
     { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Frostgrove Sanctuary Attack DMG", every: "rate", duration: "Frostgrove Sanctuary Duration", cd: "CD" },
+    // Her Hold (#430): "Lauma consumes all Verdant Dew and intones a Hymn of Eternal Rest, dealing one regular instance of
+    // AoE Dendro DMG and another instance of AoE Dendro DMG that is considered Lunar-Bloom DMG" (wiki Lauma, fetched
+    // 2026-10-31), the second at "2-Hit Hold DMG" of EM per Verdant Dew, "a maximum of 3 Verdant Dew" a cast. The party
+    // gets 1 Dew every 2.5s after a Lunar-Bloom (wiki Lunar-Bloom), so a team that keeps triggering it has 3 by her 12s
+    // cooldown (worked out here). The regular hit (1-Hit Hold DMG) replaces Press DMG then; Press stays (estimate).
+    {
+      talent: "skill",
+      label: "2-Hit Hold DMG",
+      hits: 1,
+      times: /a maximum of (\d+) Verdant Dew can be consumed/,
+      cd: "CD",
+      lunar: "lunar-bloom",
+      whenReaction: "lunar-bloom",
+    },
   ],
   Linnea: [
     { talent: "skill", label: "Lumi Pound-Pound Pummeler DMG", every: "rate", duration: "Lumi Duration", cd: "CD" },
@@ -5095,9 +5109,12 @@ const SUSTAIN = {
   Baizhu: [{ kind: "shield", talent: "burst", value: "Seamless Shield DMG Absorption", duration: "Pulsing Clarity Duration", cd: "CD" }],
   // wiki: "ticks once on Barbara herself upon activation then every 5 seconds for 4 heals in total".
   Barbara: [{ kind: "heal", talent: "skill", value: "Continuous Regeneration", duration: "Duration", cd: "CD", ticks: 4 }],
-  Beidou: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables" },
-  Candace: { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)" },
-  "Yun Jin": { missing: "her Hold shield lasts only while the Skill is held; no duration in the tables (#358)" },
+  // Mitigation (#418): Stormbreaker's Thunderbeast's Targe, "DMG Reduction" for its Duration, which "persists when
+  // changing to another character in the team and continue[s] to affect the active character" (wiki Stormbreaker,
+  // fetched 2026-10-31). Her Hold shield only lasts while she holds her Skill ("can be held for up to 3s", wiki
+  // Tidecaller), so it never covers the carry and isn't counted; Candace's and Yun Jin's are the same, so they are no
+  // longer shielders (Jessie, 2026-10-31).
+  Beidou: [{ kind: "mitigation", talent: "burst", value: "DMG Reduction", duration: "Duration", cd: "CD" }],
   // wiki: "first activates 1s after casting and every second afterwards for a total of 12 activations".
   Bennett: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration Per Sec", duration: "Duration", cd: "CD", every: 1 }],
   // Newsflash Field Duration is the field's own; the wiki gives no longer duration for Kamera's regeneration.
@@ -5125,7 +5142,9 @@ const SUSTAIN = {
   Ifa: { missing: "his Tonicshots heal while he's on-field in Nightsoul's Blessing; no duration in the tables" },
   Ineffa: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   Jahoda: [{ kind: "heal", talent: "burst", value: "Purrsonal Coordinated Assistance Robot Healing", duration: "Purrsonal Coordinated Assistance Robot Duration", cd: "CD" }],
-  Jean: { missing: "the Dandelion Field's duration isn't in genshin-db or the wiki's talent table" },
+  // Not in the tables; wiki Dandelion Breeze (fetched 2026-10-31): "The Dandelion Field lasts for 10 seconds. The
+  // Dandelion Field will heal active characters within it ... once every second for a total of 10 times" (#418).
+  Jean: [{ kind: "heal", talent: "burst", value: "Continuous Regeneration", duration: 10, cd: "CD", every: 1 }],
   Kirara: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   // wiki: "every 1.5s and restores HP for the active character(s) within the ring's AoE".
   "Kuki Shinobu": [{ kind: "heal", talent: "skill", value: "Grass Ring of Sanctification Healing", duration: "Duration", cd: "CD", every: 1.5 }],
@@ -5211,7 +5230,7 @@ function readSustain(id, spec) {
       kind: e.kind,
       // A mitigation's size is its ratio of the DMG taken (#113), not an amount.
       size: e.kind === "mitigation" ? { ratio: tableValue(attrsOf(e.talent), e.value, id) } : sizeOf(attrsOf(e.talent), values, id),
-      source: `${e.talent} talent ${values.map((v) => `"${v}"`).join(" + ")}, "${typeof e.duration === "string" ? e.duration : e.duration.label}"${e.paws ? ` x ${e.paws} Icy Paws (Hold)` : ""} / "${typeof e.cd === "string" ? e.cd : e.cd.label}", level ${TALENT_LEVEL}`,
+      source: `${e.talent} talent ${values.map((v) => `"${v}"`).join(" + ")}, ${typeof e.duration === "number" ? `${e.duration}s (wiki)` : `"${typeof e.duration === "string" ? e.duration : e.duration.label}"`}${e.paws ? ` x ${e.paws} Icy Paws (Hold)` : ""} / "${typeof e.cd === "string" ? e.cd : e.cd.label}", level ${TALENT_LEVEL}`,
       duration,
       cd,
       uptime: uptime(duration, cd),

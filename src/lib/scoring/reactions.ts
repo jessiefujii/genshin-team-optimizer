@@ -113,11 +113,12 @@ export function reactionShare(
   let share = 0;
   for (const r of dealt) {
     if (!reactions.includes(r)) continue;
-    // Vaporize, Melt, Aggravate and Spread are wholly inside carry damage: a measured 0 means no hit reacts. A Lunar
-    // or Stellar reaction the carry deals no hits of happens beside their damage (Alhaitham's Lunar-Bloom with Lauma):
-    // the estimate stands for it. Kit Reaction Bonuses to the ones with indirect damage are in those lines instead
-    // (INDIRECT_DAMAGE, kit.ts kitBuffValue, #426).
-    if (measured && MEASURED.has(r) && (INSIDE.has(r) || measured[r] !== undefined)) {
+    // Vaporize, Melt, Aggravate and Spread are wholly inside carry damage: a measured 0 means no hit reacts. So is
+    // Lunar-Bloom: it "does no DMG on its own" (wiki Lunar-Bloom), only Columbina's, Lauma's and Nefer's talents deal it,
+    // so a carry with none of those hits gets none of a bonus to it (#429: Alhaitham beside Lauma). A Lunar or Stellar
+    // reaction with indirect damage that the carry deals no hits of happens beside their damage: the estimate stands
+    // for it, except kit Reaction Bonuses, which are in those lines (INDIRECT_DAMAGE, kit.ts kitBuffValue, #426).
+    if (measured && MEASURED.has(r) && (INSIDE.has(r) || r === "lunar-bloom" || measured[r] !== undefined)) {
       share += measured[r] ?? 0;
       continue;
     }
