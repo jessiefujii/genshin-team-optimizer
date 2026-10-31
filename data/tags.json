@@ -351,7 +351,7 @@
     "id": "Beidou",
     "roles": [
       "sub-dps",
-      "shielder"
+      "mitigation"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -424,8 +424,7 @@
     "id": "Candace",
     "roles": [
       "buffer",
-      "enabler",
-      "shielder"
+      "enabler"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -4454,8 +4453,7 @@
   {
     "id": "Yun Jin",
     "roles": [
-      "buffer",
-      "shielder"
+      "buffer"
     ],
     "fieldTime": "off",
     "reactions": [
