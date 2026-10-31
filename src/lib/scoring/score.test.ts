@@ -96,6 +96,14 @@ describe("scoreTeam", () => {
     );
   });
 
+  test("Quicken scores nothing beside a modeled Aggravate or Spread (#427)", () => {
+    const quicken = (...ids: string[]) => score(...ids).breakdown.some((l) => l.reason.startsWith("Quicken"));
+    // Its worth is the Spread in Alhaitham's damage.
+    expect(quicken("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(false);
+    // A carry without a damage model keeps the flat points.
+    expect(score("Keqing (no model)", "Nahida", "Fischl", "Furina").breakdown.map((l) => l.reason)).toContain("Quicken as a secondary reaction");
+  });
+
   test("an aura feeds the carry's Vaporize or a sub-DPS's, not both (#239)", () => {
     const reasons = (...ids: string[]) => score(...ids).breakdown.map((l) => l.reason);
     // Columbina's Hydro lays the aura Klee's Pyro vaporizes on, so her own hits can't vaporize on Klee's Pyro too.
@@ -1143,6 +1151,23 @@ describe("talent levels (#25)", () => {
     const built = team("Klee", "Prune", "Mona", "Bennett").map((c) => (c.id === "Prune" ? { ...c, stats } : c));
     // At 4,200 ATK she hits the 50% cap.
     expect(scoreTeam(built).breakdown.find((l) => l.reason.startsWith("Prune"))?.reason).toBe("Prune buffs Klee (~+31% damage, ~+31% of it in Klee's damage)");
+  });
+
+  test("a buffer through their gear alone scores no buffer points for a modeled carry (#425)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
+    // Jean's VV and Collei's Deepwood are in the carry's damage (their benchmark sets, #352, #369).
+    expect(line("Jean", "Clorinde", "Furina", "Jean", "Yelan")).toEqual({ rule: "Buffs", points: 0, reason: "Jean buffs Clorinde through their gear: in team damage" });
+    expect(line("Collei", "Alhaitham", "Collei", "Columbina", "Ineffa")?.points).toBe(0);
+    // A carry without a damage model keeps the standard points.
+    expect(line("Jean", "Keqing (no model)", "Fischl", "Jean", "Furina")?.points).toBe(10);
+  });
+
+  test("a Reaction Bonus to a reaction with indirect damage scores no points when the carry deals none of it (#426)", () => {
+    const line = (id: string, ...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
+    // Clorinde deals no Lunar-Charged hits: Columbina's bonus is in the thunderclouds' damage.
+    expect(line("Columbina", "Clorinde", "Columbina", "Furina", "Xilonen")?.points).toBe(0);
+    // Flins' own Lunar-Charged hits don't take teammates' Reaction Bonus, so the points stay.
+    expect(line("Columbina", "Flins", "Ineffa", "Columbina", "Sucrose")?.points).toBeGreaterThan(0);
   });
 
   test("Mavuika's bonus grows with the Fighting Spirit the team can build (#68)", () => {

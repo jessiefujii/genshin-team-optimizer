@@ -4,7 +4,7 @@
 import kitJson from "../../../data/kit.json";
 import type { Element, Reaction } from "../../types/tags";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, resShredGain } from "./benchmark";
-import { canTrigger, reactionElements, reactionShare, TRANSFORMATIVE } from "./reactions";
+import { canTrigger, INDIRECT_DAMAGE, reactionElements, reactionShare, TRANSFORMATIVE } from "./reactions";
 import type { ScoringCharacter } from "./types";
 
 export interface KitBuff {
@@ -496,8 +496,11 @@ function computeKitBuffValue(
     if (outsideDamage === true && !b.reactions && IN_CARRY_DAMAGE.has(b.kind)) continue;
     if (offFieldOnly(s, b)) continue; // not the carry's (Sigewinne's Convalescence, #204)
     if (outsideDamage && b.reactions?.every((r) => TRANSFORMATIVE[r as Reaction])) continue;
-    // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87).
-    const share = b.reactions ? reactionShare(carry, b.reactions, carryReactions, shares) : 1;
+    // A buff for some reactions only reaches the share of the carry's damage that is those reactions (#87). Outside
+    // damage, a modeled carry's share of a reaction they deal no hits of leaves out the ones with indirect damage: the
+    // bonus is in those lines (#426).
+    const counted = outsideDamage && shares ? b.reactions?.filter((r) => !(INDIRECT_DAMAGE.has(r as Reaction) && shares[r] === undefined)) : b.reactions;
+    const share = counted ? reactionShare(carry, counted, carryReactions, shares) : 1;
     const g = gain(b, stats, carry, carryReactions, team) * (b.uptime ?? 1) * share * (b.burst ? burst : 1) * stackShare(b, carry, carryReactions, team);
     best.set(b.kind, Math.max(best.get(b.kind) ?? 0, g));
   }

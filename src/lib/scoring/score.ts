@@ -228,7 +228,9 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents (Frozen ~${share}% of the time)`);
   }
   else if (frozen) out.add("Reactions", 0, () => `Freeze: adds nothing without a set whose CRIT Rate needs it (Blizzard Strayer)`);
-  const modeled = [...kitModeled, ...transformative, ...(frozen ? ["freeze" as Reaction] : [])];
+  // Quicken is the aura Aggravate and Spread need: with either in the carry's damage, so is what it's worth (#427).
+  const quicken = kitModeled.some((r) => r === "aggravate" || r === "spread") ? ["quicken" as Reaction] : [];
+  const modeled = [...kitModeled, ...transformative, ...quicken, ...(frozen ? ["freeze" as Reaction] : [])];
   const flat = carryActive.filter((r) => !modeled.includes(r));
   const mainIn = (r: Reaction) =>
     TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r) || (r === "freeze" && frozen);
@@ -276,6 +278,13 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     // A Base DMG converter's buff is in team damage already (#358: kit.json lunarBase, teammatesLunarBase).
     if (KIT_BUFFS[s.id]?.inLunarBase) {
       out.add("Buffs", 0, () => `${s.id}'s Base DMG bonus: in team damage`);
+      continue;
+    }
+    // A buffer through their gear alone (Jean's and Venti's VV, Collei's Deepwood, Kachina's Scroll: no kit buff, so no
+    // kit.json entry) is in a modeled carry's damage already: their benchmark set and weapon are (#338, #352, #369).
+    // Standard points stay only for a carry without a damage model.
+    if (!KIT_BUFFS[s.id] && inDamage) {
+      out.add("Buffs", 0, () => `${s.id} buffs ${carry.id} through their gear: in team damage`);
       continue;
     }
     // How much the buff is worth comes from the kit's numbers (#68); without a readable value, standard points.
