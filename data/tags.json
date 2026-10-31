@@ -559,8 +559,7 @@
   {
     "id": "Chiori",
     "roles": [
-      "sub-dps",
-      "buffer"
+      "sub-dps"
     ],
     "fieldTime": "off",
     "reactions": [
@@ -860,7 +859,6 @@
     "id": "Dehya",
     "roles": [
       "sub-dps",
-      "buffer",
       "mitigation"
     ],
     "fieldTime": "off",
