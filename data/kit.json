@@ -9396,6 +9396,18 @@
           "cd": 12,
           "rateSource": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Lauma, fetched 2026-10-10: \"The Frostgrove Sanctuary will follow the active character, dealing a single instance of AoE Dendro DMG to opponents within the array every 2s.\"",
           "icd": "none"
+        },
+        {
+          "talent": "skill",
+          "label": "2-Hit Hold DMG",
+          "scaling": {
+            "em": 2.584
+          },
+          "hits": 1,
+          "times": 3,
+          "lunar": "lunar-bloom",
+          "whenReaction": "lunar-bloom",
+          "cd": 12
         }
       ],
       "lunarBaseBonus": {

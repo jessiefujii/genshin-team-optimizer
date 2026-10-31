@@ -1581,6 +1581,20 @@ const SUBDPS = {
   Lauma: [
     { talent: "skill", label: "Press DMG", hits: 1, cd: "CD" },
     { talent: "skill", label: "Frostgrove Sanctuary Attack DMG", every: "rate", duration: "Frostgrove Sanctuary Duration", cd: "CD" },
+    // Her Hold (#430): "Lauma consumes all Verdant Dew and intones a Hymn of Eternal Rest, dealing one regular instance of
+    // AoE Dendro DMG and another instance of AoE Dendro DMG that is considered Lunar-Bloom DMG" (wiki Lauma, fetched
+    // 2026-10-31), the second at "2-Hit Hold DMG" of EM per Verdant Dew, "a maximum of 3 Verdant Dew" a cast. The party
+    // gets 1 Dew every 2.5s after a Lunar-Bloom (wiki Lunar-Bloom), so a team that keeps triggering it has 3 by her 12s
+    // cooldown (worked out here). The regular hit (1-Hit Hold DMG) replaces Press DMG then; Press stays (estimate).
+    {
+      talent: "skill",
+      label: "2-Hit Hold DMG",
+      hits: 1,
+      times: /a maximum of (\d+) Verdant Dew can be consumed/,
+      cd: "CD",
+      lunar: "lunar-bloom",
+      whenReaction: "lunar-bloom",
+    },
   ],
   Linnea: [
     { talent: "skill", label: "Lumi Pound-Pound Pummeler DMG", every: "rate", duration: "Lumi Duration", cd: "CD" },
