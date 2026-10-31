@@ -6,7 +6,7 @@ Suggests the strongest 4-character teams in Genshin Impact from the characters y
 
 ## Highlights
 
-- **Validated against experts:** for 14 of 16 main characters, a team recommended by expert
+- **Validated against experts:** for 15 of 16 main characters, a team recommended by expert
   build guides ranks in the app's top 100, up from 3 of 16 on the first run. For current
   meta teams it's 10 of 13.
 - **Automated model checks:** rules every team must obey (scores stay in realistic ranges,
@@ -14,7 +14,7 @@ Suggests the strongest 4-character teams in Genshin Impact from the characters y
   get flagged), tested on 600 randomly sampled teams plus every guide team.
 - **Data from several sources:** 129 characters merged from genshin-db, the live
   Enka.Network API, and hand-written tags, each hand-filled value with its source.
-- **Tested:** 300 unit tests (Vitest).
+- **Tested:** 304 unit tests (Vitest).
 
 ## What it does
 
@@ -62,8 +62,8 @@ Then open [http://localhost:3000](http://localhost:3000).
 | --- | --- |
 | `npm run dev` | Development server |
 | `npm test` | Unit tests (without the timing and compare runs) |
-| `npm run compare` | Report: where guide-recommended teams rank among the scorer's top 100 per carry (~45 min, 8 parts on 4 workers) |
-| `npm run meta` | Report: where current meta teams rank, plus the roster check (~20 min, 8 parts on 4 workers) |
+| `npm run compare` | Report: where guide-recommended teams rank among the scorer's top 100 per carry (~30-45 min, 8 parts on 4 workers) |
+| `npm run meta` | Report: where current meta teams rank, plus the roster check (~30-50 min, 8 parts on 4 workers) |
 | `npm run roster` | Quick check on `data/test-rosters/jessie.json`: Zibai Premium's rank and score, the #20 score and the top 5 (seconds) |
 | `npm run reference` | Rewrites `data/team-reference.json` (the guide-team reference scores are measured against) and prints the diff |
 | `npm run bench` | Team search timing for a 50-character roster |
@@ -71,6 +71,8 @@ Then open [http://localhost:3000](http://localhost:3000).
 | `npm run roles` | Refetches in-game Character Roles from the wiki into `data/wiki-roles.json` and `data/tags.json` |
 | `npm run lint` | ESLint |
 | `npm run build` / `npm start` | Production build and server |
+
+Each compare worker uses about 1.7 GB. If a run stops for low memory, rerun the missing parts with `--maxWorkers=2` (finished parts keep their results in `.compare/`), then print the table with `node scripts/compare-report.mjs print known-teams` (or `meta-teams`).
 
 ## Data files
 
