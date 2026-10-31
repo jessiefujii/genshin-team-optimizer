@@ -1,5 +1,5 @@
 {
-  "median": 217200.2,
+  "median": 212394.3,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -8,7 +8,7 @@
         "Nahida",
         "Zhongli"
       ],
-      "value": 223251.4
+      "value": 210119
     },
     "Aloy": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 183663
+      "value": 173227.6
     },
     "Diluc": {
       "team": [
@@ -170,7 +170,7 @@
         "Emilie",
         "Iansan"
       ],
-      "value": 271245.7
+      "value": 247027.3
     },
     "Klee": {
       "team": [
@@ -215,7 +215,7 @@
         "Xilonen",
         "Sucrose"
       ],
-      "value": 291257.6
+      "value": 260598.9
     },
     "Navia": {
       "team": [
@@ -267,18 +267,18 @@
         "Raiden Shogun",
         "Furina",
         "Yelan",
-        "Jean"
+        "Xilonen"
       ],
-      "value": 216887.3
+      "value": 214398.1
     },
     "Razor": {
       "team": [
         "Razor",
-        "Yaoyao",
+        "Rosaria",
         "Fischl",
-        "Kaedehara Kazuha"
+        "Zhongli"
       ],
-      "value": 118263.7
+      "value": 117007.4
     },
     "Sandrone": {
       "team": [
@@ -296,7 +296,7 @@
         "Kirara",
         "Sucrose"
       ],
-      "value": 118245.7
+      "value": 111676.5
     },
     "Shikanoin Heizou": {
       "team": [
@@ -329,10 +329,10 @@
       "team": [
         "Tighnari",
         "Fischl",
-        "Yae Miko",
-        "Yaoyao"
+        "Nahida",
+        "Zhongli"
       ],
-      "value": 157381.9
+      "value": 146632.2
     },
     "Traveler (Cryo)": {
       "team": [
@@ -355,11 +355,11 @@
     "Varka": {
       "team": [
         "Varka",
-        "Venti",
+        "Prune",
         "Nicole",
         "Durin"
       ],
-      "value": 333439.3
+      "value": 328801.5
     },
     "Vesna": {
       "team": [
@@ -420,9 +420,9 @@
         "Yumemizuki Mizuki",
         "Odette",
         "Traveler (Cryo)",
-        "Lan Yan"
+        "Faruzan"
       ],
-      "value": 147717
+      "value": 142404.1
     },
     "Zibai": {
       "team": [

@@ -100,6 +100,9 @@ const SHARE_OF: Record<Reaction, keyof typeof SHARES> = {
 // Bloom-type and other transformative reactions deal their own damage beside the carry's and keep the estimate.
 const MEASURED = new Set<Reaction>(["vaporize", "melt", "aggravate", "spread", "lunar-charged", "lunar-bloom", "lunar-crystallize", "stellar-conduct", "stellar-swirl"]);
 const INSIDE = new Set<Reaction>(["vaporize", "melt", "aggravate", "spread"]);
+// Lunar and Stellar reactions with indirect damage (score.ts transformativeLines: thunderclouds, Moondrift Harmony,
+// Stellar Swirl hits), which takes the team's kit Reaction Bonuses (#145, #426). Lunar-Bloom has none.
+export const INDIRECT_DAMAGE = new Set<Reaction>(["lunar-charged", "lunar-crystallize", "stellar-swirl"]);
 export function reactionShare(
   carry: ScoringCharacter,
   reactions: readonly string[],
@@ -111,8 +114,9 @@ export function reactionShare(
   for (const r of dealt) {
     if (!reactions.includes(r)) continue;
     // Vaporize, Melt, Aggravate and Spread are wholly inside carry damage: a measured 0 means no hit reacts. A Lunar
-    // or Stellar reaction the carry deals no hits of happens beside their damage (Alhaitham's Lunar-Bloom with Lauma,
-    // which no reaction line models yet): the estimate stands for it.
+    // or Stellar reaction the carry deals no hits of happens beside their damage (Alhaitham's Lunar-Bloom with Lauma):
+    // the estimate stands for it. Kit Reaction Bonuses to the ones with indirect damage are in those lines instead
+    // (INDIRECT_DAMAGE, kit.ts kitBuffValue, #426).
     if (measured && MEASURED.has(r) && (INSIDE.has(r) || measured[r] !== undefined)) {
       share += measured[r] ?? 0;
       continue;
