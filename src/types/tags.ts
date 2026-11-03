@@ -27,23 +27,6 @@ export type Element = (typeof ELEMENTS)[number];
 
 // What makes a team better for this character, beyond roles and reactions.
 // All fields of a composition must hold; counts include the character itself.
-export interface CompositionPref {
-  kind: 'composition';
-  minElements?: Partial<Record<Element, number>>; // e.g. { Anemo: 2 }
-  othersShareElement?: boolean; // members not covered by minElements are all one element
-  onlyElements?: Element[]; // every member is one of these elements
-  family?: { family: Family; min: number }; // at least `min` members from the family
-  note?: string;
-}
-
-export interface PartnerPref {
-  kind: 'partner';
-  ids: string[]; // any one of these characters
-  note?: string;
-}
-
-export type TeamPref = CompositionPref | PartnerPref;
-
 export const SCALING_STATS = ['ATK', 'HP', 'DEF', 'EM'] as const;
 export type ScalingStat = (typeof SCALING_STATS)[number];
 
@@ -85,7 +68,6 @@ export interface CharacterTags {
   // passives, #63). Without a converter in the team, the base reaction stays a base reaction.
   converts?: Reaction[];
   revelation?: boolean; // the Stellar family only counts after the player's Witch's Revelation quest (#45)
-  teamPrefs?: TeamPref[];
   rotation: {
     slot: 'setup' | 'buffer' | 'carry';
     actions: string[]; // KQM notation, e.g. ['Q', 'E'] or ['E', 'N2C x8']

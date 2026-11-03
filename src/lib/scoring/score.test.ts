@@ -311,28 +311,6 @@ describe("scoreTeam", () => {
     expect(s.breakdown.some((l) => l.reason === "No main DPS in the team")).toBe(true);
   });
 
-  // tags.json has no team preferences since #97 (the guide-derived #57 ones were dropped once sub-DPS scoring came
-  // from the kit); the mechanism stays for hand-written ones, tested with made-up preferences.
-  test("no team preferences in tags.json; the mechanism still scores made-up ones (#97, #43)", () => {
-    expect(all.filter((c) => c.teamPrefs?.length).map((c) => c.id)).toEqual([]);
-    const withPrefs = (prefs: Record<string, ScoringCharacter["teamPrefs"]>, ...ids: string[]) =>
-      scoreTeam(team(...ids).map((c) => (prefs[c.id] ? { ...c, teamPrefs: prefs[c.id] } : c))).breakdown.filter(
-        (l) => l.rule === "Team preference",
-      );
-    // A carry's partner preference counts fully; a support's composition preference counts less.
-    expect(withPrefs({ Zibai: [{ kind: "partner", ids: ["Columbina"] }] }, "Zibai", "Columbina", "Illuga", "Zhongli")).toEqual([
-      { rule: "Team preference", points: 15, reason: "Zibai with Columbina" },
-    ]);
-    const chevreuse = withPrefs(
-      { Chevreuse: [{ kind: "composition", onlyElements: ["Pyro", "Electro"], note: "only Pyro and Electro" }] },
-      "Raiden Shogun", "Chevreuse", "Bennett", "Xiangling",
-    );
-    expect(chevreuse.find((l) => l.reason.startsWith("Chevreuse"))?.points).toBe(5);
-    // A carry's onlyElements preference that the team breaks costs points.
-    const skirk = { Skirk: [{ kind: "composition" as const, onlyElements: ["Hydro" as const, "Cryo" as const] }] };
-    expect(withPrefs(skirk, "Skirk", "Escoffier", "Furina", "Bennett").some((l) => l.points < 0)).toBe(true);
-  });
-
   test("survivability scores by how much of the rotation shields and heals cover (#177)", () => {
     const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Survivability")!;
     // Zhongli's shield: 20s per 12s Hold cooldown, always up.
@@ -648,17 +626,12 @@ describe("scoreTeam", () => {
       expect([...weak.breakdown, ...strong.breakdown].some((l) => l.rule === "Carry build")).toBe(false);
     });
 
-    test("ER under the tagged target costs points", () => {
-      const result = lines(built({ Xingqiu: { energyRecharge: 120 }, Zhongli: { energyRecharge: 120 } }, ...vape), "Energy");
-      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 200% target");
-      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false); // target 100%
-    });
-
-    test("without erTarget, the default comes from energyNeed; low is not checked", () => {
-      const untagged = (t: ScoringCharacter[]) => t.map((c) => ({ ...c, erTarget: undefined }));
-      const result = lines(untagged(built({ Xingqiu: { energyRecharge: 120 }, Zhongli: { energyRecharge: 90 } }, ...vape)), "Energy");
-      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 180% target");
-      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false);
+    test("low ER costs Burst damage, not points: a shortage isn't counted twice (#440)", () => {
+      const low = scoreTeam(built({ Xingqiu: { energyRecharge: 100 } }, ...vape));
+      const high = scoreTeam(built({ Xingqiu: { energyRecharge: 300 } }, ...vape));
+      expect(lines(team(...vape), "Energy").some((l) => / ER .* target/.test(l.reason))).toBe(false);
+      expect(low.breakdown.some((l) => / ER .* target/.test(l.reason))).toBe(false);
+      expect(high.damage.perSecond).toBeGreaterThan(low.damage.perSecond);
     });
 
     test("every character with an Energy burst has a drafted erTarget", () => {
@@ -666,15 +639,14 @@ describe("scoreTeam", () => {
       expect(all.filter((c) => !c.erTarget && !noEnergyBurst.includes(c.id)).map((c) => c.id)).toEqual([]);
     });
 
-    test("EM matters for Swirl buffers, not for supports that don't react", () => {
+    test("a build's EM counts through reaction damage, not points (#440)", () => {
       const swirl = ["Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
-      expect(lines(built({ "Kaedehara Kazuha": { elementalMastery: 900 } }, ...swirl), "EM")[0]).toMatchObject({
-        points: 5,
-        reason: "Kaedehara Kazuha has 900 EM for reactions",
-      });
-      expect(lines(built({ "Kaedehara Kazuha": { elementalMastery: 100 } }, ...swirl), "EM")[0].points).toBe(-5);
-      expect(lines(built({ Zhongli: { elementalMastery: 900 } }, ...swirl), "EM")).toEqual([]);
+      const at = (em: number) => scoreTeam(built({ "Kaedehara Kazuha": { elementalMastery: em } }, ...swirl));
+      expect(at(900).breakdown.some((l) => l.rule === "EM")).toBe(false);
+      expect(at(100).breakdown.some((l) => l.rule === "EM")).toBe(false);
+      expect(at(900).score).toBeGreaterThan(at(100).score);
     });
+
   });
 });
 

@@ -1,5 +1,5 @@
 import type { EffectTag } from "../../types/effects";
-import { type Buff, type CompositionPref, type Role, type Talent } from "../../types/tags";
+import { type Buff, type Role, type Talent } from "../../types/tags";
 import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
@@ -28,19 +28,12 @@ export const POINTS = {
   ownSecretRite: 10, // a Hexerei carry's own kit upgrade at Hexerei: Secret Rite (#63)
   ownRadiance: 10, // a Stellar carry's own kit upgrade in Radiance (#63)
   ownNightsoulBurst: 10, // a Natlan carry's own kit upgrade from Nightsoul Bursts, at full stacks (#63)
-  prefMet: 15, // the carry's own team preferences...
-  onlyElementsBroken: -10,
-  supportPrefMet: 5, // ...count for more than a support's (#43)
-  supportPrefBroken: -5,
   idleAnemo: -10,
   // Build checks (only for members with imported or entered stats)
   cvBenchmark: 200, // CV = 2 × crit rate + crit DMG
   cvMinFactor: 0.6, // the carry's points scale by CV / benchmark, within these bounds
   cvMaxFactor: 1.2,
-  lowEr: -5, // per burst-reliant member under their ER target
-  emHigh: 600, // reaction-based members at or above this EM gain points...
   emLow: 300, // ...and lose them below this
-  emPoints: 5,
   talentBenchmark: 9, // the carry's key talent and a buff's talent scale points by level / benchmark...
   talentMinFactor: 0.7, // ...within these bounds
   talentMaxFactor: 1.15,
@@ -345,25 +338,6 @@ function buffMisfit(buff: Buff, carry: ScoringCharacter, ctx: TeamContext, emUse
     return () => `buffs ${buff.reactions!.map(label).join("/")}, which ${carry.id} does not deal`;
   }
   return null;
-}
-
-function compositionMet(pref: CompositionPref, ctx: TeamContext): boolean {
-  const counts = new Map<Element, number>();
-  for (const m of ctx.members) counts.set(m.element, (counts.get(m.element) ?? 0) + 1);
-  const min = pref.minElements ?? {};
-  for (const [el, n] of Object.entries(min)) {
-    if ((counts.get(el as Element) ?? 0) < (n ?? 0)) return false;
-  }
-  if (pref.othersShareElement) {
-    const others = ctx.members.filter((m) => !(m.element in min)).map((m) => m.element);
-    if (others.length === 0 || new Set(others).size !== 1) return false;
-  }
-  if (pref.onlyElements && !ctx.members.every((m) => pref.onlyElements!.includes(m.element))) return false;
-  if (pref.family) {
-    const n = ctx.members.filter((m) => familiesOf(m, ctx.options).includes(pref.family!.family)).length;
-    if (n < pref.family.min) return false;
-  }
-  return true;
 }
 
 function teamLines(ctx: TeamContext, out: Sink) {
@@ -1652,23 +1626,6 @@ function carryDamagePerSecond(carry: ScoringCharacter, ctx: TeamContext): number
 }
 
 // Team preferences: the carry's count fully; a support's describe what that support wants, so they count less (#43).
-function prefLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  for (const m of ctx.members) {
-    const own = m === carry;
-    for (const pref of m.teamPrefs ?? []) {
-      if (pref.kind === "partner") {
-        const partner = ctx.members.find((p) => pref.ids.includes(p.id));
-        if (partner) out.add("Team preference", own ? POINTS.prefMet : POINTS.supportPrefMet, () => `${m.id} with ${partner.id}`);
-      } else if (compositionMet(pref, ctx)) {
-        out.add("Team preference", own ? POINTS.prefMet : POINTS.supportPrefMet, () => `${m.id}: ${pref.note ?? "preferred team makeup"}`);
-      } else if (pref.onlyElements && pref.onlyElements.length > 0) {
-        const points = own ? POINTS.onlyElementsBroken : POINTS.supportPrefBroken;
-        out.add("Team preference", points, () => `${m.id} wants only ${pref.onlyElements!.join("/")} teammates`);
-      }
-    }
-  }
-}
-
 // Pure reaction carries (EM only, e.g. Kaveh) don't crit, so CV says nothing about them.
 const usesCrit = (c: ScoringCharacter) => !(c.scalesOn?.length === 1 && c.scalesOn[0] === "EM");
 
@@ -1688,18 +1645,6 @@ function carryTalentLine(carry: ScoringCharacter, out: Sink) {
   out.add("Carry talent", 0, () => `${carry.id} ${talent} level ${level} vs ${POINTS.talentBenchmark} benchmark: ×${talentFactor(level).toFixed(2)} damage`);
 }
 
-// Members whose damage or buff comes from EM: Swirl buffers, Hyperbloom/Burgeon triggers, EM carries.
-function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: TeamContext): boolean {
-  if (m === carry) return !!m.scalesOn?.includes("EM");
-  if (m.element === "Anemo" && m.roles.includes("buffer")) {
-    return ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
-  }
-  if (m.element === "Electro" || m.element === "Pyro") {
-    return m.reactions.some((r) => (r === "hyperbloom" || r === "burgeon") && ctx.active.includes(r));
-  }
-  return false;
-}
-
 // Bursts the team's Energy can't fund every rotation (#37, energy.ts): starvedBursts points per 20% of rotations a
 // member misses. Only for Bursts outside the damage model: the modeled carry's Burst hits and sub-DPS Burst sources
 // already lose that share of their damage. This replaces the role-based battery lines: a battery now counts by
@@ -1710,28 +1655,10 @@ function energyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     // A missed Burst already costs its hits or its buffs in damage: no points on top (#440). The rest stand in for Bursts
     // the model has no value for.
     const modeled = m === carry ? seconds !== undefined : !!carry && (SUB_DPS[m.id]?.sources.some((s) => s.talent === "burst") || hasBurstBuff(m));
-    if (e.share >= 1 || modeled || (m.stats && m.stats.energyRecharge < e.target)) continue;
+    if (e.share >= 1 || modeled) continue;
     const points = Math.round((POINTS.starvedBursts * (1 - e.share)) / 0.2);
     if (points < 0) {
       out.add("Energy", points, () => `${m.id} Bursts in ~${Math.round(e.share * 100)}% of rotations: needs ~${e.need}% ER here (${e.target}% target)`);
-    }
-  }
-}
-
-function statLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  for (const m of ctx.members) {
-    if (!m.stats) continue;
-    const { energyRecharge, elementalMastery: em } = m.stats;
-    const target = erTargetOf(m);
-    if (target !== undefined && energyRecharge < target) {
-      out.add("Energy", POINTS.lowEr, () => `${m.id} ER ${energyRecharge}% vs ${target}% target`);
-    }
-    if (emReliant(m, carry, ctx)) {
-      if (em >= POINTS.emHigh) {
-        out.add("EM", POINTS.emPoints, () => `${m.id} has ${em} EM for reactions`);
-      } else if (em < POINTS.emLow) {
-        out.add("EM", -POINTS.emPoints, () => `${m.id} has ${em} EM; reactions want ${POINTS.emHigh}+`);
-      }
     }
   }
 }
@@ -1796,10 +1723,8 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     const sub = subDpsLines(ctx, carry, out);
     const reacted = transformativeLines(ctx, carry, out);
     const healed = healSetLines(ctx, carry, out);
-    prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
     cryoSplitLines(ctx, carry, out);
-    statLines(ctx, carry, out);
     energyLines(ctx, carry, out);
     // No carry: the generic benchmark hit stands in for whoever is on field; the -30 line marks the missing carry.
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
