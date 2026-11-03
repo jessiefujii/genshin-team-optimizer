@@ -1,0 +1,93 @@
+[
+  {
+    "report": "known-teams",
+    "commit": "79d29b6",
+    "dirty": false,
+    "date": "2026-11-03",
+    "found": 15,
+    "total": 16,
+    "columns": "Carry | Best guide team: rank (score) | Guide team | Our #1 score | Our #1 team | #1 overlap with guide's top pick",
+    "rows": [
+      {
+        "carry": "Hu Tao",
+        "found": true,
+        "row": "Hu Tao | #9 (135.80034354708897) | Citlali, Furina, Yelan (genshin-builds) | 150.05955615971632 | Durin, Furina, Sucrose | unranked"
+      },
+      {
+        "carry": "Raiden Shogun",
+        "found": true,
+        "row": "Raiden Shogun | #1 (100.94341361341799) | Furina, Yelan, Xilonen | 100.94341361341799 | Furina, Xilonen, Yelan | unranked"
+      },
+      {
+        "carry": "Neuvillette",
+        "found": true,
+        "row": "Neuvillette | #1 (112.36996813655998) | Escoffier, Furina, Citlali | 112.36996813655998 | Citlali, Escoffier, Furina | unranked"
+      },
+      {
+        "carry": "Kamisato Ayaka",
+        "found": true,
+        "row": "Kamisato Ayaka | #1 (169.37861117355243) | Escoffier, Furina, Yelan | 169.37861117355243 | Escoffier, Furina, Yelan | unranked"
+      },
+      {
+        "carry": "Alhaitham",
+        "found": false,
+        "row": "Alhaitham | >100 (98.9287281423607) | Yae Miko, Nahida, Zhongli | 113.40110313876507 | Furina, Ineffa, Nahida | unranked"
+      },
+      {
+        "carry": "Arlecchino",
+        "found": true,
+        "row": "Arlecchino | #1 (118.28737277377844) | Furina, Yelan, Xilonen | 118.28737277377844 | Furina, Xilonen, Yelan | unranked"
+      },
+      {
+        "carry": "Mavuika",
+        "found": true,
+        "row": "Mavuika | #33 (116.88205297772342) | Xilonen, Furina, Bennett | 140.9062924454505 | Citlali, Durin, Escoffier | unranked"
+      },
+      {
+        "carry": "Flins",
+        "found": true,
+        "row": "Flins | #3 (95.4435333667205) | Columbina, Xilonen, Ineffa (genshin-builds) | 101.07901521903604 | Columbina, Furina, Xilonen | unranked"
+      },
+      {
+        "carry": "Nefer",
+        "found": true,
+        "row": "Nefer | #3 (109.86667312418712) | Furina, Lauma, Ineffa | 114.67906856300424 | Columbina, Ineffa, Lauma | unranked"
+      },
+      {
+        "carry": "Zibai",
+        "found": true,
+        "row": "Zibai | #1 (125.08510504711838) | Linnea, Xilonen, Columbina | 125.08510504711838 | Columbina, Linnea, Xilonen | unranked"
+      },
+      {
+        "carry": "Skirk",
+        "found": true,
+        "row": "Skirk | #1 (155.35305385746105) | Furina, Escoffier, Yelan | 155.35305385746105 | Escoffier, Furina, Yelan | unranked"
+      },
+      {
+        "carry": "Clorinde",
+        "found": true,
+        "row": "Clorinde | #55 (97.79283289897072) | Furina, Xilonen, Ineffa (genshin-builds) | 112.91334011252741 | Furina, Xilonen, Yelan | unranked"
+      },
+      {
+        "carry": "Varesa",
+        "found": true,
+        "row": "Varesa | #2 (112.36486496389647) | Iansan, Furina, Xianyun | 113.85443061713238 | Furina, Mavuika, Xianyun | unranked"
+      },
+      {
+        "carry": "Xiao",
+        "found": true,
+        "row": "Xiao | #23 (102.4100418607867) | Faruzan, Xianyun, Furina | 111.58180889630492 | Durin, Furina, Nicole | unranked"
+      },
+      {
+        "carry": "Wriothesley",
+        "found": true,
+        "row": "Wriothesley | #1 (175.6912099576445) | Escoffier, Furina, Yelan | 175.6912099576445 | Escoffier, Furina, Yelan | unranked"
+      },
+      {
+        "carry": "Kinich",
+        "found": true,
+        "row": "Kinich | #4 (117.3357405994298) | Iansan, Nicole, Durin (genshin-builds) | 126.32799640339435 | Furina, Iansan, Mavuika | unranked"
+      }
+    ]
+  }
+]

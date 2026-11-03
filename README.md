@@ -72,6 +72,8 @@ Then open [http://localhost:3000](http://localhost:3000).
 | `npm run lint` | ESLint |
 | `npm run build` / `npm start` | Production build and server |
 
+Each printed compare or meta table is also recorded in `data/compare-history.json`, one entry per report and commit: commit that file with the work it measured.
+
 Each compare worker uses about 1.7 GB. If a run stops for low memory, rerun the missing parts with `--maxWorkers=2` (finished parts keep their results in `.compare/`), then print the table with `node scripts/compare-report.mjs print known-teams` (or `meta-teams`).
 
 ## Data files
