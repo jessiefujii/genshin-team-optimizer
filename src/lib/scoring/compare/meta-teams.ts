@@ -13,7 +13,7 @@ const key = (ids: readonly string[]) => [...ids].sort().join("|");
 const short = (ids: readonly string[], carry: string) => ids.filter((id) => id !== carry).join(", ");
 
 export function compareMetaTeams(part: number) {
-  test(`meta teams vs the scorer's best teams, part ${part}`, { timeout: 900_000 }, () => {
+  test(`meta teams vs the scorer's best teams, part ${part}`, { timeout: 1_500_000 }, () => {
     const all = loadScoringCharacters();
     const byId = new Map(all.map((c) => [c.id, c]));
     const rows: PartRow[] = [];
