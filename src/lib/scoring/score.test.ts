@@ -224,6 +224,20 @@ describe("scoreTeam", () => {
     expect(dps(line("Skirk", "Escoffier", "Durin", "Zhongli"))).toBeLessThan(dps(line("Skirk", "Escoffier", "Durin", "Shenhe")));
   });
 
+  test("constellation effects score in damage or not at all, never flat points (#410)", () => {
+    const at = (id: string, constellation: number, ...ids: string[]) =>
+      scoreTeam(team(...ids).map((c) => (c.id === id ? { ...c, constellation, effects: characterEffects(id, constellation) } : c)));
+    const raiden = ["Hu Tao", "Raiden Shogun", "Xingqiu", "Zhongli"];
+    const c0 = at("Raiden Shogun", 0, ...raiden);
+    const c4 = at("Raiden Shogun", 4, ...raiden);
+    expect(c4.damage.perSecond).toBeGreaterThan(c0.damage.perSecond); // +30% ATK for 10 s of 20 s
+    expect(c4.breakdown.find((l) => l.reason.startsWith("Raiden Shogun C4"))).toMatchObject({ points: 0, reason: "Raiden Shogun C4: in team damage" });
+    // Not modeled yet: no line and no points.
+    const ids = ["Hu Tao", "Sethos", "Xingqiu", "Zhongli"];
+    expect(at("Sethos", 4, ...ids).breakdown.filter((l) => l.rule === "Effects" && l.points !== 0)).toEqual([]);
+    expect(at("Sethos", 4, ...ids).score).toBeCloseTo(at("Sethos", 0, ...ids).score, 6);
+  });
+
   test("Freeze and Melt share the aura budget: no flat penalty for both, or for an idle second Anemo (#449)", () => {
     const conflicts = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Conflicts");
     expect(conflicts("Kamisato Ayaka", "Amber", "Bennett", "Furina")).toEqual([]);
@@ -1318,12 +1332,12 @@ describe("effects.json in scoring", () => {
   const lines = (t: ScoringCharacter[], rule: string) => scoreTeam(t).breakdown.filter((l) => l.rule === rule);
   const noblesse: EffectTag = { source: "set", id: "Noblesse Oblige", requires: 4, buffs: [{ stat: "ATK", scope: "team", affects: "ATK" }] };
   const pyroShred: EffectTag = {
-    source: "constellation", id: "Xiangling", requires: 1, buffs: [{ stat: "Pyro RES shred", scope: "team", elements: ["Pyro"] }],
+    source: "weapon", id: "Test Lance", buffs: [{ stat: "Pyro RES shred", scope: "team", elements: ["Pyro"] }],
   };
 
   test("an effect buff that fits the carry adds points and names its source", () => {
     const result = lines(geared({ Xiangling: [pyroShred] }, "Hu Tao", "Xingqiu", "Xiangling", "Zhongli"), "Effects");
-    expect(result).toEqual([{ rule: "Effects", points: 5, reason: "Xiangling C1: Pyro RES shred for Hu Tao" }]);
+    expect(result).toEqual([{ rule: "Effects", points: 5, reason: "Xiangling Test Lance: Pyro RES shred for Hu Tao" }]);
   });
 
   test("effect buffs use the same fit check as tag buffs", () => {
@@ -1347,7 +1361,7 @@ describe("effects.json in scoring", () => {
 
   test("effect buffs are capped", () => {
     const many = Array.from({ length: 5 }, (_, i): EffectTag => ({
-      source: "constellation", id: "Bennett", requires: i + 1, buffs: [{ stat: "DMG Bonus", scope: "team" }],
+      source: "weapon", id: `Test Sword ${i}`, buffs: [{ stat: "DMG Bonus", scope: "team" }],
     }));
     expect(lines(geared({ Bennett: many }, "Hu Tao", "Bennett", "Xingqiu", "Zhongli"), "Effects")).toHaveLength(3);
   });
@@ -1381,11 +1395,11 @@ describe("effects.json in scoring", () => {
 
   test("only effects.json entries still marked VERIFY say draft", () => {
     const [hutao, xingqiu, xiangling, zhongli] = team("Hu Tao", "Xingqiu", "Xiangling", "Zhongli");
-    const reviewed = characterEffects("Xiangling", 1); // reviewed in #23
+    const reviewed = [pyroShred];
     const withC1 = (effects: EffectTag[]) => lines([hutao, xingqiu, { ...xiangling, effects }, zhongli], "Effects");
-    expect(withC1(reviewed)[0].reason).toBe("Xiangling C1: Pyro RES shred for Hu Tao");
+    expect(withC1(reviewed)[0].reason).toBe("Xiangling Test Lance: Pyro RES shred for Hu Tao");
     const drafted = reviewed.map((e) => ({ ...e, notes: "VERIFY: drafted" }));
-    expect(withC1(drafted)[0].reason).toBe("Xiangling C1 (draft): Pyro RES shred for Hu Tao");
+    expect(withC1(drafted)[0].reason).toBe("Xiangling Test Lance (draft): Pyro RES shred for Hu Tao");
   });
 
   test("a holder-element buff only fits a carry of the holder's element (Celestial Gift)", () => {

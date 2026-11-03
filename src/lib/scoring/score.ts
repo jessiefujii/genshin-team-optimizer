@@ -4,7 +4,7 @@ import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
+import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, constellationInDamage, fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
 import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, infusionOver, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
@@ -262,6 +262,14 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
   const inDamage = modeledCarryDps(carry, ctx) !== null;
   for (const m of ctx.members) {
     for (const e of m.effects ?? []) {
+      // Constellations score in damage or, until modeled, not at all (#410, #450); never flat points.
+      if (e.source === "constellation") {
+        if (e.buffs?.length && (m.constellation ?? 0) >= (e.requires ?? 0) && constellationInDamage(m.id, e.requires ?? 0) && !inTeamDamage.includes(effectKey(e))) {
+          out.add("Effects", 0, () => `${effectName(m, e)}: in team damage`);
+          inTeamDamage.push(effectKey(e));
+        }
+        continue;
+      }
       if (seen.length === POINTS.maxEffectBuffs) return;
       if (inDamage && e.source === "set" && (partySetModeled(e.id) || HEAL_SETS[e.id]?.some((x) => x.kind.startsWith("heal")))) {
         // Shown once, with 0 points; it takes no place under the effect cap.
