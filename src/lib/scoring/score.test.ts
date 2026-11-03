@@ -208,7 +208,6 @@ describe("scoreTeam", () => {
     // Xingqiu's Hydro vaporizes some of Durin's Pyro, and Freezes on the Cryo aura (#282) with the rest; the budget
     // splits it. (Durin then melts more than beside Zhongli, whose Crystallize takes Cryo aura too.)
     expect(line("Xingqiu", "Skirk", "Escoffier", "Durin", "Xingqiu")).toMatch(/, with Vaporize$/);
-    expect(score("Skirk", "Escoffier", "Durin", "Xingqiu").breakdown.map((l) => l.reason)).toContain("Hydro (Xingqiu) and Pyro (Durin) split Freeze and Melt");
     // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
     // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
     expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
@@ -225,17 +224,10 @@ describe("scoreTeam", () => {
     expect(dps(line("Skirk", "Escoffier", "Durin", "Zhongli"))).toBeLessThan(dps(line("Skirk", "Escoffier", "Durin", "Shenhe")));
   });
 
-  test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
-    const split = (s: ReturnType<typeof scoreTeam>) => s.breakdown.find((l) => l.rule === "Conflicts" && l.reason.includes("split"));
-    expect(split(score("Kamisato Ayaka", "Amber", "Bennett", "Furina"))).toEqual({
-      rule: "Conflicts",
-      points: -15,
-      reason: "Hydro (Furina) and Pyro (Amber, Bennett) split Freeze and Melt",
-    });
-    expect(split(score("Kamisato Ayaka", "Ganyu", "Kamisato Ayato", "Sangonomiya Kokomi"))).toBeUndefined();
-    const melt = score("Kamisato Ayaka", "Dehya", "Kaedehara Kazuha", "Bennett");
-    expect(split(melt)).toBeUndefined();
-    expect(melt.breakdown.some((l) => l.reason.includes("not possible"))).toBe(false);
+  test("Freeze and Melt share the aura budget: no flat penalty for both, or for an idle second Anemo (#449)", () => {
+    const conflicts = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Conflicts");
+    expect(conflicts("Kamisato Ayaka", "Amber", "Bennett", "Furina")).toEqual([]);
+    expect(conflicts("Xiao", "Faruzan", "Jean", "Zhongli").every((l) => l.points === 0)).toBe(true);
   });
 
   test("only shields count for Arlecchino's survivability: she can't be healed in combat (#2)", () => {
@@ -1368,14 +1360,23 @@ describe("effects.json in scoring", () => {
     expect(need(geared({ Sucrose: [favonius] }, ...ids), "Sucrose")).toBeLessThan(need(team(...ids), "Sucrose"));
   });
 
-  test("an infusion conflicts with a melee carry of another element only", () => {
+  test("a teammate's infusion changes a melee carry's infused hits in damage, not points (#449)", () => {
     const c6: EffectTag = { source: "constellation", id: "Bennett", requires: 6, infusion: "Pyro" };
     const conflicts = (...ids: string[]) => lines(geared({ Bennett: [c6] }, ...ids), "Conflicts");
     expect(conflicts("Kamisato Ayaka", "Bennett", "Kaedehara Kazuha", "Shenhe")).toEqual([
-      { rule: "Conflicts", points: -15, reason: "Bennett C6 infuses Kamisato Ayaka's attacks with Pyro" },
+      { rule: "Conflicts", points: 0, reason: "Kamisato Ayaka's attacks are infused with Pyro: in their damage" },
     ]);
+    expect(conflicts("Eula", "Bennett", "Rosaria", "Shenhe")[0].points).toBe(0); // Physical hits
     expect(conflicts("Hu Tao", "Bennett", "Xingqiu", "Zhongli")).toEqual([]); // Pyro carry
     expect(conflicts("Neuvillette", "Bennett", "Furina", "Xiangling")).toEqual([]); // catalyst
+    expect(conflicts("Skirk", "Bennett", "Furina", "Zhongli")).toEqual([]); // her own moveset: a Conversion
+    const ayaka = (...ids: string[]) => {
+      const t = geared({ Bennett: [c6] }, ...ids);
+      return carryDamage(t[0], [], t)!.perSecond;
+    };
+    expect(ayaka("Kamisato Ayaka", "Bennett", "Kaedehara Kazuha", "Shenhe")).toBeLessThan(
+      carryDamage(team("Kamisato Ayaka")[0], [], team("Kamisato Ayaka", "Bennett", "Kaedehara Kazuha", "Shenhe"))!.perSecond,
+    );
   });
 
   test("only effects.json entries still marked VERIFY say draft", () => {

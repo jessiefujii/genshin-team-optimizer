@@ -153,7 +153,6 @@ const HOLDER = (kitJson as unknown as {
 // A carry without a build reads as wearing their KQM guide's 4pc set (kit.ts setsOf, #279; there since #306, as the
 // party-wide set effects read it too).
 type BenchmarkSet = { set: string; when?: { reaction?: Reaction; members?: string[] } };
-const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet[]> }).benchmarkSets;
 export { setsOf };
 // HP drain (holderStates): their own kit's, or a teammate's that drains the party (Furina's Salon Members).
 const hpDrops = (c: ScoringCharacter, team: readonly ScoringCharacter[]) =>
@@ -599,6 +598,25 @@ export function bluntHitsPerSecond(c: ScoringCharacter, active: readonly Reactio
 // so the Flamestrider Charged Attacks are her default combo's (estimate).
 
 // The carry's damage per second, or null when kit.json has no entry for them yet (carriesTodo).
+// A teammate's infusion (Bennett's C6) changes a melee carry's Normal, Charged and Plunging hits to its element: their
+// Physical hits, and their own infusion's, "almost always" overridden (wiki Elemental Infusion, fetched 2026-11-03:
+// Ayaka's and Keqing's). A carry's own moveset is a Conversion, which "cannot be overridden". Only the damage element
+// changes: which hits react stays as it was (estimate, #449).
+const OWN_INFUSION = new Set(["Kamisato Ayaka", "Keqing"]);
+const INFUSABLE_WEAPONS = ["Sword", "Claymore", "Polearm"];
+const teammateInfusion = (c: ScoringCharacter, team: readonly ScoringCharacter[]) =>
+  INFUSABLE_WEAPONS.includes(c.weapon)
+    ? team.filter((m) => m !== c).flatMap((m) => m.effects ?? []).find((e) => e.infusion && e.infusion !== c.element)?.infusion
+    : undefined;
+const isInfused = (h: CarryHit, c: ScoringCharacter) =>
+  (h.type === "normal" || h.type === "charged" || h.type === "plunge") && (h.element === "Physical" || (!h.element && OWN_INFUSION.has(c.id)));
+// The element a teammate's infusion turns some of this carry's hits into, if any, for the breakdown.
+export function infusionOver(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): Element | undefined {
+  const infusion = teammateInfusion(c, team);
+  if (!infusion || !CARRIES[c.id]) return undefined;
+  return pickCombo(CARRIES[c.id], c, active, team).kit.hits.some((h) => isInfused(h, c)) ? infusion : undefined;
+}
+
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
 // `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit) and picks the combo (#114);
 // default: the carry alone. Cached per character, reactions and team: the team search scores each carry in thousands
@@ -624,7 +642,7 @@ export function carryDamage(
   if (!byKey) cache.set(c, (byKey = new Map()));
   // Teammates' constellations pick combos too (#119: Yanfei beside C6 Xingqiu), and their families Secret Rite (#356).
   const rite = team.filter((m) => m.families?.includes("hexerei")).length >= 2 ? "#rite" : "";
-  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}#${frozen}${rite}`;
+  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}#${frozen}${rite}${teammateInfusion(c, team) ?? ""}`;
   if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam, ampShare, frozen));
   return byKey.get(key)!;
 }
@@ -824,12 +842,14 @@ function computeCarryDamage(
     return perHit * scale * (1 + reactingShare(h) * t.amp);
   };
   let total = 0;
+  const infusion = teammateInfusion(c, team);
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     if (!lands(h)) continue;
     const count = (h.count + teamCount(h)) * (h.type === "burst" ? burstPart : 1) * (h.perCrit ? critChance(c, critRate, dmgCirclet) : 1);
     if (count <= 0) continue;
-    if (h.element === "priority") total += hitTotal(h, priorityEl ?? c.element, count);
+    if (infusion && isInfused(h, c)) total += hitTotal(h, infusion, count);
+    else if (h.element === "priority") total += hitTotal(h, priorityEl ?? c.element, count);
     else if (h.element !== "teammates") total += hitTotal(h, h.element ?? c.element, count);
     else {
       const types = typesOf(h.byTeammates?.elements ?? []);

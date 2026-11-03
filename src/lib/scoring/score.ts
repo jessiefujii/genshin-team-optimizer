@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, infusionOver, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -28,7 +28,6 @@ export const POINTS = {
   ownSecretRite: 10, // a Hexerei carry's own kit upgrade at Hexerei: Secret Rite (#63)
   ownRadiance: 10, // a Stellar carry's own kit upgrade in Radiance (#63)
   ownNightsoulBurst: 10, // a Natlan carry's own kit upgrade from Nightsoul Bursts, at full stacks (#63)
-  idleAnemo: -10,
   // Build checks (only for members with imported or entered stats)
   cvBenchmark: 200, // CV = 2 × crit rate + crit DMG
   cvMinFactor: 0.6, // the carry's points scale by CV / benchmark, within these bounds
@@ -40,8 +39,6 @@ export const POINTS = {
   // effects.json (weapons, sets, constellations)
   effectBuff: 5, // per effect that buffs the carry
   maxEffectBuffs: 3,
-  infusionConflict: -15, // another member's infusion overrides a melee carry's element
-  splitCryoPlan: -15, // a Freeze/Melt carry with both Hydro and Pyro supports (#53)
 } as const;
 
 const RESONANCE: Record<Element, { points: number; name: string }> = {
@@ -290,31 +287,12 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
   }
 }
 
-// A Cryo carry plays Freeze (with Hydro) or Melt (with Pyro). With both, Pyro breaks the Freeze and
-// vaporizes the Hydro, so neither plan works fully (#53).
-function cryoSplitLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  if (!carry || carry.element !== "Cryo") return;
-  if (!carry.reactions.includes("freeze") && !carry.reactions.includes("melt")) return;
-  const hydro = ctx.members.filter((m) => m !== carry && m.element === "Hydro");
-  const pyro = ctx.members.filter((m) => m !== carry && m.element === "Pyro");
-  if (hydro.length === 0 || pyro.length === 0) return;
-  const names = (ms: ScoringCharacter[]) => ms.map((m) => m.id).join(", ");
-  out.add("Conflicts", POINTS.splitCryoPlan, () => `Hydro (${names(hydro)}) and Pyro (${names(pyro)}) split Freeze and Melt`);
-}
-
-const MELEE = new Set(["Sword", "Claymore", "Polearm"]);
 
 // An infusion (C6 Bennett) turns a melee carry's attacks into its element.
 function infusionLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  if (!carry || !MELEE.has(carry.weapon)) return;
-  for (const m of ctx.members) {
-    if (m === carry) continue;
-    for (const e of m.effects ?? []) {
-      if (e.infusion && e.infusion !== carry.element) {
-        out.add("Conflicts", POINTS.infusionConflict, () => `${effectName(m, e)} infuses ${carry.id}'s attacks with ${e.infusion}`);
-      }
-    }
-  }
+  if (!carry) return;
+  const infusion = infusionOver(carry, ctx.active, ctx.members);
+  if (infusion) out.add("Conflicts", 0, () => `${carry.id}'s attacks are infused with ${infusion}: in their damage`); // #449
 }
 
 // Reactions whose damage does not grow with EM, so an EM buff does nothing for them.
@@ -351,11 +329,6 @@ function teamLines(ctx: TeamContext, out: Sink) {
     if (n >= 2 && !(el in STAT_RESONANCE) && !RESONANCE_IN_DAMAGE.has(el)) out.add("Resonance", 0, () => `${RESONANCE[el].name}: in the energy model`); // #439
   }
 
-  const anemo = members.filter((m) => m.element === "Anemo");
-  const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
-  if (anemo.length >= 2 && !swirlActive) {
-    out.add("Conflicts", POINTS.idleAnemo, () => "Two Anemo characters with nothing to swirl");
-  }
 }
 
 // Resonances that raise one stat only help a carry who uses it (#51, #59): Fervent Flames +25% ATK,
@@ -1724,7 +1697,6 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     const reacted = transformativeLines(ctx, carry, out);
     const healed = healSetLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
-    cryoSplitLines(ctx, carry, out);
     energyLines(ctx, carry, out);
     // No carry: the generic benchmark hit stands in for whoever is on field; the -30 line marks the missing carry.
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
