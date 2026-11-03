@@ -1,5 +1,5 @@
 {
-  "median": 210254.8,
+  "median": 209885.1,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -53,7 +53,7 @@
         "Xilonen",
         "Kujou Sara"
       ],
-      "value": 196166.5
+      "value": 184876.2
     },
     "Cyno": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 173227.6
+      "value": 162792.2
     },
     "Diluc": {
       "team": [
@@ -89,7 +89,7 @@
         "Columbina",
         "Sucrose"
       ],
-      "value": 195481.6
+      "value": 191511.1
     },
     "Freminet": {
       "team": [
@@ -161,7 +161,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 180648.6
+      "value": 171292.1
     },
     "Kinich": {
       "team": [
@@ -274,11 +274,11 @@
     "Razor": {
       "team": [
         "Razor",
-        "Rosaria",
-        "Fischl",
-        "Zhongli"
+        "Layla",
+        "Yelan",
+        "Xingqiu"
       ],
-      "value": 117007.4
+      "value": 114487.3
     },
     "Sandrone": {
       "team": [
@@ -296,7 +296,7 @@
         "Kirara",
         "Sucrose"
       ],
-      "value": 111676.5
+      "value": 105733.2
     },
     "Shikanoin Heizou": {
       "team": [
@@ -305,7 +305,7 @@
         "Xingqiu",
         "Yelan"
       ],
-      "value": 93988.2
+      "value": 90228.7
     },
     "Skirk": {
       "team": [
@@ -350,7 +350,7 @@
         "Furina",
         "Xianyun"
       ],
-      "value": 238656.6
+      "value": 226414.5
     },
     "Varka": {
       "team": [
@@ -359,7 +359,7 @@
         "Nicole",
         "Durin"
       ],
-      "value": 328801.5
+      "value": 318307.8
     },
     "Vesna": {
       "team": [
@@ -377,7 +377,7 @@
         "Bennett",
         "Furina"
       ],
-      "value": 109185.7
+      "value": 105239.2
     },
     "Wriothesley": {
       "team": [
@@ -395,7 +395,7 @@
         "Xianyun",
         "Furina"
       ],
-      "value": 217513.1
+      "value": 209651.2
     },
     "Yanfei": {
       "team": [

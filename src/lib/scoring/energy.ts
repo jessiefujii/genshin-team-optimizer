@@ -40,17 +40,29 @@ export const ENERGY = {
   // their element's particles caught by the holder; once per 12s at R1. Other battery-role effects are left out.
   favoniusParticles: 2,
   favoniusCd: 12,
+  // Elemental Resonance (wiki, fetched 2026-11-03). High Voltage: Superconduct, Overloaded, Electro-Charged, Quicken and
+  // their Lunar and Stellar forms "have a 100% chance to generate an Electro Elemental Particle (CD: 5s)", read as one
+  // every 5s, caught on field. Impetuous Winds: "Shortens Skill CD by 5%" (#439).
+  highVoltageCd: 5,
+  impetuousWindsCd: 0.95,
 };
 const ABSORBED: readonly Element[] = ["Pyro", "Hydro", "Electro", "Cryo"]; // Venti's passive 2
 
-const particlesPerRotation = (p: Particles, seconds: number) =>
-  p.perSecond !== undefined ? p.perSecond * seconds : p.perUse! * Math.min(ENERGY.maxUses, Math.max(1, Math.floor(seconds / p.cd!)));
+const particlesPerRotation = (p: Particles, seconds: number, cdFactor = 1) =>
+  p.perSecond !== undefined ? p.perSecond * seconds : p.perUse! * Math.min(ENERGY.maxUses, Math.max(1, Math.floor(seconds / (p.cd! * cdFactor))));
 
 // Energy at 100% ER that `m` gets per rotation from the team's particles, and flat Energy (not scaled by ER).
 // A member without particle data counts as a standard teammate (Ineffa, Varesa: no wiki count).
 function energyFor(m: ScoringCharacter, team: readonly ScoringCharacter[], carry: ScoringCharacter | null, seconds: number) {
   let particles = 0;
   let flat = 0;
+  const count = (e: Element) => team.filter((x) => x.element === e).length;
+  // Two Electro members and an element they react with (High Voltage's reactions need one of these).
+  if (count("Electro") >= 2 && (["Cryo", "Pyro", "Hydro", "Dendro"] as Element[]).some((e) => count(e) > 0)) {
+    const rate = (m === carry ? 1 : ENERGY.offField) * (m.element === "Electro" ? ENERGY.sameElement : ENERGY.otherElement);
+    particles += Math.floor(seconds / ENERGY.highVoltageCd) * rate;
+  }
+  const cdFactor = count("Anemo") >= 2 ? ENERGY.impetuousWindsCd : 1;
   // In the order given: energyNeeds passes the team sorted, so the sums don't depend on member order (#213).
   for (const g of team) {
     if (g.effects?.some((e) => e.roles?.includes("battery") && e.id.startsWith("Favonius"))) {
@@ -65,7 +77,7 @@ function energyFor(m: ScoringCharacter, team: readonly ScoringCharacter[], carry
     }
     const catcher = p.timing === "cast" ? g : (carry ?? g);
     const rate = (catcher === m ? 1 : ENERGY.offField) * (g.element === m.element ? ENERGY.sameElement : ENERGY.otherElement);
-    particles += particlesPerRotation(p, seconds) * rate;
+    particles += particlesPerRotation(p, seconds, cdFactor) * rate;
     for (const f of p.flat ?? []) {
       const gets =
         f.to === "all" || (f.to === "self" && g === m) || (f.to === "active" && m === carry) ||

@@ -378,7 +378,7 @@ function teamLines(ctx: TeamContext, out: Sink) {
   for (const [el, n] of counts) {
     // Pyro, Hydro and Dendro buff one stat, so whether they help depends on the carry; Geo and Cryo are in team damage
     // for a modeled carry (#186): carryResonanceLines adds those.
-    if (n >= 2 && !(el in STAT_RESONANCE) && !RESONANCE_IN_DAMAGE.has(el)) out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
+    if (n >= 2 && !(el in STAT_RESONANCE) && !RESONANCE_IN_DAMAGE.has(el)) out.add("Resonance", 0, () => `${RESONANCE[el].name}: in the energy model`); // #439
   }
 
   const anemo = members.filter((m) => m.element === "Anemo");

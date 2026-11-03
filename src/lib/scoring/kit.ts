@@ -846,7 +846,7 @@ export function memberBuffStats(
 // nearby": "DMG dealt increased by 15%", "decrease their Geo RES by 20%" (a shielder, Crystallize's shards, or
 // Lunar-Crystallize); Sprawling Greenery "Elemental Mastery increased by 50", +30 after Burning, Quicken, Bloom or
 // Lunar-Bloom and +20 after Aggravate, Spread, Hyperbloom or Burgeon (kept up while the team triggers them). High Voltage
-// (particles) and Impetuous Winds (stamina, CD) stay points.
+// (particles) and Impetuous Winds (CD) are in the energy model (energy.ts, #439).
 export const RESONANCE_IN_DAMAGE = new Set<string>(["Pyro", "Hydro", "Cryo", "Geo", "Dendro"]);
 function resonanceStats(m: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], into: TeamBuffStats) {
   const count = (e: string) => team.filter((x) => x.element === e).length;
