@@ -63,10 +63,21 @@ const buffsAt = (entry: KitCharacter, m: ScoringCharacter) => entry.buffs.filter
 type BenchmarkSet = { set: string; defer?: boolean; when?: { reaction?: Reaction; members?: string[] } };
 const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet[]> }).benchmarkSets;
 const isPartySet = (set: string) => set in PARTY_SETS || set in GEAR_SETS;
-const benchmarkCache = new WeakMap<readonly ScoringCharacter[], Map<string, Map<string, string>>>();
+// Cached per team array, or per character for a one-member team: callers build a new `[c]` every time (#422).
+// `last`: the same reactions array as the call before, usually the team context's, skips building the key.
+type BenchmarkEntry = { byActive: Map<string, Map<string, string>>; last?: readonly Reaction[]; lastPicks?: Map<string, string> };
+const benchmarkCache = new WeakMap<object, BenchmarkEntry>();
 function benchmarkPicks(active: readonly Reaction[], team: readonly ScoringCharacter[]): Map<string, string> {
-  let byActive = benchmarkCache.get(team);
-  if (!byActive) benchmarkCache.set(team, (byActive = new Map()));
+  const owner = team.length === 1 ? team[0] : team;
+  let entry = benchmarkCache.get(owner);
+  if (!entry) benchmarkCache.set(owner, (entry = { byActive: new Map() }));
+  if (entry.last === active) return entry.lastPicks!;
+  const picks = readBenchmarkPicks(active, team, entry.byActive);
+  entry.last = active;
+  entry.lastPicks = picks;
+  return picks;
+}
+function readBenchmarkPicks(active: readonly Reaction[], team: readonly ScoringCharacter[], byActive: Map<string, Map<string, string>>): Map<string, string> {
   const key = active.join(",");
   const cached = byActive.get(key);
   if (cached) return cached;
@@ -126,6 +137,13 @@ const PARTY_SETS = Object.fromEntries(
 ) as Record<string, PartySetEffect[]>;
 // Whether a set has party-wide effects in damage (#306): score.ts then drops its effects.json flat points.
 export const partySetModeled = (set: string) => set in PARTY_SETS;
+// The party sets' EM with no reactions or wearer on field: read per buffer per team, so once per team array (#422).
+const partyEmCache = new WeakMap<readonly ScoringCharacter[], number>();
+function partyEmOf(team: readonly ScoringCharacter[]): number {
+  let em = partyEmCache.get(team);
+  if (em === undefined) partyEmCache.set(team, (em = partySetBuffs(team).em));
+  return em;
+}
 export function partySetBuffs(
   team: readonly ScoringCharacter[],
   active: readonly Reaction[] = [],
@@ -469,7 +487,7 @@ export function kitBuffValue(
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
     moonsign: team.filter((m) => m.families?.includes("moonsign")).length,
-    partyEm: partySetBuffs(team).em,
+    partyEm: partyEmOf(team),
   };
   const shareKey = shares ? Object.entries(shares).map(([r, v]) => `${r}:${v!.toFixed(4)}`).join(",") : "";
   const key = `${outsideDamage}|${burst}|${carryReactions.join(",")}|${shape.fightingSpirit}|${shape.nightsoulOthers}|${shape.healersOthers}|${shape.moonsign}|${shape.partyEm}|${[...shape.elements].sort().join(",")}|${shareKey}`;
@@ -657,7 +675,7 @@ function shapeOf(s: ScoringCharacter, carry: ScoringCharacter, team: readonly Sc
     nightsoulOthers: team.filter((m) => m !== s && m.families?.includes("nightsoul")).length,
     healersOthers: team.filter((m) => m !== s && m.roles.includes("healer")).length,
     moonsign: team.filter((m) => m.families?.includes("moonsign")).length,
-    partyEm: partySetBuffs(team).em,
+    partyEm: partyEmOf(team),
   };
 }
 
@@ -803,7 +821,7 @@ export function memberBuffStats(
     if (s === m || !wide) continue;
     if (wide.elements && !wide.elements.includes(m.element)) continue;
     if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
-    const shape = shapeOf(s, carry, team);
+    const shape = shape0;
     const stats = bufferStats(s, entry.base, entry.buildFor, shape.partyEm);
     const seen = new Set<string>(); // one buff per kind, as bufferPart
     for (const b of buffsAt(entry, s)) {
@@ -1040,7 +1058,7 @@ export function reactionBonusesFor(
   let additive = 0;
   let once: { flat: number; every: number } | undefined;
   const elements = team.map((m) => m.element);
-  const partyEm = partySetBuffs(team).em; // Silken's EM on the members' EM-based bonuses (#306)
+  const partyEm = partyEmOf(team); // Silken's EM on the members' EM-based bonuses (#306)
   const shape = { elements, nightsoulOthers: 0, healersOthers: 0, fightingSpirit: 0, moonsign: 0, partyEm };
   for (const m of team) {
     const entry = KIT[m.id];

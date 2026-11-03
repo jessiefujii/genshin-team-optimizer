@@ -13,6 +13,24 @@ const big: ScoringCharacter[] = loadScoringCharacters()
   .slice(0, 50)
   .map((c) => ({ ...c, effects: characterEffects(c.id, 6) }));
 
+// A fixed workload with no scoring code in it, printed before the timings: if it moves, the machine changed, not the
+// code (#422). On the i7-1250U: ~115 ms on a P-core, ~190 ms on an E-core, and the search takes twice as long on an
+// E-core. To compare commits, pin the run to P-cores and check this line.
+function machineSpeed(): number {
+  const times = Array.from({ length: 3 }, () => {
+    const start = performance.now();
+    const seen = new Map<number, number>();
+    let sum = 0;
+    for (let i = 0; i < 3_000_000; i++) {
+      seen.set(i % 5000, i);
+      sum += seen.get((i * 7) % 5000) ?? 0;
+    }
+    if (sum < 0) throw new Error("unreachable");
+    return performance.now() - start;
+  });
+  return Math.round(Math.min(...times));
+}
+
 // Best of `n` runs in ms, printed so the numbers can be compared over time.
 function bestOf(label: string, run: () => void, n = 5): number {
   const times = Array.from({ length: n }, () => {
@@ -42,6 +60,7 @@ function slowestPart(label: string, run: (part: { index: number; count: number }
 
 // Design doc target: a ranked list in under 2 s (#4).
 test("team search for 50 characters", { timeout: 120_000 }, () => {
+  console.log(`machine speed: ${machineSpeed()} ms (lower is faster)`);
   bestOf("search, 50 characters at C6, one thread", () => findBestTeams(big), 3);
   expect(slowestPart(`search, slowest of ${PARTS} parts`, (part) => findBestTeams(big, { part }))).toBeLessThan(2000);
 });
