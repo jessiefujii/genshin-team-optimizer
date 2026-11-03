@@ -664,6 +664,12 @@ function addByHit(into: TeamBuffStats, type: string, flat: number, dmgBonus: num
   into.byHit = { ...into.byHit, [type]: { flat: (h?.flat ?? 0) + flat, dmgBonus: (h?.dmgBonus ?? 0) + dmgBonus } };
 }
 
+// Whether this member has a kit buff from their Burst, which scales with the share of rotations Energy funds (#207).
+export const hasBurstBuff = (m: ScoringCharacter) => {
+  const entry = KIT[m.id];
+  return !!entry && !entry.missing && buffsAt(entry, m).some((b) => b.burst);
+};
+
 // One buffer's part, cached like kitBuffValue (per buffer and carry object, then team shape), not per team: the search
 // reads thousands of teams per carry.
 const statsCache = new WeakMap<ScoringCharacter, WeakMap<ScoringCharacter, Map<string, TeamBuffStats>>>();

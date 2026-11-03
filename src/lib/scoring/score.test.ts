@@ -4,7 +4,7 @@ import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { carryDamage, LEVEL_MULTIPLIER_90, shatterHit } from "./damage";
-import { fightingSpiritBuilt, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
+import { fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
@@ -1110,6 +1110,23 @@ describe("talent levels (#25)", () => {
     expect(otherScore.score).toBeLessThan(s.score);
     // Ayaka's guide set doesn't need Freeze: no flat points either (#435).
     expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))).toMatchObject({ points: 0 });
+  });
+
+  test("a missed Burst whose buff is in damage costs no Energy points too (#440)", () => {
+    let starved = 0;
+    for (let i = 0; i + 3 < all.length; i++) {
+      const members = all.slice(i, i + 4).filter((c) => !c.id.startsWith("Traveler ("));
+      if (members.length < 4) continue;
+      const s = scoreTeam(members);
+      if (!s.onField) continue;
+      for (const l of s.breakdown) {
+        const id = l.rule === "Energy" && l.points < 0 ? l.reason.match(/^(.+?) Bursts in/)?.[1] : undefined;
+        if (!id) continue;
+        starved++;
+        expect(hasBurstBuff(members.find((m) => m.id === id)!), id).toBe(false);
+      }
+    }
+    expect(starved).toBeGreaterThan(0); // the line still stands for Bursts the model has no value for
   });
 
   test("Shatter deals its damage when Geo or a Claymore carry hits a Frozen target (#402, #435)", () => {
