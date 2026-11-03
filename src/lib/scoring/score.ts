@@ -15,9 +15,7 @@ import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, Sc
 
 // Point values are starting guesses from the design doc; tune them against known-strong teams.
 export const POINTS = {
-  singleCarry: 20,
   noCarry: -30,
-  extraOnField: -15,
   buffer: 10,
   // A buffer scores by the damage their kit adds: +20% = `buffer` points (benchmark.ts, #68). No cap since #90: reaction
   // bonuses are weighted by the carry's share (#87) and Furina's Fanfare is averaged, the overestimates it hid.
@@ -173,11 +171,9 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
 
   const supports = ctx.members.filter((m) => m !== carry);
   const rivals = supports.filter((m) => m.fieldTime === "on");
-  if (rivals.length === 0) {
-    out.add("Carry", POINTS.singleCarry, () => `${carry.id} is the only on-field character`);
-  } else {
-    for (const r of rivals) out.add("Carry", POINTS.extraOnField, () => `${r.id} also wants field time`);
-  }
+  // One on-field carry per team (design doc, non-goals): another member's on-field damage doesn't count, only their
+  // off-field hits and buffs, so they score nothing for it and lose nothing for it (#438). Splitting field time: #448.
+  for (const r of rivals) out.add("Carry", 0, () => `${r.id} also wants field time: only their off-field hits count`);
 
   const main = mainReactionOf(carry);
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
