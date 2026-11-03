@@ -1,5 +1,5 @@
 {
-  "median": 212394.3,
+  "median": 210254.8,
   "carries": {
     "Alhaitham": {
       "team": [
@@ -26,7 +26,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 274531.6
+      "value": 258382.7
     },
     "Arlecchino": {
       "team": [
@@ -35,7 +35,7 @@
         "Yelan",
         "Xilonen"
       ],
-      "value": 251235.6
+      "value": 235130.8
     },
     "Chasca": {
       "team": [
@@ -166,11 +166,11 @@
     "Kinich": {
       "team": [
         "Kinich",
-        "Mavuika",
-        "Emilie",
-        "Iansan"
+        "Dehya",
+        "Furina",
+        "Bennett"
       ],
-      "value": 247027.3
+      "value": 204722.2
     },
     "Klee": {
       "team": [
@@ -188,7 +188,7 @@
         "Nicole",
         "Citlali"
       ],
-      "value": 350512.9
+      "value": 331668.2
     },
     "Lyney": {
       "team": [
@@ -233,7 +233,7 @@
         "Lauma",
         "Ineffa"
       ],
-      "value": 233350.6
+      "value": 222022.9
     },
     "Neuvillette": {
       "team": [
@@ -251,7 +251,7 @@
         "Furina",
         "Xilonen"
       ],
-      "value": 152819.3
+      "value": 135839.4
     },
     "Noelle": {
       "team": [
@@ -260,7 +260,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 202466.6
+      "value": 179970.3
     },
     "Raiden Shogun": {
       "team": [
@@ -382,11 +382,11 @@
     "Wriothesley": {
       "team": [
         "Wriothesley",
-        "Durin",
-        "Nicole",
-        "Citlali"
+        "Escoffier",
+        "Furina",
+        "Yelan"
       ],
-      "value": 296963
+      "value": 291457.1
     },
     "Xiao": {
       "team": [
@@ -418,11 +418,11 @@
     "Yumemizuki Mizuki": {
       "team": [
         "Yumemizuki Mizuki",
-        "Odette",
-        "Traveler (Cryo)",
-        "Faruzan"
+        "Ineffa",
+        "Columbina",
+        "Xilonen"
       ],
-      "value": 142404.1
+      "value": 136593.8
     },
     "Zibai": {
       "team": [
@@ -431,7 +431,7 @@
         "Xilonen",
         "Columbina"
       ],
-      "value": 265673.6
+      "value": 251076.2
     }
   }
 }

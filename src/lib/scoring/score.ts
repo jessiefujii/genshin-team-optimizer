@@ -18,14 +18,6 @@ export const POINTS = {
   singleCarry: 20,
   noCarry: -30,
   extraOnField: -15,
-  carryReactionWithSupport: 20,
-  carryReactionFromElements: 10,
-  extraPartner: 5, // each additional support enabling the main reaction (e.g. double Hydro)
-  maxExtraPartners: 2,
-  secondaryReaction: 5, // focused teams beat ones that spread across many reactions
-  maxCountedReactions: 2,
-  carryReactionsUnavailable: -10,
-  supportReaction: 10,
   buffer: 10,
   // A buffer scores by the damage their kit adds: +20% = `buffer` points (benchmark.ts, #68). No cap since #90: reaction
   // bonuses are weighted by the carry's share (#87) and Furina's Fanfare is averaged, the overestimates it hid.
@@ -132,21 +124,6 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
   return { members, elements, active, options, carryDps: new Map(), burstShares: new Map() };
 }
 
-// A support only partners a reaction if it brings an element the carry lacks (Bennett is not a Vaporize partner for Hu Tao).
-function suppliesElement(support: ScoringCharacter, carry: ScoringCharacter, reaction: Reaction): boolean {
-  return support.element !== carry.element && reactionElements(reaction).includes(support.element);
-}
-
-function mainReactionLines(carry: ScoringCharacter, r: Reaction, partners: ScoringCharacter[], out: Sink) {
-  if (partners.length === 0) {
-    out.add("Reactions", POINTS.carryReactionFromElements, () => `${label(r)} is possible for ${carry.id}`);
-    return;
-  }
-  out.add("Reactions", POINTS.carryReactionWithSupport, () => `${label(r)}: ${carry.id} + ${partners.map((p) => p.id).join(", ")}`);
-  const extra = Math.min(partners.length - 1, POINTS.maxExtraPartners);
-  if (extra > 0) out.add("Reactions", extra * POINTS.extraPartner, () => `${extra + 1} supports enable ${label(r)}`);
-}
-
 // Collects a team's score lines. The search only needs the points, so reasons are passed as
 // functions and only turned into text when the breakdown is kept (#4).
 // A team scores by its damage (#202). Lines the damage model doesn't cover yet keep their points and turn them into a
@@ -191,11 +168,6 @@ class Tally implements Sink {
 function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   if (!carry) {
     out.add("Carry", POINTS.noCarry, () => "No main DPS in the team");
-    // Without a carry, reward reactions that at least two members build toward.
-    const shared = ctx.active.filter((r) => ctx.members.filter((m) => m.reactions.includes(r)).length >= 2);
-    for (const r of shared.slice(0, POINTS.maxCountedReactions)) {
-      out.add("Reactions", POINTS.supportReaction, () => `${label(r)} from the supports`);
-    }
     return;
   }
 
@@ -208,15 +180,7 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   }
 
   const main = mainReactionOf(carry);
-  const partnersFor = (r: Reaction) => supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r));
-  // Reactions the carry's modeled damage covers score by the damage they add (#134), and Overloaded and Swirl by their
-  // own damage in team damage (transformativeLines, #205); the flat points below are for the rest (a carry not modeled
-  // yet, or a reaction the damage model doesn't cover yet, like Freeze or Electro-Charged).
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
-  // A reaction that deals its own damage (Swirl, Overloaded...) leaves the flat points only when that damage counts too:
-  // Heizou's Swirl hit is in his damage, but in a Dendro team his Swirls' own damage isn't yet (#253).
-  const transformative = carryActive.filter((r) => transformativeModeled(ctx, carry, r));
-  const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
   // Freeze deals no damage itself (wiki Frozen): it scores through Blizzard Strayer's CRIT Rate (#205, #206), in the
   // carry's damage, and Shatter's damage (transformativeLines), never flat points (#435).
   const worn = carryActive.includes("freeze") && freezeInDamage(carry, ctx.active);
@@ -226,34 +190,9 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
     out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents (Frozen ~${share}% of the time)`);
   }
   else if (frozen) out.add("Reactions", 0, () => `Freeze: adds nothing without a set whose CRIT Rate needs it (Blizzard Strayer)`);
-  // Quicken is the aura Aggravate and Spread need: with either in the carry's damage, so is what it's worth (#427).
-  const quicken = kitModeled.some((r) => r === "aggravate" || r === "spread") ? ["quicken" as Reaction] : [];
-  // Lunar-Bloom deals damage only through Columbina's, Lauma's and Nefer's talents, each in their own damage (#429).
-  const lunarBloom = carryActive.includes("lunar-bloom") && modeledCarryDps(carry, ctx) !== null ? ["lunar-bloom" as Reaction] : [];
-  const modeled = [...kitModeled, ...transformative, ...quicken, ...lunarBloom, ...(frozen ? ["freeze" as Reaction] : [])];
-  const flat = carryActive.filter((r) => !modeled.includes(r));
-  const mainIn = (r: Reaction) =>
-    TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r) || (r === "freeze" && frozen);
-  const mainModeled = main !== undefined && main !== "none" && mainIn(main);
-  if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
-    out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
-  }
-  if (main === undefined) {
-    const ranked = flat
-      .map((r) => ({ r, partners: partnersFor(r) }))
-      .sort((a, b) => b.partners.length - a.partners.length)
-      .slice(0, POINTS.maxCountedReactions);
-    ranked.forEach(({ r, partners }, i) => {
-      if (i > 0 || modeled.length > 0) out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
-      else mainReactionLines(carry, r, partners, out);
-    });
-  } else {
-    // Only the reaction the carry's teams are built around gets full points (#49).
-    if (main !== "none" && !mainModeled && ctx.active.includes(main)) mainReactionLines(carry, main, partnersFor(main), out);
-    for (const r of flat.filter((r) => r !== main).slice(0, POINTS.maxCountedReactions - 1)) {
-      out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
-    }
-  }
+  // A reaction scores only by what it adds: in the carry's damage (reactionDamageLine) or as its own damage
+  // (transformativeLines). One whose hits or applier the model doesn't cover scores nothing yet, not flat points (#437).
+  reactionDamageLine(ctx, carry, out);
 
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   const emUseful = usesEmReaction(carry, ctx);
@@ -1502,21 +1441,7 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   return total;
 }
 const INDIRECT_WEIGHTS = [0.6, 0.3, 0.05, 0.05];
-// Lunar and Stellar reactions with damage of their own besides the members' direct hits (#145, #235).
-const INDIRECT_LUNAR = new Set<Reaction>(["lunar-charged", "lunar-crystallize", "stellar-swirl"]);
 type Indirect = { r: Reaction; what: string; perSecond: number; coefficient: number; element: Element };
-
-// Whether a transformative reaction's damage is in team damage for this team (#205), so its flat points go: some member
-// applies each of its elements in the aura budget (Swirl: Anemo and an aura element). Not when an applier isn't modeled
-// (Raiden off field has no sub-DPS entry, #252): the flat points stay as the stand-in. A reaction a converter turns into
-// its Lunar or Stellar form (CONVERTED) doesn't happen, so it scores nothing either way.
-function transformativeModeled(ctx: TeamContext, carry: ScoringCharacter, r: Reaction): boolean {
-  if (!TRANSFORMATIVE[r] && !INDIRECT_LUNAR.has(r)) return false;
-  if (convertedAway(ctx, r)) return true;
-  const applies = (e: Element) => ctx.members.some((m) => m.element === e && applicationsPerSecond(m, carry, ctx) > 0);
-  if (r === "swirl") return applies("Anemo") && swirlAuras(ctx).some(applies);
-  return reactionElements(r).every(applies);
-}
 
 function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
   return SUB_DPS_REACTIONS.filter((r) => {

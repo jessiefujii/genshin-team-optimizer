@@ -67,41 +67,23 @@ describe("scoreTeam", () => {
     expect(bad.breakdown.some((l) => l.reason.includes("also wants field time"))).toBe(true);
   });
 
-  // The flat reaction points only apply to carries whose damage isn't modeled yet (the "(no model)" copies):
-  // a modeled carry's reactions score by the damage they add (#134).
-  test("double Hydro gets credit for the second Hydro support", () => {
-    const double = score("Diluc (no model)", "Xingqiu", "Yelan", "Zhongli");
-    expect(double.breakdown.some((l) => l.reason === "2 supports enable Vaporize")).toBe(true);
-  });
-
-  test("same-element supports are not reaction partners (#1)", () => {
-    const diluc = score("Diluc (no model)", "Bennett", "Furina", "Xingqiu");
-    const vape = diluc.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
-    expect(vape?.reason).toBe("Vaporize: Diluc (no model) + Furina, Xingqiu");
-
-    const childe = score("Tartaglia (no model)", "Bennett", "Furina", "Xiangling");
-    expect(childe.breakdown.find((l) => l.reason.startsWith("Vaporize:"))?.reason).toBe(
-      "Vaporize: Tartaglia (no model) + Bennett, Xiangling",
-    );
-  });
-
-  test("only the carry's main reaction gets full points (#49)", () => {
-    const s = score("Keqing (no model)", "Xingqiu", "Furina", "Zhongli");
-    const reasons = s.breakdown.map((l) => l.reason);
-    expect(reasons.some((r) => r.startsWith("Electrocharged:"))).toBe(false);
-    expect(reasons).toContain("Electrocharged as a secondary reaction");
-    // Partners list in the fixed member order the team is read in (#201).
-    expect(score("Keqing (no model)", "Nahida", "Baizhu", "Furina").breakdown.map((l) => l.reason)).toContain(
-      "Aggravate: Keqing (no model) + Baizhu, Nahida",
-    );
+  test("reactions score no flat points, for a carry without a damage model too (#437)", () => {
+    const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions");
+    for (const ids of [
+      ["Diluc (no model)", "Xingqiu", "Yelan", "Zhongli"],
+      ["Tartaglia (no model)", "Bennett", "Furina", "Xiangling"],
+      ["Keqing (no model)", "Nahida", "Baizhu", "Furina"],
+      ["Keqing (no model)", "Nahida", "Fischl", "Furina"],
+      ["Bennett", "Xingqiu", "Zhongli", "Furina"], // no main DPS
+    ]) {
+      expect(lines(...ids).every((l) => l.points === 0)).toBe(true);
+    }
   });
 
   test("Quicken scores nothing beside a modeled Aggravate or Spread (#427)", () => {
     const quicken = (...ids: string[]) => score(...ids).breakdown.some((l) => l.reason.startsWith("Quicken"));
     // Its worth is the Spread in Alhaitham's damage.
     expect(quicken("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(false);
-    // A carry without a damage model keeps the flat points.
-    expect(score("Keqing (no model)", "Nahida", "Fischl", "Furina").breakdown.map((l) => l.reason)).toContain("Quicken as a secondary reaction");
   });
 
   test("an aura feeds the carry's Vaporize or a sub-DPS's, not both (#239)", () => {
