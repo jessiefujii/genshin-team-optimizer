@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 129803.9
+      "value": 126558.2
     },
     "Flins": {
       "team": [
@@ -98,7 +98,7 @@
         "Escoffier",
         "Shenhe"
       ],
-      "value": 231137.8
+      "value": 246304.1
     },
     "Gaming": {
       "team": [
@@ -134,7 +134,7 @@
         "Furina",
         "Yelan"
       ],
-      "value": 359750.5
+      "value": 274095.6
     },
     "Kamisato Ayato": {
       "team": [
@@ -143,7 +143,7 @@
         "Furina",
         "Citlali"
       ],
-      "value": 229287.9
+      "value": 215800.4
     },
     "Kaveh": {
       "team": [
@@ -314,7 +314,7 @@
         "Escoffier",
         "Yelan"
       ],
-      "value": 329961
+      "value": 251398.9
     },
     "Tartaglia": {
       "team": [
@@ -382,11 +382,11 @@
     "Wriothesley": {
       "team": [
         "Wriothesley",
-        "Escoffier",
-        "Furina",
-        "Yelan"
+        "Durin",
+        "Nicole",
+        "Citlali"
       ],
-      "value": 373158.1
+      "value": 296963
     },
     "Xiao": {
       "team": [

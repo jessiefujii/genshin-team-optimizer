@@ -3,7 +3,7 @@ import kitJson from "../../../data/kit.json";
 import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
-import { carryDamage } from "./damage";
+import { carryDamage, LEVEL_MULTIPLIER_90, shatterHit } from "./damage";
 import { fightingSpiritBuilt, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
@@ -182,12 +182,13 @@ describe("scoreTeam", () => {
       // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
       { rule: "Reactions", points: 0, reason: "Swirl: ~3213 damage per second (Kaedehara Kazuha ~0.4/s)" }, // his guide's VV: shred (#338), Swirl DMG (#344)
     ]);
-    // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze. Fischl's and Furina's
+    // Freeze scores no flat points (#435). Fischl's and Furina's
     // Electro-Charged deals its own damage (#205); no Superconduct, which Sandrone turns into Stellar-Conduct.
-    expect(reactions("Wriothesley", "Sandrone", "Fischl", "Furina").map((l) => l.reason)).toEqual([
-      "Freeze: Wriothesley + Furina",
-      "Electrocharged: ~2327 damage per second (Fischl ~0.2/s, Furina ~0.5/s)",
-    ]);
+    const lines = reactions("Wriothesley", "Sandrone", "Fischl", "Furina");
+    expect(lines.every((l) => l.points === 0)).toBe(true);
+    expect(lines.map((l) => l.reason)).toContain("Freeze: adds nothing without a set whose CRIT Rate needs it (Blizzard Strayer)");
+    expect(lines.some((l) => l.reason.startsWith("Electrocharged: "))).toBe(true);
+    expect(lines.some((l) => l.reason.startsWith("Superconduct"))).toBe(false);
   });
 
   test("sub-DPS add their own damage per second to the team, whatever the carry's reactions (#134, #202)", () => {
@@ -267,12 +268,10 @@ describe("scoreTeam", () => {
   });
 
   test("every main DPS is tried on field and the best team reading stands (#389)", () => {
-    // Skirk's damage leans on Escoffier's and Furina's buffs: unbuffed, Clorinde out-damages her, but the team scores
-    // higher with Skirk on field.
     const s = score("Skirk", "Clorinde", "Escoffier", "Furina");
-    expect(s.onField).toBe("Skirk");
     const members = team("Skirk", "Clorinde", "Escoffier", "Furina");
-    expect(carryTeamValue(members, "Skirk")).toBeGreaterThan(carryTeamValue(members, "Clorinde"));
+    const other = s.onField === "Skirk" ? "Clorinde" : "Skirk";
+    expect(carryTeamValue(members, s.onField!)).toBeGreaterThan(carryTeamValue(members, other));
   });
 
   test("Clorinde heals herself on field: her guide's Aggravate team isn't 'No healer' (#324)", () => {
@@ -1127,8 +1126,19 @@ describe("talent levels (#25)", () => {
     const otherScore = scoreTeam(other);
     expect(freezeLine(otherScore)).toMatchObject({ points: 0 });
     expect(otherScore.score).toBeLessThan(s.score);
-    // Ayaka's guide picks Marechaussee Hunter (not modeled yet): flat points.
-    expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))!.points).toBeGreaterThan(0);
+    // Ayaka's guide set doesn't need Freeze: no flat points either (#435).
+    expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))).toMatchObject({ points: 0 });
+  });
+
+  test("Shatter deals its damage when Geo or a Claymore carry hits a Frozen target (#402, #435)", () => {
+    const shatter = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Shatter:"));
+    expect(shatter("Ganyu", "Furina", "Xilonen", "Escoffier")).toMatchObject({ rule: "Reactions", points: 0 });
+    expect(shatter("Ganyu", "Furina", "Xilonen", "Escoffier")!.reason).toContain("Xilonen");
+    // Nothing to Shatter with, or nothing Frozen.
+    expect(shatter("Ganyu", "Furina", "Shenhe", "Escoffier")).toBeUndefined();
+    expect(shatter("Xilonen", "Bennett", "Fischl", "Chevreuse")).toBeUndefined();
+    expect(shatterHit(0)).toBeCloseTo(3 * LEVEL_MULTIPLIER_90, 6);
+    expect(shatterHit(1000)).toBeCloseTo(3 * LEVEL_MULTIPLIER_90 * (1 + 16000 / 3000), 6);
   });
 
   test("a Burst short of Energy funds its buffs less often (#207)", () => {

@@ -233,9 +233,6 @@ export const setDmgBonus = (buffs: readonly SetBuff[], type: HitType, el: Elemen
 // Whether the carry's Freeze is in their damage through a set's CRIT Rate (#205: Freeze scores only through crit).
 export const freezeInDamage = (c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[] = [c]) =>
   setsOf(c, active, team).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.when?.reaction === "freeze"));
-// Whether Freeze's value for this carry is their guide set's, in the model (#279): then a build without that set gets
-// none, as Freeze has no value but the set's crit (#205).
-export const freezeSetModeled = (c: ScoringCharacter) => !!BENCHMARK_SETS[c.id]?.some((b) => b.when?.reaction === "freeze");
 // Weapon passives on the holder's own hits (#40, extract-kit WEAPONS): `values` by refinement (R1-R5), `when` the team
 // condition. Only a build's weapon counts: a benchmark character holds none.
 type WeaponWhen = {
@@ -437,10 +434,13 @@ export const LEVEL_MULTIPLIER_90 = 1446.85;
 // Swirl), Overloaded 2.75 (3978.85, wiki Overloaded). `perSecond`: the most instances one attacker deals a target per
 // second (Damage Sequence: Swirl 2 per 0.5s, Overloaded 1 per 0.5s, Superconduct 2 per 0.5s). Superconduct 1.5 (wiki
 // Superconduct). Electro-Charged 2.0 (wiki Electro-Charged): one tick per second while the target holds both auras, each
-// tick 0.4U of each (score.ts reads its ticks from the aura budget, at most 1 per second in all). Freeze counts only
-// through crit and Crystallize under survival (Jessie, 2026-10-18).
+// tick 0.4U of each (score.ts reads its ticks from the aura budget, at most 1 per second in all). Freeze counts through
+// crit and Shatter (shatterHit, #435), and Crystallize under survival (Jessie, 2026-10-18).
 // `additive`: Reaction Additive Base DMG Bonus (Lauma's), added after that, before RES (wiki, same section; #256).
 // TRANSFORMATIVE (the coefficients and caps) lives in reactions.ts, so kit.ts can read it (#256).
+// Shatter on a Frozen target: "3 x Level Multiplier", "only affected by the level and Elemental Mastery of the character
+// causing the reaction, and the target's Physical RES"; no DEF, no crit (wiki Frozen § Shatter, fetched 2026-11-03).
+export const shatterHit = (em: number) => 3 * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000));
 export const transformativeHit = (r: Reaction, em: number, bonus = 0, additive = 0) =>
   (TRANSFORMATIVE[r]?.coefficient ?? 0) * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000) + bonus) + additive;
 
@@ -568,6 +568,28 @@ export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], 
     reacting += h.count * reactingShare(h) * (h.instances ?? 1);
   }
   return { hitsPerSecond: hits / seconds, reactingPerSecond: reacting / seconds, reaction: reaction ?? mainReactionOf(c) };
+}
+
+// The carry's hits a second that can Shatter a Frozen target, not counting Geo DMG, which always can (score.ts). Wiki
+// Blunt Attack (fetched 2026-11-03): "All Claymore Characters" Normal and Charged Attacks; Sword, Claymore and Polearm
+// Plunging Attacks; and, of the carries a Freeze team can field, these. Sandrone's listed Charged Attack is only Condensed Beam.
+const BLUNT_HITS: Record<string, (h: CarryHit) => boolean> = {
+  Eula: (h) => h.type === "burst" || h.label.includes("Swing"),
+  Freminet: (h) => h.type === "burst" || /Upward Thrust|Frost|Shattering Pressure/.test(h.label),
+  Klee: (h) => h.type === "normal" || h.type === "charged",
+  Wriothesley: (h) => h.type === "charged",
+};
+const MELEE_PLUNGE = ["Sword", "Claymore", "Polearm"];
+export function bluntHitsPerSecond(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): number {
+  if (!CARRIES[c.id]) return 0;
+  const { kit } = pickCombo(CARRIES[c.id], c, active, team);
+  const blunt = (h: CarryHit) => {
+    if (c.id === "Sandrone") return /Condensed Beam|Convective Inhibition/.test(h.label);
+    if (BLUNT_HITS[c.id]?.(h)) return true;
+    if (h.type === "plunge") return MELEE_PLUNGE.includes(c.weapon);
+    return c.weapon === "Claymore" && (h.type === "normal" || h.type === "charged");
+  };
+  return kit.hits.filter(blunt).reduce((n, h) => n + h.count * (h.instances ?? 1), 0) / rotationFor(kit, c, active, team);
 }
 
 // Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,

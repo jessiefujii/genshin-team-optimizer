@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -217,12 +217,10 @@ function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink)
   // Heizou's Swirl hit is in his damage, but in a Dendro team his Swirls' own damage isn't yet (#253).
   const transformative = carryActive.filter((r) => transformativeModeled(ctx, carry, r));
   const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
-  // Freeze scores only through crit (#205): with a 4pc set whose CRIT Rate needs it (Blizzard Strayer, #206) it is in the
-  // carry's damage. A carry without a build wears their guide's set (setsOf, #279), and a build with another set gets
-  // nothing from Freeze. A carry whose guide set doesn't need Freeze (Ayaka, Wriothesley: Marechaussee Hunter, #206)
-  // keeps the flat points.
+  // Freeze deals no damage itself (wiki Frozen): it scores through Blizzard Strayer's CRIT Rate (#205, #206), in the
+  // carry's damage, and Shatter's damage (transformativeLines), never flat points (#435).
   const worn = carryActive.includes("freeze") && freezeInDamage(carry, ctx.active);
-  const frozen = worn || (carryActive.includes("freeze") && freezeSetModeled(carry));
+  const frozen = carryActive.includes("freeze");
   if (worn) {
     const share = Math.round(frozenShare(ctx, carry) * 100); // #282
     out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents (Frozen ~${share}% of the time)`);
@@ -1351,7 +1349,7 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   // has no modeled applier (no sub-DPS entry), 1 stays as the stand-in.
   const freezes = pairs.filter((p) => p.r === "freeze").reduce((s, p) => s + p.reactions, 0);
   const frozen = (full.get("Hydro") ?? 0) > 0 && (full.get("Cryo") ?? 0) > 0 ? 1 - Math.exp(-freezes * FREEZE_SECONDS) : 1;
-  return { subs: out, carry: carryShare, quicken, transformative, appsOf, indirect, crystallize, frozen };
+  return { subs: out, carry: carryShare, quicken, transformative, appsOf, indirect, crystallize, frozen, freezes };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
 const QUICKEN_SECONDS = 0.8 * 5 + 6; // a Quicken aura from 0.8U (wiki Quicken § Duration)
@@ -1447,6 +1445,22 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
       by.push(`${m.id} ~${(rate * capped).toFixed(1)}/s`);
     }
     if (dps >= 1) out.add("Reactions", 0, () => `${label(r)}: ~${Math.round(dps)} damage per second (${by.join(", ")})`);
+    total += dps;
+  }
+  // Shatter (#402): each Freeze can be Shattered once by Geo DMG (even non-Blunt: wiki Blunt Attack) or the carry's Blunt
+  // hits, shared by how often each hits, at their own EM. Estimates: those hits land while it is Frozen, and Frozen
+  // uptime doesn't shorten for it. Physical DMG: no element's shred reads it. Sub-DPS' non-Geo Blunt hits aren't counted.
+  // Bosses can't be Frozen: boss mode, #398.
+  const hitsOf = (m: ScoringCharacter) => (m.element === "Geo" ? (budget.appsOf.get(m) ?? 0) : m === carry ? bluntHitsPerSecond(m, ctx.active, ctx.members) : 0);
+  const shatterers = ctx.members.filter((m) => hitsOf(m) > 0);
+  const shatterRate = shatterers.reduce((s, m) => s + hitsOf(m), 0);
+  if (budget.freezes > 0 && shatterRate > 0) {
+    const shatters = Math.min(budget.freezes, shatterRate);
+    const dps = shatterers.reduce((sum, m) => {
+      const em = teamEm(m, carry, ctx, (subDpsStats(m)?.em ?? carryStats(m).em) + memberExtras(m, carry, ctx).em);
+      return sum + shatters * (hitsOf(m) / shatterRate) * shatterHit(em);
+    }, 0);
+    if (dps >= 1) out.add("Reactions", 0, () => `Shatter: ~${Math.round(dps)} damage per second (${shatterers.map((m) => m.id).join(", ")} ~${shatters.toFixed(1)}/s)`);
     total += dps;
   }
   // Indirect Lunar damage (#145; Jessie, 2026-10-12: in the Reactions line by damage added, for the team that triggers
