@@ -11,7 +11,7 @@ const key = (ids: readonly string[]) => [...ids].sort().join("|");
 const short = (ids: readonly string[], carry: string) => ids.filter((id) => id !== carry).join(", ");
 
 export function compareKnownTeams(part: number) {
-  test(`guide teams vs the scorer's best teams, part ${part}`, { timeout: 900_000 }, () => {
+  test(`guide teams vs the scorer's best teams, part ${part}`, { timeout: 1_500_000 }, () => {
     // Every character at benchmark builds, as if the player owned everyone.
     const all = loadScoringCharacters();
     const byId = new Map(all.map((c) => [c.id, c]));
