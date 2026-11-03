@@ -65,10 +65,12 @@ test("team search for 50 characters", { timeout: 120_000 }, () => {
   expect(slowestPart(`search, slowest of ${PARTS} parts`, (part) => findBestTeams(big, { part }))).toBeLessThan(2000);
 });
 
-// Suggestions arrive after the list (a second search), so they are timed separately with 10 unbuilt members.
+// Suggestions arrive after the list (a second search), so they are timed separately with 10 unbuilt members, and have
+// their own target (Jessie, 2026-11-03, #422): they score about 4x the teams, as any unbuilt member can get a suggestion,
+// and scoring fewer loses suggestions.
 test("build suggestions for 50 characters", { timeout: 120_000 }, () => {
   const roster = big.map((c, i) => (i % 5 === 0 ? { ...c, built: false } : c));
   const top = findBestTeams(roster);
   bestOf("suggestions, 10 of 50 not built, one thread", () => suggestBuilds(roster, top), 3);
-  expect(slowestPart(`suggestions, slowest of ${PARTS} parts`, (part) => suggestionCandidates(roster, top, { part }))).toBeLessThan(2000);
+  expect(slowestPart(`suggestions, slowest of ${PARTS} parts`, (part) => suggestionCandidates(roster, top, { part }))).toBeLessThan(5000);
 });
