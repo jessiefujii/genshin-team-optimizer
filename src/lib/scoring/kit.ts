@@ -903,7 +903,7 @@ function resonanceStats(m: ScoringCharacter, active: readonly Reaction[], team: 
 // increased by 20%. If at least 1 Cryo or Electro hit is included, Cryo and Electro DMG Bonus is instead increased by
 // 28% plus an additional 1% for each recorded hit, up to a maximum of 12 hits" (Genshin Impact Wiki, Stellar-Conduct,
 // fetched 2026-10-22): 40%, saturated as the Stellar-Conduct coefficient is (damage.ts LUNAR_COEFFICIENT). Only the
-// on-field carry is inside the field; its Physical RES -40% is left out.
+// on-field carry is inside the field. Its enemies' Physical RES -40% is on the carry's Physical hits (damage.ts, #416).
 function polestarStats(carry: ScoringCharacter, active: readonly Reaction[], into: TeamBuffStats) {
   if (active.includes("stellar-conduct") && (carry.element === "Cryo" || carry.element === "Electro")) into.dmgBonus += 0.4;
 }

@@ -504,6 +504,13 @@ describe("carry damage (#101)", () => {
     expect(physicalShare).toBeLessThan(1 + resShredGain(0.4)); // her Cryo hits don't get it
   });
 
+  test("The Polestar Field's 40% Physical RES shred reaches Physical hits too, and adds to Superconduct's (#416)", () => {
+    const eula = byId.get("Eula")!;
+    const dps = (active: Reaction[]) => carryDamage(eula, active)!.perSecond;
+    expect(dps(["stellar-conduct"])).toBeCloseTo(dps(["superconduct"]), 6);
+    expect(dps(["stellar-conduct", "superconduct"])).toBeGreaterThan(dps(["superconduct"]) * 1.1);
+  });
+
   test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {
     const navia = byId.get("Navia")!;
     expect(carryDamage(navia, ["crystallize"])!.perSecond).toBeGreaterThan(carryDamage(navia, [])!.perSecond * 1.2);
