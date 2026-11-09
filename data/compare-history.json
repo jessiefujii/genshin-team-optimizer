@@ -89,5 +89,172 @@
         "row": "Kinich | #4 (117.3357405994298) | Iansan, Nicole, Durin (genshin-builds) | 126.32799640339435 | Furina, Iansan, Mavuika | unranked"
       }
     ]
+  },
+  {
+    "report": "known-teams",
+    "commit": "67e4bb4",
+    "dirty": false,
+    "date": "2026-11-03",
+    "found": 15,
+    "total": 16,
+    "columns": "Carry | Best guide team: rank (score) | Guide team | Our #1 score | Our #1 team | #1 overlap with guide's top pick",
+    "rows": [
+      {
+        "carry": "Hu Tao",
+        "found": true,
+        "row": "Hu Tao | #23 (129.340116487777) | Citlali, Furina, Yelan (genshin-builds) | 151.85355916469982 | Durin, Furina, Sucrose | unranked"
+      },
+      {
+        "carry": "Raiden Shogun",
+        "found": true,
+        "row": "Raiden Shogun | #1 (102.15021971087852) | Furina, Yelan, Xilonen | 102.15021971087852 | Furina, Xilonen, Yelan | unranked"
+      },
+      {
+        "carry": "Neuvillette",
+        "found": true,
+        "row": "Neuvillette | #1 (113.71338181620808) | Escoffier, Furina, Citlali | 113.71338181620808 | Citlali, Escoffier, Furina | unranked"
+      },
+      {
+        "carry": "Kamisato Ayaka",
+        "found": true,
+        "row": "Kamisato Ayaka | #1 (130.59320286560043) | Escoffier, Furina, Yelan | 130.59320286560043 | Escoffier, Furina, Yelan | unranked"
+      },
+      {
+        "carry": "Alhaitham",
+        "found": true,
+        "row": "Alhaitham | #84 (100.11144812440364) | Yae Miko, Nahida, Zhongli | 114.7568443191725 | Furina, Ineffa, Nahida | unranked"
+      },
+      {
+        "carry": "Arlecchino",
+        "found": true,
+        "row": "Arlecchino | #1 (108.44754058262312) | Furina, Yelan, Xilonen | 108.44754058262312 | Furina, Xilonen, Yelan | unranked"
+      },
+      {
+        "carry": "Mavuika",
+        "found": true,
+        "row": "Mavuika | #34 (120.59861397979094) | Xilonen, Furina, Bennett | 144.30882791827648 | Citlali, Durin, Escoffier | unranked"
+      },
+      {
+        "carry": "Flins",
+        "found": true,
+        "row": "Flins | #5 (94.10204517139498) | Columbina, Xilonen, Ineffa (genshin-builds) | 105.03078383969886 | Columbina, Furina, Xilonen | unranked"
+      },
+      {
+        "carry": "Nefer",
+        "found": true,
+        "row": "Nefer | #3 (112.25957824944413) | Furina, Lauma, Ineffa | 121.563856021853 | Columbina, Furina, Lauma | unranked"
+      },
+      {
+        "carry": "Zibai",
+        "found": true,
+        "row": "Zibai | #1 (122.40754710322642) | Linnea, Xilonen, Columbina | 122.40754710322642 | Columbina, Linnea, Xilonen | unranked"
+      },
+      {
+        "carry": "Skirk",
+        "found": true,
+        "row": "Skirk | #2 (119.77930824695437) | Furina, Escoffier, Yelan | 139.33172510885282 | Durin, Escoffier, Nicole | unranked"
+      },
+      {
+        "carry": "Clorinde",
+        "found": false,
+        "row": "Clorinde | >100 (78.97353731297513) | Fischl, Nahida, Kaedehara Kazuha | 114.26324995265112 | Furina, Xilonen, Yelan | unranked"
+      },
+      {
+        "carry": "Varesa",
+        "found": true,
+        "row": "Varesa | #6 (111.14439945589773) | Iansan, Furina, Xianyun | 115.47574452948659 | Furina, Xianyun, Xilonen | unranked"
+      },
+      {
+        "carry": "Xiao",
+        "found": true,
+        "row": "Xiao | #59 (99.88856086725033) | Faruzan, Xianyun, Furina | 117.77180292446458 | Escoffier, Furina, Odette | unranked"
+      },
+      {
+        "carry": "Wriothesley",
+        "found": true,
+        "row": "Wriothesley | #2 (138.86510873792466) | Escoffier, Furina, Yelan | 148.08274293095627 | Durin, Escoffier, Nicole | unranked"
+      },
+      {
+        "carry": "Kinich",
+        "found": true,
+        "row": "Kinich | #6 (111.75390253742219) | Iansan, Nicole, Durin (genshin-builds) | 114.37355638530384 | Durin, Furina, Iansan | unranked"
+      }
+    ]
+  },
+  {
+    "report": "meta-teams",
+    "commit": "67e4bb4",
+    "dirty": false,
+    "date": "2026-11-09",
+    "found": 10,
+    "total": 13,
+    "columns": "Carry | Damage model | Top pick: rank (score) | Best meta team | Our #1 | #1 overlap with top pick | Meta in",
+    "rows": [
+      {
+        "carry": "Sandrone",
+        "found": true,
+        "row": "Sandrone | yes | >100 (79.14958923417322): Yae Miko, Odette, Alyosha | #69 (88.50564949140855): Yae Miko, Odette, Escoffier | 121.92956698416805: Citlali, Durin, Nicole | 1/4 | Game8 SS 7.0-7.1 (S 6.7); gamemarket 6.7 SS; genshin-builds SS"
+      },
+      {
+        "carry": "Vesna",
+        "found": false,
+        "row": "Vesna | yes | >100 (42.53706464741393): Odette, Vodyanitsa, Traveler (Cryo) | >100 (42.53706464741393): Odette, Vodyanitsa, Traveler (Cryo) | (none where they carry) | - | Game8 SS 7.1; genshin-builds SS"
+      },
+      {
+        "carry": "Varka",
+        "found": true,
+        "row": "Varka | yes | #5 (139.4638712632001): Prune, Nicole, Bennett | #1 (157.76893089648902): Prune, Nicole, Durin | 157.76893089648902: Durin, Nicole, Prune | 3/4 | Game8 SS from 6.6 (2026-05-20), S in 7.1; gamemarket 6.7 S; genshin-builds SS"
+      },
+      {
+        "carry": "Zibai",
+        "found": true,
+        "row": "Zibai | yes | >100 (89.26330439943438): Linnea, Columbina, Gorou | #1 (122.40754710322642): Linnea, Xilonen, Columbina | 122.40754710322642: Columbina, Linnea, Xilonen | 3/4 | Game8 SS 7.1; Phrasemaker 6.5 S; genshin-builds SS"
+      },
+      {
+        "carry": "Nefer",
+        "found": true,
+        "row": "Nefer | yes | #67 (93.10458054206885): Lauma, Yaoyao, Columbina | #3 (112.25957824944413): Furina, Lauma, Ineffa | 121.563856021853: Columbina, Furina, Lauma | 3/4 | Game8 SS since 2025-11; Phrasemaker 6.5 S; genshin-builds SS"
+      },
+      {
+        "carry": "Flins",
+        "found": true,
+        "row": "Flins | yes | >100 (62.53296122216847): Aino, Jahoda, Ineffa | #6 (93.69292359630329): Ineffa, Columbina, Sucrose | 105.03078383969886: Columbina, Furina, Xilonen | 1/4 | Game8 SS since 2025-11; Phrasemaker 6.5 S; genshin-builds SS"
+      },
+      {
+        "carry": "Skirk",
+        "found": true,
+        "row": "Skirk | yes | #16 (102.10694369928562): Dahlia, Furina, Escoffier | #2 (119.77930824695437): Furina, Escoffier, Yelan | 139.33172510885282: Durin, Escoffier, Nicole | 2/4 | Game8 SS from 2025-06, S in 7.1; gamemarket 6.7 SS; Phrasemaker 6.5 S; genshin-builds SS"
+      },
+      {
+        "carry": "Mavuika",
+        "found": true,
+        "row": "Mavuika | yes | >100 (55.67474902069166): Ororon, Chevreuse, Bennett | #34 (120.59861397979094): Xilonen, Furina, Bennett | 144.30882791827648: Citlali, Durin, Escoffier | 1/4 | Game8 SS 7.1; gamemarket 6.7 SS; Phrasemaker 6.5 S; genshin-builds SS"
+      },
+      {
+        "carry": "Cyno",
+        "found": false,
+        "row": "Cyno | yes | >100 (60.06147274050806): Chevreuse, Xiangling, Bennett | >100 (60.06147274050806): Chevreuse, Xiangling, Bennett | 122.80925226862432: Furina, Odette, Xilonen | 1/4 | Game8 SS 7.0-7.1; genshin-builds SS"
+      },
+      {
+        "carry": "Yumemizuki Mizuki",
+        "found": false,
+        "row": "Yumemizuki Mizuki | yes | >100 (45.92929056291271): Furina, Ororon, Venti | >100 (45.92929056291271): Furina, Ororon, Venti | 90.27285392538973: Durin, Escoffier, Odette | 1/4 | Game8 S 7.0, SS 7.1; genshin-builds SS"
+      },
+      {
+        "carry": "Neuvillette",
+        "found": true,
+        "row": "Neuvillette | yes | #2 (105.7144628409667): Furina, Xilonen, Ineffa | #1 (113.71338181620808): Escoffier, Furina, Citlali | 113.71338181620808: Citlali, Escoffier, Furina | 2/4 | Game8 S 2025-11 to 7.0 (A since); gamemarket 6.7 SS; genshin-builds SS"
+      },
+      {
+        "carry": "Arlecchino",
+        "found": true,
+        "row": "Arlecchino | yes | >100 (70.56108899110137): Citlali, Xilonen, Bennett | #1 (108.44754058262312): Furina, Yelan, Xilonen | 108.44754058262312: Furina, Xilonen, Yelan | 2/4 | Game8 S 2025-11 to 7.0 (A since); gamemarket 6.7 S; genshin-builds SS"
+      },
+      {
+        "carry": "Varesa",
+        "found": true,
+        "row": "Varesa | yes | >100 (75.88201026010978): Mavuika, Chevreuse, Iansan | #6 (111.14439945589773): Iansan, Furina, Xianyun | 115.47574452948659: Furina, Xianyun, Xilonen | 1/4 | Game8 SS 2025-11 to 6.6, S to 7.0 (A+ since); gamemarket 6.7 S; genshin-builds SS"
+      }
+    ]
   }
 ]
