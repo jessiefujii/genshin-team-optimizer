@@ -552,7 +552,8 @@ function computeKitBuffValue(
 // The team's kit buffs as stats added to the carry's own (#157), so carry damage can be read with them: flat
 // reaction damage (Aggravate, Spread, Clorinde's passive) is then weighed against buffed hits, not bare ones.
 // Same buffs, conditions, uptimes and reaction shares as kitBuffValue, and the same best-per-kind choice per buffer.
-// RES and DEF shred are in it too (#204): they scale the hits they reach. Left out: attack speed. Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
+// RES and DEF shred are in it too (#204): they scale the hits they reach; Normal ATK SPD too, as more Normal Attack hits
+// in the same rotation (#411). Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
 // damage, which buffer points already score; inside this yardstick they'd raise Aggravate or Vaporize again (Nahida's
 // EM took Clorinde's Aggravate line from +170% to +212%). Weapon, set and constellation effects (effects.json)
 // aren't in kit.json.
@@ -573,6 +574,7 @@ export interface TeamBuffStats {
   defShred: number; // enemy DEF decrease (#204)
   em: number; // flat EM (#186: kit EM buffs and Sprawling Greenery), for the reactions the hits trigger
   hpPct: number; // of the member's base HP (#186: Soothing Water)
+  normalSpd: number; // Normal ATK SPD (#411: Mika, Chongyun, Dahlia): damage.ts lands this share more Normal Attack hits
   // Teammates' Moonsign Benediction Base DMG bonus to the carry's direct Lunar hits, by reaction (#88; score.ts
   // teammatesLunarBase). Set by the scorer beside these sums, so teamBuffStats leaves it out.
   lunarBase?: Partial<Record<Reaction, number>>;
@@ -583,13 +585,14 @@ export interface TeamBuffStats {
 export type BurstShares = ReadonlyMap<ScoringCharacter, number>;
 
 type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares" | "lunarAdditive" | "byHit">;
-export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, critDmg: 0, flat: 0, resShred: 0, defShred: 0, em: 0, hpPct: 0 };
+export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, critDmg: 0, flat: 0, resShred: 0, defShred: 0, em: 0, hpPct: 0, normalSpd: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
 const IN_CARRY_DAMAGE = new Set([
   "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate", "critDmg",
   "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred", "lunarAdditiveFromEm",
   "em", "emFromAtk", "emFromDef", "emFromEm", "emFromTopEm", // #186: EM feeds the reactions inside damage now
+  "atkSpd", // #411: more Normal Attack hits in the carry's rotation
 ]);
 
 function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
@@ -602,6 +605,7 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
     into.critDmg += part.critDmg;
     into.resShred += part.resShred;
     into.defShred += part.defShred;
+    into.normalSpd += part.normalSpd; // ATK SPD for Normal Attacks (Mika's, Dahlia's): damage.ts puts it on those alone
     for (const t of buff.appliesTo) addByHit(into, t, part.flat, part.dmgBonus);
     return;
   }
@@ -677,6 +681,9 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
       break;
     case "emFromTopEm":
       into.em += Math.min(stats.em * v, 250) * weight;
+      break;
+    case "atkSpd":
+      into.normalSpd += v * weight;
       break;
   }
 }

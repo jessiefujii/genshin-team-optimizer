@@ -849,7 +849,9 @@ function computeCarryDamage(
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     if (!lands(h)) continue;
-    const count = (h.count + teamCount(h)) * (h.type === "burst" ? burstPart : 1) * (h.perCrit ? critChance(c, critRate, dmgCirclet) : 1);
+    // Teammates' Normal ATK SPD (#411): that much more Normal Attack hits in the same rotation, the rest unchanged.
+    const speed = h.type === "normal" ? 1 + teamBuffs.normalSpd : 1;
+    const count = (h.count + teamCount(h)) * speed * (h.type === "burst" ? burstPart : 1) * (h.perCrit ? critChance(c, critRate, dmgCirclet) : 1);
     if (count <= 0) continue;
     if (infusion && isInfused(h, c)) total += hitTotal(h, infusion, count);
     else if (h.element === "priority") total += hitTotal(h, priorityEl ?? c.element, count);

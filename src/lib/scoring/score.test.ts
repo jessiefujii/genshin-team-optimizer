@@ -992,8 +992,11 @@ describe("talent levels (#25)", () => {
     const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
     // Base DMG converters: their bonus is in team damage, no buffer points on top.
     expect(buffLine(score("Sandrone", "Odette", "Alyosha", "Escoffier"), "Odette")).toEqual({ rule: "Buffs", points: 0, reason: "Odette's Base DMG bonus: in team damage" });
-    // Chongyun's ATK SPD reaches a claymore carry, not a Pyro catalyst (and his Cryo shred no Pyro hit).
-    expect(buffLine(score("Diluc", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBeGreaterThan(0);
+    // Chongyun's ATK SPD reaches a claymore carry, not a Pyro catalyst (and his Cryo shred no Pyro hit). Diluc is
+    // modeled, so it is in his damage as more Normal Attack hits (#411), not points.
+    const diluc = buffLine(score("Diluc", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!;
+    expect(diluc.points).toBe(0);
+    expect(diluc.reason).toMatch(/^Chongyun buffs Diluc \(~\+[1-9]\d*% damage, ~\+[1-9]\d*% of it in Diluc's damage\)$/);
     expect(buffLine(score("Klee", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBe(0);
     // Raiden's Eye: 0.3% Burst DMG per Energy of the carry's Burst, so a costlier Burst gains more.
     const burstCarry = (burstCost: number) => ({ ...byId.get("Diluc (no model)")!, keyTalent: "burst" as const, burstCost });
@@ -1510,5 +1513,17 @@ describe("teammates' Normal Attacks build Mavuika's Fighting Spirit (#414)", () 
     const noNormals = { ...xilonen, rotation: { ...xilonen.rotation, actions: ["E", "Q"] } };
     const built = (x: ScoringCharacter) => fightingSpiritBuilt(mav, mav, [mav, x, bennett]);
     expect(built(xilonen) - built(noNormals)).toBe(3);
+  });
+});
+
+describe("ATK SPD lands more Normal Attack hits in the carry's rotation (#411)", () => {
+  test("Mika's Normal ATK SPD raises Eula's damage through her Normal Attacks alone", () => {
+    const t = team("Eula", "Mika", "Raiden Shogun", "Zhongli");
+    const tb = teamBuffStats(t[0], [], t);
+    expect(tb.normalSpd).toBeCloseTo(0.21 * 0.8, 6); // 21% at level 9, up 12 s of 15 s
+    const dps = (normalSpd: number) => carryDamage(t[0], [], t, { ...tb, normalSpd })!.perSecond;
+    const gain = dps(tb.normalSpd) / dps(0) - 1;
+    expect(gain).toBeGreaterThan(0.01);
+    expect(gain).toBeLessThan(tb.normalSpd); // her Skill and Burst hits don't speed up
   });
 });
