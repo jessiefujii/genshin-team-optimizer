@@ -775,7 +775,9 @@ const offFieldOnly = (s: ScoringCharacter, b: KitBuff) => !!PARTY_WIDE[s.id]?.of
 // stay on-field only (Bennett's field, Yelan's and Iansan's active-character buffs, Xianyun's plunges, Alyosha...).
 // offField: only off-field members' hits, never the on-field carry's (Sigewinne's Convalescence): kept out of the
 // carry's damage and buffer points (offFieldOnly).
-const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?: Reaction[]; offField?: boolean; note: string }> = {
+// others: the text leaves the buffer out ("other", "excluding"), so their own hits don't get it; every other one
+// reaches the buffer's own hits too (#413: Furina's Fanfare on her Salon members, Shenhe's quills on her own Cryo hits).
+const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?: Reaction[]; offField?: boolean; others?: boolean; note: string }> = {
   Faruzan: { kinds: ["dmgBonus"], note: "Prayerful Wind's Benefit: all nearby party members' Anemo DMG" },
   Furina: { kinds: ["dmgBonus"], note: "Let the People Rejoice: all nearby party members' DMG, by Fanfare" },
   "Kaedehara Kazuha": {
@@ -787,7 +789,7 @@ const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?
   Lynette: { kinds: ["atkPct"], note: "Sophisticated Synergy: all party members' ATK" },
   Mavuika: { kinds: ["dmgBonus"], note: "Kiongozi: all nearby party members' DMG, by Fighting Spirit" },
   Mona: { kinds: ["dmgBonus"], note: "Illusory Bubble's Omen: opponents take more DMG from every hit" },
-  Rosaria: { kinds: ["critRate"], note: "Shadow Samaritan: CRIT Rate of all party members but Rosaria" },
+  Rosaria: { kinds: ["critRate"], others: true, note: "Shadow Samaritan: CRIT Rate of all party members but Rosaria" },
   Shenhe: { kinds: ["flatDmgFromAtk"], note: "Icy Quill: all party members' Cryo hits (the quills are shared: estimate)" },
   // Checked against the talent text (#204): Alyosha's Hunter's Precision raises ATK "when they are on the field", and
   // Illuga's Burst reaches "nearby active party members", so those stay on-field only.
@@ -795,24 +797,26 @@ const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?
   // passive 2 "all party members' (excluding Sucrose)". Ineffa's, Linnea's and Nahida's are the active character's.
   Albedo: { kinds: ["em"], note: "Homuncular Nature: \"increases the Elemental Mastery of nearby party members by 125\"" },
   Nilou: { kinds: ["em"], note: "Court of Dancing Petals: \"increase the Elemental Mastery of all nearby characters by 100\"" },
-  Sucrose: { kinds: ["emFromEm"], note: "Mollis Favonius: \"increases all party members' (excluding Sucrose) Elemental Mastery\"" },
+  Sucrose: { kinds: ["emFromEm"], others: true, note: "Mollis Favonius: \"increases all party members' (excluding Sucrose) Elemental Mastery\"" },
   Nicole: { kinds: ["atkFromAtk"], note: "Grace of Kenosis: \"bestowing the Grace of Kenosis effect on nearby party members\"" },
   "Yumemizuki Mizuki": {
     kinds: ["dmgBonusPerEm"],
     elements: ["Pyro", "Hydro", "Cryo", "Electro"],
     note: "C2: \"all nearby party members' Pyro, Hydro, Cryo, and Electro DMG Bonuses\" while she's in Dreamdrifter",
   },
-  Illuga: { kinds: ["critRate"], elements: ["Geo"], note: "Lightkeeper's Oath (passive 1): \"other nearby party members\", Geo DMG" },
-  Prune: { kinds: ["dmgBonusFromExcessAtk"], note: "Tolling Rally (passive 2): \"other nearby party members will gain the Tolling Rally effect\"" },
+  Illuga: { kinds: ["critRate"], elements: ["Geo"], others: true, note: "Lightkeeper's Oath (passive 1): \"other nearby party members\", Geo DMG" },
+  Prune: { kinds: ["dmgBonusFromExcessAtk"], others: true, note: "Tolling Rally (passive 2): \"other nearby party members will gain the Tolling Rally effect\"" },
   Sigewinne: {
     kinds: ["flatDmg"],
     offField: true,
+    others: true,
     note: "Convalescence (passive 1): \"the Elemental Skills of your nearby off-field party members other than Sigewinne\"",
   },
 };
 
 // The party-wide kit buffs one member's hits get from their teammates (#204), as teamBuffStats gives the carry: same
-// values, conditions and uptimes. A buffer's buff on their own hits is left out (#98). `talent`: the hit's talent, for a
+// values, conditions and uptimes. A buffer's party buff reaches their own hits unless its text leaves them out (#413,
+// PARTY_WIDE `others`); self-only buffs are #98's. `talent`: the hit's talent, for a
 // buff limited to some (appliesTo). Cached per team array object, like the scorer's other team readings.
 const memberCache = new WeakMap<readonly ScoringCharacter[], Map<string, TeamBuffStats>>();
 export function memberBuffStats(
@@ -853,7 +857,7 @@ export function memberBuffStats(
       const funded = b?.burst ? (shares?.get(s) ?? 1) : 1;
       if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor, shape0.partyEm), shape0, (b.uptime ?? 1) * funded, out);
     }
-    if (s === m || !wide) continue;
+    if (!wide || (s === m && wide.others)) continue;
     if (wide.elements && !wide.elements.includes(m.element)) continue;
     if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
     const shape = shape0;

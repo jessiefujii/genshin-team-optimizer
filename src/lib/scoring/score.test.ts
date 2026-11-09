@@ -399,8 +399,9 @@ describe("scoreTeam", () => {
 
   test("Nightsoul Bursts power the carry's own kit, more often with more Natlanese members (#63)", () => {
     const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Nightsoul");
-    // Mavuika alone: every 18s, her +30% ATK is up 10s of it; with 3 Natlanese members every 9s, always up.
-    const solo = line("Mavuika", "Bennett", "Furina", "Xingqiu")!;
+    // Mavuika alone: every 18s, her +30% ATK is up 10s of it; with 3 Natlanese members every 9s, always up. (Zhongli,
+    // not Xingqiu: since #413 Furina's Fanfare reaches her own Salon, which then out-damages Mavuika there, #455.)
+    const solo = line("Mavuika", "Bennett", "Furina", "Zhongli")!;
     const three = line("Mavuika", "Xilonen", "Citlali", "Bennett")!;
     expect(solo.reason).toMatch(/^Nightsoul Burst every 18s \(1 Natlan\)/);
     expect(three.reason).toMatch(/^Nightsoul Burst every 9s \(3 Natlan\)/);
@@ -668,8 +669,10 @@ describe("sub-DPS (#96)", () => {
     expect(buffsOn("Xingqiu", "Hu Tao", "Xingqiu", "Rosaria", "Zhongli").critRate).toBeGreaterThan(0);
     // Bennett's field buffs whoever stands in it, the on-field carry: not Yelan's off-field hits.
     expect(buffsOn("Yelan", "Hu Tao", "Yelan", "Bennett", "Zhongli").atk).toBe(0);
-    // A buffer's buff on their own hits is left out (#98): Furina's Fanfare doesn't reach her own Salon here.
-    expect(buffsOn("Furina", "Hu Tao", "Yelan", "Furina", "Zhongli").dmgBonus).toBe(0);
+    // A party buff reaches the buffer's own hits too (#413): Furina's Fanfare is "all nearby party members'", her Salon
+    // included; Rosaria's is "all party members but Rosaria", so not her own.
+    expect(buffsOn("Furina", "Hu Tao", "Yelan", "Furina", "Zhongli").dmgBonus).toBeGreaterThan(0);
+    expect(buffsOn("Rosaria", "Hu Tao", "Xingqiu", "Rosaria", "Zhongli").critRate).toBe(0);
     // And the buff shows in their damage: Yelan with Furina beside her deals more than with Zhongli in that slot.
     const yelan = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.reason.startsWith("Yelan's own hits"))?.reason);
     expect(yelan("Hu Tao", "Yelan", "Furina", "Xingqiu")).toBeGreaterThan(yelan("Hu Tao", "Yelan", "Zhongli", "Xingqiu"));
