@@ -191,8 +191,10 @@ export const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a
 // The Normal Attack hits are the on-field carry's Normal Attack hits x instances in kit.json `carries`: `type:
 // "normal"` hits, plus Raiden's Musou Isshin Normal Attacks (Burst DMG, labelled "1-Hit DMG" etc. in her Burst
 // table) (Jessie, #126). Kinich's Loop Shots (Skill DMG) don't count. A carry not in `carries` yet counts 0 (#126: it
-// gets its count with a damage model, #137). Teammates' own Normal Attacks (Xilonen's N x2) are left out: they're
-// off-field. Every rotation is taken as one of Mavuika's Bursts (no rescaling by length).
+// gets its count with a damage model, #137). Teammates who take the field for Normal Attacks in their rotation tags
+// (Xilonen's "N x2", Ifa's "N x3", Nilou's "N3") add theirs too (#414): "party members' Normal Attacks" (her Burst
+// text, kit.json fightingSpirit), one hit per strike. Every rotation is taken as one of Mavuika's Bursts (no rescaling
+// by length).
 // A teammate entry can add points when another member has one of `fromTeammates.elements` (Ororon: other members'
 // Hydro/Electro hits), up to its `cap` (#126), and when the team can trigger one of `fromReactions.reactions` (Citlali's
 // passive 1 after a Melt or Frozen; Jessie, #126).
@@ -224,6 +226,24 @@ function normalAttackHits(carry: ScoringCharacter): number {
   return Math.min(hits, kit.rotationSeconds / FIGHTING_SPIRIT.normalHitEvery);
 }
 
+// Normal Attack hits in a teammate's rotation tags (#414): "N3" is a 3-hit string, "N x2" two single hits, "2[N3E]"
+// twice a 3-hit string. One hit per strike, so a strike with several instances counts once (estimate).
+export function rotationNormalHits(m: ScoringCharacter): number {
+  let hits = 0;
+  for (const action of m.rotation.actions) {
+    const times = Number(action.match(/\sx(\d+)$/)?.[1] ?? 1);
+    let text = action.replace(/\sx\d+$/, "");
+    let inner = 0;
+    text = text.replace(/(\d+)\[([^\]]*)\]/g, (_, k: string, body: string) => {
+      inner += Number(k) * countN(body);
+      return " ";
+    });
+    hits += times * (inner + countN(text));
+  }
+  return hits;
+}
+const countN = (text: string) => [...text.matchAll(/(?:^|[\s[])N(\d*)(?=\d|\s|$|[A-Z\]])/g)].reduce((a, m) => a + (m[1] ? Number(m[1]) : 1), 0);
+
 // The Fighting Spirit Mavuika (s) bursts with in this team, or 0 when the team can't build the minimum.
 export function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
   const total = fightingSpiritBuilt(s, carry, team);
@@ -242,7 +262,9 @@ export function fightingSpiritBuilt(s: ScoringCharacter, carry: ScoringCharacter
     return Math.min(t.cap ?? Infinity, t.points + (fed ? t.fromTeammates!.points : 0) + (reacts ? t.fromReactions!.points : 0));
   };
   const points = team.filter((m) => m !== s).reduce((a, m) => a + teammatePoints(m), fs.own.points);
-  return Math.min(fs.limit, points + fs.perNormalHit * normalAttackHits(carry));
+  // The carry's from their damage model; the rest of the team's (not Mavuika's own) from their rotation tags (#414).
+  const others = team.filter((m) => m !== s && m !== carry).reduce((a, m) => a + rotationNormalHits(m), 0);
+  return Math.min(fs.limit, points + fs.perNormalHit * (normalAttackHits(carry) + others));
 }
 export const FIGHTING_SPIRIT_MIN = FIGHTING_SPIRIT.burstMin;
 

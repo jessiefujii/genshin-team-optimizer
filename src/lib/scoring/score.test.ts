@@ -4,7 +4,7 @@ import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { carryDamage, LEVEL_MULTIPLIER_90, shatterHit } from "./damage";
-import { fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
+import { fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, rotationNormalHits, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { appliedShare, carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
@@ -1492,5 +1492,23 @@ describe("a support who out-damages the carry rules the team out with them (#455
   });
   test("a carry the support doesn't out-damage keeps the team", () => {
     expect(score("Mavuika", "Citlali", "Durin", "Escoffier").onField).toBe("Mavuika");
+  });
+});
+
+describe("teammates' Normal Attacks build Mavuika's Fighting Spirit (#414)", () => {
+  test("their rotation tags count one hit per strike", () => {
+    expect(rotationNormalHits(byId.get("Xilonen")!)).toBe(2); // "N x2"
+    expect(rotationNormalHits(byId.get("Ifa")!)).toBe(3); // "N x3"
+    expect(rotationNormalHits(byId.get("Nilou")!)).toBe(3); // "N3"
+    expect(rotationNormalHits(byId.get("Bennett")!)).toBe(0);
+    const tagged = (actions: string[]) => rotationNormalHits({ ...byId.get("Bennett")!, rotation: { ...byId.get("Bennett")!.rotation, actions } });
+    expect(tagged(["2[N3E]"])).toBe(6);
+    expect(tagged(["N2C x8"])).toBe(16);
+  });
+  test("Xilonen's on-field N x2 adds 2 x 1.5 Fighting Spirit (below the 200 limit: not with Citlali)", () => {
+    const [mav, xilonen, bennett] = ["Mavuika", "Xilonen", "Bennett"].map((id) => byId.get(id)!);
+    const noNormals = { ...xilonen, rotation: { ...xilonen.rotation, actions: ["E", "Q"] } };
+    const built = (x: ScoringCharacter) => fightingSpiritBuilt(mav, mav, [mav, x, bennett]);
+    expect(built(xilonen) - built(noNormals)).toBe(3);
   });
 });
