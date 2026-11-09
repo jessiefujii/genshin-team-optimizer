@@ -292,6 +292,16 @@ describe("carry damage (#101)", () => {
       expect(xiao(tb)).toBeGreaterThan(xiao({ ...tb, byHit: undefined }));
     });
 
+    test("a plunge's collision hit takes flat team DMG that isn't by attack type, not Xianyun's (#415)", () => {
+      const xiao = byId.get("Xiao")!;
+      const at = (buffs: Partial<typeof NO_TEAM_BUFFS>) => carryDamage(xiao, [], [xiao], { ...NO_TEAM_BUFFS, ...buffs })!.perSecond;
+      const base = at({});
+      const flat = 1000;
+      // The same flat DMG by attack type, on every type: it misses the collision hits, as Xianyun's does.
+      const byType = Object.fromEntries(["normal", "charged", "plunge", "skill", "burst"].map((t) => [t, { flat, dmgBonus: 0 }]));
+      expect(at({ flat }) - base).toBeGreaterThan((at({ byHit: byType }) - base) * 1.01);
+    });
+
     test("Sethos's Dusk Bolts: Charged Attack DMG, 18 a rotation, each with his Burst's EM part (#232)", () => {
       const sethos = carries.Sethos as unknown as { hits: { label: string; type: string; count: number; instances?: number; addOn?: boolean; scaling: Record<string, number> }[] };
       const bolts = sethos.hits.filter((h) => h.label !== "Skill DMG" && !h.addOn);

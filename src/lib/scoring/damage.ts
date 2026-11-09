@@ -806,11 +806,11 @@ function computeCarryDamage(
     perHit += catalyzed;
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
-    // A plunge's collision hit takes no flat team bonus: Xianyun's is "Plunging Attack shockwave DMG" (wiki; others,
-    // like Shenhe's quills, would apply: left out, estimate). Flat DMG and DMG Bonus for some attack types reach only
-    // hits of that type (#299: Yun Jin's on Normal Attacks, Xianyun's on plunges).
+    // Flat DMG and DMG Bonus for some attack types reach only hits of that type (#299: Yun Jin's on Normal Attacks,
+    // Xianyun's on plunges). A plunge's collision hit takes the flat team bonuses that aren't by attack type (Shenhe's
+    // quills on Cryo DMG, Illuga's on Geo DMG) but not Xianyun's, which is "Plunging Attack shockwave DMG" (wiki, #415).
     const typeBuffs = t.byHit?.[h.type];
-    if (!h.addOn && !h.collision) perHit += (t.flat + (typeBuffs?.flat ?? 0)) * (h.instances ?? 1);
+    if (!h.addOn) perHit += (t.flat + (h.collision ? 0 : (typeBuffs?.flat ?? 0))) * (h.instances ?? 1);
     let bonus = t.bonus + (typeBuffs?.dmgBonus ?? 0) + weaponDmgBonus(weapon, h.type) + setDmgBonus(set, h.type, el, s.er); // weapon (#40), set (#206)
     let factor = 1;
     for (const b of buffs) {
