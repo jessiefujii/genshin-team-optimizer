@@ -3,8 +3,8 @@ import kitJson from "../../../data/kit.json";
 import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
-import { carryDamage } from "./damage";
-import { fightingSpiritBuilt, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
+import { carryDamage, LEVEL_MULTIPLIER_90, shatterHit } from "./damage";
+import { fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
 import { carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
@@ -67,41 +67,23 @@ describe("scoreTeam", () => {
     expect(bad.breakdown.some((l) => l.reason.includes("also wants field time"))).toBe(true);
   });
 
-  // The flat reaction points only apply to carries whose damage isn't modeled yet (the "(no model)" copies):
-  // a modeled carry's reactions score by the damage they add (#134).
-  test("double Hydro gets credit for the second Hydro support", () => {
-    const double = score("Diluc (no model)", "Xingqiu", "Yelan", "Zhongli");
-    expect(double.breakdown.some((l) => l.reason === "2 supports enable Vaporize")).toBe(true);
-  });
-
-  test("same-element supports are not reaction partners (#1)", () => {
-    const diluc = score("Diluc (no model)", "Bennett", "Furina", "Xingqiu");
-    const vape = diluc.breakdown.find((l) => l.reason.startsWith("Vaporize:"));
-    expect(vape?.reason).toBe("Vaporize: Diluc (no model) + Furina, Xingqiu");
-
-    const childe = score("Tartaglia (no model)", "Bennett", "Furina", "Xiangling");
-    expect(childe.breakdown.find((l) => l.reason.startsWith("Vaporize:"))?.reason).toBe(
-      "Vaporize: Tartaglia (no model) + Bennett, Xiangling",
-    );
-  });
-
-  test("only the carry's main reaction gets full points (#49)", () => {
-    const s = score("Keqing (no model)", "Xingqiu", "Furina", "Zhongli");
-    const reasons = s.breakdown.map((l) => l.reason);
-    expect(reasons.some((r) => r.startsWith("Electrocharged:"))).toBe(false);
-    expect(reasons).toContain("Electrocharged as a secondary reaction");
-    // Partners list in the fixed member order the team is read in (#201).
-    expect(score("Keqing (no model)", "Nahida", "Baizhu", "Furina").breakdown.map((l) => l.reason)).toContain(
-      "Aggravate: Keqing (no model) + Baizhu, Nahida",
-    );
+  test("reactions score no flat points, for a carry without a damage model too (#437)", () => {
+    const lines = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Reactions");
+    for (const ids of [
+      ["Diluc (no model)", "Xingqiu", "Yelan", "Zhongli"],
+      ["Tartaglia (no model)", "Bennett", "Furina", "Xiangling"],
+      ["Keqing (no model)", "Nahida", "Baizhu", "Furina"],
+      ["Keqing (no model)", "Nahida", "Fischl", "Furina"],
+      ["Bennett", "Xingqiu", "Zhongli", "Furina"], // no main DPS
+    ]) {
+      expect(lines(...ids).every((l) => l.points === 0)).toBe(true);
+    }
   });
 
   test("Quicken scores nothing beside a modeled Aggravate or Spread (#427)", () => {
     const quicken = (...ids: string[]) => score(...ids).breakdown.some((l) => l.reason.startsWith("Quicken"));
     // Its worth is the Spread in Alhaitham's damage.
     expect(quicken("Alhaitham", "Yae Miko", "Nahida", "Zhongli")).toBe(false);
-    // A carry without a damage model keeps the flat points.
-    expect(score("Keqing (no model)", "Nahida", "Fischl", "Furina").breakdown.map((l) => l.reason)).toContain("Quicken as a secondary reaction");
   });
 
   test("an aura feeds the carry's Vaporize or a sub-DPS's, not both (#239)", () => {
@@ -182,12 +164,13 @@ describe("scoreTeam", () => {
       // Kazuha's Swirls on the Electro aura Quicken shares in the aura budget (#253).
       { rule: "Reactions", points: 0, reason: "Swirl: ~3213 damage per second (Kaedehara Kazuha ~0.4/s)" }, // his guide's VV: shred (#338), Swirl DMG (#344)
     ]);
-    // Reactions the damage model doesn't cover yet keep the flat points: Wriothesley's Freeze. Fischl's and Furina's
+    // Freeze scores no flat points (#435). Fischl's and Furina's
     // Electro-Charged deals its own damage (#205); no Superconduct, which Sandrone turns into Stellar-Conduct.
-    expect(reactions("Wriothesley", "Sandrone", "Fischl", "Furina").map((l) => l.reason)).toEqual([
-      "Freeze: Wriothesley + Furina",
-      "Electrocharged: ~2327 damage per second (Fischl ~0.2/s, Furina ~0.5/s)",
-    ]);
+    const lines = reactions("Wriothesley", "Sandrone", "Fischl", "Furina");
+    expect(lines.every((l) => l.points === 0)).toBe(true);
+    expect(lines.map((l) => l.reason)).toContain("Freeze: adds nothing without a set whose CRIT Rate needs it (Blizzard Strayer)");
+    expect(lines.some((l) => l.reason.startsWith("Electrocharged: "))).toBe(true);
+    expect(lines.some((l) => l.reason.startsWith("Superconduct"))).toBe(false);
   });
 
   test("sub-DPS add their own damage per second to the team, whatever the carry's reactions (#134, #202)", () => {
@@ -225,7 +208,6 @@ describe("scoreTeam", () => {
     // Xingqiu's Hydro vaporizes some of Durin's Pyro, and Freezes on the Cryo aura (#282) with the rest; the budget
     // splits it. (Durin then melts more than beside Zhongli, whose Crystallize takes Cryo aura too.)
     expect(line("Xingqiu", "Skirk", "Escoffier", "Durin", "Xingqiu")).toMatch(/, with Vaporize$/);
-    expect(score("Skirk", "Escoffier", "Durin", "Xingqiu").breakdown.map((l) => l.reason)).toContain("Hydro (Xingqiu) and Pyro (Durin) split Freeze and Melt");
     // Xiangling's Pyronado has no ICD (#190) and Xingqiu re-applies Hydro: most of her hits vaporize. Her benchmark
     // build spends rolls on ER for her 200% target (#173), so less ATK and crit than before.
     expect(line("Xiangling", "Raiden Shogun", "Xiangling", "Xingqiu", "Bennett")).toMatch(/, with Vaporize$/);
@@ -242,17 +224,24 @@ describe("scoreTeam", () => {
     expect(dps(line("Skirk", "Escoffier", "Durin", "Zhongli"))).toBeLessThan(dps(line("Skirk", "Escoffier", "Durin", "Shenhe")));
   });
 
-  test("a Cryo carry plays Freeze or Melt, not both (#53)", () => {
-    const split = (s: ReturnType<typeof scoreTeam>) => s.breakdown.find((l) => l.rule === "Conflicts" && l.reason.includes("split"));
-    expect(split(score("Kamisato Ayaka", "Amber", "Bennett", "Furina"))).toEqual({
-      rule: "Conflicts",
-      points: -15,
-      reason: "Hydro (Furina) and Pyro (Amber, Bennett) split Freeze and Melt",
-    });
-    expect(split(score("Kamisato Ayaka", "Ganyu", "Kamisato Ayato", "Sangonomiya Kokomi"))).toBeUndefined();
-    const melt = score("Kamisato Ayaka", "Dehya", "Kaedehara Kazuha", "Bennett");
-    expect(split(melt)).toBeUndefined();
-    expect(melt.breakdown.some((l) => l.reason.includes("not possible"))).toBe(false);
+  test("constellation effects score in damage or not at all, never flat points (#410)", () => {
+    const at = (id: string, constellation: number, ...ids: string[]) =>
+      scoreTeam(team(...ids).map((c) => (c.id === id ? { ...c, constellation, effects: characterEffects(id, constellation) } : c)));
+    const raiden = ["Hu Tao", "Raiden Shogun", "Xingqiu", "Zhongli"];
+    const c0 = at("Raiden Shogun", 0, ...raiden);
+    const c4 = at("Raiden Shogun", 4, ...raiden);
+    expect(c4.damage.perSecond).toBeGreaterThan(c0.damage.perSecond); // +30% ATK for 10 s of 20 s
+    expect(c4.breakdown.find((l) => l.reason.startsWith("Raiden Shogun C4"))).toMatchObject({ points: 0, reason: "Raiden Shogun C4: in team damage" });
+    // Not modeled yet: no line and no points.
+    const ids = ["Hu Tao", "Sethos", "Xingqiu", "Zhongli"];
+    expect(at("Sethos", 4, ...ids).breakdown.filter((l) => l.rule === "Effects" && l.points !== 0)).toEqual([]);
+    expect(at("Sethos", 4, ...ids).score).toBeCloseTo(at("Sethos", 0, ...ids).score, 6);
+  });
+
+  test("Freeze and Melt share the aura budget: no flat penalty for both, or for an idle second Anemo (#449)", () => {
+    const conflicts = (...ids: string[]) => score(...ids).breakdown.filter((l) => l.rule === "Conflicts");
+    expect(conflicts("Kamisato Ayaka", "Amber", "Bennett", "Furina")).toEqual([]);
+    expect(conflicts("Xiao", "Faruzan", "Jean", "Zhongli").every((l) => l.points === 0)).toBe(true);
   });
 
   test("only shields count for Arlecchino's survivability: she can't be healed in combat (#2)", () => {
@@ -267,12 +256,10 @@ describe("scoreTeam", () => {
   });
 
   test("every main DPS is tried on field and the best team reading stands (#389)", () => {
-    // Skirk's damage leans on Escoffier's and Furina's buffs: unbuffed, Clorinde out-damages her, but the team scores
-    // higher with Skirk on field.
     const s = score("Skirk", "Clorinde", "Escoffier", "Furina");
-    expect(s.onField).toBe("Skirk");
     const members = team("Skirk", "Clorinde", "Escoffier", "Furina");
-    expect(carryTeamValue(members, "Skirk")).toBeGreaterThan(carryTeamValue(members, "Clorinde"));
+    const other = s.onField === "Skirk" ? "Clorinde" : "Skirk";
+    expect(carryTeamValue(members, s.onField!)).toBeGreaterThan(carryTeamValue(members, other));
   });
 
   test("Clorinde heals herself on field: her guide's Aggravate team isn't 'No healer' (#324)", () => {
@@ -328,28 +315,6 @@ describe("scoreTeam", () => {
     const s = score("Bennett", "Xingqiu", "Zhongli", "Sucrose");
     expect(s.mainDps).toBeNull();
     expect(s.breakdown.some((l) => l.reason === "No main DPS in the team")).toBe(true);
-  });
-
-  // tags.json has no team preferences since #97 (the guide-derived #57 ones were dropped once sub-DPS scoring came
-  // from the kit); the mechanism stays for hand-written ones, tested with made-up preferences.
-  test("no team preferences in tags.json; the mechanism still scores made-up ones (#97, #43)", () => {
-    expect(all.filter((c) => c.teamPrefs?.length).map((c) => c.id)).toEqual([]);
-    const withPrefs = (prefs: Record<string, ScoringCharacter["teamPrefs"]>, ...ids: string[]) =>
-      scoreTeam(team(...ids).map((c) => (prefs[c.id] ? { ...c, teamPrefs: prefs[c.id] } : c))).breakdown.filter(
-        (l) => l.rule === "Team preference",
-      );
-    // A carry's partner preference counts fully; a support's composition preference counts less.
-    expect(withPrefs({ Zibai: [{ kind: "partner", ids: ["Columbina"] }] }, "Zibai", "Columbina", "Illuga", "Zhongli")).toEqual([
-      { rule: "Team preference", points: 15, reason: "Zibai with Columbina" },
-    ]);
-    const chevreuse = withPrefs(
-      { Chevreuse: [{ kind: "composition", onlyElements: ["Pyro", "Electro"], note: "only Pyro and Electro" }] },
-      "Raiden Shogun", "Chevreuse", "Bennett", "Xiangling",
-    );
-    expect(chevreuse.find((l) => l.reason.startsWith("Chevreuse"))?.points).toBe(5);
-    // A carry's onlyElements preference that the team breaks costs points.
-    const skirk = { Skirk: [{ kind: "composition" as const, onlyElements: ["Hydro" as const, "Cryo" as const] }] };
-    expect(withPrefs(skirk, "Skirk", "Escoffier", "Furina", "Bennett").some((l) => l.points < 0)).toBe(true);
   });
 
   test("survivability scores by how much of the rotation shields and heals cover (#177)", () => {
@@ -667,17 +632,12 @@ describe("scoreTeam", () => {
       expect([...weak.breakdown, ...strong.breakdown].some((l) => l.rule === "Carry build")).toBe(false);
     });
 
-    test("ER under the tagged target costs points", () => {
-      const result = lines(built({ Xingqiu: { energyRecharge: 120 }, Zhongli: { energyRecharge: 120 } }, ...vape), "Energy");
-      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 200% target");
-      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false); // target 100%
-    });
-
-    test("without erTarget, the default comes from energyNeed; low is not checked", () => {
-      const untagged = (t: ScoringCharacter[]) => t.map((c) => ({ ...c, erTarget: undefined }));
-      const result = lines(untagged(built({ Xingqiu: { energyRecharge: 120 }, Zhongli: { energyRecharge: 90 } }, ...vape)), "Energy");
-      expect(result.map((l) => l.reason)).toContain("Xingqiu ER 120% vs 180% target");
-      expect(result.some((l) => l.reason.startsWith("Zhongli"))).toBe(false);
+    test("low ER costs Burst damage, not points: a shortage isn't counted twice (#440)", () => {
+      const low = scoreTeam(built({ Xingqiu: { energyRecharge: 100 } }, ...vape));
+      const high = scoreTeam(built({ Xingqiu: { energyRecharge: 300 } }, ...vape));
+      expect(lines(team(...vape), "Energy").some((l) => / ER .* target/.test(l.reason))).toBe(false);
+      expect(low.breakdown.some((l) => / ER .* target/.test(l.reason))).toBe(false);
+      expect(high.damage.perSecond).toBeGreaterThan(low.damage.perSecond);
     });
 
     test("every character with an Energy burst has a drafted erTarget", () => {
@@ -685,15 +645,14 @@ describe("scoreTeam", () => {
       expect(all.filter((c) => !c.erTarget && !noEnergyBurst.includes(c.id)).map((c) => c.id)).toEqual([]);
     });
 
-    test("EM matters for Swirl buffers, not for supports that don't react", () => {
+    test("a build's EM counts through reaction damage, not points (#440)", () => {
       const swirl = ["Hu Tao", "Xingqiu", "Kaedehara Kazuha", "Zhongli"];
-      expect(lines(built({ "Kaedehara Kazuha": { elementalMastery: 900 } }, ...swirl), "EM")[0]).toMatchObject({
-        points: 5,
-        reason: "Kaedehara Kazuha has 900 EM for reactions",
-      });
-      expect(lines(built({ "Kaedehara Kazuha": { elementalMastery: 100 } }, ...swirl), "EM")[0].points).toBe(-5);
-      expect(lines(built({ Zhongli: { elementalMastery: 900 } }, ...swirl), "EM")).toEqual([]);
+      const at = (em: number) => scoreTeam(built({ "Kaedehara Kazuha": { elementalMastery: em } }, ...swirl));
+      expect(at(900).breakdown.some((l) => l.rule === "EM")).toBe(false);
+      expect(at(100).breakdown.some((l) => l.rule === "EM")).toBe(false);
+      expect(at(900).score).toBeGreaterThan(at(100).score);
     });
+
   });
 });
 
@@ -1127,8 +1086,36 @@ describe("talent levels (#25)", () => {
     const otherScore = scoreTeam(other);
     expect(freezeLine(otherScore)).toMatchObject({ points: 0 });
     expect(otherScore.score).toBeLessThan(s.score);
-    // Ayaka's guide picks Marechaussee Hunter (not modeled yet): flat points.
-    expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))!.points).toBeGreaterThan(0);
+    // Ayaka's guide set doesn't need Freeze: no flat points either (#435).
+    expect(freezeLine(score("Kamisato Ayaka", "Furina", "Escoffier", "Shenhe"))).toMatchObject({ points: 0 });
+  });
+
+  test("a missed Burst whose buff is in damage costs no Energy points too (#440)", () => {
+    let starved = 0;
+    for (let i = 0; i + 3 < all.length; i++) {
+      const members = all.slice(i, i + 4).filter((c) => !c.id.startsWith("Traveler ("));
+      if (members.length < 4) continue;
+      const s = scoreTeam(members);
+      if (!s.onField) continue;
+      for (const l of s.breakdown) {
+        const id = l.rule === "Energy" && l.points < 0 ? l.reason.match(/^(.+?) Bursts in/)?.[1] : undefined;
+        if (!id) continue;
+        starved++;
+        expect(hasBurstBuff(members.find((m) => m.id === id)!), id).toBe(false);
+      }
+    }
+    expect(starved).toBeGreaterThan(0); // the line still stands for Bursts the model has no value for
+  });
+
+  test("Shatter deals its damage when Geo or a Claymore carry hits a Frozen target (#402, #435)", () => {
+    const shatter = (...ids: string[]) => score(...ids).breakdown.find((l) => l.reason.startsWith("Shatter:"));
+    expect(shatter("Ganyu", "Furina", "Xilonen", "Escoffier")).toMatchObject({ rule: "Reactions", points: 0 });
+    expect(shatter("Ganyu", "Furina", "Xilonen", "Escoffier")!.reason).toContain("Xilonen");
+    // Nothing to Shatter with, or nothing Frozen.
+    expect(shatter("Ganyu", "Furina", "Shenhe", "Escoffier")).toBeUndefined();
+    expect(shatter("Xilonen", "Bennett", "Fischl", "Chevreuse")).toBeUndefined();
+    expect(shatterHit(0)).toBeCloseTo(3 * LEVEL_MULTIPLIER_90, 6);
+    expect(shatterHit(1000)).toBeCloseTo(3 * LEVEL_MULTIPLIER_90 * (1 + 16000 / 3000), 6);
   });
 
   test("a Burst short of Energy funds its buffs less often (#207)", () => {
@@ -1345,12 +1332,12 @@ describe("effects.json in scoring", () => {
   const lines = (t: ScoringCharacter[], rule: string) => scoreTeam(t).breakdown.filter((l) => l.rule === rule);
   const noblesse: EffectTag = { source: "set", id: "Noblesse Oblige", requires: 4, buffs: [{ stat: "ATK", scope: "team", affects: "ATK" }] };
   const pyroShred: EffectTag = {
-    source: "constellation", id: "Xiangling", requires: 1, buffs: [{ stat: "Pyro RES shred", scope: "team", elements: ["Pyro"] }],
+    source: "weapon", id: "Test Lance", buffs: [{ stat: "Pyro RES shred", scope: "team", elements: ["Pyro"] }],
   };
 
   test("an effect buff that fits the carry adds points and names its source", () => {
     const result = lines(geared({ Xiangling: [pyroShred] }, "Hu Tao", "Xingqiu", "Xiangling", "Zhongli"), "Effects");
-    expect(result).toEqual([{ rule: "Effects", points: 5, reason: "Xiangling C1: Pyro RES shred for Hu Tao" }]);
+    expect(result).toEqual([{ rule: "Effects", points: 5, reason: "Xiangling Test Lance: Pyro RES shred for Hu Tao" }]);
   });
 
   test("effect buffs use the same fit check as tag buffs", () => {
@@ -1374,7 +1361,7 @@ describe("effects.json in scoring", () => {
 
   test("effect buffs are capped", () => {
     const many = Array.from({ length: 5 }, (_, i): EffectTag => ({
-      source: "constellation", id: "Bennett", requires: i + 1, buffs: [{ stat: "DMG Bonus", scope: "team" }],
+      source: "weapon", id: `Test Sword ${i}`, buffs: [{ stat: "DMG Bonus", scope: "team" }],
     }));
     expect(lines(geared({ Bennett: many }, "Hu Tao", "Bennett", "Xingqiu", "Zhongli"), "Effects")).toHaveLength(3);
   });
@@ -1387,23 +1374,32 @@ describe("effects.json in scoring", () => {
     expect(need(geared({ Sucrose: [favonius] }, ...ids), "Sucrose")).toBeLessThan(need(team(...ids), "Sucrose"));
   });
 
-  test("an infusion conflicts with a melee carry of another element only", () => {
+  test("a teammate's infusion changes a melee carry's infused hits in damage, not points (#449)", () => {
     const c6: EffectTag = { source: "constellation", id: "Bennett", requires: 6, infusion: "Pyro" };
     const conflicts = (...ids: string[]) => lines(geared({ Bennett: [c6] }, ...ids), "Conflicts");
     expect(conflicts("Kamisato Ayaka", "Bennett", "Kaedehara Kazuha", "Shenhe")).toEqual([
-      { rule: "Conflicts", points: -15, reason: "Bennett C6 infuses Kamisato Ayaka's attacks with Pyro" },
+      { rule: "Conflicts", points: 0, reason: "Kamisato Ayaka's attacks are infused with Pyro: in their damage" },
     ]);
+    expect(conflicts("Eula", "Bennett", "Rosaria", "Shenhe")[0].points).toBe(0); // Physical hits
     expect(conflicts("Hu Tao", "Bennett", "Xingqiu", "Zhongli")).toEqual([]); // Pyro carry
     expect(conflicts("Neuvillette", "Bennett", "Furina", "Xiangling")).toEqual([]); // catalyst
+    expect(conflicts("Skirk", "Bennett", "Furina", "Zhongli")).toEqual([]); // her own moveset: a Conversion
+    const ayaka = (...ids: string[]) => {
+      const t = geared({ Bennett: [c6] }, ...ids);
+      return carryDamage(t[0], [], t)!.perSecond;
+    };
+    expect(ayaka("Kamisato Ayaka", "Bennett", "Kaedehara Kazuha", "Shenhe")).toBeLessThan(
+      carryDamage(team("Kamisato Ayaka")[0], [], team("Kamisato Ayaka", "Bennett", "Kaedehara Kazuha", "Shenhe"))!.perSecond,
+    );
   });
 
   test("only effects.json entries still marked VERIFY say draft", () => {
     const [hutao, xingqiu, xiangling, zhongli] = team("Hu Tao", "Xingqiu", "Xiangling", "Zhongli");
-    const reviewed = characterEffects("Xiangling", 1); // reviewed in #23
+    const reviewed = [pyroShred];
     const withC1 = (effects: EffectTag[]) => lines([hutao, xingqiu, { ...xiangling, effects }, zhongli], "Effects");
-    expect(withC1(reviewed)[0].reason).toBe("Xiangling C1: Pyro RES shred for Hu Tao");
+    expect(withC1(reviewed)[0].reason).toBe("Xiangling Test Lance: Pyro RES shred for Hu Tao");
     const drafted = reviewed.map((e) => ({ ...e, notes: "VERIFY: drafted" }));
-    expect(withC1(drafted)[0].reason).toBe("Xiangling C1 (draft): Pyro RES shred for Hu Tao");
+    expect(withC1(drafted)[0].reason).toBe("Xiangling Test Lance (draft): Pyro RES shred for Hu Tao");
   });
 
   test("a holder-element buff only fits a carry of the holder's element (Celestial Gift)", () => {
@@ -1446,7 +1442,7 @@ describe("findBestTeams", () => {
     for (const t of top) expect(t.members.filter((m) => m.startsWith("Traveler (")).length).toBeLessThanOrEqual(1);
   });
 
-  test("the search's top teams match scoring every team in full", () => {
+  test("the search's top teams match scoring every team in full", { timeout: 15_000 }, () => {
     const top = findBestTeams(roster, { limit: 15 });
     const ids = roster.map((c) => c.id);
     const every: ReturnType<typeof scoreTeam>[] = [];

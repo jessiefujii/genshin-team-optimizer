@@ -1557,6 +1557,418 @@
       "inLunarBase": true
     }
   },
+  "constellationBuffs": [
+    {
+      "id": "Albedo",
+      "constellation": 4,
+      "kind": "byHit",
+      "value": 0.3,
+      "uptime": 1,
+      "types": [
+        "plunge"
+      ],
+      "scope": "active",
+      "source": "Plunging Attack DMG increased by 30%"
+    },
+    {
+      "id": "Amber",
+      "constellation": 6,
+      "kind": "atkPct",
+      "value": 0.15,
+      "uptime": 0.5,
+      "scope": "team",
+      "source": "ATK by 15%"
+    },
+    {
+      "id": "Arataki Itto",
+      "constellation": 4,
+      "kind": "atkPct",
+      "value": 0.2,
+      "uptime": 0.5,
+      "scope": "team",
+      "source": "20% ATK"
+    },
+    {
+      "id": "Baizhu",
+      "constellation": 4,
+      "kind": "em",
+      "value": 80,
+      "uptime": 0.75,
+      "scope": "team",
+      "source": "Elemental Mastery by 80"
+    },
+    {
+      "id": "Barbara",
+      "constellation": 2,
+      "kind": "dmgBonus",
+      "value": 0.15,
+      "uptime": 0.75,
+      "elements": [
+        "Hydro"
+      ],
+      "scope": "active",
+      "source": "15% Hydro DMG Bonus"
+    },
+    {
+      "id": "Bennett",
+      "constellation": 6,
+      "kind": "dmgBonus",
+      "value": 0.15,
+      "uptime": 0.6,
+      "elements": [
+        "Pyro"
+      ],
+      "weapons": [
+        "Sword",
+        "Claymore",
+        "Polearm"
+      ],
+      "scope": "active",
+      "source": "15% Pyro DMG Bonus"
+    },
+    {
+      "id": "Chevreuse",
+      "constellation": 6,
+      "kind": "dmgBonus",
+      "value": 0.2,
+      "uptime": 0.4,
+      "elements": [
+        "Pyro",
+        "Electro"
+      ],
+      "scope": "team",
+      "source": "20% Pyro DMG Bonus"
+    },
+    {
+      "id": "Diona",
+      "constellation": 6,
+      "kind": "em",
+      "value": 200,
+      "uptime": 0.6,
+      "scope": "active",
+      "source": "increased by 200 when HP"
+    },
+    {
+      "id": "Ganyu",
+      "constellation": 1,
+      "kind": "resShred",
+      "value": 0.15,
+      "uptime": 0.3,
+      "elements": [
+        "Cryo"
+      ],
+      "scope": "team",
+      "source": "Cryo RES by 15%"
+    },
+    {
+      "id": "Iansan",
+      "constellation": 2,
+      "kind": "atkPct",
+      "value": 0.3,
+      "uptime": 0.5,
+      "scope": "active",
+      "source": "ATK by 30%"
+    },
+    {
+      "id": "Jean",
+      "constellation": 4,
+      "kind": "resShred",
+      "value": 0.4,
+      "uptime": 0.5,
+      "elements": [
+        "Anemo"
+      ],
+      "scope": "team",
+      "source": "Anemo RES decreased by 40%"
+    },
+    {
+      "id": "Kaedehara Kazuha",
+      "constellation": 2,
+      "kind": "em",
+      "value": 200,
+      "uptime": 0.6,
+      "scope": "active",
+      "source": "Elemental Mastery of characters within the field by 200"
+    },
+    {
+      "id": "Kinich",
+      "constellation": 2,
+      "kind": "resShred",
+      "value": 0.3,
+      "uptime": 0.3,
+      "elements": [
+        "Dendro"
+      ],
+      "scope": "team",
+      "source": "Dendro RES by 30%"
+    },
+    {
+      "id": "Kirara",
+      "constellation": 6,
+      "kind": "dmgBonus",
+      "value": 0.12,
+      "uptime": 0.75,
+      "scope": "team",
+      "source": "12% All Elemental DMG Bonus"
+    },
+    {
+      "id": "Klee",
+      "constellation": 6,
+      "kind": "dmgBonus",
+      "value": 0.1,
+      "uptime": 1,
+      "elements": [
+        "Pyro"
+      ],
+      "scope": "team",
+      "source": "10% Pyro DMG Bonus"
+    },
+    {
+      "id": "Lan Yan",
+      "constellation": 4,
+      "kind": "em",
+      "value": 60,
+      "uptime": 0.6,
+      "scope": "team",
+      "source": "increases by 60"
+    },
+    {
+      "id": "Lyney",
+      "constellation": 4,
+      "kind": "resShred",
+      "value": 0.2,
+      "uptime": 0.3,
+      "elements": [
+        "Pyro"
+      ],
+      "scope": "team",
+      "source": "Pyro RES will be decreased by 20%"
+    },
+    {
+      "id": "Navia",
+      "constellation": 4,
+      "kind": "resShred",
+      "value": 0.2,
+      "uptime": 0.4,
+      "elements": [
+        "Geo"
+      ],
+      "scope": "team",
+      "source": "Geo RES will be decreased by 20%"
+    },
+    {
+      "id": "Nilou",
+      "constellation": 2,
+      "kind": "resShred",
+      "value": 0.35,
+      "uptime": 0.5,
+      "elements": [
+        "Hydro"
+      ],
+      "scope": "team",
+      "source": "Hydro RES will be decreased by 35%"
+    },
+    {
+      "id": "Ororon",
+      "constellation": 6,
+      "kind": "atkPct",
+      "value": 0.1,
+      "uptime": 0.45,
+      "scope": "active",
+      "source": "ATK is increased by 10%"
+    },
+    {
+      "id": "Raiden Shogun",
+      "constellation": 4,
+      "kind": "atkPct",
+      "value": 0.3,
+      "uptime": 0.5,
+      "scope": "others",
+      "source": "30% bonus ATK"
+    },
+    {
+      "id": "Shenhe",
+      "constellation": 2,
+      "kind": "critDmg",
+      "value": 0.15,
+      "uptime": 0.6,
+      "elements": [
+        "Cryo"
+      ],
+      "scope": "active",
+      "source": "15% increased Cryo CRIT DMG"
+    },
+    {
+      "id": "Sigewinne",
+      "constellation": 2,
+      "kind": "resShred",
+      "value": 0.35,
+      "uptime": 0.4,
+      "elements": [
+        "Hydro"
+      ],
+      "scope": "team",
+      "source": "Hydro RES will be decreased by 35%"
+    },
+    {
+      "id": "Thoma",
+      "constellation": 6,
+      "kind": "byHit",
+      "value": 0.15,
+      "uptime": 0.3,
+      "types": [
+        "normal",
+        "charged",
+        "plunge"
+      ],
+      "scope": "team",
+      "source": "increased by 15%"
+    },
+    {
+      "id": "Tighnari",
+      "constellation": 4,
+      "kind": "em",
+      "value": 60,
+      "uptime": 0.4,
+      "scope": "team",
+      "source": "gain 60 Elemental Mastery"
+    },
+    {
+      "id": "Traveler (Anemo)",
+      "constellation": 6,
+      "kind": "resShred",
+      "value": 0.2,
+      "uptime": 0.5,
+      "elements": [
+        "Anemo"
+      ],
+      "scope": "team",
+      "source": "Anemo RES decreased by 20%"
+    },
+    {
+      "id": "Traveler (Electro)",
+      "constellation": 2,
+      "kind": "resShred",
+      "value": 0.15,
+      "uptime": 0.4,
+      "elements": [
+        "Electro"
+      ],
+      "scope": "team",
+      "source": "Electro RES by 15%"
+    },
+    {
+      "id": "Traveler (Geo)",
+      "constellation": 1,
+      "kind": "critRate",
+      "value": 0.1,
+      "uptime": 0.75,
+      "scope": "team",
+      "source": "CRIT Rate increased by 10%"
+    },
+    {
+      "id": "Traveler (Pyro)",
+      "constellation": 1,
+      "kind": "dmgBonus",
+      "value": 0.06,
+      "uptime": 0.75,
+      "scope": "active",
+      "source": "6% increased DMG"
+    },
+    {
+      "id": "Venti",
+      "constellation": 2,
+      "kind": "resShred",
+      "value": 0.12,
+      "uptime": 0.5,
+      "elements": [
+        "Anemo"
+      ],
+      "scope": "team",
+      "source": "Anemo RES and Physical RES by 12%"
+    },
+    {
+      "id": "Venti",
+      "constellation": 6,
+      "kind": "resShred",
+      "value": 0.2,
+      "uptime": 0.4,
+      "elements": [
+        "Anemo"
+      ],
+      "scope": "team",
+      "source": "Anemo RES decreased by 20%"
+    },
+    {
+      "id": "Xiangling",
+      "constellation": 1,
+      "kind": "resShred",
+      "value": 0.15,
+      "uptime": 0.3,
+      "elements": [
+        "Pyro"
+      ],
+      "scope": "team",
+      "source": "Pyro RES reduced by 15%"
+    },
+    {
+      "id": "Xiangling",
+      "constellation": 6,
+      "kind": "dmgBonus",
+      "value": 0.15,
+      "uptime": 0.5,
+      "elements": [
+        "Pyro"
+      ],
+      "scope": "team",
+      "source": "15% Pyro DMG Bonus"
+    },
+    {
+      "id": "Yae Miko",
+      "constellation": 4,
+      "kind": "dmgBonus",
+      "value": 0.2,
+      "uptime": 0.25,
+      "elements": [
+        "Electro"
+      ],
+      "scope": "team",
+      "source": "Electro DMG Bonus of all nearby party members is increased by 20%"
+    },
+    {
+      "id": "Yaoyao",
+      "constellation": 1,
+      "kind": "dmgBonus",
+      "value": 0.15,
+      "uptime": 0.4,
+      "elements": [
+        "Dendro"
+      ],
+      "scope": "active",
+      "source": "15% Dendro DMG Bonus"
+    },
+    {
+      "id": "Yelan",
+      "constellation": 4,
+      "kind": "hpPct",
+      "value": 0.1,
+      "uptime": 1,
+      "scope": "team",
+      "source": "Max HP by 10%"
+    },
+    {
+      "id": "Yun Jin",
+      "constellation": 2,
+      "kind": "byHit",
+      "value": 0.15,
+      "uptime": 0.6,
+      "types": [
+        "normal"
+      ],
+      "scope": "team",
+      "source": "Normal Attack DMG is increased by 15%"
+    }
+  ],
   "ascendantGleam": {
     "Aino": {
       "target": "self",

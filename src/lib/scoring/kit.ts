@@ -659,10 +659,43 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
   }
 }
 
+// Constellation team buffs with a fixed value (#410, extract-kit CONSTELLATION_BUFFS), on every hit they reach.
+type ConstellationBuff = {
+  id: string;
+  constellation: number;
+  kind: "atkPct" | "dmgBonus" | "resShred" | "em" | "critRate" | "critDmg" | "hpPct" | "byHit";
+  value: number;
+  uptime: number;
+  scope: "team" | "active" | "others";
+  elements?: Element[];
+  types?: string[];
+  weapons?: string[];
+};
+const CONSTELLATION_BUFFS = (kitJson as unknown as { constellationBuffs: ConstellationBuff[] }).constellationBuffs;
+export const constellationInDamage = (id: string, constellation: number) => CONSTELLATION_BUFFS.some((b) => b.id === id && b.constellation === constellation);
+function constellationStats(m: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[], into: TeamBuffStats) {
+  for (const s of team) {
+    for (const b of CONSTELLATION_BUFFS) {
+      if (b.id !== s.id || (s.constellation ?? 0) < b.constellation) continue;
+      if ((b.scope === "active" && m !== carry) || (b.scope === "others" && m === s)) continue;
+      if ((b.elements && !b.elements.includes(m.element)) || (b.weapons && !b.weapons.includes(m.weapon))) continue;
+      const value = b.value * b.uptime;
+      if (b.kind === "byHit") for (const t of b.types ?? []) addByHit(into, t, 0, value);
+      else into[b.kind] += value;
+    }
+  }
+}
+
 function addByHit(into: TeamBuffStats, type: string, flat: number, dmgBonus: number) {
   const h = into.byHit?.[type];
   into.byHit = { ...into.byHit, [type]: { flat: (h?.flat ?? 0) + flat, dmgBonus: (h?.dmgBonus ?? 0) + dmgBonus } };
 }
+
+// Whether this member has a kit buff from their Burst, which scales with the share of rotations Energy funds (#207).
+export const hasBurstBuff = (m: ScoringCharacter) => {
+  const entry = KIT[m.id];
+  return !!entry && !entry.missing && buffsAt(entry, m).some((b) => b.burst);
+};
 
 // One buffer's part, cached like kitBuffValue (per buffer and carry object, then team shape), not per team: the search
 // reads thousands of teams per carry.
@@ -722,6 +755,7 @@ export function teamBuffStats(
   resonanceStats(carry, active, team, out);
   polestarStats(carry, active, out);
   partyGearStats(carry, carry, active, team, out);
+  constellationStats(carry, carry, team, out);
   for (const s of team) {
     const entry = KIT[s.id];
     if (s === carry || !entry || entry.missing || buffsAt(entry, s).length === 0) continue;
@@ -799,6 +833,7 @@ export function memberBuffStats(
   familyBuffStats(m, carry, active, team, out);
   resonanceStats(m, active, team, out);
   partyGearStats(m, carry, active, team, out);
+  constellationStats(m, carry, team, out);
   for (const s of team) {
     const wide = PARTY_WIDE[s.id];
     const entry = KIT[s.id];
@@ -846,7 +881,7 @@ export function memberBuffStats(
 // nearby": "DMG dealt increased by 15%", "decrease their Geo RES by 20%" (a shielder, Crystallize's shards, or
 // Lunar-Crystallize); Sprawling Greenery "Elemental Mastery increased by 50", +30 after Burning, Quicken, Bloom or
 // Lunar-Bloom and +20 after Aggravate, Spread, Hyperbloom or Burgeon (kept up while the team triggers them). High Voltage
-// (particles) and Impetuous Winds (stamina, CD) stay points.
+// (particles) and Impetuous Winds (CD) are in the energy model (energy.ts, #439).
 export const RESONANCE_IN_DAMAGE = new Set<string>(["Pyro", "Hydro", "Cryo", "Geo", "Dendro"]);
 function resonanceStats(m: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[], into: TeamBuffStats) {
   const count = (e: string) => team.filter((x) => x.element === e).length;

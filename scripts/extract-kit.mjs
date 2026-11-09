@@ -5,7 +5,7 @@
 // either a talent table label (values per talent level) or a sentence in the talent text (fixed values).
 // The script reads the numbers; it fails if a label or sentence is missing, so a data change can't
 // silently drop a buff.
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -5248,10 +5248,62 @@ for (const c of tags.filter((c) => ["healer", "shielder", "mitigation"].some((r)
 }
 for (const id of Object.keys(SUSTAIN)) if (!sustain[id]) throw new Error(`SUSTAIN: ${id} isn't a healer, shielder or mitigator in tags.json`);
 
+// Constellation team buffs with a fixed value (#410), read from each effect's in-game text in data/effects.json, so a
+// changed sentence fails here. `seconds`: how long it lasts, as a share of a 20 s rotation, at most 1 (estimate). Scope:
+// "team" every member's hits, "active" the on-field carry's, "others" every member but the holder. Left out, scoring
+// nothing until modeled: conditional or scaling ones (#450).
+const CONSTELLATION_BUFFS = [
+  { id: "Albedo", c: 4, kind: "byHit", types: ["plunge"], re: /Plunging Attack DMG increased by (\d+)%/, seconds: 30, scope: "active" },
+  { id: "Amber", c: 6, kind: "atkPct", re: /ATK by (\d+)%/, seconds: 10, scope: "team" },
+  { id: "Arataki Itto", c: 4, kind: "atkPct", re: /(\d+)% ATK/, seconds: 10, scope: "team" },
+  { id: "Baizhu", c: 4, kind: "em", re: /Elemental Mastery by (\d+)/, seconds: 15, scope: "team" },
+  { id: "Barbara", c: 2, kind: "dmgBonus", elements: ["Hydro"], re: /(\d+)% Hydro DMG Bonus/, seconds: 15, scope: "active" },
+  { id: "Bennett", c: 6, kind: "dmgBonus", elements: ["Pyro"], weapons: ["Sword", "Claymore", "Polearm"], re: /(\d+)% Pyro DMG Bonus/, seconds: 12, scope: "active" },
+  { id: "Chevreuse", c: 6, kind: "dmgBonus", elements: ["Pyro", "Electro"], re: /(\d+)% Pyro DMG Bonus/, seconds: 8, scope: "team" },
+  { id: "Diona", c: 6, kind: "em", re: /increased by (\d+) when HP/, seconds: 12, scope: "active" },
+  { id: "Ganyu", c: 1, kind: "resShred", elements: ["Cryo"], re: /Cryo RES by (\d+)%/, seconds: 6, scope: "team" },
+  { id: "Iansan", c: 2, kind: "atkPct", re: /ATK by (\d+)%/, seconds: 10, scope: "active" },
+  { id: "Jean", c: 4, kind: "resShred", elements: ["Anemo"], re: /Anemo RES decreased by (\d+)%/, seconds: 10, scope: "team" },
+  { id: "Kaedehara Kazuha", c: 2, kind: "em", re: /Elemental Mastery of characters within the field by (\d+)/, seconds: 12, scope: "active" },
+  { id: "Kinich", c: 2, kind: "resShred", elements: ["Dendro"], re: /Dendro RES by (\d+)%/, seconds: 6, scope: "team" },
+  { id: "Kirara", c: 6, kind: "dmgBonus", re: /(\d+)% All Elemental DMG Bonus/, seconds: 15, scope: "team" },
+  { id: "Klee", c: 6, kind: "dmgBonus", elements: ["Pyro"], re: /(\d+)% Pyro DMG Bonus/, seconds: 25, scope: "team" },
+  { id: "Lan Yan", c: 4, kind: "em", re: /increases by (\d+)/, seconds: 12, scope: "team" },
+  { id: "Lyney", c: 4, kind: "resShred", elements: ["Pyro"], re: /Pyro RES will be decreased by (\d+)%/, seconds: 6, scope: "team" },
+  { id: "Navia", c: 4, kind: "resShred", elements: ["Geo"], re: /Geo RES will be decreased by (\d+)%/, seconds: 8, scope: "team" },
+  { id: "Nilou", c: 2, kind: "resShred", elements: ["Hydro"], re: /Hydro RES will be decreased by (\d+)%/, seconds: 10, scope: "team" },
+  { id: "Ororon", c: 6, kind: "atkPct", re: /ATK is increased by (\d+)%/, seconds: 9, scope: "active" },
+  { id: "Raiden Shogun", c: 4, kind: "atkPct", re: /(\d+)% bonus ATK/, seconds: 10, scope: "others" },
+  { id: "Shenhe", c: 2, kind: "critDmg", elements: ["Cryo"], re: /(\d+)% increased Cryo CRIT DMG/, seconds: 12, scope: "active" },
+  { id: "Sigewinne", c: 2, kind: "resShred", elements: ["Hydro"], re: /Hydro RES will be decreased by (\d+)%/, seconds: 8, scope: "team" },
+  { id: "Thoma", c: 6, kind: "byHit", types: ["normal", "charged", "plunge"], re: /increased by (\d+)%/, seconds: 6, scope: "team" },
+  { id: "Tighnari", c: 4, kind: "em", re: /gain (\d+) Elemental Mastery/, seconds: 8, scope: "team" },
+  { id: "Traveler (Anemo)", c: 6, kind: "resShred", elements: ["Anemo"], re: /Anemo RES decreased by (\d+)%/, seconds: 10, scope: "team" },
+  { id: "Traveler (Electro)", c: 2, kind: "resShred", elements: ["Electro"], re: /Electro RES by (\d+)%/, seconds: 8, scope: "team" },
+  { id: "Traveler (Geo)", c: 1, kind: "critRate", re: /CRIT Rate increased by (\d+)%/, seconds: 15, scope: "team" },
+  { id: "Traveler (Pyro)", c: 1, kind: "dmgBonus", re: /(\d+)% increased DMG/, seconds: 15, scope: "active" },
+  { id: "Venti", c: 2, kind: "resShred", elements: ["Anemo"], re: /Anemo RES and Physical RES by (\d+)%/, seconds: 10, scope: "team" },
+  { id: "Venti", c: 6, kind: "resShred", elements: ["Anemo"], re: /Anemo RES decreased by (\d+)%/, seconds: 8, scope: "team" },
+  { id: "Xiangling", c: 1, kind: "resShred", elements: ["Pyro"], re: /Pyro RES reduced by (\d+)%/, seconds: 6, scope: "team" },
+  { id: "Xiangling", c: 6, kind: "dmgBonus", elements: ["Pyro"], re: /(\d+)% Pyro DMG Bonus/, seconds: 10, scope: "team" },
+  { id: "Yae Miko", c: 4, kind: "dmgBonus", elements: ["Electro"], re: /Electro DMG Bonus of all nearby party members is increased by (\d+)%/, seconds: 5, scope: "team" },
+  { id: "Yaoyao", c: 1, kind: "dmgBonus", elements: ["Dendro"], re: /(\d+)% Dendro DMG Bonus/, seconds: 8, scope: "active" },
+  { id: "Yelan", c: 4, kind: "hpPct", re: /Max HP by (\d+)%/, seconds: 25, scope: "team" },
+  { id: "Yun Jin", c: 2, kind: "byHit", types: ["normal"], re: /Normal Attack DMG is increased by (\d+)%/, seconds: 12, scope: "team" },
+];
+const EFFECTS = JSON.parse(readFileSync(new URL("../data/effects.json", import.meta.url), "utf8"));
+const constellationBuffs = CONSTELLATION_BUFFS.map(({ re, seconds, id, c, kind, ...rest }) => {
+  const e = EFFECTS.find((x) => x.source === "constellation" && x.id === id && x.requires === c);
+  const m = e?.notes?.match(re);
+  if (!m) throw new Error(`Constellation buff unread: ${id} C${c}: ${re}`);
+  const value = Number(m[1]) / (kind === "em" ? 1 : 100);
+  return { id, constellation: c, kind, value, uptime: Math.min(1, seconds / 20), ...rest, source: m[0] };
+});
+
 const out = new URL("../data/kit.json", import.meta.url);
 writeFileSync(
   out,
-  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, ascendantGleam, secretRite,
+  JSON.stringify({ source: `genshin-db ${version}`, talentLevel: TALENT_LEVEL, baseStatsLevel: 90, characters, constellationBuffs, ascendantGleam, secretRite,
       nightsoulBurst: {
         // Seconds between Nightsoul Bursts by the number of Natlanese members; the top count means "or more".
         cooldownByNatlanese: nightsoulRule.cooldownSecondsByNatlanMembers,

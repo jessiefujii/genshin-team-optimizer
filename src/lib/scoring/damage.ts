@@ -153,7 +153,6 @@ const HOLDER = (kitJson as unknown as {
 // A carry without a build reads as wearing their KQM guide's 4pc set (kit.ts setsOf, #279; there since #306, as the
 // party-wide set effects read it too).
 type BenchmarkSet = { set: string; when?: { reaction?: Reaction; members?: string[] } };
-const BENCHMARK_SETS = (kitJson as unknown as { benchmarkSets: Record<string, BenchmarkSet[]> }).benchmarkSets;
 export { setsOf };
 // HP drain (holderStates): their own kit's, or a teammate's that drains the party (Furina's Salon Members).
 const hpDrops = (c: ScoringCharacter, team: readonly ScoringCharacter[]) =>
@@ -233,9 +232,6 @@ export const setDmgBonus = (buffs: readonly SetBuff[], type: HitType, el: Elemen
 // Whether the carry's Freeze is in their damage through a set's CRIT Rate (#205: Freeze scores only through crit).
 export const freezeInDamage = (c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[] = [c]) =>
   setsOf(c, active, team).some(({ set, pieces }) => pieces >= 4 && (SETS[set] ?? []).some((b) => b.when?.reaction === "freeze"));
-// Whether Freeze's value for this carry is their guide set's, in the model (#279): then a build without that set gets
-// none, as Freeze has no value but the set's crit (#205).
-export const freezeSetModeled = (c: ScoringCharacter) => !!BENCHMARK_SETS[c.id]?.some((b) => b.when?.reaction === "freeze");
 // Weapon passives on the holder's own hits (#40, extract-kit WEAPONS): `values` by refinement (R1-R5), `when` the team
 // condition. Only a build's weapon counts: a benchmark character holds none.
 type WeaponWhen = {
@@ -437,10 +433,13 @@ export const LEVEL_MULTIPLIER_90 = 1446.85;
 // Swirl), Overloaded 2.75 (3978.85, wiki Overloaded). `perSecond`: the most instances one attacker deals a target per
 // second (Damage Sequence: Swirl 2 per 0.5s, Overloaded 1 per 0.5s, Superconduct 2 per 0.5s). Superconduct 1.5 (wiki
 // Superconduct). Electro-Charged 2.0 (wiki Electro-Charged): one tick per second while the target holds both auras, each
-// tick 0.4U of each (score.ts reads its ticks from the aura budget, at most 1 per second in all). Freeze counts only
-// through crit and Crystallize under survival (Jessie, 2026-10-18).
+// tick 0.4U of each (score.ts reads its ticks from the aura budget, at most 1 per second in all). Freeze counts through
+// crit and Shatter (shatterHit, #435), and Crystallize under survival (Jessie, 2026-10-18).
 // `additive`: Reaction Additive Base DMG Bonus (Lauma's), added after that, before RES (wiki, same section; #256).
 // TRANSFORMATIVE (the coefficients and caps) lives in reactions.ts, so kit.ts can read it (#256).
+// Shatter on a Frozen target: "3 x Level Multiplier", "only affected by the level and Elemental Mastery of the character
+// causing the reaction, and the target's Physical RES"; no DEF, no crit (wiki Frozen § Shatter, fetched 2026-11-03).
+export const shatterHit = (em: number) => 3 * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000));
 export const transformativeHit = (r: Reaction, em: number, bonus = 0, additive = 0) =>
   (TRANSFORMATIVE[r]?.coefficient ?? 0) * LEVEL_MULTIPLIER_90 * (1 + (16 * em) / (em + 2000) + bonus) + additive;
 
@@ -570,6 +569,28 @@ export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], 
   return { hitsPerSecond: hits / seconds, reactingPerSecond: reacting / seconds, reaction: reaction ?? mainReactionOf(c) };
 }
 
+// The carry's hits a second that can Shatter a Frozen target, not counting Geo DMG, which always can (score.ts). Wiki
+// Blunt Attack (fetched 2026-11-03): "All Claymore Characters" Normal and Charged Attacks; Sword, Claymore and Polearm
+// Plunging Attacks; and, of the carries a Freeze team can field, these. Sandrone's listed Charged Attack is only Condensed Beam.
+const BLUNT_HITS: Record<string, (h: CarryHit) => boolean> = {
+  Eula: (h) => h.type === "burst" || h.label.includes("Swing"),
+  Freminet: (h) => h.type === "burst" || /Upward Thrust|Frost|Shattering Pressure/.test(h.label),
+  Klee: (h) => h.type === "normal" || h.type === "charged",
+  Wriothesley: (h) => h.type === "charged",
+};
+const MELEE_PLUNGE = ["Sword", "Claymore", "Polearm"];
+export function bluntHitsPerSecond(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): number {
+  if (!CARRIES[c.id]) return 0;
+  const { kit } = pickCombo(CARRIES[c.id], c, active, team);
+  const blunt = (h: CarryHit) => {
+    if (c.id === "Sandrone") return /Condensed Beam|Convective Inhibition/.test(h.label);
+    if (BLUNT_HITS[c.id]?.(h)) return true;
+    if (h.type === "plunge") return MELEE_PLUNGE.includes(c.weapon);
+    return c.weapon === "Claymore" && (h.type === "normal" || h.type === "charged");
+  };
+  return kit.hits.filter(blunt).reduce((n, h) => n + h.count * (h.instances ?? 1), 0) / rotationFor(kit, c, active, team);
+}
+
 // Mavuika's Fighting Spirit buffs are read at its limit (200); her team decides how much she has when she bursts,
 // the same value as her buff to other carries (kit.ts). Under the 100 her Burst needs it is 0: no Burst that
 // rotation, so she plays Skill only (KQM: "viable" for teams that can't build enough; Jessie, #126): her default
@@ -577,6 +598,25 @@ export function carryHitRates(c: ScoringCharacter, active: readonly Reaction[], 
 // so the Flamestrider Charged Attacks are her default combo's (estimate).
 
 // The carry's damage per second, or null when kit.json has no entry for them yet (carriesTodo).
+// A teammate's infusion (Bennett's C6) changes a melee carry's Normal, Charged and Plunging hits to its element: their
+// Physical hits, and their own infusion's, "almost always" overridden (wiki Elemental Infusion, fetched 2026-11-03:
+// Ayaka's and Keqing's). A carry's own moveset is a Conversion, which "cannot be overridden". Only the damage element
+// changes: which hits react stays as it was (estimate, #449).
+const OWN_INFUSION = new Set(["Kamisato Ayaka", "Keqing"]);
+const INFUSABLE_WEAPONS = ["Sword", "Claymore", "Polearm"];
+const teammateInfusion = (c: ScoringCharacter, team: readonly ScoringCharacter[]) =>
+  INFUSABLE_WEAPONS.includes(c.weapon)
+    ? team.filter((m) => m !== c).flatMap((m) => m.effects ?? []).find((e) => e.infusion && e.infusion !== c.element)?.infusion
+    : undefined;
+const isInfused = (h: CarryHit, c: ScoringCharacter) =>
+  (h.type === "normal" || h.type === "charged" || h.type === "plunge") && (h.element === "Physical" || (!h.element && OWN_INFUSION.has(c.id)));
+// The element a teammate's infusion turns some of this carry's hits into, if any, for the breakdown.
+export function infusionOver(c: ScoringCharacter, active: readonly Reaction[], team: readonly ScoringCharacter[]): Element | undefined {
+  const infusion = teammateInfusion(c, team);
+  if (!infusion || !CARRIES[c.id]) return undefined;
+  return pickCombo(CARRIES[c.id], c, active, team).kit.hits.some((h) => isInfused(h, c)) ? infusion : undefined;
+}
+
 // `active` is the team's active reactions: the main reaction only counts when the team can trigger it.
 // `team` (the carry included) sets team-dependent resources (Mavuika's Fighting Spirit) and picks the combo (#114);
 // default: the carry alone. Cached per character, reactions and team: the team search scores each carry in thousands
@@ -602,7 +642,7 @@ export function carryDamage(
   if (!byKey) cache.set(c, (byKey = new Map()));
   // Teammates' constellations pick combos too (#119: Yanfei beside C6 Xingqiu), and their families Secret Rite (#356).
   const rite = team.filter((m) => m.families?.includes("hexerei")).length >= 2 ? "#rite" : "";
-  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}#${frozen}${rite}`;
+  const key = `${active.join("|")}#${team.map((m) => (m.constellation ? `${m.id}@${m.constellation}` : m.id)).sort().join("|")}${noGleam ? "#noGleam" : ""}#${ampShare}#${frozen}${rite}${teammateInfusion(c, team) ?? ""}`;
   if (!byKey.has(key)) byKey.set(key, computeCarryDamage(c, active, team, buffs, noGleam, ampShare, frozen));
   return byKey.get(key)!;
 }
@@ -802,12 +842,14 @@ function computeCarryDamage(
     return perHit * scale * (1 + reactingShare(h) * t.amp);
   };
   let total = 0;
+  const infusion = teammateInfusion(c, team);
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     if (!lands(h)) continue;
     const count = (h.count + teamCount(h)) * (h.type === "burst" ? burstPart : 1) * (h.perCrit ? critChance(c, critRate, dmgCirclet) : 1);
     if (count <= 0) continue;
-    if (h.element === "priority") total += hitTotal(h, priorityEl ?? c.element, count);
+    if (infusion && isInfused(h, c)) total += hitTotal(h, infusion, count);
+    else if (h.element === "priority") total += hitTotal(h, priorityEl ?? c.element, count);
     else if (h.element !== "teammates") total += hitTotal(h, h.element ?? c.element, count);
     else {
       const types = typesOf(h.byTeammates?.elements ?? []);

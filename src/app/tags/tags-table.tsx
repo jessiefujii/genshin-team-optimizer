@@ -162,11 +162,6 @@ export default function TagsTable({ rows }: { rows: TagRow[] }) {
                   ))}
                 </td>
                 <td className="min-w-64 px-3 py-2 text-xs text-zinc-600 dark:text-zinc-400">
-                  {row.teamPrefs?.map((pref, i) => (
-                    <div key={i} className="mb-1 font-medium text-zinc-800 dark:text-zinc-200">
-                      Prefers: {pref.kind === "partner" ? pref.ids.join(" or ") : pref.note}
-                    </div>
-                  ))}
                   {row.notes?.replace(/\s*VERIFY:.*$/, "")}
                 </td>
               </tr>

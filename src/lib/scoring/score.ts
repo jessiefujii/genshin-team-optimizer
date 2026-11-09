@@ -1,11 +1,11 @@
 import type { EffectTag } from "../../types/effects";
-import { type Buff, type CompositionPref, type Role, type Talent } from "../../types/tags";
+import { type Buff, type Role, type Talent } from "../../types/tags";
 import { effectKey, effectLabel, isDraft } from "./effects";
 import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./reactions";
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
-import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, fightingSpiritBuilt, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, freezeInDamage, freezeSetModeled, setBuffs, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, constellationInDamage, fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
+import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, infusionOver, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -15,17 +15,7 @@ import type { Element, Family, Reaction, ScoreLine, ScoreOptions, ScoredTeam, Sc
 
 // Point values are starting guesses from the design doc; tune them against known-strong teams.
 export const POINTS = {
-  singleCarry: 20,
   noCarry: -30,
-  extraOnField: -15,
-  carryReactionWithSupport: 20,
-  carryReactionFromElements: 10,
-  extraPartner: 5, // each additional support enabling the main reaction (e.g. double Hydro)
-  maxExtraPartners: 2,
-  secondaryReaction: 5, // focused teams beat ones that spread across many reactions
-  maxCountedReactions: 2,
-  carryReactionsUnavailable: -10,
-  supportReaction: 10,
   buffer: 10,
   // A buffer scores by the damage their kit adds: +20% = `buffer` points (benchmark.ts, #68). No cap since #90: reaction
   // bonuses are weighted by the carry's share (#87) and Furina's Fanfare is averaged, the overestimates it hid.
@@ -38,27 +28,17 @@ export const POINTS = {
   ownSecretRite: 10, // a Hexerei carry's own kit upgrade at Hexerei: Secret Rite (#63)
   ownRadiance: 10, // a Stellar carry's own kit upgrade in Radiance (#63)
   ownNightsoulBurst: 10, // a Natlan carry's own kit upgrade from Nightsoul Bursts, at full stacks (#63)
-  prefMet: 15, // the carry's own team preferences...
-  onlyElementsBroken: -10,
-  supportPrefMet: 5, // ...count for more than a support's (#43)
-  supportPrefBroken: -5,
-  idleAnemo: -10,
   // Build checks (only for members with imported or entered stats)
   cvBenchmark: 200, // CV = 2 × crit rate + crit DMG
   cvMinFactor: 0.6, // the carry's points scale by CV / benchmark, within these bounds
   cvMaxFactor: 1.2,
-  lowEr: -5, // per burst-reliant member under their ER target
-  emHigh: 600, // reaction-based members at or above this EM gain points...
   emLow: 300, // ...and lose them below this
-  emPoints: 5,
   talentBenchmark: 9, // the carry's key talent and a buff's talent scale points by level / benchmark...
   talentMinFactor: 0.7, // ...within these bounds
   talentMaxFactor: 1.15,
   // effects.json (weapons, sets, constellations)
   effectBuff: 5, // per effect that buffs the carry
   maxEffectBuffs: 3,
-  infusionConflict: -15, // another member's infusion overrides a melee carry's element
-  splitCryoPlan: -15, // a Freeze/Melt carry with both Hydro and Pyro supports (#53)
 } as const;
 
 const RESONANCE: Record<Element, { points: number; name: string }> = {
@@ -132,21 +112,6 @@ function buildContext(members: ScoringCharacter[], options: ScoreOptions): TeamC
   return { members, elements, active, options, carryDps: new Map(), burstShares: new Map() };
 }
 
-// A support only partners a reaction if it brings an element the carry lacks (Bennett is not a Vaporize partner for Hu Tao).
-function suppliesElement(support: ScoringCharacter, carry: ScoringCharacter, reaction: Reaction): boolean {
-  return support.element !== carry.element && reactionElements(reaction).includes(support.element);
-}
-
-function mainReactionLines(carry: ScoringCharacter, r: Reaction, partners: ScoringCharacter[], out: Sink) {
-  if (partners.length === 0) {
-    out.add("Reactions", POINTS.carryReactionFromElements, () => `${label(r)} is possible for ${carry.id}`);
-    return;
-  }
-  out.add("Reactions", POINTS.carryReactionWithSupport, () => `${label(r)}: ${carry.id} + ${partners.map((p) => p.id).join(", ")}`);
-  const extra = Math.min(partners.length - 1, POINTS.maxExtraPartners);
-  if (extra > 0) out.add("Reactions", extra * POINTS.extraPartner, () => `${extra + 1} supports enable ${label(r)}`);
-}
-
 // Collects a team's score lines. The search only needs the points, so reasons are passed as
 // functions and only turned into text when the breakdown is kept (#4).
 // A team scores by its damage (#202). Lines the damage model doesn't cover yet keep their points and turn them into a
@@ -191,71 +156,29 @@ class Tally implements Sink {
 function carryLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   if (!carry) {
     out.add("Carry", POINTS.noCarry, () => "No main DPS in the team");
-    // Without a carry, reward reactions that at least two members build toward.
-    const shared = ctx.active.filter((r) => ctx.members.filter((m) => m.reactions.includes(r)).length >= 2);
-    for (const r of shared.slice(0, POINTS.maxCountedReactions)) {
-      out.add("Reactions", POINTS.supportReaction, () => `${label(r)} from the supports`);
-    }
     return;
   }
 
   const supports = ctx.members.filter((m) => m !== carry);
   const rivals = supports.filter((m) => m.fieldTime === "on");
-  if (rivals.length === 0) {
-    out.add("Carry", POINTS.singleCarry, () => `${carry.id} is the only on-field character`);
-  } else {
-    for (const r of rivals) out.add("Carry", POINTS.extraOnField, () => `${r.id} also wants field time`);
-  }
+  // One on-field carry per team (design doc, non-goals): another member's on-field damage doesn't count, only their
+  // off-field hits and buffs, so they score nothing for it and lose nothing for it (#438). Splitting field time: #448.
+  for (const r of rivals) out.add("Carry", 0, () => `${r.id} also wants field time: only their off-field hits count`);
 
   const main = mainReactionOf(carry);
-  const partnersFor = (r: Reaction) => supports.filter((s) => s.reactions.includes(r) && suppliesElement(s, carry, r));
-  // Reactions the carry's modeled damage covers score by the damage they add (#134), and Overloaded and Swirl by their
-  // own damage in team damage (transformativeLines, #205); the flat points below are for the rest (a carry not modeled
-  // yet, or a reaction the damage model doesn't cover yet, like Freeze or Electro-Charged).
   const carryActive = carry.reactions.filter((r) => ctx.active.includes(r));
-  // A reaction that deals its own damage (Swirl, Overloaded...) leaves the flat points only when that damage counts too:
-  // Heizou's Swirl hit is in his damage, but in a Dendro team his Swirls' own damage isn't yet (#253).
-  const transformative = carryActive.filter((r) => transformativeModeled(ctx, carry, r));
-  const kitModeled = reactionDamageLine(ctx, carry, out).filter((r) => !TRANSFORMATIVE[r] || transformative.includes(r));
-  // Freeze scores only through crit (#205): with a 4pc set whose CRIT Rate needs it (Blizzard Strayer, #206) it is in the
-  // carry's damage. A carry without a build wears their guide's set (setsOf, #279), and a build with another set gets
-  // nothing from Freeze. A carry whose guide set doesn't need Freeze (Ayaka, Wriothesley: Marechaussee Hunter, #206)
-  // keeps the flat points.
+  // Freeze deals no damage itself (wiki Frozen): it scores through Blizzard Strayer's CRIT Rate (#205, #206), in the
+  // carry's damage, and Shatter's damage (transformativeLines), never flat points (#435).
   const worn = carryActive.includes("freeze") && freezeInDamage(carry, ctx.active);
-  const frozen = worn || (carryActive.includes("freeze") && freezeSetModeled(carry));
+  const frozen = carryActive.includes("freeze");
   if (worn) {
     const share = Math.round(frozenShare(ctx, carry) * 100); // #282
     out.add("Reactions", 0, () => `Freeze: in ${carry.id}'s damage through their set's CRIT Rate on Frozen opponents (Frozen ~${share}% of the time)`);
   }
   else if (frozen) out.add("Reactions", 0, () => `Freeze: adds nothing without a set whose CRIT Rate needs it (Blizzard Strayer)`);
-  // Quicken is the aura Aggravate and Spread need: with either in the carry's damage, so is what it's worth (#427).
-  const quicken = kitModeled.some((r) => r === "aggravate" || r === "spread") ? ["quicken" as Reaction] : [];
-  // Lunar-Bloom deals damage only through Columbina's, Lauma's and Nefer's talents, each in their own damage (#429).
-  const lunarBloom = carryActive.includes("lunar-bloom") && modeledCarryDps(carry, ctx) !== null ? ["lunar-bloom" as Reaction] : [];
-  const modeled = [...kitModeled, ...transformative, ...quicken, ...lunarBloom, ...(frozen ? ["freeze" as Reaction] : [])];
-  const flat = carryActive.filter((r) => !modeled.includes(r));
-  const mainIn = (r: Reaction) =>
-    TRANSFORMATIVE[r] ? transformativeModeled(ctx, carry, r) : modelsReaction(carry, r) || transformativeModeled(ctx, carry, r) || (r === "freeze" && frozen);
-  const mainModeled = main !== undefined && main !== "none" && mainIn(main);
-  if (main !== "none" && !mainModeled && carry.reactions.length > 0 && carryActive.length === 0) {
-    out.add("Reactions", POINTS.carryReactionsUnavailable, () => `${carry.id}'s reactions are not possible with this team`);
-  }
-  if (main === undefined) {
-    const ranked = flat
-      .map((r) => ({ r, partners: partnersFor(r) }))
-      .sort((a, b) => b.partners.length - a.partners.length)
-      .slice(0, POINTS.maxCountedReactions);
-    ranked.forEach(({ r, partners }, i) => {
-      if (i > 0 || modeled.length > 0) out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
-      else mainReactionLines(carry, r, partners, out);
-    });
-  } else {
-    // Only the reaction the carry's teams are built around gets full points (#49).
-    if (main !== "none" && !mainModeled && ctx.active.includes(main)) mainReactionLines(carry, main, partnersFor(main), out);
-    for (const r of flat.filter((r) => r !== main).slice(0, POINTS.maxCountedReactions - 1)) {
-      out.add("Reactions", POINTS.secondaryReaction, () => `${label(r)} as a secondary reaction`);
-    }
-  }
+  // A reaction scores only by what it adds: in the carry's damage (reactionDamageLine) or as its own damage
+  // (transformativeLines). One whose hits or applier the model doesn't cover scores nothing yet, not flat points (#437).
+  reactionDamageLine(ctx, carry, out);
 
   const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
   const emUseful = usesEmReaction(carry, ctx);
@@ -339,6 +262,14 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
   const inDamage = modeledCarryDps(carry, ctx) !== null;
   for (const m of ctx.members) {
     for (const e of m.effects ?? []) {
+      // Constellations score in damage or, until modeled, not at all (#410, #450); never flat points.
+      if (e.source === "constellation") {
+        if (e.buffs?.length && (m.constellation ?? 0) >= (e.requires ?? 0) && constellationInDamage(m.id, e.requires ?? 0) && !inTeamDamage.includes(effectKey(e))) {
+          out.add("Effects", 0, () => `${effectName(m, e)}: in team damage`);
+          inTeamDamage.push(effectKey(e));
+        }
+        continue;
+      }
       if (seen.length === POINTS.maxEffectBuffs) return;
       if (inDamage && e.source === "set" && (partySetModeled(e.id) || HEAL_SETS[e.id]?.some((x) => x.kind.startsWith("heal")))) {
         // Shown once, with 0 points; it takes no place under the effect cap.
@@ -364,31 +295,12 @@ function effectBuffLines(ctx: TeamContext, carry: ScoringCharacter, emUseful: bo
   }
 }
 
-// A Cryo carry plays Freeze (with Hydro) or Melt (with Pyro). With both, Pyro breaks the Freeze and
-// vaporizes the Hydro, so neither plan works fully (#53).
-function cryoSplitLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  if (!carry || carry.element !== "Cryo") return;
-  if (!carry.reactions.includes("freeze") && !carry.reactions.includes("melt")) return;
-  const hydro = ctx.members.filter((m) => m !== carry && m.element === "Hydro");
-  const pyro = ctx.members.filter((m) => m !== carry && m.element === "Pyro");
-  if (hydro.length === 0 || pyro.length === 0) return;
-  const names = (ms: ScoringCharacter[]) => ms.map((m) => m.id).join(", ");
-  out.add("Conflicts", POINTS.splitCryoPlan, () => `Hydro (${names(hydro)}) and Pyro (${names(pyro)}) split Freeze and Melt`);
-}
-
-const MELEE = new Set(["Sword", "Claymore", "Polearm"]);
 
 // An infusion (C6 Bennett) turns a melee carry's attacks into its element.
 function infusionLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  if (!carry || !MELEE.has(carry.weapon)) return;
-  for (const m of ctx.members) {
-    if (m === carry) continue;
-    for (const e of m.effects ?? []) {
-      if (e.infusion && e.infusion !== carry.element) {
-        out.add("Conflicts", POINTS.infusionConflict, () => `${effectName(m, e)} infuses ${carry.id}'s attacks with ${e.infusion}`);
-      }
-    }
-  }
+  if (!carry) return;
+  const infusion = infusionOver(carry, ctx.active, ctx.members);
+  if (infusion) out.add("Conflicts", 0, () => `${carry.id}'s attacks are infused with ${infusion}: in their damage`); // #449
 }
 
 // Reactions whose damage does not grow with EM, so an EM buff does nothing for them.
@@ -414,25 +326,6 @@ function buffMisfit(buff: Buff, carry: ScoringCharacter, ctx: TeamContext, emUse
   return null;
 }
 
-function compositionMet(pref: CompositionPref, ctx: TeamContext): boolean {
-  const counts = new Map<Element, number>();
-  for (const m of ctx.members) counts.set(m.element, (counts.get(m.element) ?? 0) + 1);
-  const min = pref.minElements ?? {};
-  for (const [el, n] of Object.entries(min)) {
-    if ((counts.get(el as Element) ?? 0) < (n ?? 0)) return false;
-  }
-  if (pref.othersShareElement) {
-    const others = ctx.members.filter((m) => !(m.element in min)).map((m) => m.element);
-    if (others.length === 0 || new Set(others).size !== 1) return false;
-  }
-  if (pref.onlyElements && !ctx.members.every((m) => pref.onlyElements!.includes(m.element))) return false;
-  if (pref.family) {
-    const n = ctx.members.filter((m) => familiesOf(m, ctx.options).includes(pref.family!.family)).length;
-    if (n < pref.family.min) return false;
-  }
-  return true;
-}
-
 function teamLines(ctx: TeamContext, out: Sink) {
   const { members } = ctx;
 
@@ -441,14 +334,9 @@ function teamLines(ctx: TeamContext, out: Sink) {
   for (const [el, n] of counts) {
     // Pyro, Hydro and Dendro buff one stat, so whether they help depends on the carry; Geo and Cryo are in team damage
     // for a modeled carry (#186): carryResonanceLines adds those.
-    if (n >= 2 && !(el in STAT_RESONANCE) && !RESONANCE_IN_DAMAGE.has(el)) out.add("Resonance", RESONANCE[el].points, () => RESONANCE[el].name);
+    if (n >= 2 && !(el in STAT_RESONANCE) && !RESONANCE_IN_DAMAGE.has(el)) out.add("Resonance", 0, () => `${RESONANCE[el].name}: in the energy model`); // #439
   }
 
-  const anemo = members.filter((m) => m.element === "Anemo");
-  const swirlActive = ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
-  if (anemo.length >= 2 && !swirlActive) {
-    out.add("Conflicts", POINTS.idleAnemo, () => "Two Anemo characters with nothing to swirl");
-  }
 }
 
 // Resonances that raise one stat only help a carry who uses it (#51, #59): Fervent Flames +25% ATK,
@@ -1351,7 +1239,7 @@ function computeAuraBudget(ctx: TeamContext, carry: ScoringCharacter) {
   // has no modeled applier (no sub-DPS entry), 1 stays as the stand-in.
   const freezes = pairs.filter((p) => p.r === "freeze").reduce((s, p) => s + p.reactions, 0);
   const frozen = (full.get("Hydro") ?? 0) > 0 && (full.get("Cryo") ?? 0) > 0 ? 1 - Math.exp(-freezes * FREEZE_SECONDS) : 1;
-  return { subs: out, carry: carryShare, quicken, transformative, appsOf, indirect, crystallize, frozen };
+  return { subs: out, carry: carryShare, quicken, transformative, appsOf, indirect, crystallize, frozen, freezes };
 }
 const SWIRLABLE: Element[] = ["Pyro", "Hydro", "Electro", "Cryo"];
 const QUICKEN_SECONDS = 0.8 * 5 + 6; // a Quicken aura from 0.8U (wiki Quicken § Duration)
@@ -1449,6 +1337,22 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
     if (dps >= 1) out.add("Reactions", 0, () => `${label(r)}: ~${Math.round(dps)} damage per second (${by.join(", ")})`);
     total += dps;
   }
+  // Shatter (#402): each Freeze can be Shattered once by Geo DMG (even non-Blunt: wiki Blunt Attack) or the carry's Blunt
+  // hits, shared by how often each hits, at their own EM. Estimates: those hits land while it is Frozen, and Frozen
+  // uptime doesn't shorten for it. Physical DMG: no element's shred reads it. Sub-DPS' non-Geo Blunt hits aren't counted.
+  // Bosses can't be Frozen: boss mode, #398.
+  const hitsOf = (m: ScoringCharacter) => (m.element === "Geo" ? (budget.appsOf.get(m) ?? 0) : m === carry ? bluntHitsPerSecond(m, ctx.active, ctx.members) : 0);
+  const shatterers = ctx.members.filter((m) => hitsOf(m) > 0);
+  const shatterRate = shatterers.reduce((s, m) => s + hitsOf(m), 0);
+  if (budget.freezes > 0 && shatterRate > 0) {
+    const shatters = Math.min(budget.freezes, shatterRate);
+    const dps = shatterers.reduce((sum, m) => {
+      const em = teamEm(m, carry, ctx, (subDpsStats(m)?.em ?? carryStats(m).em) + memberExtras(m, carry, ctx).em);
+      return sum + shatters * (hitsOf(m) / shatterRate) * shatterHit(em);
+    }, 0);
+    if (dps >= 1) out.add("Reactions", 0, () => `Shatter: ~${Math.round(dps)} damage per second (${shatterers.map((m) => m.id).join(", ")} ~${shatters.toFixed(1)}/s)`);
+    total += dps;
+  }
   // Indirect Lunar damage (#145; Jessie, 2026-10-12: in the Reactions line by damage added, for the team that triggers
   // it). Genshin Impact Wiki, Damage § Indirect (fetched 2026-10-18): each member who applied the reaction's elements
   // gets "Base Reaction Coefficient x Level Multiplier x (1 + % Reaction Base DMG Bonus) x (1 + % EM Bonus + % Reaction
@@ -1488,21 +1392,7 @@ function transformativeLines(ctx: TeamContext, carry: ScoringCharacter | null, o
   return total;
 }
 const INDIRECT_WEIGHTS = [0.6, 0.3, 0.05, 0.05];
-// Lunar and Stellar reactions with damage of their own besides the members' direct hits (#145, #235).
-const INDIRECT_LUNAR = new Set<Reaction>(["lunar-charged", "lunar-crystallize", "stellar-swirl"]);
 type Indirect = { r: Reaction; what: string; perSecond: number; coefficient: number; element: Element };
-
-// Whether a transformative reaction's damage is in team damage for this team (#205), so its flat points go: some member
-// applies each of its elements in the aura budget (Swirl: Anemo and an aura element). Not when an applier isn't modeled
-// (Raiden off field has no sub-DPS entry, #252): the flat points stay as the stand-in. A reaction a converter turns into
-// its Lunar or Stellar form (CONVERTED) doesn't happen, so it scores nothing either way.
-function transformativeModeled(ctx: TeamContext, carry: ScoringCharacter, r: Reaction): boolean {
-  if (!TRANSFORMATIVE[r] && !INDIRECT_LUNAR.has(r)) return false;
-  if (convertedAway(ctx, r)) return true;
-  const applies = (e: Element) => ctx.members.some((m) => m.element === e && applicationsPerSecond(m, carry, ctx) > 0);
-  if (r === "swirl") return applies("Anemo") && swirlAuras(ctx).some(applies);
-  return reactionElements(r).every(applies);
-}
 
 function subDpsReactions(m: ScoringCharacter, ctx: TeamContext): Reaction[] {
   return SUB_DPS_REACTIONS.filter((r) => {
@@ -1717,23 +1607,6 @@ function carryDamagePerSecond(carry: ScoringCharacter, ctx: TeamContext): number
 }
 
 // Team preferences: the carry's count fully; a support's describe what that support wants, so they count less (#43).
-function prefLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  for (const m of ctx.members) {
-    const own = m === carry;
-    for (const pref of m.teamPrefs ?? []) {
-      if (pref.kind === "partner") {
-        const partner = ctx.members.find((p) => pref.ids.includes(p.id));
-        if (partner) out.add("Team preference", own ? POINTS.prefMet : POINTS.supportPrefMet, () => `${m.id} with ${partner.id}`);
-      } else if (compositionMet(pref, ctx)) {
-        out.add("Team preference", own ? POINTS.prefMet : POINTS.supportPrefMet, () => `${m.id}: ${pref.note ?? "preferred team makeup"}`);
-      } else if (pref.onlyElements && pref.onlyElements.length > 0) {
-        const points = own ? POINTS.onlyElementsBroken : POINTS.supportPrefBroken;
-        out.add("Team preference", points, () => `${m.id} wants only ${pref.onlyElements!.join("/")} teammates`);
-      }
-    }
-  }
-}
-
 // Pure reaction carries (EM only, e.g. Kaveh) don't crit, so CV says nothing about them.
 const usesCrit = (c: ScoringCharacter) => !(c.scalesOn?.length === 1 && c.scalesOn[0] === "EM");
 
@@ -1753,18 +1626,6 @@ function carryTalentLine(carry: ScoringCharacter, out: Sink) {
   out.add("Carry talent", 0, () => `${carry.id} ${talent} level ${level} vs ${POINTS.talentBenchmark} benchmark: ×${talentFactor(level).toFixed(2)} damage`);
 }
 
-// Members whose damage or buff comes from EM: Swirl buffers, Hyperbloom/Burgeon triggers, EM carries.
-function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: TeamContext): boolean {
-  if (m === carry) return !!m.scalesOn?.includes("EM");
-  if (m.element === "Anemo" && m.roles.includes("buffer")) {
-    return ctx.active.includes("swirl") || ctx.active.includes("stellar-swirl");
-  }
-  if (m.element === "Electro" || m.element === "Pyro") {
-    return m.reactions.some((r) => (r === "hyperbloom" || r === "burgeon") && ctx.active.includes(r));
-  }
-  return false;
-}
-
 // Bursts the team's Energy can't fund every rotation (#37, energy.ts): starvedBursts points per 20% of rotations a
 // member misses. Only for Bursts outside the damage model: the modeled carry's Burst hits and sub-DPS Burst sources
 // already lose that share of their damage. This replaces the role-based battery lines: a battery now counts by
@@ -1772,29 +1633,13 @@ function emReliant(m: ScoringCharacter, carry: ScoringCharacter | null, ctx: Tea
 function energyLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
   const seconds = carry ? carryRotationSeconds(carry, ctx.active, ctx.members) : undefined;
   for (const [m, e] of energyNeeds(ctx.members, carry, seconds)) {
-    const modeled = m === carry ? seconds !== undefined : !!carry && SUB_DPS[m.id]?.sources.some((s) => s.talent === "burst");
-    if (e.share >= 1 || modeled || (m.stats && m.stats.energyRecharge < e.target)) continue;
+    // A missed Burst already costs its hits or its buffs in damage: no points on top (#440). The rest stand in for Bursts
+    // the model has no value for.
+    const modeled = m === carry ? seconds !== undefined : !!carry && (SUB_DPS[m.id]?.sources.some((s) => s.talent === "burst") || hasBurstBuff(m));
+    if (e.share >= 1 || modeled) continue;
     const points = Math.round((POINTS.starvedBursts * (1 - e.share)) / 0.2);
     if (points < 0) {
       out.add("Energy", points, () => `${m.id} Bursts in ~${Math.round(e.share * 100)}% of rotations: needs ~${e.need}% ER here (${e.target}% target)`);
-    }
-  }
-}
-
-function statLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink) {
-  for (const m of ctx.members) {
-    if (!m.stats) continue;
-    const { energyRecharge, elementalMastery: em } = m.stats;
-    const target = erTargetOf(m);
-    if (target !== undefined && energyRecharge < target) {
-      out.add("Energy", POINTS.lowEr, () => `${m.id} ER ${energyRecharge}% vs ${target}% target`);
-    }
-    if (emReliant(m, carry, ctx)) {
-      if (em >= POINTS.emHigh) {
-        out.add("EM", POINTS.emPoints, () => `${m.id} has ${em} EM for reactions`);
-      } else if (em < POINTS.emLow) {
-        out.add("EM", -POINTS.emPoints, () => `${m.id} has ${em} EM; reactions want ${POINTS.emHigh}+`);
-      }
     }
   }
 }
@@ -1859,10 +1704,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     const sub = subDpsLines(ctx, carry, out);
     const reacted = transformativeLines(ctx, carry, out);
     const healed = healSetLines(ctx, carry, out);
-    prefLines(ctx, carry, out);
     infusionLines(ctx, carry, out);
-    cryoSplitLines(ctx, carry, out);
-    statLines(ctx, carry, out);
     energyLines(ctx, carry, out);
     // No carry: the generic benchmark hit stands in for whoever is on field; the -30 line marks the missing carry.
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;

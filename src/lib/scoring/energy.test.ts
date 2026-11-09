@@ -47,8 +47,9 @@ test("guide targets cover most KQM guide teams: the model is anchored to them (#
     }
   ratios.sort((a, b) => a - b);
   const q = (p: number) => ratios[Math.floor(p * (ratios.length - 1))];
-  // The calibration (ENERGY.standardParticles, otherEnergy): the target covers 3 in 4 guide-team members.
-  expect(q(0.75)).toBeGreaterThan(0.95);
+  // The calibration (ENERGY.standardParticles, otherEnergy): the target covers 3 in 4 guide-team members. High Voltage's
+  // particles (#439), once part of otherEnergy, took this from just under 1 to 0.93.
+  expect(q(0.75)).toBeGreaterThan(0.9);
   expect(q(0.75)).toBeLessThan(1.02);
   expect(q(1)).toBeLessThan(1.3); // no guide team far short
 });
@@ -73,4 +74,17 @@ test("flat Energy counts: Raiden's Burst funds the team, beyond what ER scales (
   const withFischl = energyNeeds(team("Fischl", "Xiangling", "Xingqiu", "Bennett"), null, 18).get(get("Xingqiu"))!.need;
   expect(withRaiden).toBeLessThan(withFischl);
   expect(ENERGY.offField).toBe(0.6); // 4-member party (wiki Energy § Particles and Orbs)
+});
+
+test("High Voltage and Impetuous Winds feed the energy model (#439)", () => {
+  const need = (members: ReturnType<typeof get>[], seconds: number) => energyNeeds(members, members[1], seconds).get(members[0])!.need;
+  const geo = (c: ReturnType<typeof get>) => ({ ...c, element: "Geo" as const });
+  // Same particles for Bennett (not Electro or Anemo) in both teams: only the resonance differs.
+  expect(need([get("Bennett"), get("Raiden Shogun"), get("Fischl"), get("Xingqiu")], 20)).toBeLessThan(
+    need([get("Bennett"), get("Raiden Shogun"), geo(get("Fischl")), get("Xingqiu")], 20),
+  );
+  // Sucrose's 15 s Skill fits twice in 28.5 s only at 5% less cooldown.
+  expect(need([get("Bennett"), get("Xingqiu"), get("Sucrose"), get("Venti")], 28.5)).toBeLessThan(
+    need([get("Bennett"), get("Xingqiu"), get("Sucrose"), geo(get("Venti"))], 28.5),
+  );
 });
