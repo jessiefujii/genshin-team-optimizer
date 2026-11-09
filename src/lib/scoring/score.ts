@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, constellationInDamage, fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, infusionOver, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, hasCarryKit, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, infusionOver, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -1480,11 +1480,16 @@ function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamCon
 // Enemy RES is left out, as on the carry's side; reactions on their hits count from #153 (subDpsReactions); teammates'
 // party-wide kit buffs from #204 (memberBuffStats).
 // Returns their total, and the sub-DPS who out-damages the carry, if one does: the team is really theirs (#96).
-function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): { lead: ScoringCharacter | null; dps: number } {
-  if (!carry) return { lead: null, dps: 0 };
+function subDpsLines(
+  ctx: TeamContext,
+  carry: ScoringCharacter | null,
+  out: Sink,
+): { lead: ScoringCharacter | null; dps: number; outdone: { m: ScoringCharacter; dps: number; carryDps: number } | null } {
+  if (!carry) return { lead: null, dps: 0, outdone: null };
   const carryDps = carryDamagePerSecond(carry, ctx); // who out-damages whom
   let total = 0;
   let lead: { m: ScoringCharacter; dps: number } | null = null;
+  let outdone: { m: ScoringCharacter; dps: number } | null = null;
   const needs = energyNeeds(ctx.members, carry, carryRotationSeconds(carry, ctx.active, ctx.members));
   const auras = auraShares(ctx, carry);
   const quicken = auraBudget(ctx, carry).quicken;
@@ -1579,12 +1584,15 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     // Only a main DPS takes the team over (Mavuika, a flex DPS): a support's hits never make them its main DPS (#266:
     // Escoffier out-damaged a carry with no damage model yet).
     if (m.roles.includes("main-dps") && dps > carryDps && (!lead || dps > lead.dps)) lead = { m, dps };
+    // A support who out-damages the carry rules the team out with that carry (Jessie, 2026-11-09, #455). Only a
+    // modeled carry: the generic benchmark hit of one without a damage model isn't their damage (#266).
+    else if (!m.roles.includes("main-dps") && hasCarryKit(carry.id) && dps > carryDps && (!outdone || dps > outdone.dps)) outdone = { m, dps };
   }
   if (lead) {
     const { m, dps } = lead;
     out.add("Carry", 0, () => `${m.id} out-damages ${carry.id} (~${Math.round(dps)} vs ~${Math.round(carryDps)} per second): ${m.id} is the main DPS`);
   }
-  return { lead: lead?.m ?? null, dps: total };
+  return { lead: lead?.m ?? null, dps: total, outdone: outdone ? { ...outdone, carryDps } : null };
 }
 
 // A member's EM for the reactions they trigger (#186): the carry's as their damage reads it (with the team's EM buffs),
@@ -1692,8 +1700,7 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
   const candidates = onlyCarry ? team.filter((m) => m.id === onlyCarry) : mainDps;
 
   type Reading = { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink; dps: number; value: number };
-  let best: Reading | null = null;
-  for (const carry of candidates.length > 0 ? candidates : [null]) {
+  const read = (carry: ScoringCharacter | null) => {
     const out = sink();
     carryLines(ctx, carry, out);
     if (carry) carryTalentLine(carry, out);
@@ -1713,9 +1720,30 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
     const dps = own + sub.dps + reacted + healed;
     const value = dps * factorOf(out);
-    if (!best || value > best.value) best = { carry, lead: sub.lead, out, dps, value };
+    return { reading: { carry, lead: sub.lead, out, dps, value } as Reading, outdone: sub.outdone };
+  };
+  // A carry out-damaged by a support isn't the team's carry (Jessie, 2026-11-09, #455): that reading is ruled out.
+  // With every carry ruled out, the team reads as one without a main DPS.
+  let best: Reading | null = null;
+  const ruledOut: { carry: string; why: string; lines: ScoreLine[] }[] = [];
+  for (const carry of candidates.length > 0 ? candidates : [null]) {
+    const { reading, outdone } = read(carry);
+    if (carry && outdone) {
+      const why = `${outdone.m.id} out-damages ${carry.id} (~${Math.round(outdone.dps)} vs ~${Math.round(outdone.carryDps)} per second)`;
+      const lines = explain ? (reading.out as Breakdown).lines.filter((l) => l.rule === "Sub-DPS") : [];
+      ruledOut.push({ carry: carry.id, why, lines });
+      continue;
+    }
+    if (!best || reading.value > best.value) best = reading;
   }
-  return { ctx, ...best! };
+  const none = !best;
+  if (!best) best = read(null).reading;
+  for (const r of ruledOut) {
+    best.out.add("Carry", 0, () => `Ruled out as ${r.carry}'s team: ${r.why}`);
+    // With no carry left, what each member dealt beside the ruled-out carry, as 0-point lines: why it was ruled out.
+    if (none) for (const l of r.lines) best.out.add(l.rule, 0, () => l.reason);
+  }
+  return { ctx, ...best };
 }
 
 // The guide-team reference (#202, Jessie 2026-10-15), written by `npm run reference` (team-reference.ts): `median`,

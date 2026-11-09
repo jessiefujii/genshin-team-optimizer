@@ -1477,3 +1477,17 @@ describe("ICD share of applying hits (#453)", () => {
     expect(appliedShare(src(1, "none"))).toBe(1);
   });
 });
+
+describe("a support who out-damages the carry rules the team out with them (#455)", () => {
+  test("Durin's ~80k beside Skirk's ~49k: not Skirk's team, read as a team without a main DPS", () => {
+    const s = score("Skirk", "Durin", "Escoffier", "Nicole");
+    expect(s.onField).toBeNull();
+    expect(s.breakdown.find((l) => l.reason.startsWith("Ruled out as Skirk's team: Durin out-damages Skirk"))).toBeDefined();
+    // What Durin dealt beside her stays in the breakdown, as a 0-point line.
+    expect(s.breakdown.find((l) => l.reason.startsWith("Durin's own hits"))?.points).toBe(0);
+    expect(s.score).toBeLessThan(score("Skirk", "Furina", "Escoffier", "Yelan").score);
+  });
+  test("a carry the support doesn't out-damage keeps the team", () => {
+    expect(score("Mavuika", "Citlali", "Durin", "Escoffier").onField).toBe("Mavuika");
+  });
+});

@@ -148,11 +148,11 @@
     "Kaveh": {
       "team": [
         "Kaveh",
-        "Nilou",
-        "Yelan",
-        "Furina"
+        "Furina",
+        "Rosaria",
+        "Kaedehara Kazuha"
       ],
-      "value": 83745
+      "value": 74715.2
     },
     "Keqing": {
       "team": [
@@ -186,9 +186,9 @@
         "Lohen",
         "Durin",
         "Nicole",
-        "Citlali"
+        "Xilonen"
       ],
-      "value": 243052.7
+      "value": 192366.3
     },
     "Lyney": {
       "team": [
@@ -302,10 +302,10 @@
       "team": [
         "Shikanoin Heizou",
         "Faruzan",
-        "Xingqiu",
-        "Yelan"
+        "Xiangling",
+        "Bennett"
       ],
-      "value": 65165.2
+      "value": 39593
     },
     "Skirk": {
       "team": [
@@ -338,10 +338,10 @@
       "team": [
         "Traveler (Cryo)",
         "Yae Miko",
-        "Nicole",
-        "Odette"
+        "Odette",
+        "Alyosha"
       ],
-      "value": 104305.5
+      "value": 92179
     },
     "Varesa": {
       "team": [
@@ -400,11 +400,11 @@
     "Yanfei": {
       "team": [
         "Yanfei",
-        "Furina",
+        "Xingqiu",
         "Yelan",
-        "Xianyun"
+        "Zhongli"
       ],
-      "value": 115499.4
+      "value": 84177.1
     },
     "Yoimiya": {
       "team": [
@@ -418,11 +418,11 @@
     "Yumemizuki Mizuki": {
       "team": [
         "Yumemizuki Mizuki",
-        "Ineffa",
-        "Columbina",
-        "Xilonen"
+        "Odette",
+        "Traveler (Cryo)",
+        "Zhongli"
       ],
-      "value": 102445.3
+      "value": 94283
     },
     "Zibai": {
       "team": [
