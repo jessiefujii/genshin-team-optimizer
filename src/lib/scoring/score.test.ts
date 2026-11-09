@@ -6,7 +6,7 @@ import { canTrigger } from "./reactions";
 import { carryDamage, LEVEL_MULTIPLIER_90, shatterHit } from "./damage";
 import { fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
-import { carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
+import { appliedShare, carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
@@ -1459,5 +1459,21 @@ describe("findBestTeams", () => {
 
   test("unknown required character is an error", () => {
     expect(() => findBestTeams(roster, { mustInclude: ["Nobody"] })).toThrow();
+  });
+});
+
+describe("ICD share of applying hits (#453)", () => {
+  const src = (every: number, icd: { reset: number; every: number | "first" } | "none", hits = 1) =>
+    ({ talent: "burst", label: "test", scaling: { atk: 1 }, hits, every, duration: 20, cd: 20, icd }) as Parameters<typeof appliedShare>[0];
+  test("the timer counts whole hits: a hit every 1.25 s on a 2 s timer applies every other hit", () => {
+    expect(appliedShare(src(1.25, { reset: 2, every: "first" }))).toBe(0.5); // Durin's Dragon of Dark Decay (KQM)
+    expect(appliedShare(src(1, { reset: 1.5, every: "first" }))).toBe(0.5);
+    expect(appliedShare(src(2, { reset: 2, every: "first" }))).toBe(1); // a hit exactly at the reset applies
+  });
+  test("the standard ICD is the larger of the counter and the timer", () => {
+    expect(appliedShare(src(1, { reset: 2.5, every: 3 }))).toBeCloseTo(1 / 3); // hits at 0 s and 3 s
+    expect(appliedShare(src(2.3, { reset: 2.5, every: 3 }))).toBe(0.5); // Candace's C6 wave: 0 s, 4.6 s
+    expect(appliedShare(src(3, { reset: 2.5, every: 3 }))).toBe(1);
+    expect(appliedShare(src(1, "none"))).toBe(1);
   });
 });

@@ -44,7 +44,7 @@
         "Furina",
         "Citlali"
       ],
-      "value": 180985.9
+      "value": 181066.6
     },
     "Clorinde": {
       "team": [
@@ -62,7 +62,7 @@
         "Yelan",
         "Kuki Shinobu"
       ],
-      "value": 121050.6
+      "value": 120812.5
     },
     "Diluc": {
       "team": [
@@ -80,7 +80,7 @@
         "Shenhe",
         "Yelan"
       ],
-      "value": 94107.3
+      "value": 93319.7
     },
     "Flins": {
       "team": [
@@ -107,7 +107,7 @@
         "Bennett",
         "Escoffier"
       ],
-      "value": 233484.4
+      "value": 233829
     },
     "Ganyu": {
       "team": [
@@ -188,7 +188,7 @@
         "Nicole",
         "Citlali"
       ],
-      "value": 256289
+      "value": 243052.7
     },
     "Lyney": {
       "team": [
@@ -301,11 +301,11 @@
     "Shikanoin Heizou": {
       "team": [
         "Shikanoin Heizou",
-        "Yelan",
-        "Kuki Shinobu",
-        "Traveler (Dendro)"
+        "Faruzan",
+        "Xingqiu",
+        "Yelan"
       ],
-      "value": 65451
+      "value": 65165.2
     },
     "Skirk": {
       "team": [

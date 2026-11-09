@@ -958,17 +958,20 @@ function pickedSources(sources: SubDpsSource[], carry: ScoringCharacter, ctx: Te
 const SUB_DPS_REACTIONS: Reaction[] = ["vaporize", "melt", "aggravate", "spread"];
 // Which hits react: only those that apply their element (#190). A source's ICD is kit.json's `icd` (Genshin Impact
 // Wiki, Internal Cooldown/Data, fetched 2026-10-14), else the standard "2.5 seconds or 3 hits": a hit applies when the
-// timer has run out or it is the counter's next one, so the share is the larger of 1/every and gap/reset (capped at
-// 1). "first": only the timer. "none": every hit. Hits of one use without an interval (Aino's Water Balls) are taken
-// as close together, at least one applying per use. ICDs shared between two sources (Escoffier's Skill and Parfaits)
-// are counted separately (slight overcount).
+// timer has run out or it is the counter's next one, so the share is the larger of the two. The timer is counted in
+// whole hits (#453): with a hit every `gap` s, the first hit at or after `reset` s applies, so one in
+// ceil(reset / gap) (Durin's Dark dragon, a hit every 1.25 s on a 2 s timer: every other hit, as KQM says; was
+// gap/reset, 0.625). "first": only the timer. "none": every hit. Hits of one use without an interval (Aino's Water
+// Balls) are taken as close together, at least one applying per use. ICDs shared between two sources (Escoffier's
+// Skill and Parfaits) are counted separately (slight overcount).
 const STANDARD_ICD = { reset: 2.5, every: 3 } as const;
-function appliedShare(s: SubDpsSource): number {
+export function appliedShare(s: SubDpsSource): number {
   if (s.icd === "none") return 1;
   const { reset, every } = s.icd ?? STANDARD_ICD;
   const n = s.hits ?? 1;
   const counter = every === "first" ? 0 : 1 / every;
-  const timer = s.every === undefined ? 1 / n : Math.min(1, s.every / n / reset);
+  const gap = s.every === undefined ? 0 : s.every / n;
+  const timer = gap === 0 ? 1 / n : 1 / Math.max(1, Math.ceil(reset / gap - 1e-9));
   return Math.min(1, Math.max(counter, timer));
 }
 
