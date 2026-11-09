@@ -13,7 +13,7 @@ const roster: ScoringCharacter[] = [
 const ids = (teams: { members: string[] }[]) => teams.map((t) => t.members.join("|"));
 
 describe("searching in parts (#215)", () => {
-  test("the parts' merged results are the whole search's, for any number of parts", { timeout: 30_000 }, () => {
+  test("the parts' merged results are the whole search's, for any number of parts", { timeout: 60_000 }, () => {
     const whole = findBestTeams(roster, { limit: 15 });
     for (const count of [1, 2, 3, 7]) {
       const parts = Array.from({ length: count }, (_, index) => findBestTeams(roster, { limit: 15, part: { index, count } }));

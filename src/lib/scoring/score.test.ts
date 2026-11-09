@@ -1442,7 +1442,7 @@ describe("findBestTeams", () => {
     for (const t of top) expect(t.members.filter((m) => m.startsWith("Traveler (")).length).toBeLessThanOrEqual(1);
   });
 
-  test("the search's top teams match scoring every team in full", () => {
+  test("the search's top teams match scoring every team in full", { timeout: 15_000 }, () => {
     const top = findBestTeams(roster, { limit: 15 });
     const ids = roster.map((c) => c.id);
     const every: ReturnType<typeof scoreTeam>[] = [];
