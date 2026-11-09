@@ -2143,29 +2143,28 @@ const CARRIES = {
         // Jessie 2026-10-22): in Radiance "Wriothesley's N3 and N5 during his Skill state also deal Cryo Stellar-Conduct
         // instead of regular Cryo damage, and all of his attacks gain a 30% Stellar-Conduct DMG Bonus. These
         // Stellar-Conduct attacks make up the majority of his damage. Note that they do not apply Cryo and cannot trigger
-        // reactions." So the 3rd and 5th hits and Luster are those hits at 60%, 80% and 100% (passive4) with +30% DMG
-        // Bonus, none reacting; they still count as Normal / Charged Attacks for buffs (estimate). In his damage, so no
-        // flat Stellar points (radianceInDamage).
+        // reactions." So the 3rd and 5th hits and Luster are those hits at 60%, 80% and 100% (passive4), none reacting;
+        // they still count as Normal / Charged Attacks for buffs (estimate). In his damage, so no flat Stellar points
+        // (radianceInDamage). #403: passive4 calls them "considered Stellar-Conduct DMG" (wiki, Wriothesley, fetched
+        // 2026-11-09), so they take the direct Stellar formula (wiki, Damage § Direct, same day: Base Reaction
+        // Coefficient "1 to 2, for Stellar-Conduct", EM and Reaction Bonus terms, RES and CRIT, no DMG Bonus or DEF):
+        // lunar "stellar-conduct", his +30% "increased Stellar-Conduct DMG" as a Reaction Bonus, and Chilling Penalty's
+        // Enhanced Repelling Fist multiplier on N3 and N5 as a Base DMG Multiplier (their "original Cryo DMG").
         combo: "E 3[N5CD] N2",
         // His Radiance needs his Witch's Revelation (#124): `radiance`, his own Stellar family active.
         when: [{ reaction: "stellar-conduct", radiance: true }],
         hits: [
           ...["1-Hit DMG", "2-Hit DMG"].map((label) => ({ table: "normal", label, count: 4, type: N })),
-          { table: "normal", label: "3-Hit DMG", as: "3-Hit Stellar-Conduct DMG", ofText: { from: "passive4", re: /deal (\d+)% and \d+% of their original Cryo DMG/ }, count: 3, reacting: 0, type: N },
+          { table: "normal", label: "3-Hit DMG", as: "3-Hit Stellar-Conduct DMG", ofText: { from: "passive4", re: /deal (\d+)% and \d+% of their original Cryo DMG/ }, count: 3, reacting: 0, type: N, lunar: "stellar-conduct" },
           { table: "normal", label: "4-Hit DMG", count: 3, type: N, instances: 2 },
-          { table: "normal", label: "5-Hit DMG", as: "5-Hit Stellar-Conduct DMG", ofText: { from: "passive4", re: /deal \d+% and (\d+)% of their original Cryo DMG/ }, count: 3, reacting: 0, type: N },
-          { table: "normal", label: "Charged Attack DMG", as: "Luster: Vaulting Fist DMG", ofText: { from: "passive4", re: /Vaulting Fist will deal (\d+)% of its original/ }, count: 3, reacting: 0, type: CH },
+          { table: "normal", label: "5-Hit DMG", as: "5-Hit Stellar-Conduct DMG", ofText: { from: "passive4", re: /deal \d+% and (\d+)% of their original Cryo DMG/ }, count: 3, reacting: 0, type: N, lunar: "stellar-conduct" },
+          { table: "normal", label: "Charged Attack DMG", as: "Luster: Vaulting Fist DMG", ofText: { from: "passive4", re: /Vaulting Fist will deal (\d+)% of its original/ }, count: 3, reacting: 0, type: CH, lunar: "stellar-conduct" },
         ],
         buffs: [
           { kind: "factor", table: "skill", label: "Enhanced Repelling Fist DMG", types: [N] },
           { kind: "atkPct", from: "passive2", re: /increase Wriothesley's ATK by (\d+)%/, times: /Max (\d+) stacks/ },
-          {
-            kind: "dmgBonus",
-            from: "passive4",
-            re: /deals (\d+)% increased Stellar-Conduct DMG/,
-            types: [N, CH],
-            labels: ["3-Hit Stellar-Conduct DMG", "5-Hit Stellar-Conduct DMG", "Luster: Vaulting Fist DMG"],
-          },
+          { kind: "lunarReactionBonus", from: "passive4", re: /deals (\d+)% increased Stellar-Conduct DMG/, reaction: "stellar-conduct" },
+          { kind: "baseDmgMultiplier", table: "skill", label: "Enhanced Repelling Fist DMG", labels: ["3-Hit Stellar-Conduct DMG", "5-Hit Stellar-Conduct DMG"] },
         ],
       },
     ],
@@ -3761,7 +3760,8 @@ function readCarry(id, spec) {
           ...(b.when ? { when: b.when } : {}),
         };
       case "baseDmgMultiplier":
-        return { kind: b.kind, value: round(b.value), labels: b.labels, ...(b.when ? { when: b.when } : {}) };
+        // A fixed value, or a talent table's multiplier row as the extra over 1 (Wriothesley's Enhanced Repelling Fist, #403).
+        return { kind: b.kind, value: round(b.table ? raw(b.table, b.label) - 1 : b.value), labels: b.labels, ...(b.when ? { when: b.when } : {}) };
       case "emBonus":
         return { kind: b.kind, value: b.from ? num(b.from, b.re) : raw(b.table, b.label), ...(b.when ? { when: b.when } : {}) };
       default:

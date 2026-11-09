@@ -167,16 +167,24 @@ describe("carry damage (#101)", () => {
   });
 
   test("Wriothesley's Radiance turns his 3rd and 5th hits and Luster into Stellar-Conduct DMG (#123)", () => {
-    type Hit = { label: string; scaling: { atk: number }; reacting?: number };
-    const wrio = (kit.carries as unknown as Record<string, { hits: Hit[]; combos: { combo: string; hits: Hit[]; buffs: { kind: string; labels?: string[] }[] }[] }>).Wriothesley;
+    type Hit = { label: string; scaling: { atk: number }; reacting?: number; lunar?: string };
+    type Buff = { kind: string; labels?: string[]; reaction?: string; value?: number };
+    const wrio = (kit.carries as unknown as Record<string, { hits: Hit[]; combos: { combo: string; hits: Hit[]; buffs: Buff[] }[] }>).Wriothesley;
     const stellar = wrio.combos.find((k) => k.combo === "E 3[N5CD] N2")!;
     const hit = (hits: Hit[], label: string) => hits.find((h) => h.label === label)!;
     // 60% and 80% of the 3rd and 5th hits, 100% of the Charged Attack; they don't apply Cryo, so none react.
     expect(hit(stellar.hits, "3-Hit Stellar-Conduct DMG").scaling.atk).toBeCloseTo(hit(wrio.hits, "3-Hit DMG").scaling.atk * 0.6, 5);
     expect(hit(stellar.hits, "Luster: Vaulting Fist DMG").scaling.atk).toBeCloseTo(hit(wrio.hits, "Charged Attack DMG").scaling.atk, 5);
     for (const l of ["3-Hit Stellar-Conduct DMG", "5-Hit Stellar-Conduct DMG", "Luster: Vaulting Fist DMG"]) expect(hit(stellar.hits, l).reacting).toBe(0);
-    // His +30% Stellar-Conduct DMG reaches only those hits.
-    expect(stellar.buffs.find((b) => b.kind === "dmgBonus")!.labels).toHaveLength(3);
+    // "Considered Stellar-Conduct DMG" (#403): the direct Stellar formula, his +30% as its Reaction Bonus, and Chilling
+    // Penalty's Enhanced Repelling Fist multiplier on N3 and N5 as Base DMG (the Lunar path skips factors).
+    const lunar = ["3-Hit Stellar-Conduct DMG", "5-Hit Stellar-Conduct DMG", "Luster: Vaulting Fist DMG"];
+    expect(stellar.hits.filter((h) => h.lunar === "stellar-conduct").map((h) => h.label)).toEqual(lunar);
+    expect(stellar.buffs.find((b) => b.kind === "dmgBonus")).toBeUndefined();
+    expect(stellar.buffs.find((b) => b.kind === "lunarReactionBonus")).toMatchObject({ value: 0.3, reaction: "stellar-conduct" });
+    const factor = stellar.buffs.find((b) => b.kind === "factor")!.value!;
+    expect(stellar.buffs.find((b) => b.kind === "baseDmgMultiplier")).toMatchObject({ labels: lunar.slice(0, 2) });
+    expect(stellar.buffs.find((b) => b.kind === "baseDmgMultiplier")!.value).toBeCloseTo(factor - 1, 5);
   });
 
   test("the Polestar Field gives an on-field Cryo or Electro carry +40% DMG Bonus with Stellar-Conduct (#327)", () => {

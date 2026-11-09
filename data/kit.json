@@ -12010,7 +12010,8 @@
                 "atk": 0.741014
               },
               "count": 3,
-              "reacting": 0
+              "reacting": 0,
+              "lunar": "stellar-conduct"
             },
             {
               "label": "4-Hit DMG",
@@ -12029,7 +12030,8 @@
                 "atk": 1.333697
               },
               "count": 3,
-              "reacting": 0
+              "reacting": 0,
+              "lunar": "stellar-conduct"
             },
             {
               "label": "Luster: Vaulting Fist DMG",
@@ -12038,7 +12040,8 @@
                 "atk": 2.60032
               },
               "count": 3,
-              "reacting": 0
+              "reacting": 0,
+              "lunar": "stellar-conduct"
             }
           ],
           "buffs": [
@@ -12054,16 +12057,16 @@
               "value": 0.3
             },
             {
-              "kind": "dmgBonus",
+              "kind": "lunarReactionBonus",
               "value": 0.3,
-              "types": [
-                "normal",
-                "charged"
-              ],
+              "reaction": "stellar-conduct"
+            },
+            {
+              "kind": "baseDmgMultiplier",
+              "value": 0.669515,
               "labels": [
                 "3-Hit Stellar-Conduct DMG",
-                "5-Hit Stellar-Conduct DMG",
-                "Luster: Vaulting Fist DMG"
+                "5-Hit Stellar-Conduct DMG"
               ]
             }
           ]
