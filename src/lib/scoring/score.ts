@@ -1683,6 +1683,12 @@ export function buildGaps(c: ScoringCharacter): string[] {
 // Scores a team once per possible carry and keeps the reading with the most team damage (#202): the carry's damage
 // plus each sub-DPS's own, times the factor of the lines not inside the damage yet. `explain` keeps the breakdown
 // text. `onlyCarry` reads the team with that carry on field (the guide-team reference, team-reference.ts).
+// A support's lead over the carry, as their damage / the carry's, where the rule-out penalty starts and where it's full
+// (Jessie, 2026-11-14, #456 #457): 1.25x in the middle, between a 1% lead (Skirk + Durin, Escoffier, Furina) and the
+// clear cases (Durin 1.65x Skirk beside Nicole, ~3x Sandrone).
+export const RULE_OUT_FROM = 1;
+export const RULE_OUT_FULL = 1.5;
+
 function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: boolean, onlyCarry?: string) {
   if (given.length !== 4) throw new Error(`A team needs 4 members, got ${given.length}`);
   // Read in a fixed member order, so sums and products of floats come out the same, to the last bit, whatever
@@ -1699,7 +1705,8 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
   const mainDps = team.filter((m) => m.roles.includes("main-dps"));
   const candidates = onlyCarry ? team.filter((m) => m.id === onlyCarry) : mainDps;
 
-  type Reading = { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink; dps: number; value: number };
+  // fade: the share of value kept after the rule-out fade (#457), 1 when no support out-damages the carry.
+  type Reading = { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink; dps: number; value: number; fade: number };
   const read = (carry: ScoringCharacter | null) => {
     const out = sink();
     carryLines(ctx, carry, out);
@@ -1720,24 +1727,38 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
     const dps = own + sub.dps + reacted + healed;
     const value = dps * factorOf(out);
-    return { reading: { carry, lead: sub.lead, out, dps, value } as Reading, outdone: sub.outdone };
+    return { reading: { carry, lead: sub.lead, out, dps, value, fade: 1 } as Reading, outdone: sub.outdone };
   };
-  // A carry out-damaged by a support isn't the team's carry (Jessie, 2026-11-09, #455): that reading is ruled out.
-  // With every carry ruled out, the team reads as one without a main DPS.
+  // A carry out-damaged by a support isn't the team's carry (Jessie, 2026-11-09, #455). The model's support and carry
+  // damage can each be ~20% off (Durin's ICD share was 25% over, #453), so a close lead isn't a verdict (#456): the
+  // penalty fades in with the support's lead (#457), none at parity, full at 1.5x, where that reading is ruled out.
+  // In between, the reading's value moves that share of the way to the team's value without a main DPS, so a
+  // slightly stronger support never drops a team off a cliff. With every carry ruled out, the team reads as one
+  // without a main DPS.
   let best: Reading | null = null;
+  let noCarry: Reading | null = null;
+  const noCarryValue = () => (noCarry ??= read(null).reading).value;
   const ruledOut: { carry: string; why: string; lines: ScoreLine[] }[] = [];
   for (const carry of candidates.length > 0 ? candidates : [null]) {
     const { reading, outdone } = read(carry);
     if (carry && outdone) {
-      const why = `${outdone.m.id} out-damages ${carry.id} (~${Math.round(outdone.dps)} vs ~${Math.round(outdone.carryDps)} per second)`;
-      const lines = explain ? (reading.out as Breakdown).lines.filter((l) => l.rule === "Sub-DPS") : [];
-      ruledOut.push({ carry: carry.id, why, lines });
-      continue;
+      const lead = outdone.dps / outdone.carryDps;
+      const why = `${outdone.m.id} out-damages ${carry.id} (~${Math.round(outdone.dps)} vs ~${Math.round(outdone.carryDps)} per second, ${lead.toFixed(2)}x)`;
+      const share = Math.min(1, (lead - RULE_OUT_FROM) / (RULE_OUT_FULL - RULE_OUT_FROM));
+      if (share >= 1) {
+        const lines = explain ? (reading.out as Breakdown).lines.filter((l) => l.rule === "Sub-DPS") : [];
+        ruledOut.push({ carry: carry.id, why, lines });
+        continue;
+      }
+      // Never above 1: a reading without a main DPS that outscores this one isn't a reward for the support's lead.
+      reading.fade = 1 - share * (1 - Math.min(1, noCarryValue() / reading.value));
+      reading.value *= reading.fade;
+      reading.out.add("Carry", 0, () => `Partly ruled out as ${carry.id}'s team: ${why}: ${Math.round(100 * share)}% of the way to a team without a main DPS (full at ${RULE_OUT_FULL}x)`);
     }
     if (!best || reading.value > best.value) best = reading;
   }
   const none = !best;
-  if (!best) best = read(null).reading;
+  if (!best) best = noCarry ?? read(null).reading;
   for (const r of ruledOut) {
     best.out.add("Carry", 0, () => `Ruled out as ${r.carry}'s team: ${r.why}`);
     // With no carry left, what each member dealt beside the ruled-out carry, as 0-point lines: why it was ruled out.
@@ -1763,7 +1784,8 @@ export function carryTeamValue(team: ScoringCharacter[], carry: string, options:
 }
 
 export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
-  const { ctx, carry, lead, out, dps, value } = bestReading(team, options, true);
+  const { ctx, carry, lead, out, dps, value, fade } = bestReading(team, options, true);
+  const factor = factorOf(out) * fade; // with the rule-out fade (#457), so damage x factor is still the value
   const rotation = generateRotation(team, carry?.id ?? null); // the on-field carry's, even when a sub-DPS out-damages them
   const guide = carry ? REFERENCE.carries[carry.id] : undefined;
   const guideRatio = guide ? value / guide.value : null;
@@ -1775,14 +1797,14 @@ export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}):
   const head: ScoreLine = {
     rule: "Team damage",
     points: 0,
-    reason: `~${Math.round(dps)} damage per second, ×${factorOf(out).toFixed(2)} from the lines below${vsGuide}`,
+    reason: `~${Math.round(dps)} damage per second, ×${factor.toFixed(2)} from the lines below${vsGuide}`,
   };
   return {
     members: team.map((m) => m.id) as ScoredTeam["members"],
     mainDps: (lead ?? carry)?.id ?? null,
     onField: carry?.id ?? null,
     score: toScore(value),
-    damage: { perSecond: dps, factor: factorOf(out), guideRatio },
+    damage: { perSecond: dps, factor, guideRatio },
     breakdown: [head, ...(out as Breakdown).lines],
     activeReactions: ctx.active,
     defaultBuilds: team.filter((m) => !m.stats).map((m) => m.id),

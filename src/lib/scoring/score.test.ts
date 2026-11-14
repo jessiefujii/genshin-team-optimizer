@@ -6,7 +6,7 @@ import { canTrigger } from "./reactions";
 import { carryDamage, LEVEL_MULTIPLIER_90, shatterHit } from "./damage";
 import { fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, rotationNormalHits, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
-import { appliedShare, carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
+import { appliedShare, carryTeamValue, RULE_OUT_FROM, RULE_OUT_FULL, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
@@ -1495,6 +1495,20 @@ describe("a support who out-damages the carry rules the team out with them (#455
   });
   test("a carry the support doesn't out-damage keeps the team", () => {
     expect(score("Mavuika", "Citlali", "Durin", "Escoffier").onField).toBe("Mavuika");
+  });
+});
+
+describe("the rule-out fades in with the support's lead (#456, #457)", () => {
+  test("Durin ~1% ahead of Skirk beside Furina: still Skirk's team, a small penalty, no cliff", () => {
+    const s = score("Skirk", "Durin", "Escoffier", "Furina");
+    expect(s.onField).toBe("Skirk");
+    const line = s.breakdown.find((l) => l.reason.startsWith("Partly ruled out as Skirk's team: Durin out-damages Skirk"));
+    expect(line).toBeDefined();
+    expect(s.score).toBeGreaterThan(50); // far from a team without a main DPS (~5)
+  });
+  test("the fade: none at parity, full at 1.5x", () => {
+    expect(RULE_OUT_FROM).toBe(1);
+    expect(RULE_OUT_FULL).toBe(1.5);
   });
 });
 
