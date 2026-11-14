@@ -148,11 +148,11 @@
     "Kaveh": {
       "team": [
         "Kaveh",
-        "Xingqiu",
-        "Kuki Shinobu",
-        "Traveler (Dendro)"
+        "Furina",
+        "Rosaria",
+        "Kaedehara Kazuha"
       ],
-      "value": 60558
+      "value": 70595
     },
     "Keqing": {
       "team": [
@@ -184,11 +184,11 @@
     "Lohen": {
       "team": [
         "Lohen",
+        "Durin",
         "Escoffier",
-        "Furina",
-        "Mona"
+        "Furina"
       ],
-      "value": 199744.1
+      "value": 207414.7
     },
     "Lyney": {
       "team": [
@@ -400,11 +400,11 @@
     "Yanfei": {
       "team": [
         "Yanfei",
-        "Xingqiu",
+        "Furina",
         "Yelan",
-        "Zhongli"
+        "Xianyun"
       ],
-      "value": 84177.1
+      "value": 122282.4
     },
     "Yoimiya": {
       "team": [
