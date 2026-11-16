@@ -18,7 +18,7 @@
     "draft-tags": "node scripts/draft-tags.mjs"
   },
   "dependencies": {
-    "genshin-db": "^5.2.14",
+    "genshin-db": "^5.2.15",
     "next": "16.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"

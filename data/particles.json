@@ -1,6 +1,6 @@
 {
   "_source": "Genshin Impact Wiki, Energy/Data § Elemental Skills (fandom API, fetched 2026-10-14), unless a note says otherwise. Skill cooldowns: genshin-db press CD unless the table here sets one. Built by a one-off script (#37); edit by hand.",
-  "_missing": "Ineffa, Varesa, Vesna, Vodyanitsa, Traveler (Cryo): no particle count on the wiki (checked 2026-10-14); scored as a standard teammate.",
+  "_missing": "Ineffa, Varesa, Vesna, Vodyanitsa, Traveler (Cryo), Valeriy: no particle count on the wiki (checked 2026-10-14; Valeriy 2026-11-16, and no guide gives one); scored as a standard teammate.",
   "characters": {
     "Aino": {
       "perUse": 3,
@@ -785,6 +785,12 @@
       "cd": 18,
       "timing": "field",
       "note": "wiki Energy/Data: 1 per hit during Lunar Phase Shift, 2s CD; 15s: ~6 (estimate)"
+    },
+    "Mitya": {
+      "perUse": 5,
+      "cd": 18,
+      "timing": "cast",
+      "note": "genshin-build.com, https://genshin-build.com/news/mitya-build-best-teams (fetched 2026-11-16): \"five Electro particles per cast, per the video's overlay\" (IWinToLose, early access)"
     }
   }
 }

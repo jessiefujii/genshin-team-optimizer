@@ -66,7 +66,7 @@ describe("coverage gate", () => {
   // #203 brings both to 0. Until then they may only shrink: a new character without a damage profile fails here.
   const NO_DAMAGE_PROFILE = 4;
   const MAIN_DPS_WITHOUT_CARRY_KIT = 4;
-  const NO_PARTICLE_COUNT = 5;
+  const NO_PARTICLE_COUNT = 6;
   const NO_SUSTAIN_COVERAGE = 3; // Alyosha, Ifa, Sigewinne (#418: Jean and Beidou sourced; Candace and Yun Jin not shielders)
 
   test("every character has a damage profile (#203)", () => {
@@ -89,7 +89,7 @@ describe("coverage gate", () => {
   });
 
   // Members with an Energy Burst and a guide ER target need a particle count (#198); without one they count as a
-  // standard teammate. Today: Ineffa, Varesa, Vesna, Vodyanitsa, Traveler (Cryo) (no wiki count).
+  // standard teammate. Today: Ineffa, Varesa, Vesna, Vodyanitsa, Traveler (Cryo) (no wiki count), Valeriy (#458: no source).
   test("every Energy-Burst character has a particle count (#198)", () => {
     const PARTICLES = (particlesJson as { characters: Record<string, unknown> }).characters;
     const missing = all.filter((c) => c.burstCost && erTargetOf(c) !== undefined && !(c.id in PARTICLES)).map((c) => c.id);

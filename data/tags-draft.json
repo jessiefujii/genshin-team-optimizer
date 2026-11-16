@@ -1309,5 +1309,89 @@
         "text": "When a party member triggers a Hydro Crystallize reaction, it will be converted into the Lunar-Crystallize reaction, with every 100 DEF that Zibai has increasing Lunar-Crystallize's Base DMG by 0.7%, up to a maximum of 14%. Additionally, when Zibai is in the party, the party's Moonsign will increase by 1 level."
       }
     }
+  },
+  "Mitya": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "electrocharged",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-charged"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "buffer",
+          "because": [
+            "passive1: Steady State: All nearby party members gain 30 Elemental Mastery for each **Gradient Beacon** Mitya has; [Depending on the state of the Detection Core created:]",
+            "passive3: Additionally, the Base Stellar-Conduct DMG dealt by all nearby party members will be increased based on Mitya's Elemental Mastery: Every point of Elemental Mastery he has increases Base Stellar-Conduct DMG by 0.028%."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "buffsNotInTags": [
+      {
+        "key": "buff:passive1:4b38sb",
+        "talent": "passive1",
+        "text": "Steady State: All nearby party members gain 30 Elemental Mastery for each **Gradient Beacon** Mitya has; [Depending on the state of the Detection Core created:]"
+      },
+      {
+        "key": "buff:passive3:1rjxiyb",
+        "talent": "passive3",
+        "text": "Additionally, the Base Stellar-Conduct DMG dealt by all nearby party members will be increased based on Mitya's Elemental Mastery: Every point of Elemental Mastery he has increases Base Stellar-Conduct DMG by 0.028%."
+      }
+    ],
+    "talents": {
+      "passive1": {
+        "name": "Baseline Stress Test",
+        "text": "The **Detection Core** created by the Elemental Skill Principle: Variable Detection is enhanced. Depending on the state of the Detection Core created: ·Steady State: All nearby party members gain 30 Elemental Mastery for each **Gradient Beacon** Mitya has; ·Overloaded: After nearby party members trigger Stellar-Conduct reactions, instead obtain 1 Gradient Beacon every 1.5s for 6s."
+      },
+      "passive3": {
+        "name": "Stellar Jubilee: Top-Secret Protocol",
+        "text": "When party members trigger Superconduct, it will be changed to Stellar-Conduct. Stellar-Conduct reactions will no longer create Starlight Prisms, and will instead create 1 **Gradient Beacon** nearby every 1.5s for 3s. These Beacons can be carried by Mitya and transform the area around them into an even larger Polestar Field. Triggering another Stellar-Conduct reaction will refresh the duration of the aforementioned effects. Additionally, the Base Stellar-Conduct DMG dealt by all nearby party members will be increased based on Mitya's Elemental Mastery: Every point of Elemental Mastery he has increases Base Stellar-Conduct DMG by 0.028%. The maximum Base DMG increase that can be gained this way is 14%. While within a Polestar Field, Mitya will also enter the Radiance: Stellar-Conduct state."
+      }
+    }
+  },
+  "Valeriy": {
+    "reactions": {
+      "element": "Electro",
+      "appliesElement": true,
+      "add": [
+        "electrocharged",
+        "overloaded",
+        "hyperbloom",
+        "quicken",
+        "aggravate",
+        "spread",
+        "lunar-charged"
+      ],
+      "remove": []
+    },
+    "roles": {
+      "add": [
+        {
+          "role": "shielder",
+          "because": [
+            "skill: Valeriy raises his shield cannon and charges forward, dealing AoE Electro DMG, gaining 40 **Impact Momentum**, and deploying a Supercharged Shield.",
+            "skill: The Supercharged Shield's DMG Absorption scales with Valeriy's ATK, and has 250% absorption efficiency against Electro DMG."
+          ]
+        }
+      ],
+      "notInText": []
+    },
+    "talents": {
+      "skill": {
+        "name": "Active Defense: Bastion Charge",
+        "text": "Valeriy raises his shield cannon and charges forward, dealing AoE Electro DMG, gaining 40 **Impact Momentum**, and deploying a Supercharged Shield. The Supercharged Shield's DMG Absorption scales with Valeriy's ATK, and has 250% absorption efficiency against Electro DMG."
+      }
+    }
   }
 }

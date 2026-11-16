@@ -1,5 +1,5 @@
 {
-  "source": "genshin-db 5.2.14",
+  "source": "genshin-db 5.2.15",
   "talentLevel": 9,
   "baseStatsLevel": 90,
   "characters": {
@@ -1555,6 +1555,15 @@
       },
       "buffs": [],
       "inLunarBase": true
+    },
+    "Mitya": {
+      "base": {
+        "hp": 11634,
+        "atk": 263,
+        "def": 792
+      },
+      "buffs": [],
+      "inLunarBase": true
     }
   },
   "constellationBuffs": [
@@ -2545,6 +2554,21 @@
         "stellar-swirl"
       ],
       "source": "passive4: \"Radiance: Stellar Swirl: When Yumemizuki Mizuki deals to an opponent the above enhanced AoE Anemo DMG, she will also deal an additional instance of Anemo DMG at 1,000% of her Elemental Mastery.\""
+    },
+    "Mitya": {
+      "target": "self",
+      "radiance": [
+        "stellar-conduct"
+      ],
+      "source": "passive3: \"While within a Polestar Field, Mitya will also enter the Radiance: Stellar-Conduct state.\""
+    },
+    "Valeriy": {
+      "target": "own",
+      "radiance": [
+        "stellar-conduct"
+      ],
+      "note": "enters Radiance; changes Offensive Directive (#458)",
+      "source": "passive3: \"Valeriy enters the Radiance: Stellar-Conduct state while within a **Polestar Field**.\""
     }
   },
   "lunarBase": {
@@ -2639,6 +2663,14 @@
       "max": 0.14,
       "reactions": [
         "stellar-swirl"
+      ]
+    },
+    "Mitya": {
+      "stat": "em",
+      "perPoint": 0.00028,
+      "max": 0.14,
+      "reactions": [
+        "stellar-conduct"
       ]
     }
   },
@@ -3812,6 +3844,16 @@
         "source": "KQM dahlia quick guide (keqingmains.com/q/dahlia-quickguide, accessed 2026-10-24): \"or if another party member is already holding 4pc NO\""
       }
     ],
+    "Valeriy": [
+      {
+        "set": "Heart of the Furnace",
+        "source": "genshin-build.com (genshin-build.com/characters/valeriy/build, from prydwen.gg's guide, accessed 2026-11-16): \"Best Valeriy artifacts 2 sets Core set Heart of the Furnace\""
+      },
+      {
+        "set": "Noblesse Oblige",
+        "source": "genshin-build.com (genshin-build.com/characters/valeriy/build, from prydwen.gg's guide, accessed 2026-11-16): \"Also works Noblesse Oblige\""
+      }
+    ],
     "Vodyanitsa": [
       {
         "set": "Tenacity of the Millelith",
@@ -4882,6 +4924,11 @@
       "weapon": "Fleuve Cendre Ferryman",
       "refinement": 1,
       "source": "KQM dahlia quick guide (keqingmains.com/q/dahlia-quickguide, accessed 2026-10-24): \"Fleuve Cendre Ferryman\""
+    },
+    "Valeriy": {
+      "weapon": "Finale of the Deep",
+      "refinement": 5,
+      "source": "genshin-build.com (genshin-build.com/characters/valeriy/build, from prydwen.gg's guide, accessed 2026-11-16): \"Best in slot Finale of the Deep 565 ATK 27.6% ATK R5 tested\""
     },
     "Vodyanitsa": {
       "weapon": "Favonius Codex",
@@ -8435,6 +8482,84 @@
         }
       ]
     },
+    "Mitya": {
+      "base": {
+        "hp": 11634,
+        "atk": 263,
+        "def": 792,
+        "ascension": {
+          "stat": "FIGHT_PROP_CRITICAL_HURT",
+          "value": 0.884
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Tap Skill DMG",
+          "scaling": {
+            "atk": 1.54224
+          },
+          "hits": 1,
+          "cd": 18,
+          "icd": "none"
+        },
+        {
+          "talent": "skill",
+          "label": "Steady State Core DMG",
+          "scaling": {
+            "atk": 1.224
+          },
+          "every": 1.5,
+          "duration": 18,
+          "cd": 18,
+          "rateSource": "genshin-build.com, https://genshin-build.com/news/mitya-build-best-teams, fetched 2026-11-16: \"The tap version, Steady State, hits every 1.5 seconds and applies Electro on every other hit, by IWinToLose's count.\" Duration 18s, not the table's 25s: the next cast (18s CD) replaces the core (wiki: \"When its duration ends or another Detection Core is created, the device will consume all Gradient Beacons\")."
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 5.6712,
+            "em": 11.3424
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ]
+    },
+    "Valeriy": {
+      "base": {
+        "hp": 10005,
+        "atk": 255,
+        "def": 703,
+        "ascension": {
+          "stat": "FIGHT_PROP_ATTACK_PERCENT",
+          "value": 0.24
+        }
+      },
+      "sources": [
+        {
+          "talent": "skill",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 2.822
+          },
+          "hits": 1,
+          "cd": 10
+        },
+        {
+          "talent": "burst",
+          "label": "Skill DMG",
+          "scaling": {
+            "atk": 2.29704
+          },
+          "hits": 1,
+          "cd": 15
+        }
+      ],
+      "missing": [
+        "Thunderburst Shell DMG: how many Thunderburst Shell hits land in the 12s isn't in genshin-db, on the wiki (character and talent pages, attack data) or in the guides found (genshin-build.com): \"a barrage of projectiles that rain down\""
+      ]
+    },
     "Xinyan": {
       "base": {
         "hp": 11201,
@@ -11480,6 +11605,22 @@
           "source": "skill talent \"Shield Base Absorption\" + \"Additional Shield Absorption\", \"Shield Duration\" / \"Hold CD\", level 9",
           "duration": 20,
           "cd": 12,
+          "uptime": 1
+        }
+      ],
+      "coverage": 1
+    },
+    "Valeriy": {
+      "effects": [
+        {
+          "kind": "shield",
+          "size": {
+            "atk": 3.551232,
+            "flat": 2663.1194
+          },
+          "source": "skill talent \"Shield DMG Absorption\", \"Shield Duration\" / \"CD\", level 9",
+          "duration": 18,
+          "cd": 10,
           "uptime": 1
         }
       ],
@@ -17984,6 +18125,7 @@
   },
   "carriesTodo": [
     "Manekin",
-    "Manekina"
+    "Manekina",
+    "Mitya"
   ]
 }

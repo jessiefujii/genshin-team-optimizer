@@ -4555,5 +4555,84 @@
         "talent": "passive"
       }
     ]
+  },
+  {
+    "id": "Mitya",
+    "roles": [
+      "main-dps",
+      "sub-dps",
+      "buffer"
+    ],
+    "fieldTime": "flex",
+    "reactions": [
+      "superconduct",
+      "stellar-conduct"
+    ],
+    "energyNeed": "medium",
+    "scalesOn": [
+      "EM"
+    ],
+    "families": [
+      "stellar"
+    ],
+    "converts": [
+      "stellar-conduct"
+    ],
+    "rotation": {
+      "slot": "carry",
+      "actions": [
+        "hold E",
+        "CA",
+        "Q",
+        "CA",
+        "N2",
+        "CA"
+      ]
+    },
+    "notes": "Stellar-Conduct carry (hold Skill: Overloaded core, Charged Attack Gradient Detonation) or off-field support (tap: Steady State core, EM per Gradient Beacon). Roles from Game8 (#458), the wiki has none yet. ER: genshin-build.com (prydwen.gg) on field with 3 Electro \"C0 120-130%\", Game8 130-150%; off field he \"does not require ER\". keyTalent: \"As a main DPS, Mitya's damage is counted in Charged Attack shots\" (genshin-build.com). Rotation: genshin-build.com (prydwen.gg) \"Single Field Time Combo hE CA Q CA N2 CA\"; off field \"Mitya simply needs to use his Tap Skill before swapping\".",
+    "mainReaction": "stellar-conduct",
+    "buffs": [
+      {
+        "stat": "Stellar-Conduct Base DMG (EM-based) (#458)",
+        "scope": "team",
+        "reactions": [
+          "stellar-conduct"
+        ],
+        "talent": "passive"
+      }
+    ],
+    "erTarget": 130,
+    "keyTalent": "normal"
+  },
+  {
+    "id": "Valeriy",
+    "roles": [
+      "sub-dps",
+      "shielder",
+      "buffer"
+    ],
+    "fieldTime": "off",
+    "reactions": [
+      "superconduct",
+      "stellar-conduct"
+    ],
+    "energyNeed": "medium",
+    "scalesOn": [
+      "ATK"
+    ],
+    "families": [
+      "stellar"
+    ],
+    "rotation": {
+      "slot": "buffer",
+      "actions": [
+        "Q",
+        "E",
+        "CA"
+      ],
+      "buffSeconds": 18
+    },
+    "notes": "Electro sub-DPS, shielder and flat-DMG buffer (Offensive Directive, #458) for Stellar-Conduct teams. Roles from the kit and guides (#458), the wiki has none yet. ER: genshin-build.com (prydwen.gg) \"3 Electro (Mitya/Cyno Yae Odette) C0 150%\" (190% with 2 Electro). Rotation: genshin-build.com (prydwen.gg) \"starts his rotation with Burst if it is already available\", then Skill and special Charged Attack; buffSeconds: Offensive Directive's 18s.",
+    "erTarget": 150
   }
 ]
