@@ -4,9 +4,9 @@ import subDpsBuilds from "../../../data/subdps-builds.json";
 import { distributeRolls, type ScaleStat, type SubDpsPriority } from "./benchmark";
 import { canTrigger } from "./reactions";
 import { carryDamage, LEVEL_MULTIPLIER_90, shatterHit } from "./damage";
-import { fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, teamBuffStats } from "./kit";
+import { fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, rotationNormalHits, teamBuffStats } from "./kit";
 import { loadScoringCharacters } from "./load";
-import { carryTeamValue, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
+import { appliedShare, carryTeamValue, RULE_OUT_FROM, RULE_OUT_FULL, scoreTeam, subDpsStats, teamScore, topElement } from "./score";
 import { findBestTeams } from "./search";
 import type { CharacterStats } from "../../types/build";
 import type { EffectTag } from "../../types/effects";
@@ -399,8 +399,9 @@ describe("scoreTeam", () => {
 
   test("Nightsoul Bursts power the carry's own kit, more often with more Natlanese members (#63)", () => {
     const line = (...ids: string[]) => score(...ids).breakdown.find((l) => l.rule === "Nightsoul");
-    // Mavuika alone: every 18s, her +30% ATK is up 10s of it; with 3 Natlanese members every 9s, always up.
-    const solo = line("Mavuika", "Bennett", "Furina", "Xingqiu")!;
+    // Mavuika alone: every 18s, her +30% ATK is up 10s of it; with 3 Natlanese members every 9s, always up. (Zhongli,
+    // not Xingqiu: since #413 Furina's Fanfare reaches her own Salon, which then out-damages Mavuika there, #455.)
+    const solo = line("Mavuika", "Bennett", "Furina", "Zhongli")!;
     const three = line("Mavuika", "Xilonen", "Citlali", "Bennett")!;
     expect(solo.reason).toMatch(/^Nightsoul Burst every 18s \(1 Natlan\)/);
     expect(three.reason).toMatch(/^Nightsoul Burst every 9s \(3 Natlan\)/);
@@ -668,8 +669,10 @@ describe("sub-DPS (#96)", () => {
     expect(buffsOn("Xingqiu", "Hu Tao", "Xingqiu", "Rosaria", "Zhongli").critRate).toBeGreaterThan(0);
     // Bennett's field buffs whoever stands in it, the on-field carry: not Yelan's off-field hits.
     expect(buffsOn("Yelan", "Hu Tao", "Yelan", "Bennett", "Zhongli").atk).toBe(0);
-    // A buffer's buff on their own hits is left out (#98): Furina's Fanfare doesn't reach her own Salon here.
-    expect(buffsOn("Furina", "Hu Tao", "Yelan", "Furina", "Zhongli").dmgBonus).toBe(0);
+    // A party buff reaches the buffer's own hits too (#413): Furina's Fanfare is "all nearby party members'", her Salon
+    // included; Rosaria's is "all party members but Rosaria", so not her own.
+    expect(buffsOn("Furina", "Hu Tao", "Yelan", "Furina", "Zhongli").dmgBonus).toBeGreaterThan(0);
+    expect(buffsOn("Rosaria", "Hu Tao", "Xingqiu", "Rosaria", "Zhongli").critRate).toBe(0);
     // And the buff shows in their damage: Yelan with Furina beside her deals more than with Zhongli in that slot.
     const yelan = (...ids: string[]) => dps(score(...ids).breakdown.find((l) => l.reason.startsWith("Yelan's own hits"))?.reason);
     expect(yelan("Hu Tao", "Yelan", "Furina", "Xingqiu")).toBeGreaterThan(yelan("Hu Tao", "Yelan", "Zhongli", "Xingqiu"));
@@ -989,8 +992,11 @@ describe("talent levels (#25)", () => {
     const buffLine = (s: ReturnType<typeof score>, id: string) => s.breakdown.find((l) => l.rule === "Buffs" && l.reason.startsWith(id));
     // Base DMG converters: their bonus is in team damage, no buffer points on top.
     expect(buffLine(score("Sandrone", "Odette", "Alyosha", "Escoffier"), "Odette")).toEqual({ rule: "Buffs", points: 0, reason: "Odette's Base DMG bonus: in team damage" });
-    // Chongyun's ATK SPD reaches a claymore carry, not a Pyro catalyst (and his Cryo shred no Pyro hit).
-    expect(buffLine(score("Diluc", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBeGreaterThan(0);
+    // Chongyun's ATK SPD reaches a claymore carry, not a Pyro catalyst (and his Cryo shred no Pyro hit). Diluc is
+    // modeled, so it is in his damage as more Normal Attack hits (#411), not points.
+    const diluc = buffLine(score("Diluc", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!;
+    expect(diluc.points).toBe(0);
+    expect(diluc.reason).toMatch(/^Chongyun buffs Diluc \(~\+[1-9]\d*% damage, ~\+[1-9]\d*% of it in Diluc's damage\)$/);
     expect(buffLine(score("Klee", "Chongyun", "Bennett", "Zhongli"), "Chongyun")!.points).toBe(0);
     // Raiden's Eye: 0.3% Burst DMG per Energy of the carry's Burst, so a costlier Burst gains more.
     const burstCarry = (burstCost: number) => ({ ...byId.get("Diluc (no model)")!, keyTalent: "burst" as const, burstCost });
@@ -1459,5 +1465,79 @@ describe("findBestTeams", () => {
 
   test("unknown required character is an error", () => {
     expect(() => findBestTeams(roster, { mustInclude: ["Nobody"] })).toThrow();
+  });
+});
+
+describe("ICD share of applying hits (#453)", () => {
+  const src = (every: number, icd: { reset: number; every: number | "first" } | "none", hits = 1) =>
+    ({ talent: "burst", label: "test", scaling: { atk: 1 }, hits, every, duration: 20, cd: 20, icd }) as Parameters<typeof appliedShare>[0];
+  test("the timer counts whole hits: a hit every 1.25 s on a 2 s timer applies every other hit", () => {
+    expect(appliedShare(src(1.25, { reset: 2, every: "first" }))).toBe(0.5); // Durin's Dragon of Dark Decay (KQM)
+    expect(appliedShare(src(1, { reset: 1.5, every: "first" }))).toBe(0.5);
+    expect(appliedShare(src(2, { reset: 2, every: "first" }))).toBe(1); // a hit exactly at the reset applies
+  });
+  test("the standard ICD is the larger of the counter and the timer", () => {
+    expect(appliedShare(src(1, { reset: 2.5, every: 3 }))).toBeCloseTo(1 / 3); // hits at 0 s and 3 s
+    expect(appliedShare(src(2.3, { reset: 2.5, every: 3 }))).toBe(0.5); // Candace's C6 wave: 0 s, 4.6 s
+    expect(appliedShare(src(3, { reset: 2.5, every: 3 }))).toBe(1);
+    expect(appliedShare(src(1, "none"))).toBe(1);
+  });
+});
+
+describe("a support who out-damages the carry rules the team out with them (#455)", () => {
+  test("Durin's ~80k beside Skirk's ~49k: not Skirk's team, read as a team without a main DPS", () => {
+    const s = score("Skirk", "Durin", "Escoffier", "Nicole");
+    expect(s.onField).toBeNull();
+    expect(s.breakdown.find((l) => l.reason.startsWith("Ruled out as Skirk's team: Durin out-damages Skirk"))).toBeDefined();
+    // What Durin dealt beside her stays in the breakdown, as a 0-point line.
+    expect(s.breakdown.find((l) => l.reason.startsWith("Durin's own hits"))?.points).toBe(0);
+    expect(s.score).toBeLessThan(score("Skirk", "Furina", "Escoffier", "Yelan").score);
+  });
+  test("a carry the support doesn't out-damage keeps the team", () => {
+    expect(score("Mavuika", "Citlali", "Durin", "Escoffier").onField).toBe("Mavuika");
+  });
+});
+
+describe("the rule-out fades in with the support's lead (#456, #457)", () => {
+  test("Durin ~1% ahead of Skirk beside Furina: still Skirk's team, a small penalty, no cliff", () => {
+    const s = score("Skirk", "Durin", "Escoffier", "Furina");
+    expect(s.onField).toBe("Skirk");
+    const line = s.breakdown.find((l) => l.reason.startsWith("Partly ruled out as Skirk's team: Durin out-damages Skirk"));
+    expect(line).toBeDefined();
+    expect(s.score).toBeGreaterThan(50); // far from a team without a main DPS (~5)
+  });
+  test("the fade: none at parity, full at 1.5x", () => {
+    expect(RULE_OUT_FROM).toBe(1);
+    expect(RULE_OUT_FULL).toBe(1.5);
+  });
+});
+
+describe("teammates' Normal Attacks build Mavuika's Fighting Spirit (#414)", () => {
+  test("their rotation tags count one hit per strike", () => {
+    expect(rotationNormalHits(byId.get("Xilonen")!)).toBe(2); // "N x2"
+    expect(rotationNormalHits(byId.get("Ifa")!)).toBe(3); // "N x3"
+    expect(rotationNormalHits(byId.get("Nilou")!)).toBe(3); // "N3"
+    expect(rotationNormalHits(byId.get("Bennett")!)).toBe(0);
+    const tagged = (actions: string[]) => rotationNormalHits({ ...byId.get("Bennett")!, rotation: { ...byId.get("Bennett")!.rotation, actions } });
+    expect(tagged(["2[N3E]"])).toBe(6);
+    expect(tagged(["N2C x8"])).toBe(16);
+  });
+  test("Xilonen's on-field N x2 adds 2 x 1.5 Fighting Spirit (below the 200 limit: not with Citlali)", () => {
+    const [mav, xilonen, bennett] = ["Mavuika", "Xilonen", "Bennett"].map((id) => byId.get(id)!);
+    const noNormals = { ...xilonen, rotation: { ...xilonen.rotation, actions: ["E", "Q"] } };
+    const built = (x: ScoringCharacter) => fightingSpiritBuilt(mav, mav, [mav, x, bennett]);
+    expect(built(xilonen) - built(noNormals)).toBe(3);
+  });
+});
+
+describe("ATK SPD lands more Normal Attack hits in the carry's rotation (#411)", () => {
+  test("Mika's Normal ATK SPD raises Eula's damage through her Normal Attacks alone", () => {
+    const t = team("Eula", "Mika", "Raiden Shogun", "Zhongli");
+    const tb = teamBuffStats(t[0], [], t);
+    expect(tb.normalSpd).toBeCloseTo(0.21 * 0.8, 6); // 21% at level 9, up 12 s of 15 s
+    const dps = (normalSpd: number) => carryDamage(t[0], [], t, { ...tb, normalSpd })!.perSecond;
+    const gain = dps(tb.normalSpd) / dps(0) - 1;
+    expect(gain).toBeGreaterThan(0.01);
+    expect(gain).toBeLessThan(tb.normalSpd); // her Skill and Burst hits don't speed up
   });
 });

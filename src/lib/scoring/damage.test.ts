@@ -167,16 +167,24 @@ describe("carry damage (#101)", () => {
   });
 
   test("Wriothesley's Radiance turns his 3rd and 5th hits and Luster into Stellar-Conduct DMG (#123)", () => {
-    type Hit = { label: string; scaling: { atk: number }; reacting?: number };
-    const wrio = (kit.carries as unknown as Record<string, { hits: Hit[]; combos: { combo: string; hits: Hit[]; buffs: { kind: string; labels?: string[] }[] }[] }>).Wriothesley;
+    type Hit = { label: string; scaling: { atk: number }; reacting?: number; lunar?: string };
+    type Buff = { kind: string; labels?: string[]; reaction?: string; value?: number };
+    const wrio = (kit.carries as unknown as Record<string, { hits: Hit[]; combos: { combo: string; hits: Hit[]; buffs: Buff[] }[] }>).Wriothesley;
     const stellar = wrio.combos.find((k) => k.combo === "E 3[N5CD] N2")!;
     const hit = (hits: Hit[], label: string) => hits.find((h) => h.label === label)!;
     // 60% and 80% of the 3rd and 5th hits, 100% of the Charged Attack; they don't apply Cryo, so none react.
     expect(hit(stellar.hits, "3-Hit Stellar-Conduct DMG").scaling.atk).toBeCloseTo(hit(wrio.hits, "3-Hit DMG").scaling.atk * 0.6, 5);
     expect(hit(stellar.hits, "Luster: Vaulting Fist DMG").scaling.atk).toBeCloseTo(hit(wrio.hits, "Charged Attack DMG").scaling.atk, 5);
     for (const l of ["3-Hit Stellar-Conduct DMG", "5-Hit Stellar-Conduct DMG", "Luster: Vaulting Fist DMG"]) expect(hit(stellar.hits, l).reacting).toBe(0);
-    // His +30% Stellar-Conduct DMG reaches only those hits.
-    expect(stellar.buffs.find((b) => b.kind === "dmgBonus")!.labels).toHaveLength(3);
+    // "Considered Stellar-Conduct DMG" (#403): the direct Stellar formula, his +30% as its Reaction Bonus, and Chilling
+    // Penalty's Enhanced Repelling Fist multiplier on N3 and N5 as Base DMG (the Lunar path skips factors).
+    const lunar = ["3-Hit Stellar-Conduct DMG", "5-Hit Stellar-Conduct DMG", "Luster: Vaulting Fist DMG"];
+    expect(stellar.hits.filter((h) => h.lunar === "stellar-conduct").map((h) => h.label)).toEqual(lunar);
+    expect(stellar.buffs.find((b) => b.kind === "dmgBonus")).toBeUndefined();
+    expect(stellar.buffs.find((b) => b.kind === "lunarReactionBonus")).toMatchObject({ value: 0.3, reaction: "stellar-conduct" });
+    const factor = stellar.buffs.find((b) => b.kind === "factor")!.value!;
+    expect(stellar.buffs.find((b) => b.kind === "baseDmgMultiplier")).toMatchObject({ labels: lunar.slice(0, 2) });
+    expect(stellar.buffs.find((b) => b.kind === "baseDmgMultiplier")!.value).toBeCloseTo(factor - 1, 5);
   });
 
   test("the Polestar Field gives an on-field Cryo or Electro carry +40% DMG Bonus with Stellar-Conduct (#327)", () => {
@@ -290,6 +298,16 @@ describe("carry damage (#101)", () => {
       const everyHit = { ...tb, flat: plunge, byHit: undefined };
       expect(xiao(tb)).toBeLessThan(xiao(everyHit));
       expect(xiao(tb)).toBeGreaterThan(xiao({ ...tb, byHit: undefined }));
+    });
+
+    test("a plunge's collision hit takes flat team DMG that isn't by attack type, not Xianyun's (#415)", () => {
+      const xiao = byId.get("Xiao")!;
+      const at = (buffs: Partial<typeof NO_TEAM_BUFFS>) => carryDamage(xiao, [], [xiao], { ...NO_TEAM_BUFFS, ...buffs })!.perSecond;
+      const base = at({});
+      const flat = 1000;
+      // The same flat DMG by attack type, on every type: it misses the collision hits, as Xianyun's does.
+      const byType = Object.fromEntries(["normal", "charged", "plunge", "skill", "burst"].map((t) => [t, { flat, dmgBonus: 0 }]));
+      expect(at({ flat }) - base).toBeGreaterThan((at({ byHit: byType }) - base) * 1.01);
     });
 
     test("Sethos's Dusk Bolts: Charged Attack DMG, 18 a rotation, each with his Burst's EM part (#232)", () => {
@@ -502,6 +520,13 @@ describe("carry damage (#101)", () => {
     const physicalShare = carryDamage(eula, ["superconduct"])!.perSecond / carryDamage(eula, [])!.perSecond;
     expect(physicalShare).toBeGreaterThan(1.1); // ~2/3 of her damage is Physical: x1.18
     expect(physicalShare).toBeLessThan(1 + resShredGain(0.4)); // her Cryo hits don't get it
+  });
+
+  test("The Polestar Field's 40% Physical RES shred reaches Physical hits too, and adds to Superconduct's (#416)", () => {
+    const eula = byId.get("Eula")!;
+    const dps = (active: Reaction[]) => carryDamage(eula, active)!.perSecond;
+    expect(dps(["stellar-conduct"])).toBeCloseTo(dps(["superconduct"]), 6);
+    expect(dps(["stellar-conduct", "superconduct"])).toBeGreaterThan(dps(["superconduct"]) * 1.1);
   });
 
   test("Navia's Shardshots hit harder with Crystallize (Crystal Shrapnel)", () => {

@@ -191,8 +191,10 @@ export const normalAttacks = (c: ScoringCharacter) => c.rotation.actions.some((a
 // The Normal Attack hits are the on-field carry's Normal Attack hits x instances in kit.json `carries`: `type:
 // "normal"` hits, plus Raiden's Musou Isshin Normal Attacks (Burst DMG, labelled "1-Hit DMG" etc. in her Burst
 // table) (Jessie, #126). Kinich's Loop Shots (Skill DMG) don't count. A carry not in `carries` yet counts 0 (#126: it
-// gets its count with a damage model, #137). Teammates' own Normal Attacks (Xilonen's N x2) are left out: they're
-// off-field. Every rotation is taken as one of Mavuika's Bursts (no rescaling by length).
+// gets its count with a damage model, #137). Teammates who take the field for Normal Attacks in their rotation tags
+// (Xilonen's "N x2", Ifa's "N x3", Nilou's "N3") add theirs too (#414): "party members' Normal Attacks" (her Burst
+// text, kit.json fightingSpirit), one hit per strike. Every rotation is taken as one of Mavuika's Bursts (no rescaling
+// by length).
 // A teammate entry can add points when another member has one of `fromTeammates.elements` (Ororon: other members'
 // Hydro/Electro hits), up to its `cap` (#126), and when the team can trigger one of `fromReactions.reactions` (Citlali's
 // passive 1 after a Melt or Frozen; Jessie, #126).
@@ -224,6 +226,24 @@ function normalAttackHits(carry: ScoringCharacter): number {
   return Math.min(hits, kit.rotationSeconds / FIGHTING_SPIRIT.normalHitEvery);
 }
 
+// Normal Attack hits in a teammate's rotation tags (#414): "N3" is a 3-hit string, "N x2" two single hits, "2[N3E]"
+// twice a 3-hit string. One hit per strike, so a strike with several instances counts once (estimate).
+export function rotationNormalHits(m: ScoringCharacter): number {
+  let hits = 0;
+  for (const action of m.rotation.actions) {
+    const times = Number(action.match(/\sx(\d+)$/)?.[1] ?? 1);
+    let text = action.replace(/\sx\d+$/, "");
+    let inner = 0;
+    text = text.replace(/(\d+)\[([^\]]*)\]/g, (_, k: string, body: string) => {
+      inner += Number(k) * countN(body);
+      return " ";
+    });
+    hits += times * (inner + countN(text));
+  }
+  return hits;
+}
+const countN = (text: string) => [...text.matchAll(/(?:^|[\s[])N(\d*)(?=\d|\s|$|[A-Z\]])/g)].reduce((a, m) => a + (m[1] ? Number(m[1]) : 1), 0);
+
 // The Fighting Spirit Mavuika (s) bursts with in this team, or 0 when the team can't build the minimum.
 export function fightingSpirit(s: ScoringCharacter, carry: ScoringCharacter, team: readonly ScoringCharacter[]): number {
   const total = fightingSpiritBuilt(s, carry, team);
@@ -242,7 +262,9 @@ export function fightingSpiritBuilt(s: ScoringCharacter, carry: ScoringCharacter
     return Math.min(t.cap ?? Infinity, t.points + (fed ? t.fromTeammates!.points : 0) + (reacts ? t.fromReactions!.points : 0));
   };
   const points = team.filter((m) => m !== s).reduce((a, m) => a + teammatePoints(m), fs.own.points);
-  return Math.min(fs.limit, points + fs.perNormalHit * normalAttackHits(carry));
+  // The carry's from their damage model; the rest of the team's (not Mavuika's own) from their rotation tags (#414).
+  const others = team.filter((m) => m !== s && m !== carry).reduce((a, m) => a + rotationNormalHits(m), 0);
+  return Math.min(fs.limit, points + fs.perNormalHit * (normalAttackHits(carry) + others));
 }
 export const FIGHTING_SPIRIT_MIN = FIGHTING_SPIRIT.burstMin;
 
@@ -530,7 +552,8 @@ function computeKitBuffValue(
 // The team's kit buffs as stats added to the carry's own (#157), so carry damage can be read with them: flat
 // reaction damage (Aggravate, Spread, Clorinde's passive) is then weighed against buffed hits, not bare ones.
 // Same buffs, conditions, uptimes and reaction shares as kitBuffValue, and the same best-per-kind choice per buffer.
-// RES and DEF shred are in it too (#204): they scale the hits they reach. Left out: attack speed. Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
+// RES and DEF shred are in it too (#204): they scale the hits they reach; Normal ATK SPD too, as more Normal Attack hits
+// in the same rotation (#411). Left out as they'd count twice: EM and Reaction Bonus. Their value is the extra reaction
 // damage, which buffer points already score; inside this yardstick they'd raise Aggravate or Vaporize again (Nahida's
 // EM took Clorinde's Aggravate line from +170% to +212%). Weapon, set and constellation effects (effects.json)
 // aren't in kit.json.
@@ -551,6 +574,7 @@ export interface TeamBuffStats {
   defShred: number; // enemy DEF decrease (#204)
   em: number; // flat EM (#186: kit EM buffs and Sprawling Greenery), for the reactions the hits trigger
   hpPct: number; // of the member's base HP (#186: Soothing Water)
+  normalSpd: number; // Normal ATK SPD (#411: Mika, Chongyun, Dahlia): damage.ts lands this share more Normal Attack hits
   // Teammates' Moonsign Benediction Base DMG bonus to the carry's direct Lunar hits, by reaction (#88; score.ts
   // teammatesLunarBase). Set by the scorer beside these sums, so teamBuffStats leaves it out.
   lunarBase?: Partial<Record<Reaction, number>>;
@@ -561,13 +585,14 @@ export interface TeamBuffStats {
 export type BurstShares = ReadonlyMap<ScoringCharacter, number>;
 
 type NumericBuff = Exclude<keyof TeamBuffStats, "lunarBase" | "burstShares" | "lunarAdditive" | "byHit">;
-export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, critDmg: 0, flat: 0, resShred: 0, defShred: 0, em: 0, hpPct: 0 };
+export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, critRate: 0, critDmg: 0, flat: 0, resShred: 0, defShred: 0, em: 0, hpPct: 0, normalSpd: 0 };
 
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
 const IN_CARRY_DAMAGE = new Set([
   "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate", "critDmg",
   "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred", "lunarAdditiveFromEm",
   "em", "emFromAtk", "emFromDef", "emFromEm", "emFromTopEm", // #186: EM feeds the reactions inside damage now
+  "atkSpd", // #411: more Normal Attack hits in the carry's rotation
 ]);
 
 function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team: TeamShape, weight: number, into: TeamBuffStats) {
@@ -580,6 +605,7 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
     into.critDmg += part.critDmg;
     into.resShred += part.resShred;
     into.defShred += part.defShred;
+    into.normalSpd += part.normalSpd; // ATK SPD for Normal Attacks (Mika's, Dahlia's): damage.ts puts it on those alone
     for (const t of buff.appliesTo) addByHit(into, t, part.flat, part.dmgBonus);
     return;
   }
@@ -655,6 +681,9 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
       break;
     case "emFromTopEm":
       into.em += Math.min(stats.em * v, 250) * weight;
+      break;
+    case "atkSpd":
+      into.normalSpd += v * weight;
       break;
   }
 }
@@ -775,7 +804,9 @@ const offFieldOnly = (s: ScoringCharacter, b: KitBuff) => !!PARTY_WIDE[s.id]?.of
 // stay on-field only (Bennett's field, Yelan's and Iansan's active-character buffs, Xianyun's plunges, Alyosha...).
 // offField: only off-field members' hits, never the on-field carry's (Sigewinne's Convalescence): kept out of the
 // carry's damage and buffer points (offFieldOnly).
-const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?: Reaction[]; offField?: boolean; note: string }> = {
+// others: the text leaves the buffer out ("other", "excluding"), so their own hits don't get it; every other one
+// reaches the buffer's own hits too (#413: Furina's Fanfare on her Salon members, Shenhe's quills on her own Cryo hits).
+const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?: Reaction[]; offField?: boolean; others?: boolean; note: string }> = {
   Faruzan: { kinds: ["dmgBonus"], note: "Prayerful Wind's Benefit: all nearby party members' Anemo DMG" },
   Furina: { kinds: ["dmgBonus"], note: "Let the People Rejoice: all nearby party members' DMG, by Fanfare" },
   "Kaedehara Kazuha": {
@@ -787,7 +818,7 @@ const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?
   Lynette: { kinds: ["atkPct"], note: "Sophisticated Synergy: all party members' ATK" },
   Mavuika: { kinds: ["dmgBonus"], note: "Kiongozi: all nearby party members' DMG, by Fighting Spirit" },
   Mona: { kinds: ["dmgBonus"], note: "Illusory Bubble's Omen: opponents take more DMG from every hit" },
-  Rosaria: { kinds: ["critRate"], note: "Shadow Samaritan: CRIT Rate of all party members but Rosaria" },
+  Rosaria: { kinds: ["critRate"], others: true, note: "Shadow Samaritan: CRIT Rate of all party members but Rosaria" },
   Shenhe: { kinds: ["flatDmgFromAtk"], note: "Icy Quill: all party members' Cryo hits (the quills are shared: estimate)" },
   // Checked against the talent text (#204): Alyosha's Hunter's Precision raises ATK "when they are on the field", and
   // Illuga's Burst reaches "nearby active party members", so those stay on-field only.
@@ -795,24 +826,26 @@ const PARTY_WIDE: Record<string, { kinds: string[]; elements?: Element[]; needs?
   // passive 2 "all party members' (excluding Sucrose)". Ineffa's, Linnea's and Nahida's are the active character's.
   Albedo: { kinds: ["em"], note: "Homuncular Nature: \"increases the Elemental Mastery of nearby party members by 125\"" },
   Nilou: { kinds: ["em"], note: "Court of Dancing Petals: \"increase the Elemental Mastery of all nearby characters by 100\"" },
-  Sucrose: { kinds: ["emFromEm"], note: "Mollis Favonius: \"increases all party members' (excluding Sucrose) Elemental Mastery\"" },
+  Sucrose: { kinds: ["emFromEm"], others: true, note: "Mollis Favonius: \"increases all party members' (excluding Sucrose) Elemental Mastery\"" },
   Nicole: { kinds: ["atkFromAtk"], note: "Grace of Kenosis: \"bestowing the Grace of Kenosis effect on nearby party members\"" },
   "Yumemizuki Mizuki": {
     kinds: ["dmgBonusPerEm"],
     elements: ["Pyro", "Hydro", "Cryo", "Electro"],
     note: "C2: \"all nearby party members' Pyro, Hydro, Cryo, and Electro DMG Bonuses\" while she's in Dreamdrifter",
   },
-  Illuga: { kinds: ["critRate"], elements: ["Geo"], note: "Lightkeeper's Oath (passive 1): \"other nearby party members\", Geo DMG" },
-  Prune: { kinds: ["dmgBonusFromExcessAtk"], note: "Tolling Rally (passive 2): \"other nearby party members will gain the Tolling Rally effect\"" },
+  Illuga: { kinds: ["critRate"], elements: ["Geo"], others: true, note: "Lightkeeper's Oath (passive 1): \"other nearby party members\", Geo DMG" },
+  Prune: { kinds: ["dmgBonusFromExcessAtk"], others: true, note: "Tolling Rally (passive 2): \"other nearby party members will gain the Tolling Rally effect\"" },
   Sigewinne: {
     kinds: ["flatDmg"],
     offField: true,
+    others: true,
     note: "Convalescence (passive 1): \"the Elemental Skills of your nearby off-field party members other than Sigewinne\"",
   },
 };
 
 // The party-wide kit buffs one member's hits get from their teammates (#204), as teamBuffStats gives the carry: same
-// values, conditions and uptimes. A buffer's buff on their own hits is left out (#98). `talent`: the hit's talent, for a
+// values, conditions and uptimes. A buffer's party buff reaches their own hits unless its text leaves them out (#413,
+// PARTY_WIDE `others`); self-only buffs are #98's. `talent`: the hit's talent, for a
 // buff limited to some (appliesTo). Cached per team array object, like the scorer's other team readings.
 const memberCache = new WeakMap<readonly ScoringCharacter[], Map<string, TeamBuffStats>>();
 export function memberBuffStats(
@@ -853,7 +886,7 @@ export function memberBuffStats(
       const funded = b?.burst ? (shares?.get(s) ?? 1) : 1;
       if (b) addBuffStats(b.steps ? { ...b, value: stepValue(b, shape0) } : b, bufferStats(s, entry.base, entry.buildFor, shape0.partyEm), shape0, (b.uptime ?? 1) * funded, out);
     }
-    if (s === m || !wide) continue;
+    if (!wide || (s === m && wide.others)) continue;
     if (wide.elements && !wide.elements.includes(m.element)) continue;
     if (wide.needs && !wide.needs.some((r) => active.includes(r))) continue;
     const shape = shape0;
@@ -903,7 +936,7 @@ function resonanceStats(m: ScoringCharacter, active: readonly Reaction[], team: 
 // increased by 20%. If at least 1 Cryo or Electro hit is included, Cryo and Electro DMG Bonus is instead increased by
 // 28% plus an additional 1% for each recorded hit, up to a maximum of 12 hits" (Genshin Impact Wiki, Stellar-Conduct,
 // fetched 2026-10-22): 40%, saturated as the Stellar-Conduct coefficient is (damage.ts LUNAR_COEFFICIENT). Only the
-// on-field carry is inside the field; its Physical RES -40% is left out.
+// on-field carry is inside the field. Its enemies' Physical RES -40% is on the carry's Physical hits (damage.ts, #416).
 function polestarStats(carry: ScoringCharacter, active: readonly Reaction[], into: TeamBuffStats) {
   if (active.includes("stellar-conduct") && (carry.element === "Cryo" || carry.element === "Electro")) into.dmgBonus += 0.4;
 }

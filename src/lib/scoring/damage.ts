@@ -720,8 +720,11 @@ function computeCarryDamage(
   // hits), and its own reactions (Physical hits don't react). ATK and CRIT buffs reach every hit alike.
   // RES and DEF shred (#204): teammates' on the hits of the type they cover, and Superconduct's 40% Physical RES
   // (Genshin Impact Wiki, Superconduct, fetched 2026-10-16: "reduces the Physical RES of all enemies in the AoE by 40%
-  // for 12 seconds"; while the team has it, taken as up throughout).
-  const superconduct = active.includes("superconduct") ? 0.4 : 0;
+  // for 12 seconds"; while the team has it, taken as up throughout). The Polestar Field after a Stellar-Conduct too
+  // (#416): "All enemies in the field have their Physical RES reduced by 40%" (Genshin Impact Wiki, Stellar-Conduct,
+  // fetched 2026-11-09), taken as up throughout as its DMG Bonus is (kit.ts polestarStats). RES decreases add, so
+  // with both it is 80%.
+  const physicalShred = (active.includes("superconduct") ? 0.4 : 0) + (active.includes("stellar-conduct") ? 0.4 : 0);
   type Typed = { bonus: number; flat: number; byHit?: TeamBuffStats["byHit"]; amp: number; catalyze: number; res: number; def: number; lunarAdditive?: TeamBuffStats["lunarAdditive"] };
   const byType = new Map<string, Typed>();
   const typed = (el: Element | "Physical"): Typed => {
@@ -732,7 +735,7 @@ function computeCarryDamage(
       const tb = teamBuffs === NO_TEAM_BUFFS ? NO_TEAM_BUFFS : teamBuffStats(view, c.reactions.filter((r) => active.includes(r)), team, teamBuffs.burstShares, active);
       const r = reaction ?? mainReactionOf(c);
       const own = el === "Physical" ? s.physicalDmgBonus : 0;
-      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, byHit: tb.byHit, amp: amplifyGain(view, em, active, r, setReactionBonus(set, r) + weaponReactionBonus(weapon, r)), catalyze: catalyzeDamage(view, em, active, r, setReactionBonus(set, r) + weaponReactionBonus(weapon, r)), res: tb.resShred + (el === "Physical" ? superconduct : 0), def: tb.defShred, lunarAdditive: tb.lunarAdditive }));
+      byType.set(el, (v = { bonus: own + tb.dmgBonus, flat: tb.flat, byHit: tb.byHit, amp: amplifyGain(view, em, active, r, setReactionBonus(set, r) + weaponReactionBonus(weapon, r)), catalyze: catalyzeDamage(view, em, active, r, setReactionBonus(set, r) + weaponReactionBonus(weapon, r)), res: tb.resShred + (el === "Physical" ? physicalShred : 0), def: tb.defShred, lunarAdditive: tb.lunarAdditive }));
     }
     return v;
   };
@@ -803,11 +806,11 @@ function computeCarryDamage(
     perHit += catalyzed;
     // Additive Base DMG Bonus from teammates (Shenhe, Yun Jin): per hit instance, before DMG bonus and crit
     // (Genshin Impact Wiki, Damage § General Damage Formula).
-    // A plunge's collision hit takes no flat team bonus: Xianyun's is "Plunging Attack shockwave DMG" (wiki; others,
-    // like Shenhe's quills, would apply: left out, estimate). Flat DMG and DMG Bonus for some attack types reach only
-    // hits of that type (#299: Yun Jin's on Normal Attacks, Xianyun's on plunges).
+    // Flat DMG and DMG Bonus for some attack types reach only hits of that type (#299: Yun Jin's on Normal Attacks,
+    // Xianyun's on plunges). A plunge's collision hit takes the flat team bonuses that aren't by attack type (Shenhe's
+    // quills on Cryo DMG, Illuga's on Geo DMG) but not Xianyun's, which is "Plunging Attack shockwave DMG" (wiki, #415).
     const typeBuffs = t.byHit?.[h.type];
-    if (!h.addOn && !h.collision) perHit += (t.flat + (typeBuffs?.flat ?? 0)) * (h.instances ?? 1);
+    if (!h.addOn) perHit += (t.flat + (h.collision ? 0 : (typeBuffs?.flat ?? 0))) * (h.instances ?? 1);
     let bonus = t.bonus + (typeBuffs?.dmgBonus ?? 0) + weaponDmgBonus(weapon, h.type) + setDmgBonus(set, h.type, el, s.er); // weapon (#40), set (#206)
     let factor = 1;
     for (const b of buffs) {
@@ -846,7 +849,9 @@ function computeCarryDamage(
   for (const h of kit.hits) {
     if (fsShare === 0 && h.type === "burst") continue; // can't Burst without the Fighting Spirit
     if (!lands(h)) continue;
-    const count = (h.count + teamCount(h)) * (h.type === "burst" ? burstPart : 1) * (h.perCrit ? critChance(c, critRate, dmgCirclet) : 1);
+    // Teammates' Normal ATK SPD (#411): that much more Normal Attack hits in the same rotation, the rest unchanged.
+    const speed = h.type === "normal" ? 1 + teamBuffs.normalSpd : 1;
+    const count = (h.count + teamCount(h)) * speed * (h.type === "burst" ? burstPart : 1) * (h.perCrit ? critChance(c, critRate, dmgCirclet) : 1);
     if (count <= 0) continue;
     if (infusion && isInfused(h, c)) total += hitTotal(h, infusion, count);
     else if (h.element === "priority") total += hitTotal(h, priorityEl ?? c.element, count);

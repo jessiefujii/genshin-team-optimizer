@@ -5,7 +5,7 @@ import { canTrigger, mainReactionOf, reactionElements, reactionShare } from "./r
 import { energyCheck, energyNeeds, erTargetOf } from "./energy";
 import { generateRotation } from "./rotation";
 import { FAMILY_IN_DAMAGE, FIGHTING_SPIRIT_MIN, NO_TEAM_BUFFS, partyGearModeled, RESONANCE_IN_DAMAGE, type TeamBuffStats, atkPctGain, baseAtkOf, fightingSpirit, constellationInDamage, fightingSpiritBuilt, hasBurstBuff, kitBuffValue, memberBuffStats, normalAttacks, partySetBuffs, partySetModeled, reactionBonusesFor, teamBuffStats, type BurstShares } from "./kit";
-import { amplifyGain, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, infusionOver, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
+import { amplifyGain, hasCarryKit, weaponFlatFromDef, weaponReactionBonus, carryDamage, carryStats, bluntHitsPerSecond, freezeInDamage, infusionOver, setBuffs, shatterHit, setDmgBonus, setsOf, setReactionBonus, sumSet, weaponAtk, weaponBuffs, weaponDmgBonus, weaponSum, LEVEL_MULTIPLIER_90, LUNAR_COEFFICIENT, lunarEmBonus, carryHitRates, carryRotationSeconds, catalyzeDamage, expectedCrit, lunarHit, modelsAscendantGleam, modelsRadiance, modelsReaction, modelsSecretRite, passiveEnabler, TRANSFORMATIVE, transformativeHit, type LunarReaction } from "./damage";
 import { BENCHMARK, critGain, defShredGain, dmgBonusGain, emGain, GAIN_FOR_POINTS, gainPoints, resShredGain, subDpsBenchmark } from "./benchmark";
 import type { ScaleStat, SubDpsBase, SubDpsPriority, SubDpsStats } from "./benchmark";
 import kitJson from "../../../data/kit.json";
@@ -958,17 +958,20 @@ function pickedSources(sources: SubDpsSource[], carry: ScoringCharacter, ctx: Te
 const SUB_DPS_REACTIONS: Reaction[] = ["vaporize", "melt", "aggravate", "spread"];
 // Which hits react: only those that apply their element (#190). A source's ICD is kit.json's `icd` (Genshin Impact
 // Wiki, Internal Cooldown/Data, fetched 2026-10-14), else the standard "2.5 seconds or 3 hits": a hit applies when the
-// timer has run out or it is the counter's next one, so the share is the larger of 1/every and gap/reset (capped at
-// 1). "first": only the timer. "none": every hit. Hits of one use without an interval (Aino's Water Balls) are taken
-// as close together, at least one applying per use. ICDs shared between two sources (Escoffier's Skill and Parfaits)
-// are counted separately (slight overcount).
+// timer has run out or it is the counter's next one, so the share is the larger of the two. The timer is counted in
+// whole hits (#453): with a hit every `gap` s, the first hit at or after `reset` s applies, so one in
+// ceil(reset / gap) (Durin's Dark dragon, a hit every 1.25 s on a 2 s timer: every other hit, as KQM says; was
+// gap/reset, 0.625). "first": only the timer. "none": every hit. Hits of one use without an interval (Aino's Water
+// Balls) are taken as close together, at least one applying per use. ICDs shared between two sources (Escoffier's
+// Skill and Parfaits) are counted separately (slight overcount).
 const STANDARD_ICD = { reset: 2.5, every: 3 } as const;
-function appliedShare(s: SubDpsSource): number {
+export function appliedShare(s: SubDpsSource): number {
   if (s.icd === "none") return 1;
   const { reset, every } = s.icd ?? STANDARD_ICD;
   const n = s.hits ?? 1;
   const counter = every === "first" ? 0 : 1 / every;
-  const timer = s.every === undefined ? 1 / n : Math.min(1, s.every / n / reset);
+  const gap = s.every === undefined ? 0 : s.every / n;
+  const timer = gap === 0 ? 1 / n : 1 / Math.max(1, Math.ceil(reset / gap - 1e-9));
   return Math.min(1, Math.max(counter, timer));
 }
 
@@ -1477,11 +1480,16 @@ function memberExtras(m: ScoringCharacter, carry: ScoringCharacter, ctx: TeamCon
 // Enemy RES is left out, as on the carry's side; reactions on their hits count from #153 (subDpsReactions); teammates'
 // party-wide kit buffs from #204 (memberBuffStats).
 // Returns their total, and the sub-DPS who out-damages the carry, if one does: the team is really theirs (#96).
-function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink): { lead: ScoringCharacter | null; dps: number } {
-  if (!carry) return { lead: null, dps: 0 };
+function subDpsLines(
+  ctx: TeamContext,
+  carry: ScoringCharacter | null,
+  out: Sink,
+): { lead: ScoringCharacter | null; dps: number; outdone: { m: ScoringCharacter; dps: number; carryDps: number } | null } {
+  if (!carry) return { lead: null, dps: 0, outdone: null };
   const carryDps = carryDamagePerSecond(carry, ctx); // who out-damages whom
   let total = 0;
   let lead: { m: ScoringCharacter; dps: number } | null = null;
+  let outdone: { m: ScoringCharacter; dps: number } | null = null;
   const needs = energyNeeds(ctx.members, carry, carryRotationSeconds(carry, ctx.active, ctx.members));
   const auras = auraShares(ctx, carry);
   const quicken = auraBudget(ctx, carry).quicken;
@@ -1576,12 +1584,15 @@ function subDpsLines(ctx: TeamContext, carry: ScoringCharacter | null, out: Sink
     // Only a main DPS takes the team over (Mavuika, a flex DPS): a support's hits never make them its main DPS (#266:
     // Escoffier out-damaged a carry with no damage model yet).
     if (m.roles.includes("main-dps") && dps > carryDps && (!lead || dps > lead.dps)) lead = { m, dps };
+    // A support who out-damages the carry rules the team out with that carry (Jessie, 2026-11-09, #455). Only a
+    // modeled carry: the generic benchmark hit of one without a damage model isn't their damage (#266).
+    else if (!m.roles.includes("main-dps") && hasCarryKit(carry.id) && dps > carryDps && (!outdone || dps > outdone.dps)) outdone = { m, dps };
   }
   if (lead) {
     const { m, dps } = lead;
     out.add("Carry", 0, () => `${m.id} out-damages ${carry.id} (~${Math.round(dps)} vs ~${Math.round(carryDps)} per second): ${m.id} is the main DPS`);
   }
-  return { lead: lead?.m ?? null, dps: total };
+  return { lead: lead?.m ?? null, dps: total, outdone: outdone ? { ...outdone, carryDps } : null };
 }
 
 // A member's EM for the reactions they trigger (#186): the carry's as their damage reads it (with the team's EM buffs),
@@ -1672,6 +1683,12 @@ export function buildGaps(c: ScoringCharacter): string[] {
 // Scores a team once per possible carry and keeps the reading with the most team damage (#202): the carry's damage
 // plus each sub-DPS's own, times the factor of the lines not inside the damage yet. `explain` keeps the breakdown
 // text. `onlyCarry` reads the team with that carry on field (the guide-team reference, team-reference.ts).
+// A support's lead over the carry, as their damage / the carry's, where the rule-out penalty starts and where it's full
+// (Jessie, 2026-11-14, #456 #457): 1.25x in the middle, between a 1% lead (Skirk + Durin, Escoffier, Furina) and the
+// clear cases (Durin 1.65x Skirk beside Nicole, ~3x Sandrone).
+export const RULE_OUT_FROM = 1;
+export const RULE_OUT_FULL = 1.5;
+
 function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: boolean, onlyCarry?: string) {
   if (given.length !== 4) throw new Error(`A team needs 4 members, got ${given.length}`);
   // Read in a fixed member order, so sums and products of floats come out the same, to the last bit, whatever
@@ -1688,9 +1705,9 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
   const mainDps = team.filter((m) => m.roles.includes("main-dps"));
   const candidates = onlyCarry ? team.filter((m) => m.id === onlyCarry) : mainDps;
 
-  type Reading = { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink; dps: number; value: number };
-  let best: Reading | null = null;
-  for (const carry of candidates.length > 0 ? candidates : [null]) {
+  // fade: the share of value kept after the rule-out fade (#457), 1 when no support out-damages the carry.
+  type Reading = { carry: ScoringCharacter | null; lead: ScoringCharacter | null; out: Sink; dps: number; value: number; fade: number };
+  const read = (carry: ScoringCharacter | null) => {
     const out = sink();
     carryLines(ctx, carry, out);
     if (carry) carryTalentLine(carry, out);
@@ -1710,9 +1727,44 @@ function bestReading(given: ScoringCharacter[], options: ScoreOptions, explain: 
     const own = carry ? carryDamagePerSecond(carry, ctx) : BENCHMARK.hitDamage * BENCHMARK.carryHitsPerSecond;
     const dps = own + sub.dps + reacted + healed;
     const value = dps * factorOf(out);
-    if (!best || value > best.value) best = { carry, lead: sub.lead, out, dps, value };
+    return { reading: { carry, lead: sub.lead, out, dps, value, fade: 1 } as Reading, outdone: sub.outdone };
+  };
+  // A carry out-damaged by a support isn't the team's carry (Jessie, 2026-11-09, #455). The model's support and carry
+  // damage can each be ~20% off (Durin's ICD share was 25% over, #453), so a close lead isn't a verdict (#456): the
+  // penalty fades in with the support's lead (#457), none at parity, full at 1.5x, where that reading is ruled out.
+  // In between, the reading's value moves that share of the way to the team's value without a main DPS, so a
+  // slightly stronger support never drops a team off a cliff. With every carry ruled out, the team reads as one
+  // without a main DPS.
+  let best: Reading | null = null;
+  let noCarry: Reading | null = null;
+  const noCarryValue = () => (noCarry ??= read(null).reading).value;
+  const ruledOut: { carry: string; why: string; lines: ScoreLine[] }[] = [];
+  for (const carry of candidates.length > 0 ? candidates : [null]) {
+    const { reading, outdone } = read(carry);
+    if (carry && outdone) {
+      const lead = outdone.dps / outdone.carryDps;
+      const why = `${outdone.m.id} out-damages ${carry.id} (~${Math.round(outdone.dps)} vs ~${Math.round(outdone.carryDps)} per second, ${lead.toFixed(2)}x)`;
+      const share = Math.min(1, (lead - RULE_OUT_FROM) / (RULE_OUT_FULL - RULE_OUT_FROM));
+      if (share >= 1) {
+        const lines = explain ? (reading.out as Breakdown).lines.filter((l) => l.rule === "Sub-DPS") : [];
+        ruledOut.push({ carry: carry.id, why, lines });
+        continue;
+      }
+      // Never above 1: a reading without a main DPS that outscores this one isn't a reward for the support's lead.
+      reading.fade = 1 - share * (1 - Math.min(1, noCarryValue() / reading.value));
+      reading.value *= reading.fade;
+      reading.out.add("Carry", 0, () => `Partly ruled out as ${carry.id}'s team: ${why}: ${Math.round(100 * share)}% of the way to a team without a main DPS (full at ${RULE_OUT_FULL}x)`);
+    }
+    if (!best || reading.value > best.value) best = reading;
   }
-  return { ctx, ...best! };
+  const none = !best;
+  if (!best) best = noCarry ?? read(null).reading;
+  for (const r of ruledOut) {
+    best.out.add("Carry", 0, () => `Ruled out as ${r.carry}'s team: ${r.why}`);
+    // With no carry left, what each member dealt beside the ruled-out carry, as 0-point lines: why it was ruled out.
+    if (none) for (const l of r.lines) best.out.add(l.rule, 0, () => l.reason);
+  }
+  return { ctx, ...best };
 }
 
 // The guide-team reference (#202, Jessie 2026-10-15), written by `npm run reference` (team-reference.ts): `median`,
@@ -1732,7 +1784,8 @@ export function carryTeamValue(team: ScoringCharacter[], carry: string, options:
 }
 
 export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}): ScoredTeam {
-  const { ctx, carry, lead, out, dps, value } = bestReading(team, options, true);
+  const { ctx, carry, lead, out, dps, value, fade } = bestReading(team, options, true);
+  const factor = factorOf(out) * fade; // with the rule-out fade (#457), so damage x factor is still the value
   const rotation = generateRotation(team, carry?.id ?? null); // the on-field carry's, even when a sub-DPS out-damages them
   const guide = carry ? REFERENCE.carries[carry.id] : undefined;
   const guideRatio = guide ? value / guide.value : null;
@@ -1744,14 +1797,14 @@ export function scoreTeam(team: ScoringCharacter[], options: ScoreOptions = {}):
   const head: ScoreLine = {
     rule: "Team damage",
     points: 0,
-    reason: `~${Math.round(dps)} damage per second, ×${factorOf(out).toFixed(2)} from the lines below${vsGuide}`,
+    reason: `~${Math.round(dps)} damage per second, ×${factor.toFixed(2)} from the lines below${vsGuide}`,
   };
   return {
     members: team.map((m) => m.id) as ScoredTeam["members"],
     mainDps: (lead ?? carry)?.id ?? null,
     onField: carry?.id ?? null,
     score: toScore(value),
-    damage: { perSecond: dps, factor: factorOf(out), guideRatio },
+    damage: { perSecond: dps, factor, guideRatio },
     breakdown: [head, ...(out as Breakdown).lines],
     activeReactions: ctx.active,
     defaultBuilds: team.filter((m) => !m.stats).map((m) => m.id),

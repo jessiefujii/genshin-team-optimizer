@@ -173,7 +173,9 @@ function stronger(m: ScoringCharacter): ScoringCharacter {
   return { ...m, stats: { ...s, atk: s.atk * 1.1, hp: s.hp * 1.1, elementalMastery: s.elementalMastery + 50, critRate: s.critRate + 5 } };
 }
 
-// Score drops when one member gets stronger. A carry with no damage model still scores buffer lines as a share of
+// Score drops when one member gets stronger. A support who gets stronger and out-damages the carry rules the team
+// out with them (Jessie, 2026-11-09, #455): that drop is the rule, not a model error, so it is allowed when the
+// stronger member is the one named in a "Ruled out" or "Partly ruled out" line (#457). A carry with no damage model still scores buffer lines as a share of
 // their own damage, which shrinks as they get stronger; a team whose best reading has such a carry is listed here
 // with the issue that models them, and leaves this list then.
 const KNOWN_DROPS: Record<string, string> = {
@@ -185,6 +187,10 @@ const drops = (() => {
     const before = scoreTeam(team);
     for (let i = 0; i < 4; i++) {
       const after = scoreTeam(team.map((m, j) => (j === i ? stronger(m) : m)));
+      // The penalty fades in with the support's lead (#457), so a stronger support named in a rule-out line, full or
+      // partial, may lower the score a little; no longer by a cliff.
+      const ruledOut = (s: ScoredTeam) => s.breakdown.filter((l) => /^(Partly r|R)uled out as /.test(l.reason)).map((l) => l.reason.split(" (~")[0]);
+      if (ruledOut(after).some((r) => r.includes(`: ${team[i].id} out-damages `))) continue;
       if (after.score < before.score && !KNOWN_DROPS[names(team)]) out.push(`${names(team)}: stronger ${team[i].id}, ${before.score} -> ${after.score}`);
     }
   }
