@@ -417,7 +417,7 @@ const NO_VALUE = {
 };
 // Base DMG converters (#358): their buff, a Base DMG bonus to the party's Lunar or Stellar reactions, is in team damage
 // already (kit.json lunarBase, score.ts teammatesLunarBase), so no buffer points on top. Each needs a lunarBase entry.
-const IN_LUNAR_BASE = ["Flins", "Nefer", "Odette", "Sandrone", "Vesna", "Zibai"];
+const IN_LUNAR_BASE = ["Flins", "Mitya", "Nefer", "Odette", "Sandrone", "Vesna", "Zibai"];
 
 const level = (params, key) => params[key]?.[TALENT_LEVEL - 1];
 
@@ -1049,6 +1049,12 @@ const STELLAR = {
     values: [{ kind: "resShred", re: /reduce nearby opponents' Anemo RES by (\d+)%/, unit: "Anemo RES from Wandering Vortex (Stellar Swirl during Song of Ages Past)", percent: true, elements: ["Anemo"], teamReactions: [SS], uptime: { talent: "skill", duration: "Duration", cd: "Skill CD" } }],
   },
   Wriothesley: { from: "passive4", target: "self", radiance: [SC] },
+  // Passive 3 also converts the party's Superconduct to Stellar-Conduct (tags.json `converts`) and raises its Base DMG
+  // by up to 14% from his EM (LUNAR_CONVERTERS).
+  Mitya: { from: "passive3", target: "self", radiance: [SC] },
+  // In Radiance, Offensive Directive boosts the active character's Stellar-Conduct hits instead of all Electro hits
+  // (#458, third PR).
+  Valeriy: { from: "passive3", target: "own", radiance: [SC], note: "enters Radiance; changes Offensive Directive (#458)" },
   "Yae Miko": { from: "passive4", target: "own", radiance: [SC], note: "her own Stellar-Conduct hits" },
   "Yumemizuki Mizuki": { from: "passive4", target: "self", radiance: [SS] },
 };
@@ -1366,6 +1372,19 @@ const SUBDPS = {
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "Skill CD" },
     { talent: "skill", label: "Horn of Spring's Call DMG", every: "Horn of Spring's Call Attack Interval", duration: "Duration", cd: "Skill CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  // Off field Mitya taps for the Steady State core (Game8: off-field support). Its Gradient Beacon hits (EM, Stellar-
+  // Conduct reaction DMG) depend on how many beacons the team makes: his carry model (#458) adds them.
+  Mitya: [
+    { talent: "skill", label: "Tap Skill DMG", hits: 1, cd: "CD" },
+    { talent: "skill", label: "Steady State Core DMG", every: "rate", duration: "rate", cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+  ],
+  // Offensive Directive (his special Charged Attack's flat DMG for the party) is #458's third PR.
+  Valeriy: [
+    { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "burst", label: "Thunderburst Shell DMG", hits: "rate", cd: "CD" },
   ],
   Xinyan: [
     { talent: "skill", label: "Swing DMG", hits: 1, cd: "CD" },
@@ -3934,6 +3953,7 @@ const LUNAR_CONVERTERS = {
   Sandrone: { from: "passive3", re: /increased by ([\d.]+)% for every 100 points of Sandrone's ATK/, per: 100, stat: "atk", max: /maximum increase of (\d+)%/, reactions: ["stellar-conduct", "stellar-swirl"] },
   "Traveler (Cryo)": { from: "passive3", re: /increased by ([\d.]+)% for every 100 points of the Traveler's ATK/, per: 100, stat: "atk", max: /maximum (\d+)% increase/, reactions: ["stellar-conduct", "stellar-swirl"] },
   Vesna: { from: "passive3", re: /Every 100 ATK she has increases the Base Stellar Swirl DMG by ([\d.]+)%/, per: 100, stat: "atk", max: /maximum DMG increase that can be gained this way is (\d+)%/, reactions: ["stellar-swirl"] },
+  Mitya: { from: "passive3", re: /Every point of Elemental Mastery he has increases Base Stellar-Conduct DMG by ([\d.]+)%/, per: 1, stat: "em", max: /maximum Base DMG increase that can be gained this way is (\d+)%/, reactions: ["stellar-conduct"] },
 };
 const lunarBase = {};
 for (const [id, b] of Object.entries(LUNAR_CONVERTERS)) {
@@ -4266,6 +4286,8 @@ const kqm = (page, quote) => kqmOn("2026-10-20", page, quote);
 // genshin-builds' character pages for the characters without a KQM quick guide (#369; Jessie, 2026-10-29: search
 // outside KQM): the recommended build's sets in order and its first non-5-star weapon.
 const gbOn = (date, page, what) => `genshin-builds (genshin-builds.com/en/character/${page}, accessed ${date}): ${what}`;
+// genshin-build.com's build pages (from prydwen.gg's guides) for characters with no KQM or genshin-builds page yet (#458).
+const gbBuild = (date, page, quote) => `genshin-build.com (genshin-build.com/characters/${page}/build, from prydwen.gg's guide, accessed ${date}): "${quote}"`;
 const benchmarkSets = {
   // #383: carries whose guide's set wasn't modeled before.
   "Arataki Itto": [
@@ -4361,6 +4383,7 @@ const benchmarkSets = {
   ],
   "Kujou Sara": [{ defer: true, set: "Noblesse Oblige", source: kqmOn("2026-10-24", "sara-quickguide", "Allows Sara to maximize her buffing capabilities if no one else already has this") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "sara-quickguide", "Allows players to maximize her buffing capabilities if another character already has 4 NO") }],
   Dahlia: [{ set: "Noblesse Oblige", source: kqmOn("2026-10-24", "dahlia-quickguide", "Dahlia Burst is used every rotation, so 4pc NO is a natural choice to buff ATK-scaling teammates") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "dahlia-quickguide", "or if another party member is already holding 4pc NO") }],
+  Valeriy: [{ set: "Heart of the Furnace", source: gbBuild("2026-11-16", "valeriy", "Best Valeriy artifacts 2 sets Core set Heart of the Furnace") }, { set: "Noblesse Oblige", source: gbBuild("2026-11-16", "valeriy", "Also works Noblesse Oblige") }],
   Vodyanitsa: [{ set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "vodyanitsa-quickguide", "4pc TotM is Vodyanitsa's best support set in ATK-scaling teams") }, { set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "vodyanitsa-quickguide", "4pc Scroll is a good alternative for 4pc TotM if another teammate already holds it") }],
   Xilonen: [{ set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen's best artifact set by far") }, { set: "Archaic Petra", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen can run one of them if there is another 4pc Scroll holder on your team") }, { set: "Instructor", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen can run one of them if there is another 4pc Scroll holder on your team") }, { set: "Noblesse Oblige", source: kqmOn("2026-10-24", "xilonen-quickguide", "Xilonen can run one of them if there is another 4pc Scroll holder on your team") }],
   Citlali: [{ defer: true, set: "Scroll of the Hero of Cinder City", source: kqmOn("2026-10-24", "citlali-quickguide", "Citlali's best set, providing a 40% DMG Bonus buff whenever she triggers a reaction") }, { set: "Tenacity of the Millelith", source: kqmOn("2026-10-24", "citlali-quickguide", "it can be used when another character uses Scroll") }],
@@ -4675,6 +4698,7 @@ const benchmarkWeapons = {
   Mika: { weapon: "Favonius Lance", refinement: 1, source: kqmOn("2026-10-24", "mika-quickguide", "Favonius Lance") },
   "Kujou Sara": { weapon: "Favonius Warbow", refinement: 1, source: kqmOn("2026-10-24", "sara-quickguide", "Favonius Warbow") },
   Dahlia: { weapon: "Fleuve Cendre Ferryman", refinement: 1, source: kqmOn("2026-10-24", "dahlia-quickguide", "Fleuve Cendre Ferryman") },
+  Valeriy: { weapon: "Finale of the Deep", refinement: 5, source: gbBuild("2026-11-16", "valeriy", "Best in slot Finale of the Deep 565 ATK 27.6% ATK R5 tested") },
   Vodyanitsa: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
   Xilonen: { weapon: "Favonius Sword", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
   Citlali: { weapon: "Favonius Codex", refinement: 1, source: "Jessie, 2026-10-24 (#349): Favonius for a support without a guide pick" },
@@ -5174,6 +5198,7 @@ const SUSTAIN = {
     { kind: "shield", talent: "burst", value: "Shield DMG Absorption", duration: "Scorching Ooyoroi Duration", cd: "CD" },
   ],
   Vodyanitsa: [{ kind: "heal", talent: "skill", value: "Song of Ages Past Healing", duration: "Duration", cd: "Skill CD" }],
+  Valeriy: [{ kind: "shield", talent: "skill", value: "Shield DMG Absorption", duration: "Shield Duration", cd: "CD" }],
   // wiki: Starwicker "periodically heals all nearby party members"; "The healing interval is 2.5 seconds".
   Xianyun: [{ kind: "heal", talent: "burst", value: "Continuous Healing", duration: "Duration", cd: "CD", every: 2.5, targets: "party" }],
   // wiki: "Healing occurs once every 1.5s for a total of 8 instances".

@@ -856,6 +856,19 @@
         "hits": 24,
         "source": "Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Sparks_'n'_Splash, fetched 2026-10-16 (Gameplay Notes): \"Sparks 'n' Splash can be triggered once every 1.8 seconds, resulting in 6 instances ... Each Sparks 'n' Splash sends 4 sparks\": 24 on one opponent."
       }
+    },
+    "Mitya": {
+      "skill: Steady State Core DMG": {
+        "every": 1.5,
+        "duration": 18,
+        "source": "genshin-build.com, https://genshin-build.com/news/mitya-build-best-teams, fetched 2026-11-16: \"The tap version, Steady State, hits every 1.5 seconds and applies Electro on every other hit, by IWinToLose's count.\" Duration 18s, not the table's 25s: the next cast (18s CD) replaces the core (wiki: \"When its duration ends or another Detection Core is created, the device will consume all Gradient Beacons\")."
+      }
+    },
+    "Valeriy": {
+      "burst: Thunderburst Shell DMG": {
+        "missing": "how many Thunderburst Shell hits land in the 12s isn't in genshin-db, on the wiki (character and talent pages, attack data) or in the guides found (genshin-build.com): \"a barrage of projectiles that rain down\"",
+        "source": "checked 2026-11-16: Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Valeriy and Genshin Impact Wiki (Fandom), https://genshin-impact.fandom.com/wiki/Focused_Fire:_Lightning_Salvo (fandom API), https://genshin-build.com/characters/valeriy"
+      }
     }
   },
   "rotations": {
@@ -1335,6 +1348,12 @@
         "reset": 2.5,
         "every": 3
       }
+    },
+    "Mitya": {
+      "skill: Tap Skill DMG": "none"
+    },
+    "Valeriy": {
+      "burst: Thunderburst Shell DMG": "none"
     }
   },
   "carryIcd": {
