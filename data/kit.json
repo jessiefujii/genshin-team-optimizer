@@ -1564,6 +1564,49 @@
       },
       "buffs": [],
       "inLunarBase": true
+    },
+    "Valeriy": {
+      "base": {
+        "hp": 10005,
+        "atk": 255,
+        "def": 703
+      },
+      "buffs": [
+        {
+          "kind": "lunarAdditiveFromAtk",
+          "value": 2.14032,
+          "lunar": "stellar-conduct",
+          "stacks": 15,
+          "elements": [
+            "Electro"
+          ],
+          "carryReactions": [
+            "stellar-conduct"
+          ],
+          "stacksOnLunar": true,
+          "unit": "of Valeriy's ATK as Additive Base DMG on the active character's direct Stellar-Conduct Electro hits (in Radiance)",
+          "source": "normal talent \"Stellar-Conduct DMG Bonus\", level 9, plus passive2 x 100 (Impact Momentum spent, estimate)",
+          "duration": 18,
+          "cd": 10,
+          "uptime": 1
+        },
+        {
+          "kind": "flatDmgFromAtk",
+          "value": 0.71344,
+          "stacks": 15,
+          "elements": [
+            "Electro"
+          ],
+          "notCarryReactions": [
+            "stellar-conduct"
+          ],
+          "unit": "of Valeriy's ATK as flat Electro DMG (not in Radiance)",
+          "source": "normal talent \"Electro DMG Bonus\", level 9, plus passive2 x 100 (Impact Momentum spent, estimate)",
+          "duration": 18,
+          "cd": 10,
+          "uptime": 1
+        }
+      ]
     }
   },
   "constellationBuffs": [
@@ -8553,6 +8596,15 @@
           "label": "Skill DMG",
           "scaling": {
             "atk": 2.822
+          },
+          "hits": 1,
+          "cd": 10
+        },
+        {
+          "talent": "normal",
+          "label": "Direct-Fire Mortar: Point-Blank Bombardment DMG",
+          "scaling": {
+            "atk": 3.8964
           },
           "hits": 1,
           "cd": 10
