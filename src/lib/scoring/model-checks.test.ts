@@ -65,7 +65,7 @@ const built = all
 describe("coverage gate", () => {
   // #203 brings both to 0. Until then they may only shrink: a new character without a damage profile fails here.
   const NO_DAMAGE_PROFILE = 4;
-  const MAIN_DPS_WITHOUT_CARRY_KIT = 4;
+  const MAIN_DPS_WITHOUT_CARRY_KIT = 2; // Manekin, Manekina (#458: Mitya modeled)
   const NO_PARTICLE_COUNT = 6;
   const NO_SUSTAIN_COVERAGE = 3; // Alyosha, Ifa, Sigewinne (#418: Jean and Beidou sourced; Candace and Yun Jin not shielders)
 

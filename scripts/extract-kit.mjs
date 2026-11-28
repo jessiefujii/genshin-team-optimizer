@@ -2188,6 +2188,42 @@ const CARRIES = {
       },
     ],
   },
+  // #458 (PR 2). No KQM guide (keqingmains.com/mitya 404, 2026-11-14). genshin-build.com's build page (from prydwen.gg's
+  // guide, https://genshin-build.com/characters/mitya/build, updated 2026-11-05, fetched 2026-11-28): "The standard
+  // rotation (Single Field Time Combo) is hE CA Q CA N2 CA", and "The final Charged Attack will typically only fire 1-2
+  // Beacons rather than the usual 4-5". Read as 4.5, 4.5 and 1.5 beacons (midpoints). The Hold Skill makes the
+  // Overloaded core: each Gradient Detonation is one ATK hit, plus one hit per beacon it spends at 403.2% EM, which
+  // "is considered Stellar-Conduct reaction DMG" (Normal Attack text), so those take the direct Stellar formula
+  // (lunar "stellar-conduct", none reacting) and still count as Charged Attacks for buffs (as Wriothesley's, #403).
+  // Beacons: 3 from his Burst ("Gradient Beacons Generated"); the rest from passive 1's Overloaded core, "After
+  // nearby party members trigger Stellar-Conduct reactions, instead obtain 1 Gradient Beacon every 1.5s for 6s",
+  // so without Stellar-Conduct only the Burst's 3 are there (estimate: all spent by the first two Charged Attacks).
+  // His A4's +5% CRIT Rate per beacon made (4 stacks, 15s) is at full stacks: he makes one every 1.5s (estimate).
+  Mitya: {
+    // His Radiance (passive 3) names no upgrade of its own; his Stellar-Conduct kit is the beacon hits below, so no flat
+    // Stellar points on top.
+    radianceInDamage: true,
+    combo: "hE CA Q CA N2 CA",
+    hits: [
+      { table: "skill", label: "Hold Skill DMG", count: 1, type: SK },
+      { table: "normal", label: "Gradient Detonation DMG", count: 3, type: CH },
+      { table: "normal", label: "Gradient Detonation Stellar-Conduct DMG", count: 3, reacting: 0, type: CH, lunar: "stellar-conduct" },
+      { table: "normal", label: "Gradient Detonation Stellar-Conduct DMG", count: 7.5, reacting: 0, type: CH, lunar: "stellar-conduct", when: { reaction: "stellar-conduct" } },
+      { table: "burst", label: "Skill DMG", count: 1, type: BU },
+      { table: "normal", label: "1-Hit DMG", count: 1, type: N },
+      { table: "normal", label: "2-Hit DMG", count: 1, type: N },
+    ],
+    buffs: [
+      { kind: "lunarBaseBonus", from: "passive3", re: /Every point of Elemental Mastery he has increases Base Stellar-Conduct DMG by ([\d.]+)%/, per: 1, stat: "em", max: /maximum Base DMG increase that can be gained this way is (\d+)%/ },
+      {
+        kind: "critRate",
+        from: "passive2",
+        re: /Mitya's CRIT Rate increases by (\d+)%/,
+        times: /stack up to (\d+) times/,
+        labels: ["Hold Skill DMG", "Gradient Detonation DMG", "Gradient Detonation Stellar-Conduct DMG", "Skill DMG", "1-Hit DMG", "2-Hit DMG"],
+      },
+    ],
+  },
   // #235. KeqingMains' Mizuki quick guide (https://keqingmains.com/q/mizuki-quickguide/, fetched 2026-10-18): "(Q) E /
   // E(Q)", "no notable combo beyond 'float around'"; sample rotations "Mizuki E (Q)", Burst "every other rotation" (its
   // ER table). Wiki Aisa Utamakura Pilgrimage notes: "Mizuki can deal 7 instances of damage over 5 seconds, and up to 13
@@ -3878,6 +3914,7 @@ const ONE_COMBO = {
   Klee: NO_TEAM_COMBO,
   Lyney: NO_TEAM_COMBO,
   Mualani: NO_TEAM_COMBO,
+  Mitya: "genshin-build.com's split combos (Mitya swaps out between Charged Attacks) give no beacon counts (#458)",
   Nefer: NO_TEAM_COMBO,
   Neuvillette: NO_TEAM_COMBO,
   Ningguang: NO_TEAM_COMBO,
@@ -4340,6 +4377,7 @@ const benchmarkSets = {
   Clorinde: [{ set: "Fragment of Harmonic Whimsy", source: kqm("clorinde-quickguide", "It provides her with the highest personal damage in all her teams, as she easily stacks the 4pc effect") }],
   Cyno: [{ set: "Thundering Fury", source: kqm("cyno-quickguide", "4pc Thundering Fury is Cyno's Best-in-Slot artifact set") }],
   Flins: [{ set: "Night of the Sky's Unveiling", source: kqm("flins-quickguide", "4pc Night of the Sky's Unveiling (NotSU) Flins's best artifact set") }],
+  Mitya: [{ set: "Disenchantment in Deep Shadow", source: gbBuild("2026-11-28", "mitya", "Disenchantment in Deep Shadow is the best full set") }],
   Nefer: [{ set: "Night of the Sky's Unveiling", source: kqm("nefer-quickguide", "Nefer's best-in-slot set by a significant margin") }],
   Zibai: [{ set: "Night of the Sky's Unveiling", source: kqm("zibai-quickguide", "By far Zibai's best artifact set") }],
   Neuvillette: [{ set: "Marechaussee Hunter", source: kqm("neuvillette-quickguide", "Marechaussee's Charged Attack DMG% and hefty CRIT Rate make it Neuvillette's BiS by a sizable margin") }],
@@ -4661,6 +4699,7 @@ const benchmarkWeapons = {
   Mavuika: { weapon: "Serpent Spine", refinement: 1, source: kqmOn("2026-10-21", "mavuika-quickguide", "high-refinement Serpent Spine can compete against 5-star CRIT weapons.") },
   Mualani: { weapon: "Sacrificial Jade", refinement: 1, source: kqmOn("2026-10-21", "mualani-quickguide", "Sacrificial Jade offers CRIT Rate, HP%, and EM, all stats Mualani appreciates") },
   Navia: { weapon: "Serpent Spine", refinement: 5, source: kqmOn("2026-10-21", "navia-quickguide", "An excellent choice for Navia since it provides an abundance of DMG%.") },
+  Mitya: { weapon: "Dawning Frost", refinement: 5, source: gbBuild("2026-11-28", "mitya", "Best F2P weapon: Dawning Frost (R5)") },
   Nefer: { weapon: "Dawning Frost", refinement: 5, source: kqmOn("2026-10-21", "nefer-quickguide", "Dawning Frost is a banner-exclusive weapon.") },
   Neuvillette: { weapon: "Sacrificial Jade", refinement: 5, source: kqmOn("2026-10-21", "neuvillette-quickguide", "Obtained from the Battle Pass, it is Neuvillette's second-best weapon.") },
   Ningguang: { weapon: "Solar Pearl", refinement: 1, source: kqmOn("2026-10-21", "ningguang-quickguide", "The most consistent 4-star option.") },

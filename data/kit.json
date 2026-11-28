@@ -3609,6 +3609,12 @@
         "source": "KQM flins quick guide (keqingmains.com/q/flins-quickguide, accessed 2026-10-20): \"4pc Night of the Sky's Unveiling (NotSU) Flins's best artifact set\""
       }
     ],
+    "Mitya": [
+      {
+        "set": "Disenchantment in Deep Shadow",
+        "source": "genshin-build.com (genshin-build.com/characters/mitya/build, from prydwen.gg's guide, accessed 2026-11-28): \"Disenchantment in Deep Shadow is the best full set\""
+      }
+    ],
     "Nefer": [
       {
         "set": "Night of the Sky's Unveiling",
@@ -4754,6 +4760,11 @@
       "weapon": "Serpent Spine",
       "refinement": 5,
       "source": "KQM navia quick guide (keqingmains.com/q/navia-quickguide, accessed 2026-10-21): \"An excellent choice for Navia since it provides an abundance of DMG%.\""
+    },
+    "Mitya": {
+      "weapon": "Dawning Frost",
+      "refinement": 5,
+      "source": "genshin-build.com (genshin-build.com/characters/mitya/build, from prydwen.gg's guide, accessed 2026-11-28): \"Best F2P weapon: Dawning Frost (R5)\""
     },
     "Nefer": {
       "weapon": "Dawning Frost",
@@ -12216,6 +12227,100 @@
       "baseHp": 13593,
       "baseDef": 763
     },
+    "Mitya": {
+      "rotationSeconds": 18.7,
+      "combo": "hE CA Q CA N2 CA",
+      "radianceInDamage": true,
+      "hits": [
+        {
+          "label": "Hold Skill DMG",
+          "type": "skill",
+          "scaling": {
+            "atk": 2.2032
+          },
+          "count": 1
+        },
+        {
+          "label": "Gradient Detonation DMG",
+          "type": "charged",
+          "scaling": {
+            "atk": 2.856
+          },
+          "count": 3
+        },
+        {
+          "label": "Gradient Detonation Stellar-Conduct DMG",
+          "type": "charged",
+          "scaling": {
+            "em": 3.808
+          },
+          "count": 3,
+          "reacting": 0,
+          "lunar": "stellar-conduct"
+        },
+        {
+          "label": "Gradient Detonation Stellar-Conduct DMG",
+          "type": "charged",
+          "scaling": {
+            "em": 3.808
+          },
+          "count": 7.5,
+          "reacting": 0,
+          "lunar": "stellar-conduct",
+          "when": {
+            "reaction": "stellar-conduct"
+          }
+        },
+        {
+          "label": "Skill DMG",
+          "type": "burst",
+          "scaling": {
+            "atk": 5.6712,
+            "em": 11.3424
+          },
+          "count": 1
+        },
+        {
+          "label": "1-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.999573
+          },
+          "count": 1
+        },
+        {
+          "label": "2-Hit DMG",
+          "type": "normal",
+          "scaling": {
+            "atk": 0.821114
+          },
+          "count": 1
+        }
+      ],
+      "buffs": [
+        {
+          "kind": "lunarBaseBonus",
+          "stat": "em",
+          "perPoint": 0.00028,
+          "max": 0.14
+        },
+        {
+          "kind": "critRate",
+          "value": 0.2,
+          "labels": [
+            "Hold Skill DMG",
+            "Gradient Detonation DMG",
+            "Gradient Detonation Stellar-Conduct DMG",
+            "Skill DMG",
+            "1-Hit DMG",
+            "2-Hit DMG"
+          ]
+        }
+      ],
+      "oneCombo": "genshin-build.com's split combos (Mitya swaps out between Charged Attacks) give no beacon counts (#458)",
+      "baseHp": 11634,
+      "baseDef": 792
+    },
     "Yumemizuki Mizuki": {
       "rotationSeconds": 15,
       "combo": "E (Q)",
@@ -18125,7 +18230,6 @@
   },
   "carriesTodo": [
     "Manekin",
-    "Manekina",
-    "Mitya"
+    "Manekina"
   ]
 }
