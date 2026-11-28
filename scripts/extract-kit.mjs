@@ -228,6 +228,42 @@ const SPEC = {
     // Her Burst field "decreases the Cryo RES and Physical RES of opponents within it" (#177); Physical isn't scored.
     also: [{ talent: "burst", values: [{ kind: "resShred", label: "RES Decrease", unit: "Cryo RES", elements: ["Cryo"] }], duration: "Duration", cd: "CD" }],
   },
+  // Offensive Directive (#458): his special Charged Attack gives 15 stacks for 18s (Normal Attack table). Wiki tooltip
+  // (in-game text, fetched 2026-11-16, comment on #458): "In the Radiance: Stellar-Conduct state: When a nearby active
+  // character in the party deals Electro DMG considered Stellar-Conduct reaction DMG [...] 1 stack of Offensive Directive
+  // is consumed"; not in Radiance, any of their Electro DMG does. So in Radiance (his passive 3: in a Polestar Field,
+  // read as the team triggering Stellar-Conduct) it is Additive Base DMG on the active character's direct
+  // Stellar-Conduct Electro hits ("Stellar-Conduct DMG Bonus", ATK), the stacks shared among those hits alone; outside
+  // it, flat Electro DMG ("Electro DMG Bonus", ATK) on their Electro hits, like Shenhe's quills. Passive 2 adds 0.9% /
+  // 0.3% of his ATK per Impact Momentum his Charged Attack spends: 100 (estimate: the cap, #458 research; his Skill's 40
+  // plus up to 80 from passive 1 while his Burst's shells fall and the Electro carry attacks). One Charged Attack per
+  // Skill (genshin-build.com, from prydwen.gg: "Skill and special Charged Attack"), so the stacks come back with it.
+  Valeriy: {
+    talent: "normal",
+    values: [
+      {
+        kind: "lunarAdditiveFromAtk",
+        label: "Stellar-Conduct DMG Bonus",
+        add: { from: "passive2", re: /In the Radiance: Stellar-Conduct state: Each point of Impact Momentum consumed increases this DMG Bonus by an amount equal to ([\d.]+)%/, times: 100, note: "Impact Momentum spent, estimate" },
+        unit: "of Valeriy's ATK as Additive Base DMG on the active character's direct Stellar-Conduct Electro hits (in Radiance)",
+        elements: ["Electro"],
+        lunar: "stellar-conduct",
+        carryReactions: ["stellar-conduct"],
+        stacksOnLunar: true,
+      },
+      {
+        kind: "flatDmgFromAtk",
+        label: "Electro DMG Bonus",
+        add: { from: "passive2", re: /Not in the Radiance: Stellar-Conduct state: Each point of Impact Momentum consumed increases this DMG Bonus by an amount equal to ([\d.]+)%/, times: 100, note: "Impact Momentum spent, estimate" },
+        unit: "of Valeriy's ATK as flat Electro DMG (not in Radiance)",
+        elements: ["Electro"],
+        notCarryReactions: ["stellar-conduct"],
+      },
+    ],
+    stacks: "Offensive Directive Stacks",
+    duration: "Offensive Directive Duration",
+    cd: { talent: "skill", label: "CD" },
+  },
   Vodyanitsa: { talent: "skill", values: [{ kind: "resShred", label: "Hydro/Cryo RES Reduction", unit: "Hydro/Cryo RES", elements: ["Hydro", "Cryo"] }], duration: "RES Reduction Duration", cd: "Skill CD" },
   // Geo plus party Pyro/Hydro/Cryo/Electro (#337), her skill text: "The initial recorded Source Sample within each Sampler
   // will be Geo, and for each party member who is Pyro/Hydro/Cryo/Electro, 1 Geo Sample will change to that
@@ -431,6 +467,8 @@ const limits = (v) => ({
   ...(v.condition ? { condition: v.condition } : {}),
   ...(v.teamOnly ? { teamOnly: v.teamOnly } : {}),
   ...(v.carryReactions ? { carryReactions: v.carryReactions } : {}),
+  ...(v.notCarryReactions ? { notCarryReactions: v.notCarryReactions } : {}),
+  ...(v.stacksOnLunar ? { stacksOnLunar: true } : {}),
   ...(v.whileOnField ? { whileOnField: true } : {}),
   ...(v.perEm ? { perEm: v.perEm } : {}),
   ...(v.weapons ? { weapons: v.weapons } : {}),
@@ -491,7 +529,8 @@ function readBuffs(id, spec) {
   if (spec.talent) {
     const attrs = talents[COMBAT[spec.talent]].attributes;
     const duration = typeof spec.duration === "number" ? spec.duration : spec.duration ? tableValue(attrs, spec.duration, id) : null;
-    const cd = spec.cd ? tableValue(attrs, spec.cd, id) : null;
+    // cd: a label of this talent, or { talent, label } of another (Valeriy's stacks come back with his Skill, #458).
+    const cd = !spec.cd ? null : typeof spec.cd === "string" ? tableValue(attrs, spec.cd, id) : tableValue(talents[COMBAT[spec.cd.talent]].attributes, spec.cd.label, id);
     const fanfare = spec.fanfare && {
       maxFanfare: tableValue(attrs, spec.fanfare.max, id),
       drainFloor: (() => {
@@ -509,8 +548,17 @@ function readBuffs(id, spec) {
       return { ...v.plus.steps, values: m.slice(1).map((n) => round(base + Number(n) / 100)) };
     };
     const stacks = spec.stacks ? tableValue(attrs, spec.stacks, id) : null;
+    // `add`: a passive's number per point of something, times an estimated count, added to the table value (Valeriy's
+    // passive 2: ATK % per Impact Momentum spent, #458).
+    const added = (v) => {
+      if (!v.add) return 0;
+      const ptext = talents[v.add.from].description.replace(/\s+/g, " ");
+      const m = ptext.match(v.add.re);
+      if (!m) throw new Error(`${id}: pattern ${v.add.re} not found in ${v.add.from}: ${ptext}`);
+      return (Number(m[1]) / 100) * v.add.times;
+    };
     return spec.values.map((v) => {
-      const value = round(tableValue(attrs, v.label, id) * (v.times ? tableValue(attrs, v.times, id) : 1));
+      const value = round(tableValue(attrs, v.label, id) * (v.times ? tableValue(attrs, v.times, id) : 1) + added(v));
       const steps = v.plus ? plusSteps(v, value) : null;
       return {
         kind: v.kind,
@@ -522,7 +570,7 @@ function readBuffs(id, spec) {
         ...(v.cap ? { max: tableValue(attrs, v.cap, id) } : {}),
         ...limits(v),
         unit: v.unit,
-        source: `${spec.talent} talent "${v.label}"${v.times ? ` x "${v.times}"` : ""}, level ${TALENT_LEVEL}${v.plus ? `, plus ${v.plus.from} by the team` : ""}`,
+        source: `${spec.talent} talent "${v.label}"${v.times ? ` x "${v.times}"` : ""}, level ${TALENT_LEVEL}${v.plus ? `, plus ${v.plus.from} by the team` : ""}${v.add ? `, plus ${v.add.from} x ${v.add.times} (${v.add.note})` : ""}`,
         duration,
         cd,
         uptime: uptime(duration, cd),
@@ -1380,9 +1428,11 @@ const SUBDPS = {
     { talent: "skill", label: "Steady State Core DMG", every: "rate", duration: "rate", cd: "CD" },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
   ],
-  // Offensive Directive (his special Charged Attack's flat DMG for the party) is #458's third PR.
+  // His special Charged Attack (Point-Blank Bombardment) after each Skill (genshin-build.com, from prydwen.gg: "Skill and
+  // special Charged Attack"): the Skill's 40 Impact Momentum is enough for it. Its Offensive Directive is a SPEC buff (#458).
   Valeriy: [
     { talent: "skill", label: "Skill DMG", hits: 1, cd: "CD" },
+    { talent: "normal", label: "Direct-Fire Mortar: Point-Blank Bombardment DMG", hits: 1, cd: { talent: "skill", label: "CD" } },
     { talent: "burst", label: "Skill DMG", hits: 1, cd: "CD" },
     { talent: "burst", label: "Thunderburst Shell DMG", hits: "rate", cd: "CD" },
   ],

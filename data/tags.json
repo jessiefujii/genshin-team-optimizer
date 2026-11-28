@@ -4633,6 +4633,16 @@
       "buffSeconds": 18
     },
     "notes": "Electro sub-DPS, shielder and flat-DMG buffer (Offensive Directive, #458) for Stellar-Conduct teams. Roles from the kit and guides (#458), the wiki has none yet. ER: genshin-build.com (prydwen.gg) \"3 Electro (Mitya/Cyno Yae Odette) C0 150%\" (190% with 2 Electro). Rotation: genshin-build.com (prydwen.gg) \"starts his rotation with Burst if it is already available\", then Skill and special Charged Attack; buffSeconds: Offensive Directive's 18s.",
-    "erTarget": 150
+    "erTarget": 150,
+    "buffs": [
+      {
+        "stat": "Offensive Directive: flat Electro DMG, or Stellar-Conduct DMG in Radiance (ATK-based, #458)",
+        "scope": "active",
+        "elements": [
+          "Electro"
+        ],
+        "talent": "normal"
+      }
+    ]
   }
 ]

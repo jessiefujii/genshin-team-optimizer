@@ -28,8 +28,10 @@ export interface KitBuff {
   steps?: { count: "members" | "elementTypes"; of?: string[]; values: number[] };
   teamOnly?: string[];
   carryReactions?: string[]; // the carry triggers one of these (Albedo's Burst EM, only where he Bursts: #186)
-  lunar?: string; // lunarAdditiveFromEm: the direct Lunar reaction hits it adds to (Illuga's Lunar-Crystallize, #186)
+  notCarryReactions?: string[]; // the carry triggers none of these (Valeriy's Offensive Directive outside Radiance, #458)
+  lunar?: string; // lunarAdditiveFromEm/Atk: the direct Lunar reaction hits it adds to (Illuga's Lunar-Crystallize, #186)
   stacks?: number; // used one per hit of the carry's, this many per use (Illuga's Nightingale's Song, #186)
+  stacksOnLunar?: boolean; // the stacks are used only by the carry's direct hits of `lunar` (Valeriy in Radiance, #458)
   constellation?: number; // only from that constellation of the buffer's on (#106: Faruzan's C6 CRIT DMG)
   weapons?: string[]; // only carries with these weapon types (#358: Chongyun's ATK SPD for Sword, Claymore, Polearm)
   perBurstCost?: boolean; // value per Energy of the carry's Burst cost (#358: Raiden's Eye of Stormy Judgment)
@@ -381,7 +383,10 @@ function stackShare(buff: KitBuff, carry: ScoringCharacter, carryReactions: read
   const hits = carryHitCounts(carry, carryReactions, team);
   if (!hits || hits.all === 0) return 1;
   const uses = buff.cd ? hits.rotationSeconds / Math.max(buff.cd, hits.rotationSeconds) : 1;
-  return Math.min(1, (buff.stacks * uses) / hits.all);
+  // Stacks only direct Lunar hits use (Valeriy's Offensive Directive in Radiance, #458) are shared among those hits.
+  const using = buff.stacksOnLunar ? (hits.lunar.get(buff.lunar!) ?? 0) : hits.all;
+  if (using === 0) return 1;
+  return Math.min(1, (buff.stacks * uses) / using);
 }
 
 // The buff as it applies to this carry and team (a stepped value read at the team's count), or null when it can't
@@ -392,6 +397,7 @@ function applicable(buff: KitBuff, carry: ScoringCharacter, carryReactions: read
   if (buff.perBurstCost) buff = { ...buff, value: buff.value * (carry.burstCost ?? 0), perBurstCost: undefined };
   if (buff.teamOnly && !team.elements.every((e) => buff.teamOnly!.includes(e))) return null;
   if (buff.carryReactions && !buff.carryReactions.some((r) => carryReactions.includes(r as Reaction))) return null;
+  if (buff.notCarryReactions?.some((r) => carryReactions.includes(r as Reaction))) return null;
   if (buff.steps) buff = { ...buff, value: stepValue(buff, team) };
   // An attack-type buff reaches a modeled carry whose hits include that type, whatever their key talent (#382: Yun Jin's
   // Normal Attack DMG on Clorinde, whose key talent is her Skill but whose hits in it are Normal Attacks).
@@ -462,6 +468,12 @@ function gain(raw: KitBuff, stats: ReturnType<typeof bufferStats>, carry: Scorin
       const hits = carryHitCounts(carry, carryReactions, team);
       const share = hits && hits.all ? (hits.lunar.get(buff.lunar!) ?? 0) / hits.all : 0;
       return flat(stats.em * buff.value) * share;
+    }
+    case "lunarAdditiveFromAtk": {
+      // As lunarAdditiveFromEm, of the buffer's ATK (Valeriy's Offensive Directive in Radiance, #458).
+      const hits = carryHitCounts(carry, carryReactions, team);
+      const share = hits && hits.all ? (hits.lunar.get(buff.lunar!) ?? 0) / hits.all : 0;
+      return flat(stats.atk * buff.value) * share;
     }
     case "flatDmg":
       return flat(Math.max(0, (stats.hp - 30000) / 1000) * buff.value); // Sigewinne: per 1,000 HP above 30,000
@@ -590,7 +602,7 @@ export const NO_TEAM_BUFFS: TeamBuffStats = { atk: 0, atkPct: 0, dmgBonus: 0, cr
 // The buff kinds addBuffStats turns into carry stats: inside a modeled carry's damage, so not scored again (#202).
 const IN_CARRY_DAMAGE = new Set([
   "atkFromBase", "atkFromAtk", "atkPct", "atkFlat", "dmgBonus", "dmgBonusPerEm", "dmgBonusFromExcessAtk", "critRate", "critDmg",
-  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred", "lunarAdditiveFromEm",
+  "flatDmgFromAtk", "flatDmgFromDef", "flatDmgFromEm", "flatDmg", "resShred", "defShred", "lunarAdditiveFromEm", "lunarAdditiveFromAtk",
   "em", "emFromAtk", "emFromDef", "emFromEm", "emFromTopEm", // #186: EM feeds the reactions inside damage now
   "atkSpd", // #411: more Normal Attack hits in the carry's rotation
 ]);
@@ -661,6 +673,11 @@ function addBuffStats(buff: KitBuff, stats: ReturnType<typeof bufferStats>, team
     case "lunarAdditiveFromEm": {
       const r = buff.lunar as Reaction;
       into.lunarAdditive = { ...into.lunarAdditive, [r]: (into.lunarAdditive?.[r] ?? 0) + cap(stats.em * v) * weight };
+      break;
+    }
+    case "lunarAdditiveFromAtk": {
+      const r = buff.lunar as Reaction;
+      into.lunarAdditive = { ...into.lunarAdditive, [r]: (into.lunarAdditive?.[r] ?? 0) + cap(stats.atk * v) * weight };
       break;
     }
     case "flatDmg":
