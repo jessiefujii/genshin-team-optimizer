@@ -1100,6 +1100,10 @@
     "Sethos": {
       "seconds": 15,
       "source": "KQM Sethos quick guide, https://keqingmains.com/q/sethos-quickguide/, fetched 2026-10-21: \"Sethos's desire for 15s rotations\", for his \"E Q 5[N2 (D/J)] N2 E\" combo (#232)."
+    },
+    "Mitya": {
+      "seconds": 18.7,
+      "source": "genshin-build.com, https://genshin-build.com/characters/mitya/build (from prydwen.gg's guide), fetched 2026-11-28: the Hold Skill's timing is \"effectively increasing its time between casts to ~18.7 seconds\"; \"Played optimally, this is the limiting factor on his rotation time.\" (#458)"
     }
   },
   "icd": {
